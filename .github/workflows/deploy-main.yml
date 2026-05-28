@@ -1,0 +1,9 @@
+name: Deploy Production (Placeholder)
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Deploy a producción se configura en Sprint 13"

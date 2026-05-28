@@ -1,0 +1,9 @@
+name: Deploy QA (Placeholder)
+on:
+  push:
+    branches: [qa]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Deploy a Railway se configura en Sprint 9"

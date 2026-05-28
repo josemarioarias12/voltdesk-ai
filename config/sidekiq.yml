@@ -1,0 +1,6 @@
+:concurrency: 5
+:queues:
+  - [ai_processing, 3]
+  - [notifications, 2]
+  - [reports, 1]
+  - [default, 1]

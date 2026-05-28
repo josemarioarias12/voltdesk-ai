@@ -2,10 +2,14 @@
   "private": true,
   "type": "module",
   "devDependencies": {
+    "@types/axios": "^0.9.36",
+    "@types/d3": "^7.4.3",
+    "@types/qrcode": "^1.5.6",
     "vite": "^8.0.14",
     "vite-plugin-ruby": "^5.2.2"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.4.0",
     "@inertiajs/react": "^3.3.0",
     "@inertiajs/vite": "^3.3.0",
     "@tailwindcss/forms": "^0.5.11",
@@ -14,10 +18,18 @@
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.2",
+    "axios": "^1.16.1",
+    "d3": "^7.9.0",
+    "framer-motion": "^12.40.0",
+    "qrcode": "^1.5.4",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "react-hook-form": "^7.76.1",
+    "recharts": "^3.8.1",
     "tailwindcss": "^4.3.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "zod": "^4.4.3",
+    "zustand": "^5.0.13"
   },
   "scripts": {
     "check": "tsc -p tsconfig.app.json && tsc -p tsconfig.node.json"
