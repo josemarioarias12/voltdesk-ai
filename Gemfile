@@ -57,26 +57,24 @@ group :development, :test do
 end
 
 group :development do
-  # Use console on exceptions pages [https://github.com/rails/web-console]
-  gem 'web-console'
+  gem 'rubocop-performance', '~> 1.26'
+  gem 'rubocop-rails'
+  gem 'rubocop-rspec', '~> 3.9'
 end
 
 group :test do
-  # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
-  gem 'capybara'
-  gem 'selenium-webdriver'
+  gem 'database_cleaner-active_record'
+  gem 'factory_bot_rails'
+  gem 'faker'
+  gem 'rspec-rails', '~> 8.0'
+  gem 'shoulda-matchers'
+  gem 'simplecov', require: false
+  gem 'webmock'
 end
 
 gem 'inertia_rails', '~> 3.21'
-
-gem 'vite_rails', '~> 3.11'
-
 gem 'pundit', '~> 2.5'
-
-gem 'rspec-rails', '~> 8.0', group: :test
-
-gem 'rubocop-performance', '~> 1.26', group: :development
-gem 'rubocop-rspec', '~> 3.9', group: :development
+gem 'vite_rails', '~> 3.11'
 
 # Auth
 gem 'devise'
