@@ -18,7 +18,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["app/javascript/*"]
-    }
+    },
+    "types": ["@inertiajs/react"]
   },
   "include": [
     "app/javascript/**/*"

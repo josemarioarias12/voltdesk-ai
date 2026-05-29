@@ -17,6 +17,7 @@ AllCops:
     - "node_modules/**/*"
     - "vendor/**/*"
     - "config/environments/**/*"
+    - "config/initializers/devise.rb"
     - "test/**/*"
 
 Layout/LineLength:

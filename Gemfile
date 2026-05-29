@@ -77,3 +77,8 @@ gem 'rspec-rails', '~> 8.0', group: :test
 
 gem 'rubocop-performance', '~> 1.26', group: :development
 gem 'rubocop-rspec', '~> 3.9', group: :development
+
+# Auth
+gem 'devise'
+gem 'omniauth-google-oauth2'
+gem 'omniauth-rails_csrf_protection'
