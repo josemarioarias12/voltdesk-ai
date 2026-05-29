@@ -64,3 +64,9 @@ RSpec/NestedGroups:
 
 RSpec/NamedSubject:
   Enabled: false
+
+RSpec/DescribeClass:
+  Enabled: false
+
+RSpec/MultipleMemoizedHelpers:
+  Max: 10
