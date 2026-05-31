@@ -5,6 +5,10 @@ Rails.application.routes.draw do
              controllers: { omniauth_callbacks: 'users/omniauth_callbacks' },
              path_names: { sign_in: 'login', sign_out: 'logout' }
 
+  devise_scope :user do
+    get '/users/login', to: redirect('/login')
+  end
+
   root 'dashboard#index'
 
   get '/login', to: 'sessions#new', as: :login_page

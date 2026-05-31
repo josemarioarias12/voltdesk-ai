@@ -3,8 +3,9 @@
 module Users
   class OmniauthCallbacksController < Devise::OmniauthCallbacksController
     def google_oauth2
-      auth  = request.env['omniauth.auth']
-      @user = User.from_omniauth(auth)
+      auth      = request.env['omniauth.auth']
+      workspace = Workspace.active.first
+      @user     = User.from_omniauth(auth, workspace: workspace)
 
       if @user.persisted? && @user.active?
         sign_in_and_redirect @user, event: :authentication
