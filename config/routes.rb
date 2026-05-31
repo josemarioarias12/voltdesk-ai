@@ -2,7 +2,11 @@
 
 Rails.application.routes.draw do
   devise_for :users,
-             controllers: { omniauth_callbacks: 'users/omniauth_callbacks' },
+             controllers: {
+               sessions: 'users/sessions',
+               passwords: 'users/passwords',
+               omniauth_callbacks: 'users/omniauth_callbacks'
+             },
              path_names: { sign_in: 'login', sign_out: 'logout' }
 
   devise_scope :user do
@@ -11,7 +15,8 @@ Rails.application.routes.draw do
 
   root 'dashboard#index'
 
-  get '/login', to: 'sessions#new', as: :login_page
+  get '/login',           to: 'sessions#new',       as: :login_page
+  get '/forgot-password', to: 'sessions#forgot',    as: :forgot_password_page
 
   get '/up', to: proc { [200, {}, ['OK']] }
 end

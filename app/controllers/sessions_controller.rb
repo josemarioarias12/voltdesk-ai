@@ -7,6 +7,10 @@ class SessionsController < ApplicationController
 
   def new
     redirect_to root_path if user_signed_in?
-    render inertia: 'Login/Index'
+    render inertia: 'Auth/Login'
+  end
+
+  def forgot
+    render inertia: 'Auth/ForgotPassword'
   end
 end

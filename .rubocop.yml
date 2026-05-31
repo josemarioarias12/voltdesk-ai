@@ -70,3 +70,8 @@ RSpec/DescribeClass:
 
 RSpec/MultipleMemoizedHelpers:
   Max: 10
+
+Metrics/AbcSize:
+  Max: 22
+  Exclude:
+    - 'spec/**/*'

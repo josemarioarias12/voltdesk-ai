@@ -4,7 +4,9 @@ class User < ApplicationRecord
   include WorkspaceScoped
 
   devise :database_authenticatable,
+         :recoverable,
          :rememberable,
+         :validatable,
          :omniauthable, omniauth_providers: [:google_oauth2]
 
   enum :role, {
@@ -22,8 +24,7 @@ class User < ApplicationRecord
 
   belongs_to :department, optional: true
 
-  validates :email,      presence: true, uniqueness: true,
-                         format: { with: URI::MailTo::EMAIL_REGEXP }
+  validates :email, presence: true
   validates :first_name, presence: true
   validates :last_name,  presence: true
   validates :role,       presence: true
