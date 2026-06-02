@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_28_201113) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_01_161835) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,6 +23,74 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_28_201113) do
     t.bigint "workspace_id", null: false
     t.index ["workspace_id", "name"], name: "index_departments_on_workspace_id_and_name", unique: true
     t.index ["workspace_id"], name: "index_departments_on_workspace_id"
+  end
+
+  create_table "sla_policies", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "first_response_hours", null: false
+    t.string "name", null: false
+    t.integer "priority", default: 0, null: false
+    t.integer "resolution_hours", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["workspace_id", "priority"], name: "index_sla_policies_on_workspace_id_and_priority", unique: true
+    t.index ["workspace_id"], name: "index_sla_policies_on_workspace_id"
+  end
+
+  create_table "ticket_activities", force: :cascade do |t|
+    t.string "action", null: false
+    t.datetime "created_at", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.bigint "ticket_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["ticket_id", "created_at"], name: "index_ticket_activities_on_ticket_id_and_created_at"
+    t.index ["ticket_id"], name: "index_ticket_activities_on_ticket_id"
+    t.index ["user_id"], name: "index_ticket_activities_on_user_id"
+  end
+
+  create_table "ticket_comments", force: :cascade do |t|
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.boolean "internal", default: false, null: false
+    t.bigint "ticket_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["ticket_id", "created_at"], name: "index_ticket_comments_on_ticket_id_and_created_at"
+    t.index ["ticket_id"], name: "index_ticket_comments_on_ticket_id"
+    t.index ["user_id"], name: "index_ticket_comments_on_user_id"
+  end
+
+  create_table "tickets", force: :cascade do |t|
+    t.jsonb "ai_metadata", default: {}, null: false
+    t.bigint "assigned_to_id"
+    t.integer "category", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.bigint "created_by_id", null: false
+    t.bigint "department_id", null: false
+    t.text "description"
+    t.datetime "due_at"
+    t.datetime "first_responded_at"
+    t.integer "priority", default: 1, null: false
+    t.datetime "resolved_at"
+    t.bigint "sla_policy_id"
+    t.integer "source", default: 0, null: false
+    t.integer "status", default: 0, null: false
+    t.string "ticket_number", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.integer "urgency_score", default: 0, null: false
+    t.bigint "workspace_id", null: false
+    t.index ["assigned_to_id"], name: "index_tickets_on_assigned_to_id"
+    t.index ["created_by_id"], name: "index_tickets_on_created_by_id"
+    t.index ["department_id"], name: "index_tickets_on_department_id"
+    t.index ["sla_policy_id"], name: "index_tickets_on_sla_policy_id"
+    t.index ["workspace_id", "assigned_to_id", "status"], name: "index_tickets_on_workspace_assignee_status"
+    t.index ["workspace_id", "due_at"], name: "index_tickets_on_workspace_due_at"
+    t.index ["workspace_id", "priority"], name: "index_tickets_on_workspace_id_and_priority"
+    t.index ["workspace_id", "status"], name: "index_tickets_on_workspace_id_and_status"
+    t.index ["workspace_id", "ticket_number"], name: "index_tickets_on_workspace_id_and_ticket_number", unique: true
+    t.index ["workspace_id"], name: "index_tickets_on_workspace_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -59,6 +127,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_28_201113) do
   end
 
   add_foreign_key "departments", "workspaces"
+  add_foreign_key "sla_policies", "workspaces"
+  add_foreign_key "ticket_activities", "tickets"
+  add_foreign_key "ticket_activities", "users"
+  add_foreign_key "ticket_comments", "tickets"
+  add_foreign_key "ticket_comments", "users"
+  add_foreign_key "tickets", "departments"
+  add_foreign_key "tickets", "sla_policies"
+  add_foreign_key "tickets", "users", column: "assigned_to_id"
+  add_foreign_key "tickets", "users", column: "created_by_id"
+  add_foreign_key "tickets", "workspaces"
   add_foreign_key "users", "departments"
   add_foreign_key "users", "workspaces"
 end

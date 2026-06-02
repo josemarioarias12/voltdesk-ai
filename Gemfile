@@ -74,3 +74,7 @@ gem 'vite_rails', '~> 3.11'
 gem 'devise'
 gem 'omniauth-google-oauth2'
 gem 'omniauth-rails_csrf_protection'
+
+gem "sidekiq", "~> 8.1"
+
+gem "pundit-matchers", "~> 4.0", group: :test
