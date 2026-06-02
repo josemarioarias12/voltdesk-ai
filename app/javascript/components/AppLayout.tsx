@@ -84,8 +84,8 @@ export default function AppLayout({ children, title }: Props) {
                 </span>
               </div>
               <div className="min-w-0">
-                <p className="text-white text-xs font-medium truncate">
-                  {auth.user?.full_name ?? 'User'}
+                <p className="text-white text-xs font-medium truncate" title={auth.user?.full_name ?? ''}>
+                  {(() => { const n = auth.user?.full_name ?? ''; const parts = n.split(' '); return parts.length > 2 ? parts.slice(0,2).join(' ') + ' ' + parts[2]?.charAt(0) + '.' : n; })()}
                 </p>
                 <p className="text-xs truncate capitalize" style={{ color: '#94A3B8' }}>
                   {auth.user?.role?.replace(/_/g, ' ')}

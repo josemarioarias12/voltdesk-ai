@@ -9,6 +9,7 @@ class Department < ApplicationRecord
   ICONS  = %w[briefcase laptop users building wrench dollar-sign chart-bar].freeze
 
   validates :name,  presence: true, uniqueness: { scope: :workspace_id }
+  scope :ordered, -> { order(:name) }
   validates :color, presence: true, inclusion: { in: COLORS }
   validates :icon,  presence: true, inclusion: { in: ICONS }
 end

@@ -9,6 +9,16 @@ class TicketCommentPolicy < ApplicationPolicy
         scope.public_comments
       end
     end
+
+    private
+
+    def can_see_internal?
+      user.role.to_sym.in?(%i[
+        super_admin workspace_admin agent
+        hr_manager it_manager facilities_manager
+        operations_manager department_manager
+      ])
+    end
   end
 
   def index?
@@ -40,7 +50,7 @@ class TicketCommentPolicy < ApplicationPolicy
 
   private
 
-  def guest?   = user.role.to_sym == :guest
+  def guest?    = user.role.to_sym == :guest
   def employee? = user.role.to_sym == :employee
 
   def can_see_internal?
