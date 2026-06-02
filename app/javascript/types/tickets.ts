@@ -140,3 +140,31 @@ export interface TicketsNewProps {
     status: TicketStatus
   }>
 }
+
+// S4 — AI Engine types
+export interface AiSuggestion {
+  suggestion:   string
+  based_on:     string[]
+  generated_at: string
+}
+
+export interface AiAuditLog {
+  id:                 number
+  operation:          string
+  model:              string
+  prompt_tokens:      number
+  completion_tokens:  number
+  total_tokens:       number
+  duration_ms:        number
+  confidence_score:   number | null
+  status:             'success' | 'error' | 'timeout'
+  estimated_cost_usd: number
+  created_at:         string
+  user:               UserStub | null
+}
+
+export interface TicketClassifiedPayload {
+  type:       'ticket_classified'
+  ticket_id:  number
+  ticket:     Partial<Ticket>
+}

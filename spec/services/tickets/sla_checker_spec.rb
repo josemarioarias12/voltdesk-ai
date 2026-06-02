@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe Tickets::SlaChecker do
-  let(:workspace) { create(:workspace) }
+  let(:workspace)  { create(:workspace) }
   let(:department) { create(:department, workspace: workspace) }
 
   describe ".call" do
@@ -42,5 +42,13 @@ RSpec.describe Tickets::SlaChecker do
     end
 
     context "when SLA is breached" do
-      let(:ticket) { create(:ticket, workspace: workspace, department: department, due_at: 2.hours.ago, status: :open, priority: :mediu
-ls spec/services/tickets/
+      let(:ticket) { create(:ticket, workspace: workspace, department: department, due_at: 2.hours.ago, status: :open, priority: :medium) }
+
+      it "escalates the ticket to critical" do
+        allow(Tickets::EscalateTicket).to receive(:call).and_return(ServiceResult.success(ticket))
+        described_class.call(ticket: ticket)
+        expect(Tickets::EscalateTicket).to have_received(:call).with(ticket: ticket)
+      end
+    end
+  end
+end

@@ -13,6 +13,28 @@
 ActiveRecord::Schema[8.1].define(version: 2026_06_01_161835) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "vector"
+
+  create_table "ai_audit_logs", force: :cascade do |t|
+    t.integer "completion_tokens", default: 0, null: false
+    t.decimal "confidence_score", precision: 4, scale: 3
+    t.datetime "created_at", null: false
+    t.integer "duration_ms", default: 0, null: false
+    t.string "model", default: "gpt-4o", null: false
+    t.integer "operation", null: false
+    t.text "prompt", null: false
+    t.integer "prompt_tokens", default: 0, null: false
+    t.text "response", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "total_tokens", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.bigint "workspace_id", null: false
+    t.index ["user_id"], name: "index_ai_audit_logs_on_user_id"
+    t.index ["workspace_id", "created_at"], name: "idx_ai_audit_logs_workspace_date"
+    t.index ["workspace_id", "operation"], name: "idx_ai_audit_logs_workspace_operation"
+    t.index ["workspace_id"], name: "index_ai_audit_logs_on_workspace_id"
+  end
 
   create_table "departments", force: :cascade do |t|
     t.string "color", default: "#6366f1", null: false
@@ -59,6 +81,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_161835) do
     t.index ["ticket_id", "created_at"], name: "index_ticket_comments_on_ticket_id_and_created_at"
     t.index ["ticket_id"], name: "index_ticket_comments_on_ticket_id"
     t.index ["user_id"], name: "index_ticket_comments_on_user_id"
+  end
+
+  create_table "ticket_embeddings", force: :cascade do |t|
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.vector "embedding", limit: 1536, null: false
+    t.bigint "ticket_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["embedding"], name: "idx_ticket_embeddings_hnsw", opclass: :vector_cosine_ops, using: :hnsw
+    t.index ["ticket_id"], name: "index_ticket_embeddings_on_ticket_id", unique: true
+    t.index ["workspace_id"], name: "idx_ticket_embeddings_workspace"
+    t.index ["workspace_id"], name: "index_ticket_embeddings_on_workspace_id"
   end
 
   create_table "tickets", force: :cascade do |t|
@@ -126,12 +161,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_161835) do
     t.index ["slug"], name: "index_workspaces_on_slug", unique: true
   end
 
+  add_foreign_key "ai_audit_logs", "users"
+  add_foreign_key "ai_audit_logs", "workspaces"
   add_foreign_key "departments", "workspaces"
   add_foreign_key "sla_policies", "workspaces"
   add_foreign_key "ticket_activities", "tickets"
   add_foreign_key "ticket_activities", "users"
   add_foreign_key "ticket_comments", "tickets"
   add_foreign_key "ticket_comments", "users"
+  add_foreign_key "ticket_embeddings", "tickets"
+  add_foreign_key "ticket_embeddings", "workspaces"
   add_foreign_key "tickets", "departments"
   add_foreign_key "tickets", "sla_policies"
   add_foreign_key "tickets", "users", column: "assigned_to_id"

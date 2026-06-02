@@ -12,30 +12,71 @@ module AiStubs
         message: {
           role: 'assistant',
           content: {
-            category: 'IT Support',
-            priority: 'high',
-            urgency_score: 78,
+            category: 'hardware_printer',
+            priority: 'critical',
+            urgency_score: 87,
+            confidence: 0.94,
             reasoning: {
-              category_signals: ['impresora', 'no imprime'],
-              priority_signals: ['cierre de mes', 'urgente'],
-              similar_ticket: 'TK-00043',
-              confidence: 0.92
+              category_signals: ['printer', 'not working', 'paper jam'],
+              priority_signals: ['month close', '2 hours', 'accounting'],
+              similar_ticket: 'TK-00189',
+              explanation: 'Critical hardware failure during month-end close.'
             },
-            tags: %w[hardware printing],
-            suggested_agent: nil
+            tags: ['hardware', 'printer', 'accounting'],
+            suggested_agent_role: 'it_manager'
           }.to_json
         },
         finish_reason: 'stop'
       }
     ],
-    usage: { prompt_tokens: 245, completion_tokens: 98, total_tokens: 343 }
+    usage: { prompt_tokens: 280, completion_tokens: 120, total_tokens: 400 }
   }.freeze
 
-  def stub_openai_classify
+  EMBEDDING_RESPONSE = {
+    object: 'list',
+    data: [{ object: 'embedding', embedding: Array.new(1536, 0.1), index: 0 }],
+    usage: { prompt_tokens: 42, total_tokens: 42 }
+  }.freeze
+
+  RAG_RESPONSE = {
+    id: 'chatcmpl-rag123',
+    object: 'chat.completion',
+    choices: [
+      {
+        index: 0,
+        message: {
+          role: 'assistant',
+          content: 'Hi, we identified this as a hardware issue. Please restart the print spooler. Based on TK-00043 this resolves in 15 minutes.'
+        },
+        finish_reason: 'stop'
+      }
+    ],
+    usage: { prompt_tokens: 480, completion_tokens: 95, total_tokens: 575 }
+  }.freeze
+
+  def stub_openai_classify(response = CLASSIFY_RESPONSE)
     stub_request(:post, 'https://api.openai.com/v1/chat/completions')
       .to_return(
         status: 200,
-        body: CLASSIFY_RESPONSE.to_json,
+        body: response.to_json,
+        headers: { 'Content-Type' => 'application/json' }
+      )
+  end
+
+  def stub_openai_embeddings(response = EMBEDDING_RESPONSE)
+    stub_request(:post, 'https://api.openai.com/v1/embeddings')
+      .to_return(
+        status: 200,
+        body: response.to_json,
+        headers: { 'Content-Type' => 'application/json' }
+      )
+  end
+
+  def stub_openai_rag(response = RAG_RESPONSE)
+    stub_request(:post, 'https://api.openai.com/v1/chat/completions')
+      .to_return(
+        status: 200,
+        body: response.to_json,
         headers: { 'Content-Type' => 'application/json' }
       )
   end

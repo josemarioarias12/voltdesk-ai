@@ -15,69 +15,57 @@ RSpec.describe TicketPolicy, type: :policy do
     create(:ticket, workspace: workspace, department: dept, **attrs)
   end
 
-  # ── guest ──────────────────────────────────────────────────────────────────
   describe "guest" do
     let(:guest)  { make_user(:guest) }
     let(:ticket) { make_ticket }
+    subject      { described_class.new(guest, ticket) }
 
-    it "cannot index"  { expect(described_class).not_to authorize(guest, ticket, :index?) }
-    it "cannot show"   { expect(described_class).not_to authorize(guest, ticket, :show?) }
-    it "can create"    { expect(described_class).to     authorize(guest, ticket, :create?) }
-    it "cannot update" { expect(described_class).not_to authorize(guest, ticket, :update?) }
+    it { is_expected.to forbid_actions(:index, :show, :update, :destroy, :close) }
+    it { is_expected.to permit_action(:create) }
   end
 
-  # ── employee — own ticket ──────────────────────────────────────────────────
   describe "employee — own ticket" do
     let(:employee) { make_user(:employee) }
     let(:ticket)   { make_ticket(created_by: employee) }
+    subject        { described_class.new(employee, ticket) }
 
-    it "can show"      { expect(described_class).to     authorize(employee, ticket, :show?) }
-    it "can create"    { expect(described_class).to     authorize(employee, ticket, :create?) }
-    it "cannot update" { expect(described_class).not_to authorize(employee, ticket, :update?) }
+    it { is_expected.to permit_actions(:show, :create) }
+    it { is_expected.to forbid_action(:update) }
   end
 
-  # ── employee — other's ticket ──────────────────────────────────────────────
   describe "employee — other's ticket" do
     let(:employee) { make_user(:employee) }
     let(:other)    { make_user(:employee) }
     let(:ticket)   { make_ticket(created_by: other) }
+    subject        { described_class.new(employee, ticket) }
 
-    it "cannot show" { expect(described_class).not_to authorize(employee, ticket, :show?) }
+    it { is_expected.to forbid_action(:show) }
   end
 
-  # ── agent — assigned ticket ────────────────────────────────────────────────
   describe "agent — assigned ticket" do
     let(:agent)  { make_user(:agent) }
     let(:ticket) { make_ticket(assigned_to: agent) }
+    subject      { described_class.new(agent, ticket) }
 
-    it "can show"                    { expect(described_class).to authorize(agent, ticket, :show?) }
-    it "can update"                  { expect(described_class).to authorize(agent, ticket, :update?) }
-    it "can view internal comments"  { expect(described_class).to authorize(agent, ticket, :view_internal_comments?) }
+    it { is_expected.to permit_actions(:show, :update, :view_internal_comments) }
   end
 
-  # ── agent — other department ───────────────────────────────────────────────
   describe "agent — other department ticket" do
     let(:agent)  { make_user(:agent) }
     let(:ticket) { make_ticket(other_dept) }
+    subject      { described_class.new(agent, ticket) }
 
-    it "cannot show"   { expect(described_class).not_to authorize(agent, ticket, :show?) }
-    it "cannot update" { expect(described_class).not_to authorize(agent, ticket, :update?) }
+    it { is_expected.to forbid_actions(:show, :update) }
   end
 
-  # ── workspace_admin ────────────────────────────────────────────────────────
   describe "workspace_admin" do
     let(:admin)  { make_user(:workspace_admin) }
     let(:ticket) { make_ticket }
+    subject      { described_class.new(admin, ticket) }
 
-    it "can index"   { expect(described_class).to authorize(admin, ticket, :index?) }
-    it "can show"    { expect(described_class).to authorize(admin, ticket, :show?) }
-    it "can create"  { expect(described_class).to authorize(admin, ticket, :create?) }
-    it "can update"  { expect(described_class).to authorize(admin, ticket, :update?) }
-    it "can close"   { expect(described_class).to authorize(admin, ticket, :close?) }
-    it "can destroy" { expect(described_class).to authorize(admin, ticket, :destroy?) }
+    it { is_expected.to permit_actions(:index, :show, :create, :update, :close, :destroy) }
   end
 
-  # ── Scope ──────────────────────────────────────────────────────────────────
   describe "Scope" do
     let(:employee)     { make_user(:employee) }
     let(:own_ticket)   { make_ticket(created_by: employee) }
