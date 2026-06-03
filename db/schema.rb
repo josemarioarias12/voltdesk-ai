@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_03_072057) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_03_164841) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -203,6 +203,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_03_072057) do
     t.string "last_name", default: "", null: false
     t.string "provider"
     t.datetime "remember_created_at"
+    t.datetime "reset_password_sent_at"
+    t.string "reset_password_token"
     t.integer "role", default: 8, null: false
     t.string "uid"
     t.datetime "updated_at", null: false
