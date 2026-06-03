@@ -37,6 +37,7 @@ Rails.application.routes.draw do
   patch '/settings/ai', to: 'settings#update_ai', as: :settings_ai
 
   # ── S5: HR Operations Hub ──────────────────────────────────────────────────
+  get "/hr", to: redirect("/hr/leave_requests"), as: :hr_root
   namespace :hr do
     resources :leave_requests, except: %i[edit update] do
       member do
