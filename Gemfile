@@ -80,3 +80,7 @@ gem "ruby-openai", "~> 7.0"
 gem "neighbor"
 
 gem "pundit-matchers", "~> 4.0", group: :test
+
+# Multi-provider AI
+gem "ruby-anthropic", "~> 0.4"
+gem "gemini-ai", "~> 4.2"

@@ -4,8 +4,6 @@ module Ai
   class EmbeddingGenerator
     include AiAuditable
 
-    EMBEDDING_MODEL = "text-embedding-3-large"
-
     def self.call(ticket:)
       new(ticket: ticket).call
     end
@@ -13,39 +11,31 @@ module Ai
     def initialize(ticket:)
       @ticket    = ticket
       @workspace = ticket.workspace
-      @client    = OpenAI::Client.new
     end
 
     def call
-      content_to_embed = build_content
+      # Embeddings always route to OpenAI — Gemini (768d) and Anthropic (none)
+      # are incompatible with our pgvector 1536-dim HNSW index.
+      adapter, model, provider = Ai::ModelRouter.for(
+        workspace:  @workspace,
+        operation:  :ticket_embedding
+      ).resolve
 
-      with_ai_audit(operation: :ticket_embedding, model: EMBEDDING_MODEL) do |ctx|
-        ctx[:prompt] = content_to_embed
+      content = build_content
 
-        raw_response = @client.embeddings(
-          parameters: {
-            model: EMBEDDING_MODEL,
-            input: content_to_embed
-          }
-        )
+      with_ai_audit(operation: :ticket_embedding, model: model, provider: provider) do |ctx|
+        ctx[:prompt] = content
 
-        vector = raw_response.dig("data", 0, "embedding")
-        usage  = raw_response["usage"]
+        result = adapter.embed(text: content)
 
-        raise "Empty embedding returned by OpenAI" if vector.blank?
-
-        ctx[:response] = "[vector of #{vector.length} dimensions]"
-        ctx[:tokens]   = {
-          "prompt_tokens"     => usage&.dig("prompt_tokens") || 0,
-          "completion_tokens" => 0,
-          "total_tokens"      => usage&.dig("total_tokens") || 0
-        }
+        ctx[:response] = "[vector #{result[:vector].length}d]"
+        ctx[:tokens]   = result[:tokens]
 
         embedding = TicketEmbedding.find_or_initialize_by(ticket: @ticket)
         embedding.update!(
           workspace: @workspace,
-          embedding: vector,
-          content:   content_to_embed
+          embedding: result[:vector],
+          content:   content
         )
 
         ServiceResult.success(embedding)

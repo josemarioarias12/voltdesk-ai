@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AiAuditable
-  def with_ai_audit(operation:, model: "gpt-4o", user: nil)
+  def with_ai_audit(operation:, model: "gpt-4o", provider: "openai", user: nil)
     audit_ctx = {}
     started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
@@ -13,6 +13,7 @@ module AiAuditable
       log_ai_call(
         operation:   operation,
         model:       model,
+        provider:    provider,
         prompt:      audit_ctx[:prompt].to_s,
         response:    audit_ctx[:response].to_s,
         tokens:      audit_ctx[:tokens] || {},
@@ -28,6 +29,7 @@ module AiAuditable
       log_ai_call(
         operation:   operation,
         model:       model,
+        provider:    provider,
         prompt:      audit_ctx[:prompt].to_s,
         response:    e.message,
         tokens:      {},
@@ -42,12 +44,13 @@ module AiAuditable
 
   private
 
-  def log_ai_call(operation:, model:, prompt:, response:, tokens:, duration_ms:, confidence:, status:)
+  def log_ai_call(operation:, model:, provider:, prompt:, response:, tokens:, duration_ms:, confidence:, status:)
     AiAuditLog.create!(
       workspace:         resolve_workspace,
       user:              resolve_user,
       operation:         operation,
       model:             model,
+      provider:          provider,
       prompt:            prompt,
       response:          response,
       prompt_tokens:     tokens.dig("prompt_tokens") || tokens[:prompt] || 0,

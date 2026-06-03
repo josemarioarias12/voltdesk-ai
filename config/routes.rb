@@ -35,4 +35,14 @@ Rails.application.routes.draw do
 
   # SLA Policies
   resources :sla_policies, only: %i[index create update destroy]
+
+  # ── Settings ───────────────────────────────────────────────────────────────
+  get   "/settings",    to: "settings#index",     as: :settings
+  patch "/settings/ai", to: "settings#update_ai", as: :settings_ai
+
+  # ── Admin ──────────────────────────────────────────────────────────────────
+  namespace :admin do
+    get "/",          to: "overview#index",   as: :root
+    get "/audit-log", to: "audit_log#index",  as: :audit_log
+  end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_01_161835) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_03_030333) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -24,6 +24,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_161835) do
     t.integer "operation", null: false
     t.text "prompt", null: false
     t.integer "prompt_tokens", default: 0, null: false
+    t.string "provider"
     t.text "response", null: false
     t.integer "status", default: 0, null: false
     t.integer "total_tokens", default: 0, null: false
@@ -151,6 +152,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_161835) do
 
   create_table "workspaces", force: :cascade do |t|
     t.boolean "active", default: true, null: false
+    t.string "ai_fallback_provider", default: "openai", null: false
+    t.string "ai_model", default: "gpt-4o", null: false
+    t.string "ai_provider", default: "openai", null: false
+    t.string "ai_selection_mode", default: "automatic", null: false
     t.datetime "created_at", null: false
     t.string "name", null: false
     t.string "plan", default: "starter", null: false
