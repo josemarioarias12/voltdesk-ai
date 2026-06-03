@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import AppLayout from '@/components/AppLayout'
 import { router } from '@inertiajs/react'
 import { LeaveRequest } from '@/types'
+import { toast } from 'sonner'
 
 interface Stats {
   pending_count: number
@@ -27,6 +29,11 @@ const LEAVE_TYPE_STYLES: Record<string, { bg: string; color: string }> = {
   paternity:  { bg: '#F0FDF4', color: '#16A34A' },
 }
 
+interface RejectModal {
+  id: number
+  name: string
+}
+
 function Avatar({ name }: { name: string }) {
   const initials = name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()
   return (
@@ -42,20 +49,107 @@ function Avatar({ name }: { name: string }) {
 }
 
 export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
+  const [rejectModal, setRejectModal]       = useState<RejectModal | null>(null)
+  const [rejectionReason, setRejectionReason] = useState('')
+  const [submitting, setSubmitting]         = useState(false)
+
   const pending = leave_requests.filter(lr => lr.status === 'pending')
 
-  const handleApprove = (id: number) => {
-    router.post(`/hr/leave_requests/${id}/approve`, {}, { preserveScroll: true })
+  const handleApprove = (id: number, name: string) => {
+    setSubmitting(true)
+    router.post(`/hr/leave_requests/${id}/approve`, {}, {
+      onSuccess: () => toast.success(`Leave request for ${name} approved`),
+      onError:   () => toast.error('Failed to approve request'),
+      onFinish:  () => setSubmitting(false),
+    })
   }
 
-  const handleReject = (id: number) => {
-    const reason = window.prompt('Rejection reason (required):')
-    if (!reason?.trim()) return
-    router.post(`/hr/leave_requests/${id}/reject`, { rejection_reason: reason }, { preserveScroll: true })
+  const openRejectModal = (id: number, name: string) => {
+    setRejectModal({ id, name })
+    setRejectionReason('')
+  }
+
+  const handleReject = () => {
+    if (!rejectModal || !rejectionReason.trim()) return
+    setSubmitting(true)
+    router.post(`/hr/leave_requests/${rejectModal.id}/reject`,
+      { rejection_reason: rejectionReason },
+      {
+        onSuccess: () => {
+          toast.error(`Leave request for ${rejectModal.name} rejected`)
+          setRejectModal(null)
+        },
+        onError:  () => toast.error('Failed to reject request'),
+        onFinish: () => setSubmitting(false),
+      }
+    )
   }
 
   return (
     <AppLayout title="Leave Requests">
+      {/* Reject modal */}
+      {rejectModal && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 2000,
+        }}>
+          <div style={{
+            background: '#fff', borderRadius: '16px', padding: '28px',
+            width: '440px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+          }}>
+            <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#0F172A', margin: '0 0 6px' }}>
+              Reject Leave Request
+            </h2>
+            <p style={{ fontSize: '14px', color: '#475569', margin: '0 0 20px' }}>
+              Rejecting request from <strong>{rejectModal.name}</strong>
+            </p>
+
+            <label style={{ fontSize: '13px', fontWeight: '600', color: '#0F172A', display: 'block', marginBottom: '8px' }}>
+              Rejection reason <span style={{ color: '#DC2626' }}>*</span>
+            </label>
+            <textarea
+              value={rejectionReason}
+              onChange={e => setRejectionReason(e.target.value)}
+              placeholder="Please provide a reason for rejecting this request..."
+              rows={3}
+              autoFocus
+              style={{
+                width: '100%', padding: '10px 12px', borderRadius: '10px',
+                border: '1px solid #E2E8F0', fontSize: '14px',
+                resize: 'none', outline: 'none', fontFamily: 'inherit',
+                boxSizing: 'border-box', marginBottom: '16px',
+              }}
+            />
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={() => setRejectModal(null)}
+                style={{
+                  flex: 1, padding: '11px', borderRadius: '10px',
+                  background: 'transparent', border: '1px solid #E2E8F0',
+                  fontSize: '14px', fontWeight: '600', color: '#475569', cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReject}
+                disabled={!rejectionReason.trim() || submitting}
+                style={{
+                  flex: 1, padding: '11px', borderRadius: '10px',
+                  background: rejectionReason.trim() ? '#DC2626' : '#94A3B8',
+                  border: 'none', fontSize: '14px', fontWeight: '600',
+                  color: '#fff', cursor: rejectionReason.trim() ? 'pointer' : 'not-allowed',
+                }}
+              >
+                {submitting ? 'Rejecting...' : 'Confirm Rejection'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ maxWidth: '1100px' }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '24px' }}>
@@ -79,9 +173,9 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
         {/* KPI cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
           {[
-            { label: 'Pending Approval', value: stats.pending_count, sub: 'awaiting review', color: '#D97706', bg: '#FEF3C7' },
-            { label: 'Approved This Month', value: stats.approved_this_month, sub: 'this month', color: '#16A34A', bg: '#DCFCE7' },
-            { label: 'On Leave Today', value: stats.on_leave_today, sub: 'active today', color: '#028090', bg: '#F0FDFA' },
+            { label: 'Pending Approval', value: stats.pending_count,       sub: 'awaiting review', color: '#D97706', bg: '#FEF3C7' },
+            { label: 'Approved This Month', value: stats.approved_this_month, sub: 'this month',   color: '#16A34A', bg: '#DCFCE7' },
+            { label: 'On Leave Today',    value: stats.on_leave_today,     sub: 'active today',    color: '#028090', bg: '#F0FDFA' },
           ].map((card, i) => (
             <div key={i} style={{
               background: '#fff', borderRadius: '16px', padding: '20px 24px',
@@ -130,14 +224,14 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
                 </tr>
               ) : (
                 leave_requests.map((lr, i) => {
-                  const status = STATUS_STYLES[lr.status] ?? STATUS_STYLES.pending
+                  const status    = STATUS_STYLES[lr.status] ?? STATUS_STYLES.pending
                   const leaveType = LEAVE_TYPE_STYLES[lr.leave_type] ?? { bg: '#F1F5F9', color: '#475569' }
                   return (
                     <tr
                       key={lr.id}
                       style={{
                         borderBottom: i < leave_requests.length - 1 ? '1px solid #F1F5F9' : 'none',
-                        borderLeft: lr.status === 'pending' ? '3px solid #D97706' : '3px solid transparent',
+                        borderLeft:   lr.status === 'pending' ? '3px solid #D97706' : '3px solid transparent',
                       }}
                     >
                       <td style={{ padding: '14px 16px' }}>
@@ -181,7 +275,8 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
                           {lr.status === 'pending' ? (
                             <>
                               <button
-                                onClick={() => handleApprove(lr.id)}
+                                onClick={() => handleApprove(lr.id, lr.user.full_name)}
+                                disabled={submitting}
                                 style={{
                                   background: '#16A34A', color: '#fff', border: 'none',
                                   borderRadius: '8px', padding: '6px 12px',
@@ -191,7 +286,7 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
                                 ✓ Approve
                               </button>
                               <button
-                                onClick={() => handleReject(lr.id)}
+                                onClick={() => openRejectModal(lr.id, lr.user.full_name)}
                                 style={{
                                   background: 'transparent', color: '#DC2626',
                                   border: '1px solid #DC2626',

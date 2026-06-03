@@ -1,8 +1,9 @@
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { router, usePage } from '@inertiajs/react'
 import { SharedProps } from '@/types'
 import { IconBolt } from '@/components/Icons'
 import NotificationBell from '@/components/NotificationBell'
+import { Toaster, toast } from 'sonner'
 
 interface Props {
   children: ReactNode
@@ -20,17 +21,33 @@ const NAV_ITEMS = [
 ]
 
 export default function AppLayout({ children, title }: Props) {
-  const { auth, workspace, notifications, unread_notifications_count } = usePage<SharedProps>().props
+  const { auth, workspace, notifications, unread_notifications_count, flash } = usePage<SharedProps>().props
   const currentPath = window.location.pathname
+
+  useEffect(() => {
+    if (flash?.notice) toast.success(flash.notice)
+    if (flash?.alert)  toast.error(flash.alert)
+  }, [flash?.notice, flash?.alert])
 
   return (
     <div className="flex min-h-screen" style={{ background: '#F8FAFC' }}>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            borderRadius: '12px',
+            fontSize:     '14px',
+            fontWeight:   '500',
+          },
+          duration: 4000,
+        }}
+      />
+
       {/* ── Sidebar ── */}
       <aside
         className="w-44 flex-shrink-0 flex flex-col"
         style={{ background: '#0F172A', position: 'fixed', top: 0, left: 0, bottom: 0 }}
       >
-        {/* Logo */}
         <div className="flex items-center gap-2 px-4 py-5">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
@@ -41,7 +58,6 @@ export default function AppLayout({ children, title }: Props) {
           <span className="font-bold text-white text-sm">PulseDesk <span style={{ color: '#028090' }}>AI</span></span>
         </div>
 
-        {/* Nav */}
         <nav className="flex-1 px-2 space-y-0.5">
           {NAV_ITEMS.map(({ label, path, icon: Icon, badge }) => {
             const isActive = currentPath.startsWith(path)
@@ -72,7 +88,6 @@ export default function AppLayout({ children, title }: Props) {
           })}
         </nav>
 
-        {/* User */}
         <div className="px-3 py-4 border-t" style={{ borderColor: '#1E293B' }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -106,7 +121,6 @@ export default function AppLayout({ children, title }: Props) {
 
       {/* ── Main ── */}
       <div className="flex-1 flex flex-col" style={{ marginLeft: '176px' }}>
-        {/* Top bar */}
         <header
           className="h-14 flex items-center justify-between px-6 border-b"
           style={{ background: '#fff', borderColor: '#E2E8F0' }}
@@ -117,7 +131,6 @@ export default function AppLayout({ children, title }: Props) {
             <span>{title ?? 'Dashboard'}</span>
           </div>
           <div className="flex items-center gap-3">
-            {/* Workspace badge */}
             <div
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium"
               style={{ background: '#F0FDFA', color: '#028090', border: '1px solid #99F6E4' }}
@@ -125,7 +138,6 @@ export default function AppLayout({ children, title }: Props) {
               <span className="w-2 h-2 rounded-full" style={{ background: '#028090' }} />
               {workspace?.name}
             </div>
-            {/* Search */}
             <div
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm"
               style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#94A3B8' }}
@@ -134,7 +146,6 @@ export default function AppLayout({ children, title }: Props) {
               <span>Search...</span>
               <span className="text-xs px-1 rounded" style={{ background: '#E2E8F0' }}>K</span>
             </div>
-            {/* Notifications — live bell */}
             {auth.user && (
               <NotificationBell
                 initialNotifications={notifications ?? []}
@@ -142,7 +153,6 @@ export default function AppLayout({ children, title }: Props) {
                 userId={auth.user.id}
               />
             )}
-            {/* Avatar */}
             <div
               className="w-9 h-9 rounded-full flex items-center justify-center"
               style={{ background: '#028090' }}
@@ -154,7 +164,6 @@ export default function AppLayout({ children, title }: Props) {
           </div>
         </header>
 
-        {/* Page content */}
         <main className="flex-1 p-6 overflow-auto">
           {children}
         </main>
@@ -162,8 +171,6 @@ export default function AppLayout({ children, title }: Props) {
     </div>
   )
 }
-
-// ── Nav icons (inline SVG) ────────────────────────────────────────────────────
 
 function DashIcon({ active }: { active?: boolean }) {
   return <svg width="16" height="16" fill="none" stroke={active ? '#fff' : '#94A3B8'} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
