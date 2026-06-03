@@ -76,7 +76,9 @@ export default function AuthLogin() {
   }
 
   const onSubmit = (data: LoginForm) => {
-    router.post('/users/login', { user: data })
+    router.post('/users/login', {
+      user: { email: data.email, password: data.password }
+    })
   }
 
   return (
