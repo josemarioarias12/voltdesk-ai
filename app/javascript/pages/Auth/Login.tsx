@@ -81,6 +81,8 @@ export default function AuthLogin() {
     })
   }
 
+  const passwordRegister = register('password')
+
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-4 py-8"
@@ -218,7 +220,7 @@ export default function AuthLogin() {
               </div>
               <div className="relative">
                 <input
-                  {...register('password')}
+                  {...passwordRegister}
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   placeholder="••••••••"
@@ -230,7 +232,10 @@ export default function AuthLogin() {
                   }}
                   onFocus={(e) => (e.target.style.borderColor = '#028090')}
                   onBlur={(e) => (e.target.style.borderColor = '#E2E8F0')}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    passwordRegister.onChange(e)
+                    setPassword(e.target.value)
+                  }}
                 />
                 <button
                   type="button"
