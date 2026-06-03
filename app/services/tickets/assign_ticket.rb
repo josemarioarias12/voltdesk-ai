@@ -11,7 +11,7 @@ module Tickets
 
     def call
       agent = find_least_loaded_agent
-      return ServiceResult.failure("No agents available in this department") if agent.nil?
+      return ServiceResult.failure('No agents available in this department') if agent.nil?
 
       old_assignee_id = @ticket.assigned_to_id
 
@@ -19,13 +19,13 @@ module Tickets
         @ticket.update!(assigned_to: agent)
 
         @ticket.activities.create!(
-          user:     @user,
-          action:   TicketActivity::ASSIGNED,
+          user: @user,
+          action: TicketActivity::ASSIGNED,
           metadata: {
             from_user_id: old_assignee_id,
-            to_user_id:   agent.id,
+            to_user_id: agent.id,
             to_user_name: agent.full_name,
-            auto:         @user.nil?
+            auto: @user.nil?
           }
         )
       end
@@ -49,11 +49,11 @@ module Tickets
                active: true)
         .left_joins(:assigned_tickets)
         .where(
-          "tickets.status IN (?) OR tickets.id IS NULL",
+          'tickets.status IN (?) OR tickets.id IS NULL',
           [Ticket.statuses[:open], Ticket.statuses[:in_progress], Ticket.statuses[:pending]]
         )
-        .group("users.id")
-        .order(Arel.sql("COUNT(tickets.id) ASC"))
+        .group('users.id')
+        .order(Arel.sql('COUNT(tickets.id) ASC'))
         .limit(1)
         .first
     end
@@ -65,7 +65,7 @@ module Tickets
     def broadcast_update
       ActionCable.server.broadcast(
         "tickets:#{@ticket.workspace_id}",
-        { event: "ticket_assigned", ticket_id: @ticket.id, assignee_id: @ticket.assigned_to_id }
+        { event: 'ticket_assigned', ticket_id: @ticket.id, assignee_id: @ticket.assigned_to_id }
       )
     end
   end

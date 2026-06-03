@@ -22,7 +22,7 @@ module AiStubs
               similar_ticket: 'TK-00189',
               explanation: 'Critical hardware failure during month-end close.'
             },
-            tags: ['hardware', 'printer', 'accounting'],
+            tags: %w[hardware printer accounting],
             suggested_agent_role: 'it_manager'
           }.to_json
         },

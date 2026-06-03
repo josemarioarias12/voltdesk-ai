@@ -37,8 +37,8 @@ module Tickets
       return ServiceResult.success(:already_breached_activity) if breach_activity_exists?
 
       @ticket.activities.create!(
-        user:     nil,
-        action:   TicketActivity::SLA_BREACHED,
+        user: nil,
+        action: TicketActivity::SLA_BREACHED,
         metadata: { breached_at: Time.current.iso8601, due_at: @ticket.due_at.iso8601 }
       )
 
@@ -49,10 +49,10 @@ module Tickets
       return ServiceResult.success(:warning_already_sent) if warning_activity_exists?
 
       @ticket.activities.create!(
-        user:     nil,
-        action:   TicketActivity::SLA_WARNING,
+        user: nil,
+        action: TicketActivity::SLA_WARNING,
         metadata: {
-          due_at:    @ticket.due_at.iso8601,
+          due_at: @ticket.due_at.iso8601,
           remaining: @ticket.sla_remaining.to_i
         }
       )
@@ -64,7 +64,7 @@ module Tickets
     def broadcast_warning
       ActionCable.server.broadcast(
         "tickets:#{@ticket.workspace_id}",
-        { event: "sla_warning", ticket_id: @ticket.id, due_at: @ticket.due_at }
+        { event: 'sla_warning', ticket_id: @ticket.id, due_at: @ticket.due_at }
       )
     end
 

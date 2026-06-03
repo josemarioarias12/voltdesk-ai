@@ -9,9 +9,9 @@ RSpec.describe Ai::EmbeddingGenerator, type: :service do
     create(:ticket,
            workspace:,
            department:,
-           title:       'Laptop screen flickering',
+           title: 'Laptop screen flickering',
            description: 'MacBook Pro 14 screen flickers randomly since last week.',
-           category:    'it')
+           category: 'it')
   end
 
   describe '.call' do

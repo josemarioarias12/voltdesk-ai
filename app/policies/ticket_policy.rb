@@ -15,7 +15,7 @@ class TicketPolicy < ApplicationPolicy
 
       when :agent
         scope.where(
-          "assigned_to_id = :uid OR department_id = :dept",
+          'assigned_to_id = :uid OR department_id = :dept',
           uid: user.id, dept: user.department_id
         )
 
@@ -35,6 +35,7 @@ class TicketPolicy < ApplicationPolicy
 
   def show?
     return false if guest?
+
     admin_or_manager? || agent_can_see? || employee_owns?
   end
 
@@ -44,11 +45,13 @@ class TicketPolicy < ApplicationPolicy
 
   def update?
     return false if guest?
+
     admin_or_manager? || assigned_agent? || department_manager_owns?
   end
 
   def resolve_ticket?
     return false if guest? || employee?
+
     admin_or_manager? || assigned_agent? || department_manager_owns?
   end
 
@@ -82,13 +85,14 @@ class TicketPolicy < ApplicationPolicy
 
   def admin_or_manager?
     user.role.to_sym.in?(%i[
-      super_admin workspace_admin hr_manager it_manager
-      facilities_manager operations_manager
-    ])
+                           super_admin workspace_admin hr_manager it_manager
+                           facilities_manager operations_manager
+                         ])
   end
 
   def agent_can_see?
     return false unless user.role.to_sym == :agent
+
     record.assigned_to_id == user.id ||
       record.department_id == user.department_id
   end

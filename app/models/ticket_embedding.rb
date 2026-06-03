@@ -14,9 +14,9 @@ class TicketEmbedding < ApplicationRecord
     return none if resolved_ticket_ids.empty?
 
     where(workspace: workspace, ticket_id: resolved_ticket_ids)
-      .nearest_neighbors(:embedding, query_vector, distance: "cosine")
+      .nearest_neighbors(:embedding, query_vector, distance: 'cosine')
       .limit(limit)
-      .select("ticket_embeddings.*, neighbor_distance AS similarity_distance")
-      .then { |rel| rel.where("neighbor_distance <= ?", distance_threshold) }
+      .select('ticket_embeddings.*, neighbor_distance AS similarity_distance')
+      .then { |rel| rel.where(neighbor_distance: ..distance_threshold) }
   end
 end

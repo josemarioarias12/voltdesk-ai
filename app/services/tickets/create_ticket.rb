@@ -15,7 +15,7 @@ module Tickets
 
       ActiveRecord::Base.transaction do
         ticket = @workspace.tickets.build(ticket_attributes)
-        return ServiceResult.failure(ticket.errors.full_messages.join(", ")) unless ticket.save
+        return ServiceResult.failure(ticket.errors.full_messages.join(', ')) unless ticket.save
 
         assign_agent(ticket)
         record_activity(ticket)
@@ -28,16 +28,16 @@ module Tickets
       ServiceResult.failure(e.message)
     rescue StandardError => e
       Rails.logger.error("[Tickets::CreateTicket] #{e.class}: #{e.message}")
-      ServiceResult.failure("An unexpected error occurred. Please try again.")
+      ServiceResult.failure('An unexpected error occurred. Please try again.')
     end
 
     private
 
     def ticket_attributes
       @params.merge(
-        created_by:    @user,
+        created_by: @user,
         ticket_number: generate_ticket_number,
-        workspace:     @workspace
+        workspace: @workspace
       )
     end
 
@@ -45,7 +45,7 @@ module Tickets
       seq_name = "workspace_#{@workspace.id}_ticket_seq"
       ensure_sequence_exists(seq_name)
       seq_value = Ticket.connection.select_value(
-        Ticket.sanitize_sql(["SELECT nextval(?)", seq_name])
+        Ticket.sanitize_sql(['SELECT nextval(?)', seq_name])
       )
       "TK-#{seq_value.to_s.rjust(5, '0')}"
     end
@@ -58,15 +58,15 @@ module Tickets
 
     def assign_agent(ticket)
       result = Tickets::AssignTicket.call(ticket:)
-      if result.failure?
-        Rails.logger.warn("[Tickets::CreateTicket] Auto-assign failed: #{result.error}")
-      end
+      return unless result.failure?
+
+      Rails.logger.warn("[Tickets::CreateTicket] Auto-assign failed: #{result.error}")
     end
 
     def record_activity(ticket)
       ticket.activities.create!(
-        user:     @user,
-        action:   TicketActivity::CREATED,
+        user: @user,
+        action: TicketActivity::CREATED,
         metadata: { title: ticket.title, priority: ticket.priority, source: ticket.source }
       )
     end

@@ -2,19 +2,19 @@
 
 class AiAuditLog < ApplicationRecord
   enum :operation, {
-    ticket_classification:    0,
-    ticket_embedding:         1,
-    response_suggestion:      2,
-    asset_risk_scoring:       3,
-    onboarding_plan:          4,
-    survey_analysis:          5,
-    executive_report:         6,
-    pattern_detection:        7
+    ticket_classification: 0,
+    ticket_embedding: 1,
+    response_suggestion: 2,
+    asset_risk_scoring: 3,
+    onboarding_plan: 4,
+    survey_analysis: 5,
+    executive_report: 6,
+    pattern_detection: 7
   }, prefix: :op
 
   enum :status, {
     success: 0,
-    error:   1,
+    error: 1,
     timeout: 2
   }, prefix: true
 

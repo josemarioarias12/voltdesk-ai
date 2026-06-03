@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_03_030333) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_03_072057) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -46,6 +46,70 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_03_030333) do
     t.bigint "workspace_id", null: false
     t.index ["workspace_id", "name"], name: "index_departments_on_workspace_id_and_name", unique: true
     t.index ["workspace_id"], name: "index_departments_on_workspace_id"
+  end
+
+  create_table "leave_requests", force: :cascade do |t|
+    t.bigint "approved_by_id"
+    t.datetime "created_at", null: false
+    t.date "end_date", null: false
+    t.integer "leave_type", null: false
+    t.text "reason"
+    t.text "rejection_reason"
+    t.date "start_date", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["approved_by_id"], name: "index_leave_requests_on_approved_by_id"
+    t.index ["user_id"], name: "index_leave_requests_on_user_id"
+    t.index ["workspace_id", "status"], name: "index_leave_requests_on_workspace_id_and_status"
+    t.index ["workspace_id", "user_id"], name: "index_leave_requests_on_workspace_id_and_user_id"
+    t.index ["workspace_id"], name: "index_leave_requests_on_workspace_id"
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.text "body"
+    t.datetime "created_at", null: false
+    t.integer "notification_type", default: 0, null: false
+    t.boolean "read", default: false, null: false
+    t.bigint "resource_id"
+    t.string "resource_type"
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["resource_type", "resource_id"], name: "index_notifications_on_resource_type_and_resource_id"
+    t.index ["user_id", "read"], name: "index_notifications_on_user_id_and_read"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
+    t.index ["workspace_id", "created_at"], name: "index_notifications_on_workspace_id_and_created_at"
+    t.index ["workspace_id"], name: "index_notifications_on_workspace_id"
+  end
+
+  create_table "onboarding_plans", force: :cascade do |t|
+    t.jsonb "ai_metadata", default: {}
+    t.integer "completion_percentage", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.integer "status", default: 0, null: false
+    t.date "target_completion_date"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["user_id"], name: "index_onboarding_plans_on_user_id"
+    t.index ["workspace_id", "user_id"], name: "index_onboarding_plans_on_workspace_id_and_user_id", unique: true
+    t.index ["workspace_id"], name: "index_onboarding_plans_on_workspace_id"
+  end
+
+  create_table "onboarding_tasks", force: :cascade do |t|
+    t.integer "category", default: 0, null: false
+    t.boolean "completed", default: false, null: false
+    t.datetime "created_at", null: false
+    t.date "due_date"
+    t.bigint "onboarding_plan_id", null: false
+    t.integer "order_index", default: 0, null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["onboarding_plan_id", "order_index"], name: "index_onboarding_tasks_on_onboarding_plan_id_and_order_index"
+    t.index ["onboarding_plan_id"], name: "index_onboarding_tasks_on_onboarding_plan_id"
   end
 
   create_table "sla_policies", force: :cascade do |t|
@@ -169,6 +233,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_03_030333) do
   add_foreign_key "ai_audit_logs", "users"
   add_foreign_key "ai_audit_logs", "workspaces"
   add_foreign_key "departments", "workspaces"
+  add_foreign_key "leave_requests", "users"
+  add_foreign_key "leave_requests", "users", column: "approved_by_id"
+  add_foreign_key "leave_requests", "workspaces"
+  add_foreign_key "notifications", "users"
+  add_foreign_key "notifications", "workspaces"
+  add_foreign_key "onboarding_plans", "users"
+  add_foreign_key "onboarding_plans", "workspaces"
+  add_foreign_key "onboarding_tasks", "onboarding_plans"
   add_foreign_key "sla_policies", "workspaces"
   add_foreign_key "ticket_activities", "tickets"
   add_foreign_key "ticket_activities", "users"

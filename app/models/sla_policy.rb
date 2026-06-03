@@ -28,8 +28,9 @@ class SlaPolicy < ApplicationRecord
 
   def resolution_exceeds_first_response
     return unless first_response_hours && resolution_hours
-    if resolution_hours < first_response_hours
-      errors.add(:resolution_hours, "must be greater than or equal to first response hours")
-    end
+
+    return unless resolution_hours < first_response_hours
+
+    errors.add(:resolution_hours, 'must be greater than or equal to first response hours')
   end
 end

@@ -2,6 +2,7 @@ import { ReactNode } from 'react'
 import { router, usePage } from '@inertiajs/react'
 import { SharedProps } from '@/types'
 import { IconBolt } from '@/components/Icons'
+import NotificationBell from '@/components/NotificationBell'
 
 interface Props {
   children: ReactNode
@@ -19,7 +20,7 @@ const NAV_ITEMS = [
 ]
 
 export default function AppLayout({ children, title }: Props) {
-  const { auth, workspace } = usePage<SharedProps>().props
+  const { auth, workspace, notifications, unread_notifications_count } = usePage<SharedProps>().props
   const currentPath = window.location.pathname
 
   return (
@@ -50,8 +51,8 @@ export default function AppLayout({ children, title }: Props) {
                 onClick={() => router.get(path)}
                 className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors"
                 style={{
-                  background:  isActive ? '#1E293B' : 'transparent',
-                  color:       isActive ? '#FFFFFF' : '#94A3B8',
+                  background: isActive ? '#1E293B' : 'transparent',
+                  color:      isActive ? '#FFFFFF' : '#94A3B8',
                 }}
               >
                 <div className="flex items-center gap-2.5">
@@ -85,7 +86,13 @@ export default function AppLayout({ children, title }: Props) {
               </div>
               <div className="min-w-0">
                 <p className="text-white text-xs font-medium truncate" title={auth.user?.full_name ?? ''}>
-                  {(() => { const n = auth.user?.full_name ?? ''; const parts = n.split(' '); return parts.length > 2 ? parts.slice(0,2).join(' ') + ' ' + parts[2]?.charAt(0) + '.' : n; })()}
+                  {(() => {
+                    const n = auth.user?.full_name ?? ''
+                    const parts = n.split(' ')
+                    return parts.length > 2
+                      ? parts.slice(0, 2).join(' ') + ' ' + parts[2]?.charAt(0) + '.'
+                      : n
+                  })()}
                 </p>
                 <p className="text-xs truncate capitalize" style={{ color: '#94A3B8' }}>
                   {auth.user?.role?.replace(/_/g, ' ')}
@@ -127,21 +134,14 @@ export default function AppLayout({ children, title }: Props) {
               <span>Search...</span>
               <span className="text-xs px-1 rounded" style={{ background: '#E2E8F0' }}>K</span>
             </div>
-            {/* Notifications */}
-            <div className="relative">
-              <button
-                className="w-9 h-9 rounded-lg flex items-center justify-center"
-                style={{ background: '#F8FAFC', border: '1px solid #E2E8F0' }}
-              >
-                <BellIcon />
-                <span
-                  className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-white flex items-center justify-center"
-                  style={{ background: '#EF4444', fontSize: '10px', fontWeight: 700 }}
-                >
-                  3
-                </span>
-              </button>
-            </div>
+            {/* Notifications — live bell */}
+            {auth.user && (
+              <NotificationBell
+                initialNotifications={notifications ?? []}
+                initialUnreadCount={unread_notifications_count ?? 0}
+                userId={auth.user.id}
+              />
+            )}
             {/* Avatar */}
             <div
               className="w-9 h-9 rounded-full flex items-center justify-center"
@@ -188,9 +188,6 @@ function GearIcon({ active }: { active?: boolean }) {
 }
 function SearchIcon() {
   return <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-}
-function BellIcon() {
-  return <svg width="16" height="16" fill="none" stroke="#475569" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
 }
 function ChevronUpDown() {
   return <svg width="14" height="14" fill="none" stroke="#94A3B8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>

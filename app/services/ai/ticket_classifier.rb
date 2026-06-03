@@ -65,24 +65,28 @@ module Ai
         parsed = parse_response(result[:content])
         ctx[:response]   = result[:content]
         ctx[:tokens]     = result[:tokens]
-        ctx[:confidence] = parsed.dig("reasoning", "confidence")
+        ctx[:confidence] = parsed.dig('reasoning', 'confidence')
 
         # Sanitize category — fallback to 'general' if invalid
-        category = parsed["category"].to_s.downcase.strip
-        category = "general" unless VALID_CATEGORIES.include?(category)
+        category = parsed['category'].to_s.downcase.strip
+        category = 'general' unless VALID_CATEGORIES.include?(category)
 
         @ticket.update!(
-          category:      category,
-          priority:      parsed["priority"],
-          urgency_score: parsed["urgency_score"].to_i,
-          ai_metadata:   build_ai_metadata(parsed, model, provider)
+          category: category,
+          priority: parsed['priority'],
+          urgency_score: parsed['urgency_score'].to_i,
+          ai_metadata: build_ai_metadata(parsed, model, provider)
         )
 
         ServiceResult.success(@ticket)
       end
-    rescue => e
+    rescue StandardError => e
       Rails.logger.error("[TicketClassifier] Failed for ticket #{@ticket.id}: #{e.message}")
-      @ticket.update!(status: :pending_classification) rescue nil
+      begin
+        @ticket.update!(status: :pending_classification)
+      rescue StandardError
+        nil
+      end
       ServiceResult.failure(e.message)
     end
 
@@ -91,24 +95,24 @@ module Ai
     def resolve_adapter
       router = Ai::ModelRouter.for(workspace: @workspace, operation: :classification)
       router.resolve
-    rescue => e
+    rescue StandardError => e
       Rails.logger.warn("[TicketClassifier] Router failed: #{e.message} — forcing OpenAI fallback")
       adapter = Ai::Providers::OpenaiAdapter.new
-      [adapter, "gpt-4o", "openai"]
+      [adapter, 'gpt-4o', 'openai']
     end
 
     def build_prompt
       <<~PROMPT
         Ticket ##{@ticket.ticket_number}
         Title: #{@ticket.title}
-        Description: #{@ticket.description.presence || "No description provided"}
-        Department: #{@ticket.department&.name || "General"}
+        Description: #{@ticket.description.presence || 'No description provided'}
+        Department: #{@ticket.department&.name || 'General'}
         Workspace context: #{@workspace.name}
       PROMPT
     end
 
     def parse_response(content)
-      clean = content.gsub(/```json|```/, "").strip
+      clean = content.gsub(/```json|```/, '').strip
       JSON.parse(clean)
     rescue JSON::ParserError => e
       raise "Invalid JSON from AI provider: #{e.message} — raw: #{content[0..200]}"
@@ -116,14 +120,14 @@ module Ai
 
     def build_ai_metadata(parsed, model, provider)
       {
-        category:        parsed["category"],
-        priority:        parsed["priority"],
-        urgency_score:   parsed["urgency_score"],
-        provider:        provider,
-        model:           model,
-        reasoning:       parsed["reasoning"],
-        tags:            parsed["tags"] || [],
-        suggested_agent: parsed["suggested_agent"]
+        category: parsed['category'],
+        priority: parsed['priority'],
+        urgency_score: parsed['urgency_score'],
+        provider: provider,
+        model: model,
+        reasoning: parsed['reasoning'],
+        tags: parsed['tags'] || [],
+        suggested_agent: parsed['suggested_agent']
       }
     end
   end

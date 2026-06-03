@@ -13,14 +13,14 @@ class TicketActivity < ApplicationRecord
   scope :reverse_chronological, -> { order(created_at: :desc) }
 
   # ── Action constants ──────────────────────────────────────────────────────────
-  CREATED        = "created"
-  STATUS_CHANGED = "status_changed"
-  ASSIGNED       = "assigned"
-  ESCALATED      = "escalated"
-  COMMENT_ADDED  = "comment_added"
-  SLA_WARNING    = "sla_warning"
-  SLA_BREACHED   = "sla_breached"
-  AI_CLASSIFIED  = "ai_classified"
+  CREATED        = 'created'
+  STATUS_CHANGED = 'status_changed'
+  ASSIGNED       = 'assigned'
+  ESCALATED      = 'escalated'
+  COMMENT_ADDED  = 'comment_added'
+  SLA_WARNING    = 'sla_warning'
+  SLA_BREACHED   = 'sla_breached'
+  AI_CLASSIFIED  = 'ai_classified'
 
   # ── Delegation ────────────────────────────────────────────────────────────────
   delegate :workspace, to: :ticket

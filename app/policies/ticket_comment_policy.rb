@@ -14,10 +14,10 @@ class TicketCommentPolicy < ApplicationPolicy
 
     def can_see_internal?
       user.role.to_sym.in?(%i[
-        super_admin workspace_admin agent
-        hr_manager it_manager facilities_manager
-        operations_manager department_manager
-      ])
+                             super_admin workspace_admin agent
+                             hr_manager it_manager facilities_manager
+                             operations_manager department_manager
+                           ])
     end
   end
 
@@ -28,14 +28,14 @@ class TicketCommentPolicy < ApplicationPolicy
   def show?
     return false if guest?
     return true unless record.internal?
+
     can_see_internal?
   end
 
   def create?
     return false if guest?
-    if employee?
-      return record.ticket.created_by_id == user.id
-    end
+    return record.ticket.created_by_id == user.id if employee?
+
     true
   end
 
@@ -45,6 +45,7 @@ class TicketCommentPolicy < ApplicationPolicy
 
   def destroy?
     return false if guest?
+
     record.user_id == user.id || admin_or_manager?
   end
 
@@ -55,16 +56,16 @@ class TicketCommentPolicy < ApplicationPolicy
 
   def can_see_internal?
     user.role.to_sym.in?(%i[
-      super_admin workspace_admin agent
-      hr_manager it_manager facilities_manager
-      operations_manager department_manager
-    ])
+                           super_admin workspace_admin agent
+                           hr_manager it_manager facilities_manager
+                           operations_manager department_manager
+                         ])
   end
 
   def admin_or_manager?
     user.role.to_sym.in?(%i[
-      super_admin workspace_admin hr_manager it_manager
-      facilities_manager operations_manager department_manager
-    ])
+                           super_admin workspace_admin hr_manager it_manager
+                           facilities_manager operations_manager department_manager
+                         ])
   end
 end

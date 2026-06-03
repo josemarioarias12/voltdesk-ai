@@ -8,9 +8,9 @@ module Admin
     private
 
     def authorize_admin!
-      unless current_user.role_workspace_admin? || current_user.role_super_admin?
-        raise Pundit::NotAuthorizedError, "Admin access required"
-      end
+      return if current_user.role_workspace_admin? || current_user.role_super_admin?
+
+      raise Pundit::NotAuthorizedError, 'Admin access required'
     end
   end
 end

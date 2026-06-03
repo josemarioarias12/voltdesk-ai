@@ -47,11 +47,11 @@ export default function AuditLog({ logs, pagination, filters, operations, provid
 
   function applyFilters(overrides: Partial<Filters> = {}) {
     const f = { ...localFilters, ...overrides }
-    router.get('/admin/audit-log', { ...f, page: 1 } as Record<string, string>, { preserveState: true })
+    router.get('/admin/audit-log', { ...f, page: 1 } as Record<string, string | number | boolean>, { preserveState: true })
   }
 
   function goToPage(page: number) {
-    router.get('/admin/audit-log', { ...localFilters, page } as Record<string, string>, { preserveState: true })
+    router.get('/admin/audit-log', { ...localFilters, page } as Record<string, string | number | boolean>, { preserveState: true })
   }
 
   return (

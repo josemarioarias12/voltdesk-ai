@@ -17,8 +17,8 @@ module Ai
       # Embeddings always route to OpenAI — Gemini (768d) and Anthropic (none)
       # are incompatible with our pgvector 1536-dim HNSW index.
       adapter, model, provider = Ai::ModelRouter.for(
-        workspace:  @workspace,
-        operation:  :ticket_embedding
+        workspace: @workspace,
+        operation: :ticket_embedding
       ).resolve
 
       content = build_content
@@ -35,12 +35,12 @@ module Ai
         embedding.update!(
           workspace: @workspace,
           embedding: result[:vector],
-          content:   content
+          content: content
         )
 
         ServiceResult.success(embedding)
       end
-    rescue => e
+    rescue StandardError => e
       Rails.logger.error("[EmbeddingGenerator] Failed for ticket #{@ticket.id}: #{e.message}")
       ServiceResult.failure(e.message)
     end

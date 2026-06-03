@@ -75,12 +75,13 @@ gem 'devise'
 gem 'omniauth-google-oauth2'
 gem 'omniauth-rails_csrf_protection'
 
-gem "sidekiq", "~> 8.1"
-gem "ruby-openai", "~> 7.0"
-gem "neighbor"
+gem 'neighbor'
+gem 'ruby-openai', '~> 7.0'
+gem 'sidekiq', '~> 8.1'
+gem 'sidekiq-cron', '~> 2.0'
 
-gem "pundit-matchers", "~> 4.0", group: :test
+gem 'pundit-matchers', '~> 4.0', group: :test
 
 # Multi-provider AI
-gem "ruby-anthropic", "~> 0.4"
-gem "gemini-ai", "~> 4.2"
+gem 'gemini-ai', '~> 4.2'
+gem 'ruby-anthropic', '~> 0.4'

@@ -10,25 +10,27 @@ class User < ApplicationRecord
          :omniauthable, omniauth_providers: [:google_oauth2]
 
   enum :role, {
-    super_admin:        0,
-    workspace_admin:    1,
-    hr_manager:         2,
-    it_manager:         3,
+    super_admin: 0,
+    workspace_admin: 1,
+    hr_manager: 2,
+    it_manager: 3,
     facilities_manager: 4,
     operations_manager: 5,
     department_manager: 6,
-    agent:              7,
-    employee:           8,
-    guest:              9
+    agent: 7,
+    employee: 8,
+    guest: 9
   }, prefix: true
 
   # ── Associations ──────────────────────────────────────────────────────────────
   belongs_to :department, optional: true
 
-  has_many :created_tickets,  class_name: "Ticket", foreign_key: :created_by_id,  dependent: :nullify
-  has_many :assigned_tickets, class_name: "Ticket", foreign_key: :assigned_to_id, dependent: :nullify
+  has_many :created_tickets,  class_name: 'Ticket', foreign_key: :created_by_id,  dependent: :nullify
+  has_many :assigned_tickets, class_name: 'Ticket', foreign_key: :assigned_to_id, dependent: :nullify
 
   # ── Validations ───────────────────────────────────────────────────────────────
+  scope :active, -> { where(active: true) }
+
   validates :email,      presence: true
   validates :first_name, presence: true
   validates :last_name,  presence: true
@@ -48,10 +50,10 @@ class User < ApplicationRecord
 
   def self.update_from_omniauth(user, auth)
     user.update!(
-      provider:   auth.provider,
-      uid:        auth.uid,
+      provider: auth.provider,
+      uid: auth.uid,
       first_name: auth.info.first_name || user.first_name,
-      last_name:  auth.info.last_name  || user.last_name
+      last_name: auth.info.last_name || user.last_name
     )
     user
   end
@@ -59,15 +61,22 @@ class User < ApplicationRecord
 
   def self.create_from_omniauth(auth, workspace)
     create!(
-      email:      auth.info.email,
-      first_name: auth.info.first_name.presence || "User",
-      last_name:  auth.info.last_name.presence  || "",
-      password:   Devise.friendly_token[0, 20],
-      provider:   auth.provider,
-      uid:        auth.uid,
-      role:       :employee,
-      workspace:  workspace
+      email: auth.info.email,
+      first_name: auth.info.first_name.presence || 'User',
+      last_name: auth.info.last_name.presence || '',
+      password: Devise.friendly_token[0, 20],
+      provider: auth.provider,
+      uid: auth.uid,
+      role: :employee,
+      workspace: workspace
     )
   end
+
+  # HR associations
+  has_many :leave_requests, dependent: :destroy, inverse_of: :user
+  has_many :approved_leave_requests,      class_name: 'LeaveRequest', foreign_key: :approved_by_id, dependent: :nullify
+  has_one  :onboarding_plan,              dependent: :destroy
+  has_many :notifications,                dependent: :destroy
+
   private_class_method :create_from_omniauth
 end

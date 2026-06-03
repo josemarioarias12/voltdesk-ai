@@ -12,7 +12,7 @@ module ApplicationCable
     private
 
     def find_verified_user
-      if (user_id = cookies.encrypted[:user_id] || env["warden"]&.user&.id)
+      if (user_id = cookies.encrypted[:user_id] || env['warden']&.user&.id)
         User.find_by(id: user_id) || reject_unauthorized_connection
       else
         reject_unauthorized_connection

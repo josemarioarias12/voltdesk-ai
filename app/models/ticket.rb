@@ -6,45 +6,45 @@ class Ticket < ApplicationRecord
   # ── Associations ──────────────────────────────────────────────────────────────
   belongs_to :workspace
   belongs_to :department
-  belongs_to :created_by,  class_name: "User"
-  belongs_to :assigned_to, class_name: "User", optional: true
+  belongs_to :created_by,  class_name: 'User'
+  belongs_to :assigned_to, class_name: 'User', optional: true
   belongs_to :sla_policy,  optional: true
 
-  has_many :comments,   class_name: "TicketComment",  dependent: :destroy
-  has_many :activities, class_name: "TicketActivity", dependent: :destroy
+  has_many :comments,   class_name: 'TicketComment',  dependent: :destroy
+  has_many :activities, class_name: 'TicketActivity', dependent: :destroy
 
   # ── Enums ─────────────────────────────────────────────────────────────────────
   enum :status, {
-    open:                   0,
-    in_progress:            1,
-    pending:                2,
-    resolved:               3,
-    closed:                 4,
+    open: 0,
+    in_progress: 1,
+    pending: 2,
+    resolved: 3,
+    closed: 4,
     pending_classification: 5
   }, prefix: :status
 
   enum :priority, {
-    low:      0,
-    medium:   1,
-    high:     2,
+    low: 0,
+    medium: 1,
+    high: 2,
     critical: 3
   }, prefix: :priority
 
   enum :category, {
-    general:    0,
-    it:         1,
-    hr:         2,
+    general: 0,
+    it: 1,
+    hr: 2,
     facilities: 3,
-    finance:    4,
+    finance: 4,
     operations: 5,
-    support:    6
+    support: 6
   }, prefix: :category
 
   enum :source, {
-    web:     0,
-    voice:   1,
+    web: 0,
+    voice: 1,
     qr_demo: 2,
-    email:   3
+    email: 3
   }, prefix: :source
 
   # ── Validations ───────────────────────────────────────────────────────────────
@@ -56,26 +56,26 @@ class Ticket < ApplicationRecord
   validates :category,      presence: true
   validates :source,        presence: true
 
+  before_save   :set_resolved_at, if: -> { status_changed? && status_resolved? }
   # ── Callbacks ─────────────────────────────────────────────────────────────────
   before_create :set_due_at
-  before_save   :set_resolved_at, if: -> { status_changed? && status_resolved? }
 
   # ── Scopes ────────────────────────────────────────────────────────────────────
   scope :open_tickets,      -> { where(status: %i[open in_progress pending]) }
-  scope :sla_at_risk,       -> { open_tickets.where("due_at <= ?", 30.minutes.from_now) }
-  scope :sla_breached,      -> { open_tickets.where("due_at < ?", Time.current) }
+  scope :sla_at_risk,       -> { open_tickets.where(due_at: ..30.minutes.from_now) }
+  scope :sla_breached,      -> { open_tickets.where(due_at: ...Time.current) }
   scope :for_department,    ->(dept_id) { where(department_id: dept_id) }
   scope :assigned_to_agent, ->(user_id) { where(assigned_to_id: user_id) }
   scope :recent,            -> { order(created_at: :desc) }
 
   # ── State machine ─────────────────────────────────────────────────────────────
   VALID_TRANSITIONS = {
-    "open"                   => %w[in_progress closed],
-    "in_progress"            => %w[pending resolved],
-    "pending"                => %w[in_progress resolved],
-    "resolved"               => %w[closed open],
-    "closed"                 => %w[open],
-    "pending_classification" => %w[open in_progress]
+    'open' => %w[in_progress closed],
+    'in_progress' => %w[pending resolved],
+    'pending' => %w[in_progress resolved],
+    'resolved' => %w[closed open],
+    'closed' => %w[open],
+    'pending_classification' => %w[open in_progress]
   }.freeze
 
   def can_transition_to?(new_status)
@@ -94,6 +94,7 @@ class Ticket < ApplicationRecord
 
   def sla_remaining
     return nil unless due_at
+
     (due_at - Time.current).seconds
   end
 
@@ -101,6 +102,7 @@ class Ticket < ApplicationRecord
     return :met      if status_resolved? || status_closed?
     return :breached if sla_breached?
     return :at_risk  if sla_at_risk?
+
     :on_track
   end
 
@@ -108,6 +110,7 @@ class Ticket < ApplicationRecord
 
   def set_due_at
     return if due_at.present?
+
     policy = sla_policy || workspace.sla_policies.find_by(priority: priority)
     self.due_at = policy&.due_at_for(created_at || Time.current)
   end

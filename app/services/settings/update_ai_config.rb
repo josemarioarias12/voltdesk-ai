@@ -27,14 +27,14 @@ module Settings
       return ServiceResult.failure("Invalid model #{model} for #{provider}") unless valid_models.include?(model)
 
       @workspace.update!(
-        ai_provider:          provider,
-        ai_model:             model,
-        ai_fallback_provider: fallback.presence || "openai",
-        ai_selection_mode:    mode
+        ai_provider: provider,
+        ai_model: model,
+        ai_fallback_provider: fallback.presence || 'openai',
+        ai_selection_mode: mode
       )
 
       ServiceResult.success(@workspace)
-    rescue => e
+    rescue StandardError => e
       ServiceResult.failure(e.message)
     end
   end

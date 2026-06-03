@@ -23,14 +23,15 @@ module Ai
 
       if ticket_embedding.nil?
         embed_result = Ai::EmbeddingGenerator.call(ticket: @ticket)
-        return ServiceResult.failure("Cannot generate embedding for ticket") if embed_result.failure?
+        return ServiceResult.failure('Cannot generate embedding for ticket') if embed_result.failure?
+
         ticket_embedding = embed_result.data
       end
 
       similar_embeddings = TicketEmbedding.similar_resolved(
-        query_vector:       ticket_embedding.embedding,
-        workspace:          @workspace,
-        limit:              TOP_K,
+        query_vector: ticket_embedding.embedding,
+        workspace: @workspace,
+        limit: TOP_K,
         distance_threshold: SIMILARITY_THRESHOLD
       ).includes(ticket: [:ticket_comments])
 
@@ -49,29 +50,29 @@ module Ai
 
         raw_response = @client.chat(
           parameters: {
-            model:       "gpt-4o",
+            model: 'gpt-4o',
             temperature: 0.4,
-            max_tokens:  600,
+            max_tokens: 600,
             messages: [
-              { role: "system", content: system_prompt },
-              { role: "user",   content: prompt }
+              { role: 'system', content: system_prompt },
+              { role: 'user',   content: prompt }
             ]
           }
         )
 
-        suggested_text = raw_response.dig("choices", 0, "message", "content")
-        usage          = raw_response["usage"]
+        suggested_text = raw_response.dig('choices', 0, 'message', 'content')
+        usage          = raw_response['usage']
 
         ctx[:response] = suggested_text
         ctx[:tokens]   = usage
 
         ServiceResult.success({
-          suggestion:   suggested_text,
-          based_on:     citation_ids,
-          generated_at: Time.current.iso8601
-        })
+                                suggestion: suggested_text,
+                                based_on: citation_ids,
+                                generated_at: Time.current.iso8601
+                              })
       end
-    rescue => e
+    rescue StandardError => e
       Rails.logger.error("[ResponseSuggester] Failed for ticket #{@ticket.id}: #{e.message}")
       ServiceResult.failure(e.message)
     end
@@ -109,14 +110,14 @@ module Ai
       last_internal = ticket.ticket_comments.order(:created_at).last
       (last_external || last_internal)&.body&.truncate(400) ||
         ticket.description&.truncate(200) ||
-        "(no resolution recorded)"
+        '(no resolution recorded)'
     end
 
     def build_rag_prompt(rag_context)
       <<~PROMPT
         CURRENT TICKET — #{@ticket.ticket_number}
         Title: #{@ticket.title}
-        Description: #{@ticket.description.presence || "(no description)"}
+        Description: #{@ticket.description.presence || '(no description)'}
         Department: #{@ticket.department&.name}
         Priority: #{@ticket.priority}
 

@@ -16,9 +16,8 @@ module Tickets
       snapshot = capture_snapshot
 
       ActiveRecord::Base.transaction do
-        unless @ticket.update(permitted_params)
-          return ServiceResult.failure(@ticket.errors.full_messages.join(", "))
-        end
+        return ServiceResult.failure(@ticket.errors.full_messages.join(', ')) unless @ticket.update(permitted_params)
+
         record_changes(snapshot)
       end
 
@@ -26,7 +25,7 @@ module Tickets
       ServiceResult.success(@ticket)
     rescue StandardError => e
       Rails.logger.error("[Tickets::UpdateTicket] #{e.class}: #{e.message}")
-      ServiceResult.failure("An unexpected error occurred. Please try again.")
+      ServiceResult.failure('An unexpected error occurred. Please try again.')
     end
 
     private
@@ -48,17 +47,15 @@ module Tickets
       old_status = @ticket.status
 
       ActiveRecord::Base.transaction do
-        unless @ticket.update(permitted_params)
-          return ServiceResult.failure(@ticket.errors.full_messages.join(", "))
-        end
+        return ServiceResult.failure(@ticket.errors.full_messages.join(', ')) unless @ticket.update(permitted_params)
 
         @ticket.activities.create!(
-          user:     @user,
-          action:   TicketActivity::STATUS_CHANGED,
+          user: @user,
+          action: TicketActivity::STATUS_CHANGED,
           metadata: { from: old_status, to: @ticket.status }
         )
 
-        record_changes(snapshot.except("status"))
+        record_changes(snapshot.except('status'))
       end
 
       broadcast_update
@@ -78,12 +75,12 @@ module Tickets
 
     def record_changes(snapshot)
       snapshot.each do |field, old_value|
-        next if field == "status"
+        next if field == 'status'
         next if @ticket[field] == old_value
 
         @ticket.activities.create!(
-          user:     @user,
-          action:   "#{field}_changed",
+          user: @user,
+          action: "#{field}_changed",
           metadata: { field: field, from: old_value, to: @ticket[field] }
         )
       end
@@ -92,7 +89,7 @@ module Tickets
     def broadcast_update
       ActionCable.server.broadcast(
         "tickets:#{@ticket.workspace_id}",
-        { event: "ticket_updated", ticket_id: @ticket.id }
+        { event: 'ticket_updated', ticket_id: @ticket.id }
       )
     end
   end

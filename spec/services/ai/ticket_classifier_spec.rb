@@ -119,9 +119,9 @@ RSpec.describe Ai::TicketClassifier, type: :service do
 
     context 'WebMock enforcement' do
       it 'blocks real HTTP calls to OpenAI' do
-        expect {
+        expect do
           Net::HTTP.get(URI('https://api.openai.com/v1/models'))
-        }.to raise_error(WebMock::NetConnectNotAllowedError)
+        end.to raise_error(WebMock::NetConnectNotAllowedError)
       end
     end
   end

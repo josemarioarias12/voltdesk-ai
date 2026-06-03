@@ -16,7 +16,9 @@ class ApplicationController < ActionController::Base
       flash: {
         notice: flash[:notice],
         alert: flash[:alert]
-      }
+      },
+      notifications: current_user ? serialize_notifications(current_user) : [],
+      unread_notifications_count: current_user ? current_user.notifications.unread.count : 0
     }
   end
 
@@ -67,5 +69,23 @@ class ApplicationController < ActionController::Base
       slug: workspace.slug,
       plan: workspace.plan
     }
+  end
+
+  def serialize_notifications(user)
+    user.notifications
+        .recent
+        .limit(20)
+        .map do |n|
+          {
+            id: n.id,
+            title: n.title,
+            body: n.body,
+            notification_type: n.notification_type,
+            resource_type: n.resource_type,
+            resource_id: n.resource_id,
+            read: n.read,
+            created_at: n.created_at.iso8601
+          }
+        end
   end
 end
