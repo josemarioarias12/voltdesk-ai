@@ -1,7 +1,7 @@
 import { SharedProps } from '@/types'
 import { useForm } from 'react-hook-form'
-import { usePage, router } from '@inertiajs/react'
-import { useState } from 'react'
+import { usePage } from '@inertiajs/react'
+import { useState, useRef } from 'react'
 import {
   IconBrandGoogle,
   IconShieldCheck,
@@ -58,6 +58,8 @@ export default function AuthLogin() {
   const [showPassword, setShowPassword] = useState(false)
   const [password, setPassword] = useState('')
   const { register, handleSubmit } = useForm<LoginForm>()
+  const emailRef    = useRef<HTMLInputElement>(null)
+  const passwordRef = useRef<HTMLInputElement>(null)
 
  const getCsrfToken = () =>
     document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? ''
@@ -75,13 +77,34 @@ export default function AuthLogin() {
     form.submit()
   }
 
-  const onSubmit = (data: LoginForm) => {
-    router.post('/users/login', {
-      user: { email: data.email, password: data.password }
+  const onSubmit = () => {
+    const email    = emailRef.current?.value ?? ''
+    const password = passwordRef.current?.value ?? ''
+
+    const form = document.createElement('form')
+    form.method = 'POST'
+    form.action = '/users/login'
+    form.style.display = 'none'
+
+    const fields: Record<string, string> = {
+      'authenticity_token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '',
+      'user[email]':        email,
+      'user[password]':     password,
+    }
+
+    Object.entries(fields).forEach(([name, value]) => {
+      const input = document.createElement('input')
+      input.type  = 'hidden'
+      input.name  = name
+      input.value = value
+      form.appendChild(input)
     })
+
+    document.body.appendChild(form)
+    form.submit()
   }
 
-  const passwordRegister = register('password')
+
 
   return (
     <div
@@ -185,7 +208,7 @@ export default function AuthLogin() {
           <div className="mb-5" style={{ height: '0.5px', background: '#E2E8F0' }} />
 
           {/* Email + Password */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }} className="space-y-4">
             <div>
               <label
                 className="block text-sm font-medium mb-1.5"
@@ -194,7 +217,7 @@ export default function AuthLogin() {
                 Work email
               </label>
               <input
-                {...register('email')}
+                {...register('email')} ref={emailRef}
                 type="email"
                 autoComplete="email"
                 placeholder="you@company.com"
@@ -220,7 +243,7 @@ export default function AuthLogin() {
               </div>
               <div className="relative">
                 <input
-                  {...passwordRegister}
+                  {...register('password')} ref={passwordRef}
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   placeholder="••••••••"
@@ -232,10 +255,7 @@ export default function AuthLogin() {
                   }}
                   onFocus={(e) => (e.target.style.borderColor = '#028090')}
                   onBlur={(e) => (e.target.style.borderColor = '#E2E8F0')}
-                  onChange={(e) => {
-                    passwordRegister.onChange(e)
-                    setPassword(e.target.value)
-                  }}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <button
                   type="button"

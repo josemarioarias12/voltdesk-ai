@@ -1,19 +1,17 @@
 # frozen_string_literal: true
 module Users
   class SessionsController < Devise::SessionsController
-    skip_before_action :verify_authenticity_token, only: :create
-
     def new
       render inertia: 'Auth/Login'
     end
 
     def create
-      Rails.logger.info "=== LOGIN PARAMS: #{params.inspect}"
-      email    = params.dig(:user, :email) || params[:email]
-      password = params.dig(:user, :password) || params[:password]
-      Rails.logger.info "=== EMAIL: #{email}, PASSWORD present: #{password.present?}"
+      email    = params.dig(:user, :email)
+      password = params.dig(:user, :password)
 
       resource = User.find_by(email: email)
+
+      Rails.logger.info "=== RESOURCE: #{resource&.email} | PASSWORD_LENGTH: #{password&.length} | VALID: #{resource&.valid_password?(password)}"
 
       if resource&.valid_password?(password)
         sign_in(resource_name, resource)
