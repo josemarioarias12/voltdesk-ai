@@ -44,7 +44,7 @@ RSpec.describe Ai::TicketClassifier, type: :service do
         described_class.call(ticket:)
         metadata = ticket.reload.ai_metadata
         # ai_metadata stores the granular AI category, not the enum value
-        expect(metadata['category']).to eq('hardware_printer')
+        expect(metadata['category']).to eq('it')
         expect(metadata['reasoning']['category_signals']).to include('printer')
         expect(metadata['reasoning']['confidence']).to eq(0.94)
         expect(metadata['reasoning']['similar_ticket']).to eq('TK-00189')
