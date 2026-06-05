@@ -78,3 +78,15 @@ Rails.application.routes.draw do
     resources :pattern_alerts, only: %i[index update]
   end
 end
+
+  # QR Demo Mode
+  get  '/demo/:token',        to: 'demo#join',          as: :demo_join
+  post '/demo/ticket',        to: 'demo#create_ticket', as: :demo_create_ticket
+  get  '/demo/:token/presenter', to: 'demo#presenter',  as: :demo_presenter
+
+  # workspace_admin activates demo
+  namespace :workspace do
+    post 'demo/activate',   to: 'demo_modes#activate',   as: :activate_demo
+    delete 'demo/deactivate', to: 'demo_modes#deactivate', as: :deactivate_demo
+    get  'demo/status',     to: 'demo_modes#status',     as: :demo_status
+  end

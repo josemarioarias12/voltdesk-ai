@@ -85,3 +85,5 @@ gem 'pundit-matchers', '~> 4.0', group: :test
 # Multi-provider AI
 gem 'gemini-ai', '~> 4.2'
 gem 'ruby-anthropic', '~> 0.4'
+
+gem "redis", "~> 5.4"

@@ -1,126 +1,134 @@
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback } from 'react'
 
 export type VoiceState = 'idle' | 'listening' | 'processing' | 'error'
 
-interface UseVoiceTicketReturn {
-  transcript: string
+export interface VoiceTicketHookResult {
+  voiceState:       VoiceState
+  transcript:       string
   interimTranscript: string
-  voiceState: VoiceState
-  isSupported: boolean
-  startListening: () => void
-  stopListening: () => void
-  resetTranscript: () => void
-  errorMessage: string | null
-}
-
-// Web Speech API — not fully typed in lib.dom.d.ts, so we declare manually.
-interface ISpeechRecognition extends EventTarget {
-  lang: string
-  continuous: boolean
-  interimResults: boolean
-  maxAlternatives: number
-  start(): void
-  stop(): void
-  abort(): void
-  onstart:  ((this: ISpeechRecognition, ev: Event) => void) | null
-  onend:    ((this: ISpeechRecognition, ev: Event) => void) | null
-  onresult: ((this: ISpeechRecognition, ev: SpeechRecognitionEvent) => void) | null
-  onerror:  ((this: ISpeechRecognition, ev: SpeechRecognitionErrorEvent) => void) | null
-}
-
-interface ISpeechRecognitionConstructor {
-  new (): ISpeechRecognition
+  isSupported:      boolean
+  startListening:   () => void
+  stopListening:    () => void
+  resetTranscript:  () => void
+  errorMessage:     string | null
 }
 
 declare global {
   interface Window {
-    SpeechRecognition:       ISpeechRecognitionConstructor | undefined
-    webkitSpeechRecognition: ISpeechRecognitionConstructor | undefined
+    SpeechRecognition:       new () => SpeechRecognition
+    webkitSpeechRecognition: new () => SpeechRecognition
   }
 }
 
-export function useVoiceTicket(lang = 'es-ES'): UseVoiceTicketReturn {
-  const [transcript, setTranscript]           = useState('')
+function isSpeechRecognitionSupported(): boolean {
+  return typeof window !== 'undefined' &&
+    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
+}
+
+export function useVoiceTicket(lang = 'es-ES'): VoiceTicketHookResult {
+  const [voiceState,        setVoiceState]        = useState<VoiceState>('idle')
+  const [transcript,        setTranscript]        = useState('')
   const [interimTranscript, setInterimTranscript] = useState('')
-  const [voiceState, setVoiceState]           = useState<VoiceState>('idle')
-  const [errorMessage, setErrorMessage]       = useState<string | null>(null)
-  const recognitionRef = useRef<ISpeechRecognition | null>(null)
+  const [errorMessage,      setErrorMessage]      = useState<string | null>(null)
+  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  const isSupported    = isSpeechRecognitionSupported()
 
-  const SpeechRecognitionAPI: ISpeechRecognitionConstructor | undefined =
-    typeof window !== 'undefined'
-      ? window.SpeechRecognition ?? window.webkitSpeechRecognition
-      : undefined
-
-  const isSupported = SpeechRecognitionAPI !== undefined
-
-  useEffect(() => {
-    return () => { recognitionRef.current?.abort() }
-  }, [])
-
-  const startListening = useCallback(() => {
-    if (!isSupported || !SpeechRecognitionAPI) {
-      setErrorMessage('Voice input requires Chrome or Edge.')
+  const startListening = useCallback(async () => {
+    if (!isSupported) {
+      setErrorMessage('Voice input requires Chrome or Edge')
       setVoiceState('error')
       return
     }
 
-    setErrorMessage(null)
-    setInterimTranscript('')
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true })
+    } catch {
+      setErrorMessage('Microphone access denied. Please allow microphone access and try again.')
+      setVoiceState('error')
+      return
+    }
 
-    const recognition = new SpeechRecognitionAPI()
-    recognitionRef.current = recognition
+    const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition
+    const recognition = new SpeechRecognitionClass()
+
     recognition.lang             = lang
     recognition.continuous       = false
     recognition.interimResults   = true
     recognition.maxAlternatives  = 1
 
-    recognition.onstart = () => { setVoiceState('listening') }
+    recognition.onstart = () => {
+      setVoiceState('listening')
+      setErrorMessage(null)
+    }
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       let interim = ''
       let final   = ''
+
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i]
-        if (result.isFinal) { final += result[0].transcript }
-        else                { interim += result[0].transcript }
+        if (result.isFinal) {
+          final += result[0].transcript
+        } else {
+          interim += result[0].transcript
+        }
       }
-      if (interim) setInterimTranscript(interim)
-      if (final)   { setTranscript(prev => prev + final); setInterimTranscript('') }
-    }
 
-    recognition.onend = () => { setVoiceState('idle'); setInterimTranscript('') }
+      if (final) {
+        setTranscript(prev => prev + final)
+        setInterimTranscript('')
+      } else {
+        setInterimTranscript(interim)
+      }
+    }
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       const messages: Record<string, string> = {
-        'no-speech':     'No speech detected. Please try again.',
-        'audio-capture': 'Microphone not found. Please check your device.',
-        'not-allowed':   'Microphone permission denied. Allow access in browser settings.',
-        'network':       'Network error during recognition. Try again.',
-        'aborted':       'Recording cancelled.',
+        'not-allowed': 'Microphone access denied.',
+        'no-speech':   'No speech detected. Please try again.',
+        'network':     'Network error during recognition.',
+        'aborted':     'Recording was cancelled.',
       }
       setErrorMessage(messages[event.error] ?? `Recognition error: ${event.error}`)
       setVoiceState('error')
     }
 
-    try { recognition.start() }
-    catch { setErrorMessage('Failed to start voice recognition.'); setVoiceState('error') }
-  }, [isSupported, SpeechRecognitionAPI, lang])
+    recognition.onend = () => {
+      setInterimTranscript('')
+      setVoiceState(prev => prev === 'listening' ? 'idle' : prev)
+    }
+
+    recognitionRef.current = recognition
+    recognition.start()
+  }, [isSupported, lang])
 
   const stopListening = useCallback(() => {
-    recognitionRef.current?.stop()
-    setVoiceState('idle')
+    if (recognitionRef.current) {
+      setVoiceState('processing')
+      recognitionRef.current.stop()
+      recognitionRef.current = null
+    }
   }, [])
 
   const resetTranscript = useCallback(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.abort()
+      recognitionRef.current = null
+    }
+    setVoiceState('idle')
     setTranscript('')
     setInterimTranscript('')
     setErrorMessage(null)
-    setVoiceState('idle')
   }, [])
 
   return {
-    transcript, interimTranscript, voiceState,
-    isSupported, startListening, stopListening,
-    resetTranscript, errorMessage,
+    voiceState,
+    transcript,
+    interimTranscript,
+    isSupported,
+    startListening,
+    stopListening,
+    resetTranscript,
+    errorMessage,
   }
 }

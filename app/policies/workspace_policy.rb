@@ -6,6 +6,7 @@ class WorkspacePolicy < ApplicationPolicy
   def create?  = super_admin?
   def update?  = super_admin? || (admin_or_above? && same_workspace?(record.id))
   def destroy? = super_admin?
+  def manage_demo? = admin_or_above? && same_workspace?(record.id)
 
   class Scope < ApplicationPolicy::Scope
     def resolve

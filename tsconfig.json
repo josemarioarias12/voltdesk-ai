@@ -19,7 +19,7 @@
     "paths": {
       "@/*": ["app/javascript/*"]
     },
-    "types": ["@inertiajs/react"]
+    "types": ["@inertiajs/react", "dom-speech-recognition"]
   },
   "include": [
     "app/javascript/**/*"

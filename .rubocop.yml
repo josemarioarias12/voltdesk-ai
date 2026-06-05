@@ -100,3 +100,6 @@ Metrics/ParameterLists:
 Rails/SkipsModelValidations:
   Exclude:
     - "spec/**/*"
+
+Layout/HashAlignment:
+  Enabled: false
