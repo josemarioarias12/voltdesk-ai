@@ -2,14 +2,16 @@
 
 class Workspace < ApplicationRecord
   # ── Associations ──────────────────────────────────────────────────────────────
-  has_many :users,          dependent: :destroy
-  has_many :departments,    dependent: :destroy
-  has_many :tickets,        dependent: :destroy
-  has_many :sla_policies,   dependent: :destroy
-  has_many :ai_audit_logs,  dependent: :destroy
-  has_many :leave_requests,    dependent: :destroy
-  has_many :onboarding_plans,  dependent: :destroy
-  has_many :notifications,     dependent: :destroy
+  has_many :users,           dependent: :destroy
+  has_many :departments,     dependent: :destroy
+  has_many :tickets,         dependent: :destroy
+  has_many :sla_policies,    dependent: :destroy
+  has_many :ai_audit_logs,   dependent: :destroy
+  has_many :leave_requests,  dependent: :destroy
+  has_many :onboarding_plans, dependent: :destroy
+  has_many :notifications,   dependent: :destroy
+  has_many :assets,          dependent: :destroy
+  has_many :asset_incidents, dependent: :destroy
 
   # ── Validations ───────────────────────────────────────────────────────────────
   validates :name, presence: true, length: { minimum: 2, maximum: 100 }
@@ -28,13 +30,15 @@ class Workspace < ApplicationRecord
   def generate_slug
     return if slug.present?
 
-    base = name.to_s.downcase.gsub(/[^a-z0-9]+/, '-').gsub(/\A-|-\z/, '')
+    base      = name.to_s.downcase.gsub(/[^a-z0-9]+/, '-').gsub(/\A-|-\z/, '')
     candidate = base
-    n = 1
+    n         = 1
+
     while Workspace.exists?(slug: candidate)
       candidate = "#{base}-#{n}"
       n += 1
     end
+
     self.slug = candidate
   end
 end

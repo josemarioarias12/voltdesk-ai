@@ -3,21 +3,24 @@
 Rails.application.routes.draw do
   devise_for :users,
              controllers: {
-               sessions: 'users/sessions',
-               passwords: 'users/passwords',
-               omniauth_callbacks: 'users/omniauth_callbacks'
+               sessions:            'users/sessions',
+               passwords:           'users/passwords',
+               omniauth_callbacks:  'users/omniauth_callbacks'
              },
              path_names: { sign_in: 'login', sign_out: 'logout' }
+
   devise_scope :user do
     get '/users/login', to: redirect('/login')
   end
-  root 'dashboard#index'
+
+  root 'dashboards#show'
+
   get  '/login',           to: 'sessions#new',    as: :login_page
   get  '/forgot-password', to: 'sessions#forgot', as: :forgot_password_page
   get  '/up',              to: proc { [200, {}, ['OK']] }
 
   # ── Dashboard ──────────────────────────────────────────────────────────────
-  get '/dashboard', to: 'dashboard#index', as: :dashboard
+  get '/dashboard', to: 'dashboards#show', as: :dashboard
 
   # ── S3: Ticket Engine ──────────────────────────────────────────────────────
   resources :tickets, except: %i[edit] do
@@ -29,7 +32,6 @@ Rails.application.routes.draw do
                          as: :ticket_comments
   end
 
-  # SLA Policies
   resources :sla_policies, only: %i[index create update destroy]
 
   # ── Settings ───────────────────────────────────────────────────────────────
@@ -37,7 +39,8 @@ Rails.application.routes.draw do
   patch '/settings/ai', to: 'settings#update_ai', as: :settings_ai
 
   # ── S5: HR Operations Hub ──────────────────────────────────────────────────
-  get "/hr", to: redirect("/hr/leave_requests"), as: :hr_root
+  get '/hr', to: redirect('/hr/leave_requests'), as: :hr_root
+
   namespace :hr do
     resources :leave_requests, except: %i[edit update] do
       member do
@@ -62,9 +65,13 @@ Rails.application.routes.draw do
     end
   end
 
+  # ── S6: IT Asset Management ────────────────────────────────────────────────
+  # /assets conflicts with Rails asset pipeline middleware — use /inventory
+  resources :assets, path: 'inventory', except: %i[edit]
+
   # ── Admin ──────────────────────────────────────────────────────────────────
   namespace :admin do
-    get '/',          to: 'overview#index',   as: :root
-    get '/audit-log', to: 'audit_log#index',  as: :audit_log
+    get '/',          to: 'overview#index',  as: :root
+    get '/audit-log', to: 'audit_log#index', as: :audit_log
   end
 end

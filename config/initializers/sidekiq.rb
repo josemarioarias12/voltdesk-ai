@@ -9,12 +9,17 @@ if defined?(Sidekiq)
 
     config.on(:startup) do
       Sidekiq::Cron::Job.load_from_array([
-                                           {
-                                             'name' => 'Daily Digest — 9am',
-                                             'cron' => '0 9 * * *',
-                                             'class' => 'DailyDigestJob'
-                                           }
-                                         ])
+        {
+          'name'  => 'Daily Digest — 9am',
+          'cron'  => '0 9 * * *',
+          'class' => 'DailyDigestJob'
+        },
+        {
+          'name'  => 'Warranty Alert — 8am daily',
+          'cron'  => '0 8 * * *',
+          'class' => 'WarrantyAlertJob'
+        }
+      ])
     end
   end
 

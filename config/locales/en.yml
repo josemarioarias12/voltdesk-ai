@@ -2,10 +2,7 @@ en:
   errors:
     unauthorized: "You are not authorized to perform this action."
     not_found: "The requested resource was not found."
-  hr:
-    leave_requests:
-      created: "Leave request submitted successfully."
-      approved: "Leave request approved."
-      rejected: "Leave request rejected."
-  settings:
-    ai_saved: "AI configuration saved."
+  assets:
+    created: "Asset added to inventory."
+    updated: "Asset updated."
+    destroyed: "Asset removed from inventory."

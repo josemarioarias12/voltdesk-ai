@@ -14,7 +14,7 @@ const NAV_ITEMS = [
   { label: 'Dashboard', path: '/dashboard',  icon: DashIcon },
   { label: 'Tickets',   path: '/tickets',    icon: TicketIcon, badge: true },
   { label: 'HR',        path: '/hr',         icon: HrIcon },
-  { label: 'Assets',    path: '/assets',     icon: AssetIcon },
+  { label: 'Assets',    path: '/inventory',     icon: AssetIcon },
   { label: 'Analytics', path: '/analytics',  icon: ChartIcon },
   { label: 'Admin',     path: '/admin',      icon: AdminIcon },
   { label: 'Settings',  path: '/settings',   icon: GearIcon },

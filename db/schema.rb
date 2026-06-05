@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_03_164841) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_03_172000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -35,6 +35,55 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_03_164841) do
     t.index ["workspace_id", "created_at"], name: "idx_ai_audit_logs_workspace_date"
     t.index ["workspace_id", "operation"], name: "idx_ai_audit_logs_workspace_operation"
     t.index ["workspace_id"], name: "index_ai_audit_logs_on_workspace_id"
+  end
+
+  create_table "asset_incidents", force: :cascade do |t|
+    t.bigint "asset_id", null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.bigint "reported_by_id"
+    t.date "resolved_at"
+    t.integer "severity", default: 0, null: false
+    t.integer "status", default: 0, null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["asset_id", "created_at"], name: "index_asset_incidents_on_asset_id_and_created_at"
+    t.index ["reported_by_id"], name: "index_asset_incidents_on_reported_by_id"
+    t.index ["workspace_id", "created_at"], name: "index_asset_incidents_on_workspace_id_and_created_at"
+  end
+
+  create_table "assets", force: :cascade do |t|
+    t.jsonb "ai_metadata", default: {}, null: false
+    t.string "asset_number", null: false
+    t.integer "asset_type", default: 0, null: false
+    t.date "assigned_at"
+    t.bigint "assigned_to_id"
+    t.string "condition_at_assignment"
+    t.datetime "created_at", null: false
+    t.bigint "department_id"
+    t.integer "incident_count", default: 0, null: false
+    t.date "last_maintenance_at"
+    t.string "model_spec"
+    t.string "name", null: false
+    t.text "notes"
+    t.date "purchase_date"
+    t.decimal "purchase_price", precision: 10, scale: 2
+    t.integer "risk_score", default: 0, null: false
+    t.string "serial_number"
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.jsonb "warranty_alerts_sent", default: {}, null: false
+    t.date "warranty_expires_at"
+    t.bigint "workspace_id", null: false
+    t.index ["ai_metadata"], name: "index_assets_on_ai_metadata", using: :gin
+    t.index ["asset_number"], name: "index_assets_on_asset_number"
+    t.index ["assigned_to_id"], name: "index_assets_on_assigned_to_id"
+    t.index ["department_id"], name: "index_assets_on_department_id"
+    t.index ["warranty_expires_at"], name: "index_assets_on_warranty_expires_at"
+    t.index ["workspace_id", "asset_number"], name: "index_assets_on_workspace_id_and_asset_number", unique: true
+    t.index ["workspace_id", "risk_score"], name: "index_assets_on_workspace_id_and_risk_score"
+    t.index ["workspace_id", "status"], name: "index_assets_on_workspace_id_and_status"
   end
 
   create_table "departments", force: :cascade do |t|
@@ -234,6 +283,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_03_164841) do
 
   add_foreign_key "ai_audit_logs", "users"
   add_foreign_key "ai_audit_logs", "workspaces"
+  add_foreign_key "asset_incidents", "assets"
+  add_foreign_key "asset_incidents", "users", column: "reported_by_id"
+  add_foreign_key "asset_incidents", "workspaces"
+  add_foreign_key "assets", "departments"
+  add_foreign_key "assets", "users", column: "assigned_to_id"
+  add_foreign_key "assets", "workspaces"
   add_foreign_key "departments", "workspaces"
   add_foreign_key "leave_requests", "users"
   add_foreign_key "leave_requests", "users", column: "approved_by_id"

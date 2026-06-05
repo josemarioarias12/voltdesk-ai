@@ -13,7 +13,8 @@ class Notification < ApplicationRecord
     ticket_assigned: 3,
     ticket_sla_warning: 4,
     onboarding_plan_ready: 5,
-    daily_digest: 6
+    daily_digest: 6,
+    system_alert: 7
   }
 
   scope :unread,  -> { where(read: false) }
