@@ -3,9 +3,9 @@
 Rails.application.routes.draw do
   devise_for :users,
              controllers: {
-               sessions:            'users/sessions',
-               passwords:           'users/passwords',
-               omniauth_callbacks:  'users/omniauth_callbacks'
+               sessions: 'users/sessions',
+               passwords: 'users/passwords',
+               omniauth_callbacks: 'users/omniauth_callbacks'
              },
              path_names: { sign_in: 'login', sign_out: 'logout' }
 
@@ -73,5 +73,8 @@ Rails.application.routes.draw do
   namespace :admin do
     get '/',          to: 'overview#index',  as: :root
     get '/audit-log', to: 'audit_log#index', as: :audit_log
+
+    # S7
+    resources :pattern_alerts, only: %i[index update]
   end
 end

@@ -8,10 +8,10 @@ RSpec.describe It::CalculateAssetRisk do
   # High-risk asset: old device, no maintenance in 400 days, warranty expiring in 5 days, 4 incidents
   let(:asset) do
     create(:asset,
-           workspace:            workspace,
-           purchase_date:        50.months.ago.to_date,
-           last_maintenance_at:  400.days.ago.to_date,
-           warranty_expires_at:  5.days.from_now.to_date)
+           workspace: workspace,
+           purchase_date: 50.months.ago.to_date,
+           last_maintenance_at: 400.days.ago.to_date,
+           warranty_expires_at: 5.days.from_now.to_date)
   end
 
   describe '.call' do
@@ -50,8 +50,8 @@ RSpec.describe It::CalculateAssetRisk do
     context 'with a low-risk asset' do
       let(:low_risk_asset) do
         create(:asset,
-               workspace:           workspace,
-               purchase_date:       6.months.ago.to_date,
+               workspace: workspace,
+               purchase_date: 6.months.ago.to_date,
                last_maintenance_at: 10.days.ago.to_date,
                warranty_expires_at: 2.years.from_now.to_date)
       end

@@ -75,7 +75,7 @@ class AssetsController < ApplicationController
     }
   end
 
-  def serialize_assets(assets) # rubocop:disable Metrics/AbcSize
+  def serialize_assets(assets)
     assets.map do |a|
       {
         id: a.id,
@@ -97,7 +97,7 @@ class AssetsController < ApplicationController
     end
   end
 
-  def serialize_asset_detail(asset) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+  def serialize_asset_detail(asset)
     incidents = asset.asset_incidents.order(created_at: :desc).limit(10)
     risk_meta = asset.ai_metadata['risk_assessment']
 

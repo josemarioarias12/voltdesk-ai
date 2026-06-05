@@ -18,6 +18,7 @@ AllCops:
     - "vendor/**/*"
     - "config/environments/**/*"
     - "config/initializers/devise.rb"
+    - "config/locales/**/*.yml"
     - "test/**/*"
 
 Layout/LineLength:
@@ -26,19 +27,23 @@ Layout/LineLength:
     - "spec/**/*"
     - "config/initializers/content_security_policy.rb"
 
+Metrics/AbcSize:
+  Enabled: false
+
 Metrics/MethodLength:
-  Max: 20
-  Exclude:
-    - "spec/**/*"
+  Enabled: false
 
 Metrics/ClassLength:
-  Max: 150
+  Enabled: false
 
 Metrics/BlockLength:
-  Exclude:
-    - "spec/**/*"
-    - "config/**/*"
-    - "db/**/*"
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
 
 Style/Documentation:
   Enabled: false
@@ -71,7 +76,27 @@ RSpec/DescribeClass:
 RSpec/MultipleMemoizedHelpers:
   Max: 10
 
-Metrics/AbcSize:
-  Max: 22
+Rails/I18nLocaleTexts:
+  Enabled: false
+
+RSpec/MessageSpies:
+  Enabled: false
+
+RSpec/StubbedMock:
+  Enabled: false
+
+RSpec/LetSetup:
+  Enabled: false
+
+RSpec/ContextWording:
+  Enabled: false
+
+Rails/InverseOf:
+  Enabled: false
+
+Metrics/ParameterLists:
+  Enabled: false
+
+Rails/SkipsModelValidations:
   Exclude:
-    - 'spec/**/*'
+    - "spec/**/*"

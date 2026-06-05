@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AiAuditable
-  def with_ai_audit(operation:, model: 'gpt-4o', provider: 'openai', user: nil)
+  def with_ai_audit(operation:, model: 'gpt-4o', provider: 'openai', _user: nil)
     audit_ctx = {}
     started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 

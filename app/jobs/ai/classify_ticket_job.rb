@@ -15,7 +15,7 @@ module Ai
       ticket    = Ticket.find_by(id: ticket_id)
       next unless ticket
 
-      ticket.update_columns(status: Ticket.statuses[:pending_classification])
+      ticket.update!(status: :pending_classification)
       notify_workspace_admin_once(ticket)
     end
 
@@ -41,8 +41,6 @@ module Ai
         }
       )
     end
-
-    private
 
     def self.notify_workspace_admin_once(ticket)
       dedup_key = "ai_failure_notified:#{ticket.workspace_id}:#{Time.current.strftime('%Y%m%d%H')}"
@@ -77,6 +75,7 @@ module Ai
         ai_metadata: ticket.ai_metadata
       }
     end
+    private_class_method :notify_workspace_admin_once
   end
 
   class ClassificationError < StandardError

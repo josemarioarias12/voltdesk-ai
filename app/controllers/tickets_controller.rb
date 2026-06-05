@@ -152,44 +152,44 @@ class TicketsController < ApplicationController
     tickets.map { |t| serialize_ticket(t) }
   end
 
-  def serialize_ticket(t)
+  def serialize_ticket(tkt)
     {
-      id: t.id,
-      ticket_number: t.ticket_number,
-      title: t.title,
-      description: t.description,
-      status: t.status,
-      priority: t.priority,
-      category: t.category,
-      source: t.source,
-      urgency_score: t.urgency_score,
-      ai_metadata: t.ai_metadata.presence,
-      due_at: t.due_at&.iso8601,
-      resolved_at: t.resolved_at&.iso8601,
-      created_at: t.created_at.iso8601,
-      updated_at: t.updated_at.iso8601,
-      sla_status: t.sla_status,
-      sla_remaining_seconds: t.sla_remaining&.to_i,
-      department: { id: t.department.id, name: t.department.name, color: t.department.color },
-      created_by: user_stub(t.created_by),
-      assigned_to: t.assigned_to ? user_stub(t.assigned_to) : nil
+      id: tkt.id,
+      ticket_number: tkt.ticket_number,
+      title: tkt.title,
+      description: tkt.description,
+      status: tkt.status,
+      priority: tkt.priority,
+      category: tkt.category,
+      source: tkt.source,
+      urgency_score: tkt.urgency_score,
+      ai_metadata: tkt.ai_metadata.presence,
+      due_at: tkt.due_at&.iso8601,
+      resolved_at: tkt.resolved_at&.iso8601,
+      created_at: tkt.created_at.iso8601,
+      updated_at: tkt.updated_at.iso8601,
+      sla_status: tkt.sla_status,
+      sla_remaining_seconds: tkt.sla_remaining&.to_i,
+      department: { id: tkt.department.id, name: tkt.department.name, color: tkt.department.color },
+      created_by: user_stub(tkt.created_by),
+      assigned_to: tkt.assigned_to ? user_stub(tkt.assigned_to) : nil
     }
   end
 
-  def serialize_ticket_detail(t)
-    serialize_ticket(t).merge(
-      comments: policy_scope(t.comments).chronological.map do |c|
+  def serialize_ticket_detail(tkt)
+    serialize_ticket(tkt).merge(
+      comments: policy_scope(tkt.comments).chronological.map do |c|
         { id: c.id, body: c.body, internal: c.internal, created_at: c.created_at.iso8601, user: user_stub(c.user) }
       end,
-      activities: t.activities.chronological.map do |a|
+      activities: tkt.activities.chronological.map do |a|
         { id: a.id, action: a.action, metadata: a.metadata, created_at: a.created_at.iso8601,
           user: a.user ? user_stub(a.user) : nil }
       end
     )
   end
 
-  def user_stub(u)
-    { id: u.id, full_name: u.full_name, email: u.email, role: u.role, avatar_url: nil }
+  def user_stub(usr)
+    { id: usr.id, full_name: usr.full_name, email: usr.email, role: usr.role, avatar_url: nil }
   end
 
   def recent_tickets_for_sidebar

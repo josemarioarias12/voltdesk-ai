@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Hr::ProcessLeaveRequest do
@@ -10,16 +12,16 @@ RSpec.describe Hr::ProcessLeaveRequest do
       {
         leave_type: :vacation,
         start_date: 1.week.from_now.to_date,
-        end_date:   2.weeks.from_now.to_date
+        end_date: 2.weeks.from_now.to_date
       }
     end
 
     it 'creates a leave request with pending status' do
       result = described_class.call(
         workspace: workspace,
-        user:      employee,
-        action:    :create,
-        options:   { params: params }
+        user: employee,
+        action: :create,
+        options: { params: params }
       )
 
       expect(result).to be_success
@@ -30,9 +32,9 @@ RSpec.describe Hr::ProcessLeaveRequest do
     it 'returns failure when dates are invalid' do
       result = described_class.call(
         workspace: workspace,
-        user:      employee,
-        action:    :create,
-        options:   { params: params.merge(end_date: 1.day.ago.to_date) }
+        user: employee,
+        action: :create,
+        options: { params: params.merge(end_date: 1.day.ago.to_date) }
       )
 
       expect(result).to be_failure
@@ -46,9 +48,9 @@ RSpec.describe Hr::ProcessLeaveRequest do
     it 'approves a pending leave request' do
       result = described_class.call(
         workspace: workspace,
-        user:      manager,
-        action:    :approve,
-        options:   { leave_request: leave_request, actor: manager }
+        user: manager,
+        action: :approve,
+        options: { leave_request: leave_request, actor: manager }
       )
 
       expect(result).to be_success
@@ -61,9 +63,9 @@ RSpec.describe Hr::ProcessLeaveRequest do
 
       result = described_class.call(
         workspace: workspace,
-        user:      manager,
-        action:    :approve,
-        options:   { leave_request: leave_request, actor: manager }
+        user: manager,
+        action: :approve,
+        options: { leave_request: leave_request, actor: manager }
       )
 
       expect(result).to be_failure
@@ -77,12 +79,12 @@ RSpec.describe Hr::ProcessLeaveRequest do
     it 'rejects with a reason' do
       result = described_class.call(
         workspace: workspace,
-        user:      manager,
-        action:    :reject,
-        options:   {
+        user: manager,
+        action: :reject,
+        options: {
           leave_request: leave_request,
-          actor:         manager,
-          params:        { rejection_reason: 'Team at capacity' }
+          actor: manager,
+          params: { rejection_reason: 'Team at capacity' }
         }
       )
 
@@ -94,9 +96,9 @@ RSpec.describe Hr::ProcessLeaveRequest do
     it 'returns failure when rejection reason is missing' do
       result = described_class.call(
         workspace: workspace,
-        user:      manager,
-        action:    :reject,
-        options:   { leave_request: leave_request, actor: manager, params: {} }
+        user: manager,
+        action: :reject,
+        options: { leave_request: leave_request, actor: manager, params: {} }
       )
 
       expect(result).to be_failure

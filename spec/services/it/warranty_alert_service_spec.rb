@@ -10,8 +10,8 @@ RSpec.describe It::WarrantyAlertService do
     context 'when an asset warranty expires in 30 days' do
       let!(:asset) do
         create(:asset,
-               workspace:           workspace,
-               status:              :active,
+               workspace: workspace,
+               status: :active,
                warranty_expires_at: 30.days.from_now.to_date)
       end
 
@@ -49,8 +49,8 @@ RSpec.describe It::WarrantyAlertService do
     context 'when asset is not active' do
       let!(:asset) do
         create(:asset,
-               workspace:           workspace,
-               status:              :retired,
+               workspace: workspace,
+               status: :retired,
                warranty_expires_at: 30.days.from_now.to_date)
       end
 

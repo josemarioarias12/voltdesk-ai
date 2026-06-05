@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_03_172000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_05_083115) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -161,6 +161,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_03_172000) do
     t.index ["onboarding_plan_id"], name: "index_onboarding_tasks_on_onboarding_plan_id"
   end
 
+  create_table "pattern_alerts", force: :cascade do |t|
+    t.integer "alert_type", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.jsonb "metadata", default: {}, null: false
+    t.datetime "resolved_at"
+    t.integer "severity", default: 0, null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["metadata"], name: "index_pattern_alerts_on_metadata", using: :gin
+    t.index ["resolved_at"], name: "index_pattern_alerts_on_resolved_at"
+    t.index ["workspace_id", "alert_type"], name: "index_pattern_alerts_on_workspace_id_and_alert_type"
+    t.index ["workspace_id"], name: "index_pattern_alerts_on_workspace_id"
+  end
+
   create_table "sla_policies", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "first_response_hours", null: false
@@ -298,6 +314,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_03_172000) do
   add_foreign_key "onboarding_plans", "users"
   add_foreign_key "onboarding_plans", "workspaces"
   add_foreign_key "onboarding_tasks", "onboarding_plans"
+  add_foreign_key "pattern_alerts", "workspaces"
   add_foreign_key "sla_policies", "workspaces"
   add_foreign_key "ticket_activities", "tickets"
   add_foreign_key "ticket_activities", "users"

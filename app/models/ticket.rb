@@ -12,6 +12,7 @@ class Ticket < ApplicationRecord
 
   has_many :comments,   class_name: 'TicketComment',  dependent: :destroy
   has_many :activities, class_name: 'TicketActivity', dependent: :destroy
+  has_one  :ticket_embedding, dependent: :destroy
 
   # ── Enums ─────────────────────────────────────────────────────────────────────
   enum :status, {

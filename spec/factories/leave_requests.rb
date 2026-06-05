@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :leave_request do
     association :workspace
@@ -22,8 +24,8 @@ FactoryBot.define do
 
     trait :sick do
       leave_type { :sick_leave }
-      start_date { Date.today }
-      end_date   { Date.today + 2.days }
+      start_date { Time.zone.today }
+      end_date   { Time.zone.today + 2.days }
     end
   end
 end

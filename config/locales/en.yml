@@ -6,3 +6,8 @@ en:
     created: "Asset added to inventory."
     updated: "Asset updated."
     destroyed: "Asset removed from inventory."
+
+  admin:
+    pattern_alerts:
+      resolved: "Alert resolved"
+      resolve_failed: "Could not resolve alert"

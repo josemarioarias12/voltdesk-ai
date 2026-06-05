@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Users
   class SessionsController < Devise::SessionsController
     def new
@@ -10,8 +11,6 @@ module Users
       password = params.dig(:user, :password)
 
       resource = User.find_by(email: email)
-
-      Rails.logger.info "=== RESOURCE: #{resource&.email} | PASSWORD_LENGTH: #{password&.length} | VALID: #{resource&.valid_password?(password)}"
 
       if resource&.valid_password?(password)
         sign_in(resource_name, resource)

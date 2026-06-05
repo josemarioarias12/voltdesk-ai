@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module It
-  class CalculateAssetRisk # rubocop:disable Metrics/ClassLength
+  class CalculateAssetRisk
     WEIGHTS = {
       incident_score: 40,
       maintenance_score: 30,

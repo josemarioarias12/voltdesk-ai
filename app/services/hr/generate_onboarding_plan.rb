@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Hr
   class GenerateOnboardingPlan
     include AiAuditable
@@ -28,8 +30,8 @@ module Hr
 
     def find_or_initialize_plan
       @user.onboarding_plan || @user.build_onboarding_plan(
-        workspace:              @workspace,
-        status:                 :in_progress,
+        workspace: @workspace,
+        status: :in_progress,
         target_completion_date: 30.days.from_now.to_date
       )
     end
@@ -41,29 +43,29 @@ module Hr
       duration   = ((Time.current - started_at) * 1000).round
 
       log_ai_call(
-        operation:   'onboarding_plan',
-        model:       @model_used,
-        provider:    @provider_used,
-        prompt:      prompt,
-        response:    response[:content],
-        tokens:      response[:usage],
+        operation: 'onboarding_plan',
+        model: @model_used,
+        provider: @provider_used,
+        prompt: prompt,
+        response: response[:content],
+        tokens: response[:usage],
         duration_ms: duration,
-        confidence:  nil,
-        status:      'success'
+        confidence: nil,
+        status: 'success'
       )
 
       ServiceResult.success(parse_tasks(response[:content]))
     rescue StandardError => e
       log_ai_call(
-        operation:   'onboarding_plan',
-        model:       @model_used    || 'gpt-4o',
-        provider:    @provider_used || 'openai',
-        prompt:      build_prompt,
-        response:    e.message,
-        tokens:      { 'prompt_tokens' => 0, 'completion_tokens' => 0, 'total_tokens' => 0 },
+        operation: 'onboarding_plan',
+        model: @model_used || 'gpt-4o',
+        provider: @provider_used || 'openai',
+        prompt: build_prompt,
+        response: e.message,
+        tokens: { 'prompt_tokens' => 0, 'completion_tokens' => 0, 'total_tokens' => 0 },
         duration_ms: 0,
-        confidence:  nil,
-        status:      'error'
+        confidence: nil,
+        status: 'error'
       )
       ServiceResult.failure("AI generation failed: #{e.message}")
     end
@@ -73,9 +75,9 @@ module Hr
       @model_used    = model
       @provider_used = provider
       adapter.chat(
-        prompt:      prompt,
-        system:      system_prompt,
-        model:       model,
+        prompt: prompt,
+        system: system_prompt,
+        model: model
       )
     end
 
@@ -129,11 +131,11 @@ module Hr
       data['sections'].flat_map do |section|
         section['tasks'].map do |task|
           {
-            title:       task['title'],
-            category:    section['category'],
+            title: task['title'],
+            category: section['category'],
             order_index: task['order_index'],
-            due_date:    task['due_days'] ? task['due_days'].days.from_now.to_date : nil,
-            completed:   false
+            due_date: task['due_days'] ? task['due_days'].days.from_now.to_date : nil,
+            completed: false
           }
         end
       end
@@ -147,10 +149,10 @@ module Hr
         plan.onboarding_tasks.destroy_all
         tasks.each { |task| plan.onboarding_tasks.create!(task) }
         plan.update!(ai_metadata: {
-          generated_at: Time.current.iso8601,
-          model:        @model_used,
-          task_count:   tasks.count
-        })
+                       generated_at: Time.current.iso8601,
+                       model: @model_used,
+                       task_count: tasks.count
+                     })
       end
       Hr::NotifyOnboardingReady.call(plan: plan)
     end

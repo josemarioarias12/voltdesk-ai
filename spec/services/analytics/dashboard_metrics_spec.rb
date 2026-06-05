@@ -87,9 +87,9 @@ RSpec.describe Analytics::DashboardMetrics do
 
     it 'calculates correct compliance when tickets exist' do
       t1 = create(:ticket, workspace: workspace, created_by: user, status: :resolved,
-                  due_at: 1.hour.from_now, resolved_at: Time.current)
+                           due_at: 1.hour.from_now, resolved_at: Time.current)
       t2 = create(:ticket, workspace: workspace, created_by: user, status: :resolved,
-                  due_at: 1.hour.ago, resolved_at: Time.current)
+                           due_at: 1.hour.ago, resolved_at: Time.current)
       t1.update_columns(status: 4, resolved_at: t1.due_at - 1.minute)
       t2.update_columns(status: 4, resolved_at: t2.due_at + 1.hour)
 

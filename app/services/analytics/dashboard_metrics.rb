@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Analytics
-  class DashboardMetrics # rubocop:disable Metrics/ClassLength
+  class DashboardMetrics
     MANAGER_ROLES   = %w[department_manager it_manager hr_manager facilities_manager].freeze
     EXECUTIVE_ROLES = %w[operations_manager workspace_admin super_admin].freeze
 

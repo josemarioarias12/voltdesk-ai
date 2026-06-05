@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Hr::GenerateOnboardingPlan do
@@ -6,43 +8,43 @@ RSpec.describe Hr::GenerateOnboardingPlan do
 
   let(:ai_content) do
     JSON.generate({
-      sections: [
-        {
-          category: 'setup',
-          tasks: [
-            { title: 'Configure laptop', order_index: 1, due_days: 2 },
-            { title: 'Set up VPN',       order_index: 2, due_days: 3 }
-          ]
-        },
-        {
-          category: 'team',
-          tasks: [
-            { title: 'Meet your manager', order_index: 3, due_days: 1 },
-            { title: 'Team lunch',        order_index: 4, due_days: 5 }
-          ]
-        },
-        {
-          category: 'systems',
-          tasks: [
-            { title: 'Learn ticketing system', order_index: 5, due_days: 7 },
-            { title: 'Read the runbook',       order_index: 6, due_days: 7 }
-          ]
-        },
-        {
-          category: 'contributions',
-          tasks: [
-            { title: 'First solo ticket', order_index: 7, due_days: 14 },
-            { title: 'Lead one standup',  order_index: 8, due_days: 21 }
-          ]
-        }
-      ]
-    })
+                    sections: [
+                      {
+                        category: 'setup',
+                        tasks: [
+                          { title: 'Configure laptop', order_index: 1, due_days: 2 },
+                          { title: 'Set up VPN',       order_index: 2, due_days: 3 }
+                        ]
+                      },
+                      {
+                        category: 'team',
+                        tasks: [
+                          { title: 'Meet your manager', order_index: 3, due_days: 1 },
+                          { title: 'Team lunch',        order_index: 4, due_days: 5 }
+                        ]
+                      },
+                      {
+                        category: 'systems',
+                        tasks: [
+                          { title: 'Learn ticketing system', order_index: 5, due_days: 7 },
+                          { title: 'Read the runbook',       order_index: 6, due_days: 7 }
+                        ]
+                      },
+                      {
+                        category: 'contributions',
+                        tasks: [
+                          { title: 'First solo ticket', order_index: 7, due_days: 14 },
+                          { title: 'Lead one standup',  order_index: 8, due_days: 21 }
+                        ]
+                      }
+                    ]
+                  })
   end
 
   let(:ai_response) do
     {
       content: ai_content,
-      usage:   { 'prompt_tokens' => 200, 'completion_tokens' => 300, 'total_tokens' => 500 }
+      usage: { 'prompt_tokens' => 200, 'completion_tokens' => 300, 'total_tokens' => 500 }
     }
   end
 
