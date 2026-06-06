@@ -83,6 +83,23 @@ export default function AdminOverview({ stats }: { stats: Stats }) {
           </div>
         </div>
 
+
+        {/* QR Demo Mode */}
+        <div className='rounded-2xl border p-6' style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <h2 className='text-base font-semibold' style={{ color: '#0F172A' }}>QR Demo Mode</h2>
+              <p className='text-sm mt-1' style={{ color: '#475569' }}>Activate a 30-minute guest session for live presentations</p>
+            </div>
+            <form method='post' action='/workspace_admin/demo/activate'>
+              <input type='hidden' name='authenticity_token' value={document.querySelector('meta[name=csrf-token]')?.getAttribute('content') ?? ''} />
+              <button type='submit'
+                style={{ background: '#028090', color: '#fff', border: 'none', borderRadius: 10, padding: '10px 24px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+                ⚡ Activate Demo Mode
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
     </AppLayout>
   )

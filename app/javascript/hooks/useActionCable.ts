@@ -1,27 +1,18 @@
 import { useEffect, useRef } from 'react'
-
-declare global {
-  interface Window {
-    App: {
-      cable: {
-        subscriptions: {
-          create: (
-            channelConfig: Record<string, unknown>,
-            callbacks: {
-              received?: (data: unknown) => void
-              connected?: () => void
-              disconnected?: () => void
-            }
-          ) => { unsubscribe: () => void }
-        }
-      }
-    }
-  }
-}
+import * as ActionCable from '@rails/actioncable'
 
 interface UseActionCableOptions {
   channel: string
   [key: string]: unknown
+}
+
+let consumer: ActionCable.Consumer | null = null
+
+function getConsumer(): ActionCable.Consumer {
+  if (!consumer) {
+    consumer = ActionCable.createConsumer('/cable')
+  }
+  return consumer
 }
 
 export function useActionCable(
@@ -30,20 +21,21 @@ export function useActionCable(
 ): void {
   const onReceivedRef = useRef(onReceived)
   onReceivedRef.current = onReceived
+  const configKey = JSON.stringify(channelConfig)
 
   useEffect(() => {
-    if (!window.App?.cable) {
-      console.warn('[useActionCable] ActionCable not initialized.')
-      return
-    }
-
-    const subscription = window.App.cable.subscriptions.create(channelConfig, {
+    let active = true
+    const subscription = getConsumer().subscriptions.create(channelConfig, {
       received(data: unknown) {
-        onReceivedRef.current(data as Record<string, unknown>)
+        if (active) {
+          onReceivedRef.current(data as Record<string, unknown>)
+        }
       },
     })
-
-    return () => { subscription.unsubscribe() }
+    return () => {
+      active = false
+      subscription.unsubscribe()
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(channelConfig)])
+  }, [configKey])
 }

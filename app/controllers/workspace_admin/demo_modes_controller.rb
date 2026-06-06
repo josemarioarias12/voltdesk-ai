@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Workspace
+module WorkspaceAdmin
   class DemoModesController < ApplicationController
     def activate
       authorize current_workspace, :manage_demo?, policy_class: WorkspacePolicy

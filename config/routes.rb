@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  mount ActionCable.server => "/cable"
   devise_for :users,
              controllers: {
                sessions: 'users/sessions',
@@ -77,7 +78,6 @@ Rails.application.routes.draw do
     # S7
     resources :pattern_alerts, only: %i[index update]
   end
-end
 
   # QR Demo Mode
   get  '/demo/:token',        to: 'demo#join',          as: :demo_join
@@ -85,8 +85,9 @@ end
   get  '/demo/:token/presenter', to: 'demo#presenter',  as: :demo_presenter
 
   # workspace_admin activates demo
-  namespace :workspace do
+  namespace :workspace_admin do
     post 'demo/activate',   to: 'demo_modes#activate',   as: :activate_demo
     delete 'demo/deactivate', to: 'demo_modes#deactivate', as: :deactivate_demo
     get  'demo/status',     to: 'demo_modes#status',     as: :demo_status
   end
+end

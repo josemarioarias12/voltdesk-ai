@@ -74,6 +74,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
   useActionCable(
     { channel: 'DemoChannel', token },
     (data) => {
+      console.log('[DemoChannel] received:', data)
       if (data.type === 'ticket_created') {
         const ticket = data as unknown as LiveTicket & { type: string }
         setTickets(prev => [ticket, ...prev].slice(0, 20))
@@ -86,7 +87,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
 
   // Initial poll for existing tickets + guest count
   useEffect(() => {
-    fetch(`/workspace/demo/status?token=${token}`, {
+    fetch(`/workspace_admin/demo/status?token=${token}`, {
       headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
     })
       .then(res => res.ok ? res.json() : null)
@@ -107,7 +108,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
 
   function handleEndDemo() {
     if (!confirm('End demo session? All guests will lose access immediately.')) return
-    router.delete('/workspace/demo/deactivate', { data: { token } })
+    router.delete('/workspace_admin/demo/deactivate', { data: { token } })
   }
 
   const guestPct = Math.min((guestCount / 50) * 100, 100)

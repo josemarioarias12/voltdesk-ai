@@ -25,6 +25,11 @@ class DemoController < ApplicationController
     sign_in(guest)
     session[:demo_token] = params[:token]
 
+    ActionCable.server.broadcast(
+      "demo_#{params[:token]}",
+      { type: 'guest_joined', guest_count: data[:guest_count] }
+    )
+
     render inertia: 'Demo/CreateTicket', props: {
       workspace_name: workspace.name,
       expires_in:     data[:expires_in],
@@ -34,7 +39,7 @@ class DemoController < ApplicationController
   end
 
   def create_ticket
-    authorize session[:demo_token], policy_class: GuestPolicy, query: :create_ticket?
+    authorize session[:demo_token], policy_class: GuestPolicy
 
     result = Tickets::CreateTicket.call(
       workspace: current_workspace,

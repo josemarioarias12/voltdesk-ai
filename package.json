@@ -6,6 +6,7 @@
     "@types/d3": "^7.4.3",
     "@types/dom-speech-recognition": "^0.0.11",
     "@types/qrcode": "^1.5.6",
+    "@types/rails__actioncable": "^8.0.3",
     "vite": "^8.0.14",
     "vite-plugin-ruby": "^5.2.2"
   },
@@ -13,6 +14,7 @@
     "@hookform/resolvers": "^5.4.0",
     "@inertiajs/react": "^3.3.0",
     "@inertiajs/vite": "^3.3.0",
+    "@rails/actioncable": "^8.1.300",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.3.0",

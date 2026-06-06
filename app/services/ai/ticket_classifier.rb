@@ -75,7 +75,7 @@ module Ai
           category: category,
           priority: parsed['priority'],
           urgency_score: parsed['urgency_score'].to_i,
-          ai_metadata: build_ai_metadata(parsed, model, provider)
+          ai_metadata: (@ticket.ai_metadata || {}).merge(build_ai_metadata(parsed, model, provider))
         )
 
         ServiceResult.success(@ticket)

@@ -40,7 +40,7 @@ module Ai
           ticket: serialize_ticket_for_broadcast(ticket)
         }
       )
-      broadcast_to_demo_channel(ticket) if ticket.source == 'qr_demo'
+      self.class.broadcast_to_demo_channel(ticket) if ticket.source == 'qr_demo'
     end
 
     def self.notify_workspace_admin_once(ticket)
