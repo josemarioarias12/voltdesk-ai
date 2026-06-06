@@ -39,7 +39,7 @@ class DemoController < ApplicationController
     result = Tickets::CreateTicket.call(
       workspace: current_workspace,
       user:      current_user,
-      params:    ticket_params.merge(source: 'qr_demo')
+      params:    ticket_params.merge(source: 'qr_demo', ai_metadata: { source_token: session[:demo_token] })
     )
 
     if result.success?

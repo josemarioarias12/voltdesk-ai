@@ -40,13 +40,14 @@ module Ai
           ticket: serialize_ticket_for_broadcast(ticket)
         }
       )
+      broadcast_to_demo_channel(ticket) if ticket.source == 'qr_demo'
     end
 
     def self.notify_workspace_admin_once(ticket)
       dedup_key = "ai_failure_notified:#{ticket.workspace_id}:#{Time.current.strftime('%Y%m%d%H')}"
-      return if Redis.current.exists?(dedup_key)
+      return if REDIS.exists?(dedup_key)
 
-      Redis.current.setex(dedup_key, 1.hour.to_i, '1')
+      REDIS.setex(dedup_key, 1.hour.to_i, '1')
 
       admin = ticket.workspace.users.where(role: :workspace_admin, active: true).first
       return unless admin
@@ -74,6 +75,24 @@ module Ai
         status: ticket.status,
         ai_metadata: ticket.ai_metadata
       }
+    end
+
+    def self.broadcast_to_demo_channel(ticket)
+      token = ticket.ai_metadata&.dig('source_token')
+      return unless token.present? && REDIS.exists?("demo_token:#{token}")
+
+      ActionCable.server.broadcast(
+        "demo_#{token}",
+        {
+          type:          'ticket_created',
+          id:            ticket.id,
+          ticket_number: ticket.ticket_number,
+          title:         ticket.title,
+          department:    ticket.department&.name || 'General',
+          priority:      ticket.priority,
+          created_at:    ticket.created_at.iso8601
+        }
+      )
     end
     private_class_method :notify_workspace_admin_once
   end

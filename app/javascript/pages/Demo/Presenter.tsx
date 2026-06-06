@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { router } from '@inertiajs/react'
 import QRCode from 'qrcode'
+import { useActionCable } from '@/hooks/useActionCable'
 
 interface LiveTicket {
   id:            number
@@ -48,41 +49,54 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
 
   const demoUrl = `${window.location.origin}/demo/${token}`
 
+  // Generate QR
   useEffect(() => {
     QRCode.toDataURL(demoUrl, {
-      width: 280,
-      margin: 2,
+      width: 280, margin: 2,
       color: { dark: '#0F172A', light: '#FFFFFF' },
     }).then(setQrDataUrl).catch(console.error)
   }, [demoUrl])
 
+  // Countdown
   useEffect(() => {
     if (secondsLeft <= 0) return
     const id = setInterval(() => setSecondsLeft(prev => prev - 1), 1000)
     return () => clearInterval(id)
   }, [secondsLeft])
 
+  // Refresh time-ago labels every 10s
   useEffect(() => {
     const id = setInterval(() => setTick(t => t + 1), 10_000)
     return () => clearInterval(id)
   }, [])
 
+  // ActionCable — real-time tickets
+  useActionCable(
+    { channel: 'DemoChannel', token },
+    (data) => {
+      if (data.type === 'ticket_created') {
+        const ticket = data as unknown as LiveTicket & { type: string }
+        setTickets(prev => [ticket, ...prev].slice(0, 20))
+      }
+      if (data.type === 'guest_joined' && typeof data.guest_count === 'number') {
+        setGuestCount(data.guest_count as number)
+      }
+    }
+  )
+
+  // Initial poll for existing tickets + guest count
   useEffect(() => {
-    const poll = async () => {
-      try {
-        const res = await fetch(`/workspace/demo/status?token=${token}`, {
-          headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-        })
-        if (!res.ok) return
-        const json = await res.json()
+    fetch(`/workspace/demo/status?token=${token}`, {
+      headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+    })
+      .then(res => res.ok ? res.json() : null)
+      .then(json => {
+        if (!json) return
         if (json.guest_count !== undefined) setGuestCount(json.guest_count)
         if (json.expires_in  !== undefined) setSecondsLeft(json.expires_in)
         if (json.tickets)                   setTickets(json.tickets)
-      } catch { /* silent */ }
-    }
-    poll()
-    const id = setInterval(poll, 5_000)
-    return () => clearInterval(id)
+      })
+      .catch(console.error)
   }, [token])
 
   function formatTime(secs: number): string {
@@ -136,8 +150,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
         {/* Guest counter */}
         <div style={{ textAlign: 'center', minWidth: 160 }}>
           <p style={{ fontSize: 72, fontWeight: 800, color: '#fff', lineHeight: 1, margin: 0 }}>
-            {guestCount}
-            <span style={{ fontSize: 32, color: '#94A3B8', fontWeight: 400 }}> / 50</span>
+            {guestCount}<span style={{ fontSize: 32, color: '#94A3B8', fontWeight: 400 }}> / 50</span>
           </p>
           <p style={{ fontSize: 14, color: '#94A3B8', marginTop: 8 }}>guests joined</p>
           <div style={{ width: 160, height: 4, background: '#1E293B', borderRadius: 999, marginTop: 12, overflow: 'hidden' }}>
@@ -166,15 +179,11 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: isNew ? '#028090' : '#1E293B', border: isNew ? 'none' : '1px solid #334155', flexShrink: 0 }} />
                 <span style={{ fontSize: 14, fontWeight: 700, color: '#028090', minWidth: 90, fontFamily: 'monospace' }}>{ticket.ticket_number}</span>
                 <span style={{ fontSize: 14, color: '#E2E8F0', flex: 1 }}>{ticket.title}</span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: DEPT_COLORS[ticket.department] ?? '#94A3B8', background: 'rgba(255,255,255,0.05)', padding: '3px 10px', borderRadius: 6 }}>
-                  {ticket.department}
-                </span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: DEPT_COLORS[ticket.department] ?? '#94A3B8', background: 'rgba(255,255,255,0.05)', padding: '3px 10px', borderRadius: 6 }}>{ticket.department}</span>
                 <span style={{ fontSize: 12, fontWeight: 700, color: PRIORITY_COLORS[ticket.priority], background: `${PRIORITY_COLORS[ticket.priority]}18`, padding: '3px 10px', borderRadius: 6 }}>
                   {ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1)}
                 </span>
-                <span style={{ fontSize: 12, color: '#475569', minWidth: 60, textAlign: 'right' as const }}>
-                  {timeAgo(ticket.created_at)}
-                </span>
+                <span style={{ fontSize: 12, color: '#475569', minWidth: 60, textAlign: 'right' as const }}>{timeAgo(ticket.created_at)}</span>
               </div>
             )
           })}
