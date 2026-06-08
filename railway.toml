@@ -1,15 +1,10 @@
 [build]
-builder = "nixpacks"
-buildCommand = "bundle install && npm install && bundle exec rails assets:precompile && bundle exec rails db:migrate"
+buildCommand = "bundle exec rails assets:precompile"
 
 [deploy]
 startCommand = "bundle exec rails server -p $PORT -e production"
+preDeployCommand = "bundle exec rails db:migrate"
 healthcheckPath = "/health"
-healthcheckTimeout = 30
+healthcheckTimeout = 60
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
-
-[environments.production.variables]
-RAILS_ENV = "production"
-RAILS_LOG_TO_STDOUT = "true"
-RAILS_SERVE_STATIC_FILES = "true"
