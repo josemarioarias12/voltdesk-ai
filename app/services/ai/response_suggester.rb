@@ -33,7 +33,7 @@ module Ai
         workspace: @workspace,
         limit: TOP_K,
         distance_threshold: SIMILARITY_THRESHOLD
-      ).includes(ticket: [:ticket_comments])
+      ).includes(ticket: [:comments])
 
       if similar_embeddings.empty?
         Rails.logger.info("[ResponseSuggester] No similar resolved tickets for #{@ticket.ticket_number}")
@@ -106,8 +106,8 @@ module Ai
     end
 
     def extract_resolution(ticket)
-      last_external = ticket.ticket_comments.where(internal: false).order(:created_at).last
-      last_internal = ticket.ticket_comments.order(:created_at).last
+      last_external = ticket.comments.where(internal: false).order(:created_at).last
+      last_internal = ticket.comments.order(:created_at).last
       (last_external || last_internal)&.body&.truncate(400) ||
         ticket.description&.truncate(200) ||
         '(no resolution recorded)'

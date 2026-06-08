@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe DemoModes::DeactivateDemo do
@@ -14,8 +16,8 @@ RSpec.describe DemoModes::DeactivateDemo do
       result = described_class.call(token: token)
 
       expect(result).to be_success
-      expect(REDIS.exists?("demo_token:#{token}")).to eq(false)
-      expect(REDIS.exists?("demo_count:#{token}")).to eq(false)
+      expect(REDIS.exists?("demo_token:#{token}")).to be(false)
+      expect(REDIS.exists?("demo_count:#{token}")).to be(false)
     end
 
     it 'succeeds even if keys do not exist' do

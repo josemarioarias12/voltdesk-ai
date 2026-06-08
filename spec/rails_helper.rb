@@ -29,6 +29,9 @@ rescue ActiveRecord::PendingMigrationError => e
   abort e.to_s.strip
 end
 
+# Force Inertia version to nil in test to avoid 409 conflicts in request specs
+InertiaRails.configuration.version = nil
+
 RSpec.configure do |config|
   config.fixture_paths = [Rails.root.join('spec/fixtures')]
   config.use_transactional_fixtures = false

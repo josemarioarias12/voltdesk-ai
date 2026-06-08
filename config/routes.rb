@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  mount ActionCable.server => "/cable"
+  mount ActionCable.server => '/cable'
   devise_for :users,
              controllers: {
                sessions: 'users/sessions',
@@ -86,8 +86,8 @@ Rails.application.routes.draw do
 
   # workspace_admin activates demo
   namespace :workspace_admin do
-    post 'demo/activate',   to: 'demo_modes#activate',   as: :activate_demo
+    post 'demo/activate', to: 'demo_modes#activate', as: :activate_demo
     delete 'demo/deactivate', to: 'demo_modes#deactivate', as: :deactivate_demo
-    get  'demo/status',     to: 'demo_modes#status',     as: :demo_status
+    get 'demo/status', to: 'demo_modes#status', as: :demo_status
   end
 end
