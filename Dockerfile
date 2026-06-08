@@ -1,10 +1,11 @@
 FROM ruby:3.4.4-slim
 
-# Install dependencies including Node.js
+# Install system dependencies
 RUN apt-get update -qq && apt-get install -y \
     build-essential \
     git \
     libpq-dev \
+    libyaml-dev \
     curl \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
