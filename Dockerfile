@@ -1,6 +1,6 @@
 FROM ruby:3.4.4-slim
 
-# Install dependencies
+# Install dependencies including Node.js
 RUN apt-get update -qq && apt-get install -y \
     build-essential \
     git \
@@ -8,17 +8,19 @@ RUN apt-get update -qq && apt-get install -y \
     curl \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
-    && npm install -g npm@latest \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /rails
 
+# Configure bundler to exclude dev/test gems
+RUN bundle config set --local without 'development test'
+
 # Install gems
 COPY Gemfile Gemfile.lock ./
-RUN bundle install --without development test
+RUN bundle install
 
 # Install npm packages
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json* ./
 RUN npm install
 
 # Copy app
