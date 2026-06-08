@@ -1,0 +1,17 @@
+[phases.setup]
+nixPkgs = ["ruby_3_4", "nodejs_20", "postgresql_16", "git", "libpq"]
+
+[phases.install]
+cmds = [
+  "bundle install",
+  "npm install"
+]
+
+[phases.build]
+cmds = [
+  "bundle exec rails assets:precompile",
+  "npm run build"
+]
+
+[start]
+cmd = "bundle exec rails server -p $PORT -e production"
