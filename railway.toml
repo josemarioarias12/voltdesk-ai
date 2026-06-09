@@ -2,8 +2,8 @@
 buildCommand = "bundle exec rails assets:precompile"
 
 [deploy]
-startCommand = "bundle exec rails server -p $PORT -e production"
-preDeployCommand = "bundle exec rails db:migrate --trace"
+startCommand = "bundle exec puma -C config/puma.rb"
+preDeployCommand = "bundle exec rails db:migrate"
 healthcheckPath = "/health"
 healthcheckTimeout = 60
 restartPolicyType = "on_failure"
