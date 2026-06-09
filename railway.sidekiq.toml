@@ -1,0 +1,7 @@
+[build]
+buildCommand = "bundle exec rails assets:precompile"
+
+[deploy]
+startCommand = "bundle exec sidekiq -e production"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
