@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, router } from '@inertiajs/react'
 import AppLayout from '@/components/AppLayout'
+import EmptyState from '@/components/EmptyState'
 
 interface Asset {
   id: number
@@ -145,7 +146,7 @@ export default function AssetsIndex({ assets, summary }: Props) {
             </thead>
             <tbody>
               {filtered.length === 0 ? (
-                <tr><td colSpan={8} style={{ textAlign: 'center', padding: '48px', color: '#94A3B8', fontSize: '14px' }}>No assets found</td></tr>
+                <tr><td colSpan={8}><EmptyState icon="💻" title="No assets found" description="Try adjusting your filters or register a new asset." /></td></tr>
               ) : filtered.map(asset => (
                 <tr
                   key={asset.id}

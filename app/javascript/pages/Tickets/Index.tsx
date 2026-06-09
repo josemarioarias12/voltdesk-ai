@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react'
 import type { Ticket, TicketsIndexProps, TicketPriority, TicketStatus, SlaStatus } from '@/types/tickets'
 import { useActionCable } from '@/hooks/useActionCable'
 import AppLayout from '@/components/AppLayout'
+import EmptyState from '@/components/EmptyState'
 import ErrorBoundary from '@/components/ErrorBoundary'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -209,7 +210,7 @@ export default function TicketsIndex({ tickets, departments, stats, filters, pag
             </thead>
             <tbody>
               {tickets.length === 0 ? (
-                <tr><td colSpan={9} style={{ padding: '48px', textAlign: 'center', color: '#94A3B8', fontSize: 14 }}>No tickets found.</td></tr>
+                <tr><td colSpan={9}><EmptyState icon="🎫" title="No tickets found" description="Try adjusting your filters or create a new ticket." action={{ label: 'New Ticket', onClick: () => router.get('/tickets/new') }} /></td></tr>
               ) : tickets.map(ticket => (
                 <tr key={ticket.id} onClick={() => router.get(`/tickets/${ticket.id}`)}
                   style={{ borderBottom: '1px solid #E2E8F0', cursor: 'pointer' }}

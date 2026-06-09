@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import AppLayout from '@/components/AppLayout'
+import EmptyState from '@/components/EmptyState'
 import { router } from '@inertiajs/react'
 import { LeaveRequest } from '@/types'
 import { toast } from 'sonner'
@@ -218,11 +219,7 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
             </thead>
             <tbody>
               {leave_requests.length === 0 ? (
-                <tr>
-                  <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: '#94A3B8' }}>
-                    No leave requests yet
-                  </td>
-                </tr>
+                <tr><td colSpan={6}><EmptyState icon="🏖️" title="No leave requests yet" description="Employees can submit vacation, sick leave, and other time-off requests here." /></td></tr>
               ) : (
                 leave_requests.map((lr, i) => {
                   const status    = STATUS_STYLES[lr.status] ?? STATUS_STYLES.pending
