@@ -1,8 +1,9 @@
-import { ReactNode, useEffect } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { router, usePage } from '@inertiajs/react'
 import { SharedProps } from '@/types'
 import { IconBolt } from '@/components/Icons'
 import NotificationBell from '@/components/NotificationBell'
+import { SkeletonDashboard } from './Skeleton'
 import { Toaster, toast } from 'sonner'
 
 interface Props {
@@ -23,6 +24,14 @@ const NAV_ITEMS = [
 export default function AppLayout({ children, title }: Props) {
   const { auth, workspace, notifications, unread_notifications_count, flash } = usePage<SharedProps>().props
   const currentPath = window.location.pathname
+  const [navigating, setNavigating] = useState(false)
+  useEffect(() => {
+    const onStart = () => setNavigating(true)
+    const onFinish = () => setNavigating(false)
+    const removeStart = router.on('start', onStart)
+    const removeFinish = router.on('finish', onFinish)
+    return () => { removeStart(); removeFinish() }
+  }, [])
 
   useEffect(() => {
     if (flash?.notice) toast.success(flash.notice)
@@ -181,7 +190,7 @@ export default function AppLayout({ children, title }: Props) {
         </header>
 
         <main className="flex-1 p-6 overflow-auto">
-          {children}
+          {navigating ? <SkeletonDashboard /> : children}
         </main>
       </div>
     </div>
