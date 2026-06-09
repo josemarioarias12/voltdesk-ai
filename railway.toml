@@ -3,7 +3,7 @@ buildCommand = "bundle exec rails assets:precompile"
 
 [deploy]
 startCommand = "bundle exec rails server -p $PORT -e production"
-preDeployCommand = "bundle exec rails db:migrate"
+preDeployCommand = "bundle exec rails db:migrate --trace"
 healthcheckPath = "/health"
 healthcheckTimeout = 60
 restartPolicyType = "on_failure"
