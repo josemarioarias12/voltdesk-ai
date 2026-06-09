@@ -58,7 +58,7 @@ export default function ManagerDashboard({ metrics }: Props) {
       </div>
 
       {/* KPIs */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' }}>
         <KpiCard label="Open Tickets"       value={metrics.kpis.open_tickets}          color="#028090" />
         <KpiCard label="SLA Compliance"     value={`${metrics.kpis.sla_compliance}%`}  color={metrics.kpis.sla_compliance >= 90 ? '#16A34A' : '#F97316'} />
         <KpiCard label="Avg Resolution"     value={`${metrics.kpis.avg_resolution_hours}h`} color="#028090" />
@@ -66,7 +66,7 @@ export default function ManagerDashboard({ metrics }: Props) {
       </div>
 
       {/* Charts row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '55% 1fr', gap: '20px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginBottom: '24px' }}>
         <div style={card}>
           <h2 style={cardTitle}>Ticket Volume — Last 30 Days</h2>
           <ResponsiveContainer width="100%" height={220}>
@@ -133,7 +133,8 @@ export default function ManagerDashboard({ metrics }: Props) {
       {/* Agent Performance */}
       <div style={card}>
         <h2 style={{ ...cardTitle, marginBottom: '16px' }}>Agent Performance</h2>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
               {['Agent', 'Open', 'Resolved', 'SLA Met %', 'Avg Time'].map(h => (
@@ -157,6 +158,7 @@ export default function ManagerDashboard({ metrics }: Props) {
             ))}
           </tbody>
         </table>
+          </div>
       </div>
     </div>
     </ErrorBoundary>

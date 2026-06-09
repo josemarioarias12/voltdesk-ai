@@ -47,7 +47,7 @@ export default function ExecutiveDashboard({ metrics }: Props) {
       </div>
 
       {/* KPIs */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' }}>
         <KpiCard label="Total Tickets This Week" value={metrics.kpis.total_tickets_week} suffix="this week" trend="+12%" trendUp icon={<TicketsIcon />} />
         <KpiCard label="SLA Compliance"          value={`${metrics.kpis.sla_compliance}%`} suffix="this week" trend="+3%"  trendUp icon={<ShieldIcon />} />
         <KpiCard label="Avg Resolution Time"     value={`${metrics.kpis.avg_resolution_hours}h`} suffix="avg this week" trend="-18%" trendUp={false} trendGood icon={<ClockIcon />} />
@@ -55,7 +55,7 @@ export default function ExecutiveDashboard({ metrics }: Props) {
       </div>
 
       {/* Charts row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '60% 1fr', gap: '20px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginBottom: '24px' }}>
         <div style={card}>
           <h2 style={cardTitle}>Ticket Volume — Last 30 Days</h2>
           <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 16px' }}>Daily ticket intake by department</p>

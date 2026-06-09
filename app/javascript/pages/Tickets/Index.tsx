@@ -198,8 +198,8 @@ export default function TicketsIndex({ tickets, departments, stats, filters, pag
         </div>
 
         {/* Table */}
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
                 {['ID', 'TITLE', 'CATEGORY', 'DEPARTMENT', 'STATUS', 'PRIORITY', 'ASSIGNEE', 'SLA', 'UPDATED'].map(h => (
@@ -251,7 +251,7 @@ export default function TicketsIndex({ tickets, departments, stats, filters, pag
               ))}
             </tbody>
           </table>
-        </div>
+          </div>
 
         {/* Pagination */}
         {pagination.total_pages > 1 && (

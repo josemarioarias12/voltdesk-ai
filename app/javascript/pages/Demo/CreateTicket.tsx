@@ -93,7 +93,7 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
 
         <div>
           <p style={{ fontSize: 14, fontWeight: 600, color: '#94A3B8', marginBottom: 12 }}>Department</p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: 10 }}>
             {departments.map(dept => {
               const active = selectedDept === dept.id
               return (

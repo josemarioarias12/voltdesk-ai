@@ -201,7 +201,8 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
           border: '1px solid #E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.05)',
           overflow: 'hidden',
         }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', fontSize: '14px' }}>
             <thead>
               <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
                 {['Employee', 'Leave Type', 'Period & Duration', 'Status', 'Requested', 'Actions'].map(col => (
@@ -318,6 +319,7 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
               )}
             </tbody>
           </table>
+          </div>
           <div style={{ padding: '12px 16px', borderTop: '1px solid #F1F5F9', color: '#94A3B8', fontSize: '13px' }}>
             Showing {leave_requests.length} requests
             {pending.length > 0 && (

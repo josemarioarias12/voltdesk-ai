@@ -100,7 +100,7 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
       </div>
 
       {/* KPI cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '28px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '28px' }}>
         <KpiCard
           label="My Open Tickets"
           value={metrics.tickets.open}
@@ -129,7 +129,7 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '20px' }}>
         {/* My Tickets */}
         <Section title="My Tickets">
           {metrics.tickets.recent.length === 0
@@ -185,7 +185,7 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
         </Section>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
         {/* Onboarding */}
         {metrics.onboarding && (
           <Section title="My Onboarding">

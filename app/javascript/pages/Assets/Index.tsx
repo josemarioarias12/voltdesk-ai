@@ -134,7 +134,8 @@ export default function AssetsIndex({ assets, summary }: Props) {
 
         {/* Table */}
         <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#F8FAFC' }}>
                 {['Asset', 'Serial Number', 'Assigned To', 'Department', 'Status', 'Risk Score', 'Warranty', 'Last Updated'].map(h => (
@@ -181,6 +182,7 @@ export default function AssetsIndex({ assets, summary }: Props) {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
     </AppLayout>
