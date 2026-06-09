@@ -13,8 +13,8 @@ RUN apt-get update -qq && apt-get install -y \
 
 WORKDIR /rails
 
-# Configure bundler to exclude dev/test gems
-RUN bundle config set --local without 'development test'
+ENV BUNDLE_WITHOUT="development:test"
+ENV RAILS_ENV="production"
 
 # Install gems
 COPY Gemfile Gemfile.lock ./
