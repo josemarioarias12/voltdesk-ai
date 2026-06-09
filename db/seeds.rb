@@ -32,12 +32,12 @@ puts "  Workspace: #{workspace.name} (#{workspace.slug})"
 
 # ── Departments ──────────────────────────────────────────────
 departments_data = [
-  { name: "IT",         color: "#028090", icon: "computer"   },
-  { name: "HR",         color: "#02C39A", icon: "users"      },
-  { name: "Facilities", color: "#F97316", icon: "building"   },
-  { name: "Finance",    color: "#EAB308", icon: "currency"   },
-  { name: "Operations", color: "#6366F1", icon: "chart"      },
-  { name: "General",    color: "#94A3B8", icon: "grid"       }
+  { name: "IT",         color: "#0ea5e9", icon: "laptop"      },
+  { name: "HR",         color: "#22c55e", icon: "users"       },
+  { name: "Facilities", color: "#f97316", icon: "building"    },
+  { name: "Finance",    color: "#eab308", icon: "dollar-sign" },
+  { name: "Operations", color: "#6366f1", icon: "chart-bar"   },
+  { name: "General",    color: "#8b5cf6", icon: "briefcase"   }
 ]
 
 departments = departments_data.map do |data|
@@ -85,8 +85,8 @@ users_data.each do |data|
       last_name:             data[:last_name],
       role:                  data[:role],
       department_id:         dept_map[data[:department_name]]&.id,
-      password:              "Password123!",
-      password_confirmation: "Password123!",
+      password:              "Password123x",
+      password_confirmation: "Password123x",
       active:                true
     )
     user.save!
@@ -102,7 +102,7 @@ puts ""
 puts "  Login credentials:"
 puts "  ----------------------------------"
 users_data.each do |data|
-  puts "  #{data[:email].ljust(30)} Password123!  [#{data[:role]}]"
+  puts "  #{data[:email].ljust(30)} Password123x  [#{data[:role]}]"
 end
 puts "  ----------------------------------"
 puts ""
