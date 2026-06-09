@@ -4,6 +4,11 @@ Rails.application.routes.draw do
   get '/health', to: proc { [200, {}, ['OK']] }
 
   mount ActionCable.server => '/cable'
+
+  require 'sidekiq/web'
+  authenticate :user, ->(u) { u.role_super_admin? || u.role_workspace_admin? } do
+    mount Sidekiq::Web => '/sidekiq'
+  end
   devise_for :users,
              controllers: {
                sessions: 'users/sessions',
