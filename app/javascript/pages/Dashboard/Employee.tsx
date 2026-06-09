@@ -1,3 +1,4 @@
+import ErrorBoundary from '@/components/ErrorBoundary'
 import { Link } from '@inertiajs/react'
 
 interface Ticket {
@@ -86,7 +87,8 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
 
   return (
-    <div style={{ maxWidth: '1000px' }}>
+    <ErrorBoundary section="Employee Dashboard">
+      <div style={{ maxWidth: '1000px' }}>
       {/* Header */}
       <div style={{ marginBottom: '28px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#0F172A', margin: '0 0 4px' }}>
@@ -227,6 +229,7 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
         </Section>
       </div>
     </div>
+    </ErrorBoundary>
   )
 }
 

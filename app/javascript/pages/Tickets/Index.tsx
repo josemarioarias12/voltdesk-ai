@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react'
 import type { Ticket, TicketsIndexProps, TicketPriority, TicketStatus, SlaStatus } from '@/types/tickets'
 import { useActionCable } from '@/hooks/useActionCable'
 import AppLayout from '@/components/AppLayout'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -122,6 +123,7 @@ export default function TicketsIndex({ tickets, departments, stats, filters, pag
 
   return (
     <AppLayout title="Tickets">
+      <ErrorBoundary section="Tickets">
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
         <div>
@@ -268,6 +270,7 @@ export default function TicketsIndex({ tickets, departments, stats, filters, pag
           </div>
         )}
       </div>
+    </ErrorBoundary>
     </AppLayout>
   )
 }

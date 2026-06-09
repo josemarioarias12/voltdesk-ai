@@ -1,5 +1,5 @@
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-
+import ErrorBoundary from '@/components/ErrorBoundary'
 interface KPI {
   open_tickets: number
   sla_compliance: number
@@ -47,7 +47,8 @@ export default function ManagerDashboard({ metrics }: Props) {
   const maxHeat = Math.max(...metrics.heatmap.map(c => c.count), 1)
 
   return (
-    <div style={{ maxWidth: '1100px' }}>
+    <ErrorBoundary section="Manager Dashboard">
+      <div style={{ maxWidth: '1100px' }}>
       {/* Header */}
       <div style={{ marginBottom: '28px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#0F172A', margin: '0 0 4px' }}>Team Dashboard</h1>
@@ -158,6 +159,7 @@ export default function ManagerDashboard({ metrics }: Props) {
         </table>
       </div>
     </div>
+    </ErrorBoundary>
   )
 }
 

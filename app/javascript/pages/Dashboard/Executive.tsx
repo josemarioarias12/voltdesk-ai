@@ -1,5 +1,5 @@
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-
+import ErrorBoundary from '@/components/ErrorBoundary'
 interface ExecutiveMetrics {
   kpis: {
     total_tickets_week: number
@@ -26,6 +26,7 @@ export default function ExecutiveDashboard({ metrics }: Props) {
   }))
 
   return (
+    <ErrorBoundary section="Executive Dashboard">
     <div style={{ maxWidth: '1200px' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px' }}>
@@ -135,6 +136,7 @@ export default function ExecutiveDashboard({ metrics }: Props) {
         )}
       </div>
     </div>
+    </ErrorBoundary>
   )
 }
 
