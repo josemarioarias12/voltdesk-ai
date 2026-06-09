@@ -26,6 +26,7 @@ Layout/LineLength:
   Exclude:
     - "spec/**/*"
     - "config/initializers/content_security_policy.rb"
+    - "db/seeds.rb"
 
 Metrics/AbcSize:
   Enabled: false
@@ -100,6 +101,7 @@ Metrics/ParameterLists:
 Rails/SkipsModelValidations:
   Exclude:
     - "spec/**/*"
+    - "db/seeds.rb"
 
 Layout/HashAlignment:
   Enabled: false
