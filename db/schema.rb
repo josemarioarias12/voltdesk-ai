@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_05_083115) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_09_170836) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -246,8 +246,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_05_083115) do
     t.datetime "updated_at", null: false
     t.integer "urgency_score", default: 0, null: false
     t.bigint "workspace_id", null: false
+    t.index ["assigned_to_id"], name: "idx_tickets_assigned_to_id"
     t.index ["assigned_to_id"], name: "index_tickets_on_assigned_to_id"
+    t.index ["created_at"], name: "idx_tickets_created_at"
     t.index ["created_by_id"], name: "index_tickets_on_created_by_id"
+    t.index ["department_id"], name: "idx_tickets_department_id"
     t.index ["department_id"], name: "index_tickets_on_department_id"
     t.index ["sla_policy_id"], name: "index_tickets_on_sla_policy_id"
     t.index ["workspace_id", "assigned_to_id", "status"], name: "index_tickets_on_workspace_assignee_status"

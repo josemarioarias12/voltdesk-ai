@@ -7,7 +7,7 @@ module Hr
     def index
       authorize :leave_request, :index?
 
-      requests = policy_scope(LeaveRequest).includes(:user, :approved_by).recent
+      requests = policy_scope(LeaveRequest).includes(:approved_by, user: :department).recent
 
       render inertia: 'HR/LeaveRequests/Index', props: {
         leave_requests: requests.map { |lr| serialize_leave_request(lr) },

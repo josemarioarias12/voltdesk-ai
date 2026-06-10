@@ -11,7 +11,7 @@ class AssetsController < ApplicationController
   end
 
   def show
-    asset = policy_scope(Asset).find(params.expect(:id))
+    asset = policy_scope(Asset).includes(:assigned_to, :department, :asset_incidents).find(params.expect(:id))
     authorize asset
     render inertia: 'Assets/Show', props: { asset: serialize_asset_detail(asset) }
   end
@@ -38,7 +38,7 @@ class AssetsController < ApplicationController
   end
 
   def update
-    asset = policy_scope(Asset).find(params.expect(:id))
+    asset = policy_scope(Asset).includes(:assigned_to, :department, :asset_incidents).find(params.expect(:id))
     authorize asset
     result = It::UpdateAsset.call(asset: asset, user: current_user, params: asset_params)
 
@@ -50,7 +50,7 @@ class AssetsController < ApplicationController
   end
 
   def destroy
-    asset = policy_scope(Asset).find(params.expect(:id))
+    asset = policy_scope(Asset).includes(:assigned_to, :department, :asset_incidents).find(params.expect(:id))
     authorize asset
     asset.destroy!
     redirect_to assets_path, notice: t('assets.destroyed')

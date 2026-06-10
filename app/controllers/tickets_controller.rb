@@ -92,7 +92,8 @@ class TicketsController < ApplicationController
   private
 
   def set_ticket
-    @ticket = policy_scope(Ticket).find(params.expect(:id))
+    @ticket = policy_scope(Ticket).includes(:department, :assigned_to, :created_by, :activities, comments: :user,
+activities: :user).find(params.expect(:id))
   rescue ActiveRecord::RecordNotFound
     redirect_to tickets_path, alert: 'Ticket not found.'
   end

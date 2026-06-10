@@ -3,6 +3,7 @@
 source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
+gem 'rack-attack'
 gem 'rails', '~> 8.1.3'
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem 'propshaft'
@@ -48,6 +49,7 @@ group :development, :test do
 end
 
 group :development do
+  gem 'bullet'
   gem 'rubocop-performance', '~> 1.26'
   gem 'rubocop-rails'
   gem 'rubocop-rspec', '~> 3.9'
