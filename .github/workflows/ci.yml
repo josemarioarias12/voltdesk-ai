@@ -15,7 +15,7 @@ jobs:
     name: Lint (RuboCop + TypeScript)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.4"
@@ -61,7 +61,7 @@ jobs:
       OPENAI_API_KEY: sk-test-fake-key
       SECRET_KEY_BASE: testsecretkeybaselongerthan30chars
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.4"
