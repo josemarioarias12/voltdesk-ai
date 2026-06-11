@@ -41,6 +41,7 @@ module Ai
         }
       )
       self.class.broadcast_to_demo_channel(ticket) if ticket.source == 'qr_demo'
+      Ai::AgentOrchestratorJob.perform_later(ticket.id)
     end
 
     def self.notify_workspace_admin_once(ticket)

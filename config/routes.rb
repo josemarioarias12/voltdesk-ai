@@ -84,7 +84,19 @@ Rails.application.routes.draw do
 
     # S7
     resources :pattern_alerts, only: %i[index update]
+    get '/operational-twin', to: 'operational_twin#show', as: :operational_twin
   end
+
+  # ── S12: AI Agent Orchestrator ─────────────────────────────────────────────
+  resources :agent_actions, only: [:index] do
+    member do
+      patch :approve
+      patch :reject
+    end
+  end
+
+  # ── S12: Workflow Engine ────────────────────────────────────────────────────
+  resources :workflow_rules, only: %i[index create update destroy]
 
   # QR Demo Mode
   get  '/demo/:token',        to: 'demo#join',          as: :demo_join

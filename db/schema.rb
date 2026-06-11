@@ -10,10 +10,29 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_09_170836) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_11_085300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
+
+  create_table "agent_actions", force: :cascade do |t|
+    t.integer "action_type", default: 0, null: false
+    t.bigint "approved_by_id"
+    t.decimal "confidence", precision: 5, scale: 4, null: false
+    t.datetime "created_at", null: false
+    t.datetime "executed_at"
+    t.jsonb "result", default: {}, null: false
+    t.integer "status", default: 0, null: false
+    t.bigint "ticket_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["action_type"], name: "index_agent_actions_on_action_type"
+    t.index ["approved_by_id"], name: "index_agent_actions_on_approved_by_id"
+    t.index ["result"], name: "index_agent_actions_on_result", using: :gin
+    t.index ["status"], name: "index_agent_actions_on_status"
+    t.index ["ticket_id"], name: "index_agent_actions_on_ticket_id"
+    t.index ["workspace_id"], name: "index_agent_actions_on_workspace_id"
+  end
 
   create_table "ai_audit_logs", force: :cascade do |t|
     t.integer "completion_tokens", default: 0, null: false
@@ -284,6 +303,38 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_09_170836) do
     t.index ["workspace_id"], name: "index_users_on_workspace_id"
   end
 
+  create_table "workflow_executions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "executed_at"
+    t.integer "status", default: 0, null: false
+    t.jsonb "steps_log", default: {}, null: false
+    t.bigint "ticket_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "workflow_rule_id", null: false
+    t.index ["executed_at"], name: "index_workflow_executions_on_executed_at"
+    t.index ["status"], name: "index_workflow_executions_on_status"
+    t.index ["steps_log"], name: "index_workflow_executions_on_steps_log", using: :gin
+    t.index ["ticket_id"], name: "index_workflow_executions_on_ticket_id"
+    t.index ["workflow_rule_id"], name: "index_workflow_executions_on_workflow_rule_id"
+  end
+
+  create_table "workflow_rules", force: :cascade do |t|
+    t.jsonb "actions", default: {}, null: false
+    t.boolean "active", default: true, null: false
+    t.jsonb "conditions", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.integer "execution_count", default: 0, null: false
+    t.string "name", null: false
+    t.integer "trigger_event", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["actions"], name: "index_workflow_rules_on_actions", using: :gin
+    t.index ["active"], name: "index_workflow_rules_on_active"
+    t.index ["conditions"], name: "index_workflow_rules_on_conditions", using: :gin
+    t.index ["trigger_event"], name: "index_workflow_rules_on_trigger_event"
+    t.index ["workspace_id"], name: "index_workflow_rules_on_workspace_id"
+  end
+
   create_table "workspaces", force: :cascade do |t|
     t.boolean "active", default: true, null: false
     t.string "ai_fallback_provider", default: "openai", null: false
@@ -300,6 +351,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_09_170836) do
     t.index ["slug"], name: "index_workspaces_on_slug", unique: true
   end
 
+  add_foreign_key "agent_actions", "tickets"
+  add_foreign_key "agent_actions", "users", column: "approved_by_id"
+  add_foreign_key "agent_actions", "workspaces"
   add_foreign_key "ai_audit_logs", "users"
   add_foreign_key "ai_audit_logs", "workspaces"
   add_foreign_key "asset_incidents", "assets"
@@ -332,4 +386,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_09_170836) do
   add_foreign_key "tickets", "workspaces"
   add_foreign_key "users", "departments"
   add_foreign_key "users", "workspaces"
+  add_foreign_key "workflow_executions", "tickets"
+  add_foreign_key "workflow_executions", "workflow_rules"
+  add_foreign_key "workflow_rules", "workspaces"
 end

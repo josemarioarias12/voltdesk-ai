@@ -61,6 +61,18 @@ class Ticket < ApplicationRecord
   # ── Callbacks ─────────────────────────────────────────────────────────────────
   before_create :set_due_at
 
+  after_create_commit lambda {
+    Workflows::EvaluateRulesJob.perform_later(id, 'ticket_created')
+    broadcast_twin_event('ticket_added')
+  }
+  after_update_commit lambda {
+    if saved_change_to_status? || saved_change_to_priority? || saved_change_to_assigned_to_id?
+      Workflows::EvaluateRulesJob.perform_later(id,
+                                                'ticket_updated')
+    end
+    broadcast_twin_event('ticket_resolved') if saved_change_to_status? && status_resolved?
+  }
+
   # ── Scopes ────────────────────────────────────────────────────────────────────
   scope :open_tickets,      -> { where(status: %i[open in_progress pending]) }
   scope :sla_at_risk,       -> { open_tickets.where(due_at: ..30.minutes.from_now) }
@@ -118,5 +130,20 @@ class Ticket < ApplicationRecord
 
   def set_resolved_at
     self.resolved_at = Time.current
+  end
+
+  def broadcast_twin_event(event)
+    ActionCable.server.broadcast(
+      "operational_twin_#{workspace_id}",
+      {
+        event:       event,
+        ticket_id:   id,
+        title:       title,
+        priority:    priority,
+        status:      status,
+        category:    category,
+        department_id: department_id
+      }
+    )
   end
 end

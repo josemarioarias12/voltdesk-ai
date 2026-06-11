@@ -102,6 +102,11 @@ Rails/SkipsModelValidations:
   Exclude:
     - "spec/**/*"
     - "db/seeds.rb"
+    - "app/services/workflows/evaluate_rules.rb"
+
+Naming/PredicateMethod:
+  Exclude:
+    - "app/services/workflows/evaluate_rules.rb"
 
 Layout/HashAlignment:
   Enabled: false
