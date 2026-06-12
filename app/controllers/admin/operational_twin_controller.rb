@@ -10,9 +10,8 @@ module Admin
                                  .map { |tkt| serialize(tkt) }
 
       alert_dept_ids = current_workspace.pattern_alerts
-                                        .where(status: :active)
-                                        .pluck(:department_id)
-                                        .compact
+                                        .where(resolved_at: nil)
+                                        .filter_map { |alert| alert.metadata&.dig('department_id') }
 
       render inertia: 'Admin/OperationalTwin', props: {
         tickets:                        tickets,
