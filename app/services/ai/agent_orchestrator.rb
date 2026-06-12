@@ -113,13 +113,16 @@ module Ai
         workspace: @workspace, operation: :agent_response
       ).resolve
 
-      response = log_ai_call(
-        model:      model,
-        provider:   provider,
-        confidence: @ticket.urgency_score.to_f,
-        status:     'success'
-      ) do
-        adapter.chat(prompt:, max_tokens: 400)
+      response = with_ai_audit(
+        operation: 'agent_rag_response',
+        model:     model,
+        provider:  provider
+      ) do |ctx|
+        ctx[:prompt] = prompt
+        result = adapter.chat(prompt:, max_tokens: 400)
+        ctx[:response]   = result.to_s
+        ctx[:confidence] = @ticket.urgency_score.to_f
+        result
       end
 
       steps_log << { step: 'rag_response', status: 'ok', at: Time.current.iso8601 }
