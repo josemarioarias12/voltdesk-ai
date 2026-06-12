@@ -119,7 +119,7 @@ module Ai
         provider:  provider
       ) do |ctx|
         ctx[:prompt] = prompt
-        result = adapter.chat(prompt:, max_tokens: 400)
+        result = adapter.chat(prompt:, system: 'You are a helpdesk AI agent that resolves IT tickets.', model:)
         ctx[:response]   = result.to_s
         ctx[:confidence] = @ticket.urgency_score.to_f
         result
