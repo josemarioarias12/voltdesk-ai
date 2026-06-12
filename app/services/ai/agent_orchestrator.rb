@@ -88,11 +88,15 @@ module Ai
     end
 
     def run_rag_response(steps_log)
-      similar = TicketEmbedding.nearest_neighbors(
-        :embedding, @ticket.embedding_vector, distance: 'cosine'
-      ).where(ticket: @ticket.workspace.tickets.where(status: :resolved))
-                               .limit(3)
-                               .map { |emb| emb.ticket.description }
+      similar = if @ticket.ticket_embedding.present?
+                  TicketEmbedding.nearest_neighbors(
+                    :embedding, @ticket.ticket_embedding.embedding, distance: 'cosine'
+                  ).where(ticket: @ticket.workspace.tickets.where(status: :resolved))
+                                 .limit(3)
+                                 .map { |emb| emb.ticket.description }
+                else
+                  []
+                end
 
       context = similar.join("\n---\n")
       prompt  = <<~PROMPT
