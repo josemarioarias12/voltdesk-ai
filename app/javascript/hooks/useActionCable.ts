@@ -1,18 +1,9 @@
 import { useEffect, useRef } from 'react'
-import * as ActionCable from '@rails/actioncable'
+import { cable } from '@/entrypoints/inertia'
 
 interface UseActionCableOptions {
   channel: string
   [key: string]: unknown
-}
-
-let consumer: ActionCable.Consumer | null = null
-
-function getConsumer(): ActionCable.Consumer {
-  if (!consumer) {
-    consumer = ActionCable.createConsumer('/cable')
-  }
-  return consumer
 }
 
 export function useActionCable(
@@ -25,7 +16,7 @@ export function useActionCable(
 
   useEffect(() => {
     let active = true
-    const subscription = getConsumer().subscriptions.create(channelConfig, {
+    const subscription = cable.subscriptions.create(channelConfig, {
       received(data: unknown) {
         if (active) {
           onReceivedRef.current(data as Record<string, unknown>)
