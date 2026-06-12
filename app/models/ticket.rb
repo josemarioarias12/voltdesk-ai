@@ -66,9 +66,9 @@ class Ticket < ApplicationRecord
     broadcast_twin_event('ticket_added')
   }
   after_update_commit lambda {
-    if saved_change_to_status? || saved_change_to_priority? || saved_change_to_assigned_to_id?
-      Workflows::EvaluateRulesJob.perform_later(id,
-                                                'ticket_updated')
+    if saved_change_to_status? || saved_change_to_priority? ||
+       saved_change_to_assigned_to_id? || saved_change_to_urgency_score?
+      Workflows::EvaluateRulesJob.perform_later(id, 'ticket_updated')
     end
     broadcast_twin_event('ticket_resolved') if saved_change_to_status? && status_resolved?
   }
