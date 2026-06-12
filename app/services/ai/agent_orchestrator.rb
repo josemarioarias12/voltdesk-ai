@@ -134,9 +134,8 @@ module Ai
 
     def run_post_comment(response_text, steps_log)
       @ticket.comments.create!(
-        body:   response_text,
-        author: bot_user,
-        source: 'ai_agent'
+        body: response_text,
+        user: bot_user
       )
       steps_log << { step: 'post_comment', status: 'ok', at: Time.current.iso8601 }
     rescue StandardError => e
