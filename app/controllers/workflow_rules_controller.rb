@@ -36,8 +36,13 @@ class WorkflowRulesController < ApplicationController
   private
 
   def rule_params
-    params.expect(workflow_rule: [:name, :trigger_event, :active,
-                                  { conditions: {}, actions: {} }])
+    # rubocop:disable Rails/StrongParametersExpect
+    params.require(:workflow_rule).permit(
+      :name, :trigger_event, :active,
+      conditions: %i[field operator value],
+      actions: %i[type body priority agent_id]
+    )
+    # rubocop:enable Rails/StrongParametersExpect
   end
 
   def serialize(rule)
