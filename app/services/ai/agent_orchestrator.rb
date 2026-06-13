@@ -42,64 +42,110 @@ module Ai
     end
 
     def create_pending_action
+      rag_data = build_rag_data
       action = AgentAction.create!(
         workspace:   @workspace,
         ticket:      @ticket,
         action_type: :auto_resolve,
         status:      :pending_approval,
-        confidence:  @ticket.urgency_score.to_f / 100.0,
-        result:      { pipeline: 'pending_human_approval' }
+        confidence:  rag_data[:top_similarity],
+        result:      {
+          pipeline:        'pending_human_approval',
+          similar_tickets: rag_data[:similar_tickets],
+          top_similarity:  rag_data[:top_similarity],
+          ai_reasoning:    rag_data[:ai_reasoning]
+        }
       )
-
       broadcast_pending_approval(action)
       ServiceResult.success(action)
     end
 
     def execute_pipeline(agent_action: nil)
       steps_log = []
+      rag_data  = build_rag_data
       action    = agent_action || AgentAction.create!(
         workspace:   @workspace,
         ticket:      @ticket,
         action_type: :auto_resolve,
         status:      :executing,
-        confidence:  @ticket.urgency_score.to_f / 100.0,
+        confidence:  rag_data[:top_similarity],
         result:      {}
       )
-
       action.update!(status: :executing)
+      response_text = run_rag_response(rag_data, steps_log)
+      return fail_action(action, steps_log, 'RAG step failed') unless response_text
 
-      step_response = run_rag_response(steps_log)
-      return fail_action(action, steps_log, 'RAG step failed') unless step_response
-
-      run_post_comment(step_response, steps_log)
+      run_post_comment(response_text, steps_log)
       run_resolve_ticket(steps_log)
       run_notify_user(steps_log)
-
       action.update!(
         status:      :completed,
         executed_at: Time.current,
-        result:      { steps: steps_log }
+        result:      {
+          steps:           steps_log,
+          similar_tickets: rag_data[:similar_tickets],
+          top_similarity:  rag_data[:top_similarity],
+          ai_reasoning:    rag_data[:ai_reasoning]
+        }
       )
-
       ServiceResult.success(action)
     rescue StandardError => e
       action&.update!(status: :failed, result: { error: e.message, steps: steps_log })
       ServiceResult.failure(e.message)
     end
 
-    def run_rag_response(steps_log)
-      similar = if @ticket.ticket_embedding.present?
-                  TicketEmbedding.nearest_neighbors(
-                    :embedding, @ticket.ticket_embedding.embedding, distance: 'cosine'
-                  ).where(ticket: @ticket.workspace.tickets.where(status: :resolved))
-                                 .limit(3)
-                                 .map { |emb| emb.ticket.description }
-                else
-                  []
-                end
+    def build_rag_data
+      similar_neighbors = fetch_similar_tickets
+      top_similarity    = similar_neighbors.pluck(:similarity).max || 0.0
+      prompt = build_rag_prompt(similar_neighbors.pluck(:description))
+      adapter, model, provider = Ai::ModelRouter.for(
+        workspace: @workspace, operation: :agent_response
+      ).resolve
+      ai_text = with_ai_audit(
+        operation: 'agent_rag_response',
+        model:     model,
+        provider:  provider
+      ) do |ctx|
+        ctx[:prompt] = prompt
+        raw = adapter.chat(prompt:, system: 'You are a helpdesk AI agent that resolves IT tickets.', model:)
+        text = raw.is_a?(Hash) ? raw[:content].to_s : raw.to_s
+        ctx[:response]   = text
+        ctx[:confidence] = top_similarity
+        text
+      end
+      {
+        similar_tickets: similar_neighbors.map do |nbr|
+          { id: nbr[:id], title: nbr[:title], similarity: nbr[:similarity] }
+        end,
+        top_similarity:  top_similarity,
+        ai_reasoning:    ai_text.to_s
+      }
+    rescue StandardError => e
+      Rails.logger.error("AgentOrchestrator#build_rag_data failed: #{e.message}")
+      { similar_tickets: [], top_similarity: 0.0, ai_reasoning: '' }
+    end
 
-      context = similar.join("\n---\n")
-      prompt  = <<~PROMPT
+    def fetch_similar_tickets
+      return [] if @ticket.ticket_embedding.blank?
+
+      TicketEmbedding
+        .nearest_neighbors(:embedding, @ticket.ticket_embedding.embedding, distance: 'cosine')
+        .where(ticket: @workspace.tickets.where(status: :resolved))
+        .limit(3)
+        .map do |emb|
+          similarity = emb.respond_to?(:neighbor_distance) ? (1.0 - emb.neighbor_distance.to_f).round(4) : 0.0
+          {
+            id:          emb.ticket.id,
+            title:       emb.ticket.title,
+            description: emb.ticket.description,
+            similarity:  similarity
+          }
+        end
+    end
+
+    def build_rag_prompt(similar_descriptions)
+      context = similar_descriptions.join("\n---\n")
+      <<~PROMPT
         You are a helpdesk AI agent. Based on similar resolved tickets, generate a resolution response.
         Ticket: #{@ticket.title}
         Description: #{@ticket.description}
@@ -108,25 +154,11 @@ module Ai
         #{context}
         Respond with a concise, actionable resolution message for the user.
       PROMPT
+    end
 
-      adapter, model, provider = Ai::ModelRouter.for(
-        workspace: @workspace, operation: :agent_response
-      ).resolve
-
-      response = with_ai_audit(
-        operation: 'agent_rag_response',
-        model:     model,
-        provider:  provider
-      ) do |ctx|
-        ctx[:prompt] = prompt
-        result = adapter.chat(prompt:, system: 'You are a helpdesk AI agent that resolves IT tickets.', model:)
-        ctx[:response]   = result.to_s
-        ctx[:confidence] = @ticket.urgency_score.to_f
-        result
-      end
-
+    def run_rag_response(rag_data, steps_log)
       steps_log << { step: 'rag_response', status: 'ok', at: Time.current.iso8601 }
-      response
+      rag_data[:ai_reasoning].presence
     rescue StandardError => e
       steps_log << { step: 'rag_response', status: 'failed', error: e.message }
       nil
@@ -151,10 +183,10 @@ module Ai
 
     def run_notify_user(steps_log)
       Notification.create!(
-        user:      @ticket.created_by,
-        workspace: @workspace,
-        title:     'Your ticket has been resolved automatically',
-        body:      "Ticket ##{@ticket.id} — #{@ticket.title} was resolved by the AI agent.",
+        user:              @ticket.created_by,
+        workspace:         @workspace,
+        title:             'Your ticket has been resolved automatically',
+        body:              "Ticket ##{@ticket.id} — #{@ticket.title} was resolved by the AI agent.",
         notification_type: :ticket_assigned
       )
       steps_log << { step: 'notify_user', status: 'ok', at: Time.current.iso8601 }
@@ -171,10 +203,10 @@ module Ai
       ActionCable.server.broadcast(
         "agent_actions_#{@workspace.id}",
         {
-          event:     'pending_approval',
-          action_id: action.id,
-          ticket_id: @ticket.id,
-          title:     @ticket.title,
+          event:      'pending_approval',
+          action_id:  action.id,
+          ticket_id:  @ticket.id,
+          title:      @ticket.title,
           confidence: action.confidence.to_f
         }
       )
@@ -182,7 +214,7 @@ module Ai
 
     def bot_user
       @bot_user ||= @workspace.users.find_by(email: 'agent@pulsedesk.ai') ||
-                    @workspace.users.with_role_agent.first
+                    @workspace.users.role_agent.first
     end
   end
 end

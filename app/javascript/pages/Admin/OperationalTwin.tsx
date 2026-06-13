@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import * as d3 from "d3";
 import { router } from "@inertiajs/react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,6 +12,7 @@ interface TicketNode {
   status: string;
   category: string;
   department_id: number | null;
+  department_name?: string;
   alerting?: boolean;
   x?: number;
   y?: number;
@@ -31,142 +32,195 @@ const PRIORITY_COLOR: Record<string, string> = {
   critical: "#dc2626",
 };
 
+// Node radius by priority — larger = more urgent, instantly scannable
+const PRIORITY_RADIUS: Record<string, number> = {
+  critical: 24,
+  high:     18,
+  medium:   14,
+  low:      10,
+};
+
+// CSS pulse animation injected once for alerting nodes
+const PULSE_STYLE = `
+  @keyframes pulse-ring {
+    0%   { r: 24; opacity: 0.8; }
+    70%  { r: 36; opacity: 0;   }
+    100% { r: 36; opacity: 0;   }
+  }
+  .alert-pulse { animation: pulse-ring 1.4s ease-out infinite; }
+`;
+
+interface Tooltip {
+  x: number;
+  y: number;
+  node: TicketNode;
+}
+
 export default function OperationalTwin({ tickets, pattern_alert_department_ids }: Props) {
-  const svgRef                      = useRef<SVGSVGElement>(null);
-  const simulationRef               = useRef<d3.Simulation<TicketNode, undefined> | null>(null);
-  const [nodes, setNodes]           = useState<TicketNode[]>(
+  const svgRef          = useRef<SVGSVGElement>(null);
+  const simulationRef   = useRef<d3.Simulation<TicketNode, undefined> | null>(null);
+  const [nodes, setNodes] = useState<TicketNode[]>(
     tickets.map((tkt) => ({
       ...tkt,
       alerting: pattern_alert_department_ids.includes(tkt.department_id ?? -1),
     }))
   );
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [tooltip, setTooltip] = useState<Tooltip | null>(null);
 
-  // ActionCable subscription
-  // ActionCable subscription
+  const addNode = useCallback((data: Record<string, unknown>) => {
+    const ticketId = data.ticket_id as number;
+    setNodes((prev) => {
+      if (prev.find((n) => n.id === ticketId)) return prev;
+      return [
+        ...prev,
+        {
+          id:              ticketId,
+          title:           data.title as string,
+          priority:        data.priority as string,
+          status:          data.status as string,
+          category:        data.category as string,
+          department_id:   data.department_id as number | null,
+          department_name: data.department_name as string | undefined,
+          alerting:        pattern_alert_department_ids.includes((data.department_id as number) ?? -1),
+        },
+      ];
+    });
+  }, [pattern_alert_department_ids]);
+
+  const removeNode = useCallback((ticketId: number) => {
+    setNodes((prev) => prev.filter((n) => n.id !== ticketId));
+  }, []);
+
   useActionCable(
     { channel: "OperationalTwinChannel" },
     (data) => {
-      const event     = data.event as string;
-      const ticketId  = data.ticket_id as number;
-
-      if (event === "ticket_added") {
-        setNodes((prev) => {
-          if (prev.find((node) => node.id === ticketId)) return prev;
-          return [
-            ...prev,
-            {
-              id:            ticketId,
-              title:         data.title as string,
-              priority:      data.priority as string,
-              status:        data.status as string,
-              category:      data.category as string,
-              department_id: data.department_id as number | null,
-              alerting:      pattern_alert_department_ids.includes((data.department_id as number) ?? -1),
-            },
-          ];
-        });
-      }
-
-      if (event === "ticket_resolved") {
-        setNodes((prev) => prev.filter((node) => node.id !== ticketId));
-      }
+      if (data.event === "ticket_added")    addNode(data);
+      if (data.event === "ticket_resolved") removeNode(data.ticket_id as number);
     }
   );
 
-  // D3 force simulation
   useEffect(() => {
     if (!svgRef.current) return;
 
     const width  = svgRef.current.clientWidth  || 800;
     const height = svgRef.current.clientHeight || 500;
-
-    const svg = d3.select(svgRef.current);
+    const svg    = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
     if (nodes.length === 0) return;
 
+    // Inject pulse keyframes once
+    svg.append("defs").append("style").text(PULSE_STYLE);
+
+    // Cluster x positions by department_id (up to 6 departments)
+    const deptIds   = [...new Set(nodes.map((n) => n.department_id ?? 0))];
+    const deptCount = Math.max(deptIds.length, 1);
+    const deptX     = Object.fromEntries(
+      deptIds.map((did, idx) => [did, (width / (deptCount + 1)) * (idx + 1)])
+    );
+
     const simulation = d3
       .forceSimulation<TicketNode>(nodes)
-      .force("charge", d3.forceManyBody().strength(-300))
-      .force("center",  d3.forceCenter(width / 2, height / 2))
-      .force("collision", d3.forceCollide(28))
+      .force("charge",    d3.forceManyBody().strength(-280))
+      .force("center",    d3.forceCenter(width / 2, height / 2))
+      .force("collision", d3.forceCollide<TicketNode>((n) => (PRIORITY_RADIUS[n.priority] ?? 14) + 6))
       .force(
-        "cluster",
-        d3
-          .forceX<TicketNode>()
-          .x((node) => {
-            const deptId = node.department_id ?? 0;
-            return (width / 6) * ((deptId % 5) + 1);
-          })
-          .strength(0.15)
+        "clusterX",
+        d3.forceX<TicketNode>()
+          .x((n) => deptX[n.department_id ?? 0] ?? width / 2)
+          .strength(0.18)
+      )
+      .force(
+        "clusterY",
+        d3.forceY<TicketNode>().y(height / 2).strength(0.05)
       );
 
     simulationRef.current = simulation;
 
+    // Department label layer (behind nodes)
+    const labelLayer = svg.append("g").attr("class", "dept-labels");
+    deptIds.forEach((did) => {
+      const firstNode = nodes.find((n) => (n.department_id ?? 0) === did);
+      const label     = firstNode?.department_name ?? `Dept ${did}`;
+      labelLayer
+        .append("text")
+        .attr("x", deptX[did] ?? width / 2)
+        .attr("y", 24)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "11px")
+        .attr("font-weight", "600")
+        .attr("fill", "#94a3b8")
+        .attr("letter-spacing", "0.05em")
+        .text(label.toUpperCase());
+    });
+
+    // Node groups
     const nodeGroup = svg
       .append("g")
-      .selectAll("g")
-      .data(nodes, (node) => String((node as TicketNode).id))
+      .selectAll<SVGGElement, TicketNode>("g")
+      .data(nodes, (n) => String(n.id))
       .enter()
       .append("g")
       .style("cursor", "pointer")
-      .on("click", (_evt, node) => {
-        setSelectedId(node.id);
-        router.visit(`/tickets/${node.id}`);
+      .on("click", (_evt, n) => router.visit(`/tickets/${n.id}`))
+      .on("mouseenter", (evt, n) => {
+        const rect = svgRef.current!.getBoundingClientRect();
+        setTooltip({ x: evt.clientX - rect.left, y: evt.clientY - rect.top, node: n });
       })
+      .on("mouseleave", () => setTooltip(null))
       .call(
-        d3
-          .drag<SVGGElement, TicketNode>()
-          .on("start", (evt, node) => {
+        d3.drag<SVGGElement, TicketNode>()
+          .on("start", (evt, n) => {
             if (!evt.active) simulation.alphaTarget(0.3).restart();
-            node.fx = node.x;
-            node.fy = node.y;
+            n.fx = n.x; n.fy = n.y;
           })
-          .on("drag", (evt, node) => {
-            node.fx = evt.x;
-            node.fy = evt.y;
-          })
-          .on("end", (evt, node) => {
+          .on("drag",  (evt, n) => { n.fx = evt.x; n.fy = evt.y; })
+          .on("end",   (evt, n) => {
             if (!evt.active) simulation.alphaTarget(0);
-            node.fx = null;
-            node.fy = null;
+            n.fx = null; n.fy = null;
           })
       );
 
+    // Pulse ring for alerting nodes (rendered behind main circle)
+    nodeGroup
+      .filter((n) => !!n.alerting)
+      .append("circle")
+      .attr("class", "alert-pulse")
+      .attr("r", PRIORITY_RADIUS.critical)
+      .attr("fill", "none")
+      .attr("stroke", "#dc2626")
+      .attr("stroke-width", 2)
+      .attr("opacity", 0.7);
+
+    // Main circle — sized by priority
     nodeGroup
       .append("circle")
-      .attr("r", 20)
-      .attr("fill", (node) => PRIORITY_COLOR[node.priority] ?? "#64748b")
-      .attr("fill-opacity", 0.85)
-      .attr("stroke", (node) => (node.alerting ? "#dc2626" : "white"))
-      .attr("stroke-width", (node) => (node.alerting ? 3 : 1.5));
+      .attr("r", (n) => PRIORITY_RADIUS[n.priority] ?? 14)
+      .attr("fill", (n) => PRIORITY_COLOR[n.priority] ?? "#64748b")
+      .attr("fill-opacity", 0.88)
+      .attr("stroke", (n) => (n.alerting ? "#dc2626" : "white"))
+      .attr("stroke-width", (n) => (n.alerting ? 3 : 1.5));
 
+    // Priority initial label inside node
     nodeGroup
       .append("text")
       .attr("text-anchor", "middle")
       .attr("dy", "0.35em")
-      .attr("font-size", "9px")
+      .attr("font-size", (n) => `${Math.max(8, (PRIORITY_RADIUS[n.priority] ?? 14) * 0.5)}px`)
       .attr("fill", "white")
-      .attr("font-weight", "600")
+      .attr("font-weight", "700")
       .attr("pointer-events", "none")
-      .text((node) => node.priority[0].toUpperCase());
-
-    nodeGroup
-      .append("title")
-      .text((node) => `#${node.id} ${node.title}\n${node.priority} · ${node.category}`);
+      .text((n) => n.priority[0].toUpperCase());
 
     simulation.on("tick", () => {
-      nodeGroup.attr("transform", (node) => `translate(${node.x ?? 0},${node.y ?? 0})`);
+      nodeGroup.attr("transform", (n) => `translate(${n.x ?? 0},${n.y ?? 0})`);
     });
 
-    return () => {
-      simulation.stop();
-    };
+    return () => { simulation.stop(); };
   }, [nodes]);
 
-  const alertingNodes  = nodes.filter((node) => node.alerting);
-  const criticalNodes  = nodes.filter((node) => node.priority === "critical");
+  const alertingNodes = nodes.filter((n) => n.alerting);
+  const criticalNodes = nodes.filter((n) => n.priority === "critical");
 
   return (
     <AppLayout title="Operational Twin">
@@ -178,18 +232,23 @@ export default function OperationalTwin({ tickets, pattern_alert_department_ids 
               Live force-directed graph — {nodes.length} active ticket{nodes.length !== 1 ? "s" : ""}
             </p>
           </div>
-
           <div className="flex items-center gap-3">
             {Object.entries(PRIORITY_COLOR).map(([priority, color]) => (
               <div key={priority} className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
+                <span
+                  className="rounded-full"
+                  style={{
+                    width:           `${(PRIORITY_RADIUS[priority] ?? 14) * 1.2}px`,
+                    height:          `${(PRIORITY_RADIUS[priority] ?? 14) * 1.2}px`,
+                    backgroundColor: color,
+                  }}
+                />
                 <span className="text-xs text-slate-500 capitalize">{priority}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Pattern Alert Banner */}
         <AnimatePresence>
           {alertingNodes.length > 0 && (
             <motion.div
@@ -217,12 +276,11 @@ export default function OperationalTwin({ tickets, pattern_alert_department_ids 
           )}
         </AnimatePresence>
 
-        {/* Stats Row */}
         <div className="grid grid-cols-3 gap-4 mb-4">
           {[
-            { label: "Active Tickets",   value: nodes.length,        color: "text-slate-800" },
-            { label: "Critical",         value: criticalNodes.length, color: "text-red-600"   },
-            { label: "Pattern Alerts",   value: alertingNodes.length, color: "text-amber-600" },
+            { label: "Active Tickets", value: nodes.length,         color: "text-slate-800" },
+            { label: "Critical",       value: criticalNodes.length,  color: "text-red-600"   },
+            { label: "Pattern Alerts", value: alertingNodes.length,  color: "text-amber-600" },
           ].map((stat) => (
             <div key={stat.label} className="bg-white rounded-xl border border-slate-200 p-4 text-center">
               <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
@@ -231,8 +289,11 @@ export default function OperationalTwin({ tickets, pattern_alert_department_ids 
           ))}
         </div>
 
-        {/* D3 Canvas */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden" style={{ height: 520 }}>
+        {/* D3 Canvas — position:relative for HTML tooltip overlay */}
+        <div
+          className="bg-white rounded-xl border border-slate-200 overflow-hidden"
+          style={{ height: 520, position: "relative" }}
+        >
           {nodes.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-slate-400">
               <div className="text-5xl mb-3">✅</div>
@@ -240,11 +301,35 @@ export default function OperationalTwin({ tickets, pattern_alert_department_ids 
               <p className="text-sm mt-1">All caught up — the workspace is clear.</p>
             </div>
           ) : (
-            <svg
-              ref={svgRef}
-              className="w-full h-full"
-              style={{ background: "transparent" }}
-            />
+            <>
+              <svg ref={svgRef} className="w-full h-full" style={{ background: "transparent" }} />
+
+              {/* HTML tooltip — rendered outside SVG for proper text rendering */}
+              {tooltip && (
+                <div
+                  style={{
+                    position:        "absolute",
+                    left:            tooltip.x + 12,
+                    top:             tooltip.y - 12,
+                    pointerEvents:   "none",
+                    zIndex:          50,
+                    background:      "#0f172a",
+                    color:           "white",
+                    borderRadius:    "8px",
+                    padding:         "8px 12px",
+                    fontSize:        "12px",
+                    maxWidth:        "220px",
+                    boxShadow:       "0 4px 16px rgba(0,0,0,0.3)",
+                    lineHeight:      "1.5",
+                  }}
+                >
+                  <p className="font-semibold truncate">#{tooltip.node.id} {tooltip.node.title}</p>
+                  <p style={{ color: PRIORITY_COLOR[tooltip.node.priority] ?? "#94a3b8", marginTop: 2 }}>
+                    {tooltip.node.priority.toUpperCase()} · {tooltip.node.category}
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
 

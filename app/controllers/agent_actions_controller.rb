@@ -27,14 +27,18 @@ class AgentActionsController < ApplicationController
   private
 
   def serialize(act)
+    result = act.result || {}
     {
-      id:          act.id,
-      ticket_id:   act.ticket_id,
-      ticket_title: act.ticket.title,
-      action_type: act.action_type,
-      status:      act.status,
-      confidence:  act.confidence.to_f,
-      created_at:  act.created_at.iso8601
+      id:              act.id,
+      ticket_id:       act.ticket_id,
+      ticket_title:    act.ticket.title,
+      action_type:     act.action_type,
+      status:          act.status,
+      confidence:      act.confidence.to_f,
+      created_at:      act.created_at.iso8601,
+      similar_tickets: result['similar_tickets'] || [],
+      top_similarity:  result['top_similarity'].to_f,
+      ai_reasoning:    result['ai_reasoning'].to_s
     }
   end
 end
