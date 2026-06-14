@@ -9,7 +9,10 @@ class AiAuditLog < ApplicationRecord
     onboarding_plan: 4,
     survey_analysis: 5,
     executive_report: 6,
-    pattern_detection: 7
+    pattern_detection: 7,
+    space_optimization: 8,
+    sla_prediction: 9,
+    anomaly_detection: 10
   }, prefix: :op
 
   enum :status, {

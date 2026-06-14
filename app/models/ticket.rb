@@ -9,6 +9,7 @@ class Ticket < ApplicationRecord
   belongs_to :created_by,  class_name: 'User'
   belongs_to :assigned_to, class_name: 'User', optional: true
   belongs_to :sla_policy,  optional: true
+  belongs_to :space, optional: true
 
   has_many :comments,   class_name: 'TicketComment',  dependent: :destroy
   has_many :activities, class_name: 'TicketActivity', dependent: :destroy

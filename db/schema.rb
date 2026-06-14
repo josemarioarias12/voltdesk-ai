@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_13_012649) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_14_073313) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -208,6 +208,40 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_13_012649) do
     t.index ["workspace_id"], name: "index_sla_policies_on_workspace_id"
   end
 
+  create_table "space_reservations", force: :cascade do |t|
+    t.integer "attendees_count", default: 1, null: false
+    t.datetime "created_at", null: false
+    t.datetime "end_at", null: false
+    t.bigint "space_id", null: false
+    t.datetime "start_at", null: false
+    t.integer "status", default: 0, null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["space_id", "start_at", "end_at"], name: "index_space_reservations_on_space_id_and_start_at_and_end_at"
+    t.index ["space_id"], name: "index_space_reservations_on_space_id"
+    t.index ["user_id", "start_at"], name: "index_space_reservations_on_user_id_and_start_at"
+    t.index ["user_id"], name: "index_space_reservations_on_user_id"
+    t.index ["workspace_id", "status"], name: "index_space_reservations_on_workspace_id_and_status"
+    t.index ["workspace_id"], name: "index_space_reservations_on_workspace_id"
+  end
+
+  create_table "spaces", force: :cascade do |t|
+    t.integer "capacity", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.jsonb "equipment", default: {}, null: false
+    t.string "floor", null: false
+    t.string "name", null: false
+    t.integer "space_type", default: 0, null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["workspace_id", "floor"], name: "index_spaces_on_workspace_id_and_floor"
+    t.index ["workspace_id", "status"], name: "index_spaces_on_workspace_id_and_status"
+    t.index ["workspace_id"], name: "index_spaces_on_workspace_id"
+  end
+
   create_table "ticket_activities", force: :cascade do |t|
     t.string "action", null: false
     t.datetime "created_at", null: false
@@ -261,6 +295,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_13_012649) do
     t.bigint "sla_policy_id"
     t.datetime "sla_predicted_at"
     t.integer "source", default: 0, null: false
+    t.bigint "space_id"
     t.integer "status", default: 0, null: false
     t.string "ticket_number", null: false
     t.string "title", null: false
@@ -275,6 +310,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_13_012649) do
     t.index ["department_id"], name: "index_tickets_on_department_id"
     t.index ["sla_breach_probability"], name: "index_tickets_on_high_breach_probability", where: "(sla_breach_probability > 0.70)"
     t.index ["sla_policy_id"], name: "index_tickets_on_sla_policy_id"
+    t.index ["space_id"], name: "index_tickets_on_space_id"
     t.index ["workspace_id", "assigned_to_id", "status"], name: "index_tickets_on_workspace_assignee_status"
     t.index ["workspace_id", "due_at"], name: "index_tickets_on_workspace_due_at"
     t.index ["workspace_id", "priority"], name: "index_tickets_on_workspace_id_and_priority"
@@ -376,6 +412,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_13_012649) do
   add_foreign_key "onboarding_tasks", "onboarding_plans"
   add_foreign_key "pattern_alerts", "workspaces"
   add_foreign_key "sla_policies", "workspaces"
+  add_foreign_key "space_reservations", "spaces"
+  add_foreign_key "space_reservations", "users"
+  add_foreign_key "space_reservations", "workspaces"
+  add_foreign_key "spaces", "workspaces"
   add_foreign_key "ticket_activities", "tickets"
   add_foreign_key "ticket_activities", "users"
   add_foreign_key "ticket_comments", "tickets"
@@ -384,6 +424,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_13_012649) do
   add_foreign_key "ticket_embeddings", "workspaces"
   add_foreign_key "tickets", "departments"
   add_foreign_key "tickets", "sla_policies"
+  add_foreign_key "tickets", "spaces"
   add_foreign_key "tickets", "users", column: "assigned_to_id"
   add_foreign_key "tickets", "users", column: "created_by_id"
   add_foreign_key "tickets", "workspaces"

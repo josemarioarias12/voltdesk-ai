@@ -109,4 +109,20 @@ Rails.application.routes.draw do
     delete 'demo/deactivate', to: 'demo_modes#deactivate', as: :deactivate_demo
     get 'demo/status', to: 'demo_modes#status', as: :demo_status
   end
+
+  # ── S14: Facilities & Space Management ────────────────────────────────────
+  namespace :facilities do
+    resources :spaces, only: %i[index show] do
+      collection do
+        get :utilization
+        post :optimize
+      end
+      resources :reservations, only: %i[new create], shallow: true
+    end
+    resources :reservations, only: [] do
+      member do
+        patch :cancel
+      end
+    end
+  end
 end
