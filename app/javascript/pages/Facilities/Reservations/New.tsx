@@ -1,5 +1,5 @@
 import { Head, router, useForm } from "@inertiajs/react";
-import AppLayout from "@/layouts/AppLayout";
+import AppLayout from "@/components/AppLayout";
 
 interface Slot {
   start_at: string;
@@ -59,7 +59,7 @@ export default function ReservationNew({ space, slots, date }: Props) {
           onClick={() => router.visit(`/facilities/spaces/${space.id}`)}
           className="text-sm text-slate-500 hover:text-slate-700 mb-4 flex items-center gap-1"
         >
-          ← Back to {space.name}
+          Back to {space.name}
         </button>
 
         <h1 className="text-2xl font-bold text-slate-800 mb-1">Reserve {space.name}</h1>
@@ -68,7 +68,6 @@ export default function ReservationNew({ space, slots, date }: Props) {
         </p>
 
         <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-6">
-          {/* Date picker */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Date</label>
             <input
@@ -80,7 +79,6 @@ export default function ReservationNew({ space, slots, date }: Props) {
             />
           </div>
 
-          {/* Title */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Meeting Title</label>
             <input
@@ -93,7 +91,6 @@ export default function ReservationNew({ space, slots, date }: Props) {
             {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
           </div>
 
-          {/* Attendees */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
               Attendees <span className="text-slate-400">(max {space.capacity})</span>
@@ -109,7 +106,6 @@ export default function ReservationNew({ space, slots, date }: Props) {
             {errors.attendees_count && <p className="text-red-500 text-xs mt-1">{errors.attendees_count}</p>}
           </div>
 
-          {/* Time slots */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
               Available Slots <span className="text-slate-400">({availableSlots.length} available)</span>
@@ -139,14 +135,12 @@ export default function ReservationNew({ space, slots, date }: Props) {
             {errors.start_at && <p className="text-red-500 text-xs mt-1">{errors.start_at}</p>}
           </div>
 
-          {/* Selected range summary */}
           {selectedSlot && (
             <div className="bg-teal-50 border border-teal-200 rounded-lg px-4 py-3 text-sm text-teal-700">
               Selected: <strong>{formatTime(selectedSlot.start_at)} – {formatTime(selectedSlot.end_at)}</strong>
             </div>
           )}
 
-          {/* Submit */}
           <button
             type="button"
             onClick={handleSubmit}

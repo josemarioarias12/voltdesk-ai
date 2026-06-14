@@ -1,5 +1,5 @@
 import { Head, router } from "@inertiajs/react";
-import AppLayout from "@/layouts/AppLayout";
+import AppLayout from "@/components/AppLayout";
 
 interface Reservation {
   id: number;
@@ -40,14 +40,13 @@ export default function SpaceShow({ space, reservations }: Props) {
     <AppLayout>
       <Head title={space.name} />
       <div className="max-w-5xl mx-auto px-6 py-8">
-        {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div>
             <button
               onClick={() => router.visit("/facilities/spaces")}
               className="text-sm text-slate-500 hover:text-slate-700 mb-2 flex items-center gap-1"
             >
-              ← Back to Spaces
+              Back to Spaces
             </button>
             <h1 className="text-2xl font-bold text-slate-800">{space.name}</h1>
             <p className="text-slate-500 text-sm mt-1">
@@ -62,7 +61,6 @@ export default function SpaceShow({ space, reservations }: Props) {
           </button>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           {[
             { label: "Status", value: space.status, accent: space.status === "available" ? "text-emerald-600" : "text-amber-600" },
@@ -76,7 +74,6 @@ export default function SpaceShow({ space, reservations }: Props) {
           ))}
         </div>
 
-        {/* Upcoming Reservations */}
         <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100">
             <h2 className="text-sm font-semibold text-slate-700">Upcoming Reservations</h2>

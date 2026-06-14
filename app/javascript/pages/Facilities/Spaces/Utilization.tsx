@@ -1,6 +1,6 @@
 import { Head, router } from "@inertiajs/react";
 import { useState } from "react";
-import AppLayout from "@/layouts/AppLayout";
+import AppLayout from "@/components/AppLayout";
 
 interface UtilizationData {
   space_id: number;

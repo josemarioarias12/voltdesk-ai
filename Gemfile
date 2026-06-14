@@ -77,6 +77,8 @@ gem 'omniauth-rails_csrf_protection'
 gem 'neighbor'
 gem 'ruby-openai', '~> 7.0'
 gem 'sidekiq', '~> 8.1'
+gem 'prawn', '~> 2.5'
+gem 'prawn-table', '~> 0.2'
 gem 'sidekiq-cron', '~> 2.0'
 
 gem 'pundit-matchers', '~> 4.0', group: :test
