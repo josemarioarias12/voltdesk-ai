@@ -14,7 +14,8 @@ class Notification < ApplicationRecord
     ticket_sla_warning: 4,
     onboarding_plan_ready: 5,
     daily_digest: 6,
-    system_alert: 7
+    system_alert: 7,
+    sla_breach_predicted: 8
   }
 
   scope :unread,  -> { where(read: false) }

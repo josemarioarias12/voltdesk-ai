@@ -110,3 +110,6 @@ Naming/PredicateMethod:
 
 Layout/HashAlignment:
   Enabled: false
+
+RSpec/AnyInstance:
+  Enabled: false

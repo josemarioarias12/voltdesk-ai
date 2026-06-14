@@ -62,12 +62,14 @@ module Analytics
       dept_tickets = scoped_tickets
 
       {
-        role: 'manager',
-        kpis: manager_kpis(dept_tickets),
-        ticket_volume_30d: ticket_volume_30d(dept_tickets),
+        role:                'manager',
+        kpis:                manager_kpis(dept_tickets),
+        ticket_volume_30d:   ticket_volume_30d(dept_tickets),
         tickets_by_category: tickets_by_category(dept_tickets),
-        heatmap: operational_heatmap(dept_tickets),
-        agent_performance: agent_performance(dept_tickets)
+        heatmap:             operational_heatmap(dept_tickets),
+        agent_performance:   agent_performance(dept_tickets),
+        tickets_at_risk:     tickets_at_risk(dept_tickets),
+        tickets_breached:    tickets_breached(dept_tickets)
       }
     end
 
@@ -202,6 +204,39 @@ module Analytics
       return @workspace.tickets unless @user.role_department_manager? && @user.department_id
 
       @workspace.tickets.where(department_id: @user.department_id)
+    end
+
+    def tickets_at_risk(tickets)
+      tickets.open_tickets
+             .where(sla_breach_probability: 0.70..)
+             .where.not(sla_breach_probability: nil)
+             .where('due_at > ?', Time.current)
+             .order(sla_breach_probability: :desc)
+             .limit(20)
+             .includes(:assigned_to, :department)
+             .map { |tkt| serialize_at_risk_ticket(tkt) }
+    end
+
+    def tickets_breached(tickets)
+      tickets.sla_breached
+             .order(due_at: :asc)
+             .limit(20)
+             .includes(:assigned_to, :department)
+             .map { |tkt| serialize_at_risk_ticket(tkt) }
+    end
+
+    def serialize_at_risk_ticket(tkt)
+      {
+        id:                    tkt.id,
+        ticket_number:         tkt.ticket_number,
+        title:                 tkt.title,
+        priority:              tkt.priority,
+        status:                tkt.status,
+        due_at:                tkt.due_at,
+        sla_breach_probability: tkt.sla_breach_probability&.to_f,
+        assigned_to:           tkt.assigned_to ? "#{tkt.assigned_to.first_name} #{tkt.assigned_to.last_name}" : nil,
+        department:            tkt.department&.name
+      }
     end
 
     def serialize_tickets(tickets)

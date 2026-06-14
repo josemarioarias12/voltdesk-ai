@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 
-# rubocop:disable RSpec/AnyInstance
 RSpec.describe Ai::AgentOrchestrator do
   let(:workspace) do
     create(:workspace, settings: {

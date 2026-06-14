@@ -10,24 +10,34 @@ if defined?(Sidekiq)
     config.on(:startup) do
       Sidekiq::Cron::Job.load_from_array([
                                            {
-                                             'name' => 'Daily Digest — 9am',
-                                             'cron' => '0 9 * * *',
+                                             'name'  => 'Daily Digest — 9am',
+                                             'cron'  => '0 9 * * *',
                                              'class' => 'DailyDigestJob'
                                            },
                                            {
-                                             'name' => 'Warranty Alert — 8am daily',
-                                             'cron' => '0 8 * * *',
+                                             'name'  => 'Warranty Alert — 8am daily',
+                                             'cron'  => '0 8 * * *',
                                              'class' => 'WarrantyAlertJob'
                                            },
                                            {
-                                             'name' => 'Pattern Detector — every hour',
-                                             'cron' => '0 * * * *',
+                                             'name'  => 'Pattern Detector — every hour',
+                                             'cron'  => '0 * * * *',
                                              'class' => 'PatternDetectorJob'
                                            },
                                            {
-                                             'name' => 'Executive Report — Monday 7am',
-                                             'cron' => '0 7 * * 1',
+                                             'name'  => 'Executive Report — Monday 7am',
+                                             'cron'  => '0 7 * * 1',
                                              'class' => 'ExecutiveReportJob'
+                                           },
+                                           {
+                                             'name'  => 'SLA Predictor — every 30 minutes',
+                                             'cron'  => '*/30 * * * *',
+                                             'class' => 'SlaPredictorJob'
+                                           },
+                                           {
+                                             'name'  => 'Anomaly Detector — every 15 minutes',
+                                             'cron'  => '*/15 * * * *',
+                                             'class' => 'AnomalyDetectorJob'
                                            }
                                          ])
     end
