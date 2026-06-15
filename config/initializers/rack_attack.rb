@@ -20,19 +20,36 @@ class Rack::Attack
     req.env['warden']&.user&.workspace_id if req.path.include?('/tickets') && req.post?
   end
 
-  # Return 429 with Retry-After header
+  # Throttle API requests by IP: 300 per minute (covers legitimate integrations)
+  throttle('api/ip', limit: 300, period: 1.minute) do |req|
+    req.ip if req.path.start_with?('/api/')
+  end
+
+  # Throttle API requests by API key: 100 per minute per integration
+  throttle('api/key', limit: 100, period: 1.minute) do |req|
+    if req.path.start_with?('/api/')
+      auth = req.get_header('HTTP_AUTHORIZATION') || req.get_header('Authorization')
+      auth&.start_with?('Bearer ') ? auth.split(' ', 2).last : nil
+    end
+  end
+
+  # Return 429 JSON — differentiate API vs web responses
   self.throttled_responder = lambda do |req|
     match_data  = req.env['rack.attack.match_data']
     now         = match_data[:epoch_time]
     retry_after = match_data[:period] - (now % match_data[:period])
 
+    body = if req.path.start_with?('/api/')
+             { error: 'Rate limit exceeded', code: 'rate_limited',
+                      status: 429, retry_after: retry_after }.to_json
+           else
+             { error: 'Too many requests. Please try again later.' }.to_json
+           end
+
     [
       429,
-      {
-        'Content-Type' => 'application/json',
-        'Retry-After'  => retry_after.to_s
-      },
-      [{ error: 'Too many requests. Please try again later.' }.to_json]
+      { 'Content-Type' => 'application/json', 'Retry-After' => retry_after.to_s },
+      [body]
     ]
   end
 end

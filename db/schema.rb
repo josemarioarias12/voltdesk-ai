@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_15_184430) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_15_212056) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -54,6 +54,36 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_184430) do
     t.index ["workspace_id", "created_at"], name: "idx_ai_audit_logs_workspace_date"
     t.index ["workspace_id", "operation"], name: "idx_ai_audit_logs_workspace_operation"
     t.index ["workspace_id"], name: "index_ai_audit_logs_on_workspace_id"
+  end
+
+  create_table "api_keys", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.string "key_digest", null: false
+    t.datetime "last_used_at"
+    t.string "name", null: false
+    t.jsonb "scopes", default: [], null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["key_digest"], name: "index_api_keys_on_key_digest", unique: true
+    t.index ["user_id"], name: "index_api_keys_on_user_id"
+    t.index ["workspace_id"], name: "index_api_keys_on_workspace_id"
+  end
+
+  create_table "api_requests", force: :cascade do |t|
+    t.bigint "api_key_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "duration_ms"
+    t.string "endpoint", null: false
+    t.string "http_method", null: false
+    t.string "ip_address"
+    t.integer "status_code"
+    t.bigint "workspace_id", null: false
+    t.index ["api_key_id", "created_at"], name: "index_api_requests_on_api_key_id_and_created_at"
+    t.index ["api_key_id"], name: "index_api_requests_on_api_key_id"
+    t.index ["workspace_id", "created_at"], name: "index_api_requests_on_workspace_id_and_created_at"
+    t.index ["workspace_id"], name: "index_api_requests_on_workspace_id"
   end
 
   create_table "asset_incidents", force: :cascade do |t|
@@ -392,6 +422,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_184430) do
     t.index ["workspace_id"], name: "index_users_on_workspace_id"
   end
 
+  create_table "webhooks", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.jsonb "events", default: [], null: false
+    t.integer "failure_count", default: 0, null: false
+    t.datetime "last_triggered_at"
+    t.string "name", null: false
+    t.string "secret_digest", null: false
+    t.datetime "updated_at", null: false
+    t.string "url", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["workspace_id", "active"], name: "index_webhooks_on_workspace_id_and_active"
+    t.index ["workspace_id"], name: "index_webhooks_on_workspace_id"
+  end
+
   create_table "workflow_executions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "executed_at"
@@ -445,6 +490,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_184430) do
   add_foreign_key "agent_actions", "workspaces"
   add_foreign_key "ai_audit_logs", "users"
   add_foreign_key "ai_audit_logs", "workspaces"
+  add_foreign_key "api_keys", "users"
+  add_foreign_key "api_keys", "workspaces"
+  add_foreign_key "api_requests", "api_keys"
+  add_foreign_key "api_requests", "workspaces"
   add_foreign_key "asset_incidents", "assets"
   add_foreign_key "asset_incidents", "users", column: "reported_by_id"
   add_foreign_key "asset_incidents", "workspaces"
@@ -487,6 +536,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_184430) do
   add_foreign_key "tickets", "workspaces"
   add_foreign_key "users", "departments"
   add_foreign_key "users", "workspaces"
+  add_foreign_key "webhooks", "workspaces"
   add_foreign_key "workflow_executions", "tickets"
   add_foreign_key "workflow_executions", "workflow_rules"
   add_foreign_key "workflow_rules", "workspaces"

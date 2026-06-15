@@ -22,6 +22,12 @@ module Tickets
       end
 
       Ai::ClassifyTicketJob.perform_later(ticket.id)
+      Webhooks::TriggerService.call(
+        workspace: @workspace,
+        event:     'ticket.created',
+        payload:   { ticket_id: ticket.id, number: ticket.ticket_number, title: ticket.title,
+                     priority: ticket.priority, created_at: ticket.created_at.iso8601 }
+      )
 
       ServiceResult.success(ticket)
     rescue ActiveRecord::RecordInvalid => e

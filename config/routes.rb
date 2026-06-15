@@ -131,4 +131,25 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  # ── S17: Public API ────────────────────────────────────────────────────────
+  namespace :api do
+    namespace :v1 do
+      resources :tickets, only: %i[index show create]
+      resources :assets,  only: %i[index show]
+    end
+  end
+
+  # ── S17: Settings — API Keys & Webhooks ───────────────────────────────────
+  namespace :settings do
+    resources :api_keys,  only: %i[index create destroy]
+    resources :webhooks,  only: %i[index create destroy] do
+      member { patch :toggle }
+    end
+  end
+
+  # ── S17: API Dashboard ────────────────────────────────────────────────────
+  namespace :admin do
+    get 'api_dashboard', to: 'api_dashboard#index', as: :api_dashboard
+  end
 end

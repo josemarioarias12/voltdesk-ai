@@ -17,6 +17,9 @@ class Workspace < ApplicationRecord
   has_many :space_reservations, dependent: :destroy
   has_many :compliance_logs,         dependent: :destroy
   has_many :data_retention_policies, dependent: :destroy
+  has_many :api_keys, dependent: :destroy
+  has_many :api_requests, dependent: :destroy
+  has_many :webhooks, dependent: :destroy
 
   # ── Validations ───────────────────────────────────────────────────────────────
   validates :name, presence: true, length: { minimum: 2, maximum: 100 }

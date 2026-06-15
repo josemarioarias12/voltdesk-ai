@@ -33,6 +33,7 @@ end
 InertiaRails.configuration.version = nil
 
 RSpec.configure do |config|
+  config.before { ActiveJob::Base.queue_adapter = :test }
   config.fixture_paths = [Rails.root.join('spec/fixtures')]
   config.use_transactional_fixtures = false
   config.infer_spec_type_from_file_location!

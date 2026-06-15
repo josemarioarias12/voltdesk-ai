@@ -59,7 +59,17 @@ module Tickets
       end
 
       broadcast_update
+      trigger_resolved_webhook if @ticket.status_resolved?
       ServiceResult.success(@ticket)
+    end
+
+    def trigger_resolved_webhook
+      Webhooks::TriggerService.call(
+        workspace: @ticket.workspace,
+        event:     'ticket.resolved',
+        payload:   { ticket_id: @ticket.id, number: @ticket.ticket_number,
+                     title: @ticket.title, resolved_at: @ticket.resolved_at&.iso8601 }
+      )
     end
 
     def permitted_params
