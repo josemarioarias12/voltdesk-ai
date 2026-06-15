@@ -31,6 +31,14 @@ export default function AdminOverview({ stats }: { stats: Stats }) {
           >
             View AI Audit Log →
           </button>
+
+          <button
+            onClick={() => router.get('/admin/compliance')}
+            className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
+            style={{ background: '#02C39A' }}
+          >
+            Compliance Report →
+          </button>
         </div>
 
         {/* KPI Cards */}

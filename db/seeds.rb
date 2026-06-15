@@ -508,6 +508,12 @@ workspaces.each do |ws|
   end
   Rails.logger.debug { "  AI Audit Log entries created for #{ws.name}" }
 end
+# ── S15: Data Retention Policies ──────────────────────────────────────────────
+Rails.logger.debug '==> Seeding Data Retention Policies...'
+Workspace.find_each do |workspace|
+  DataRetentionPolicy.seed_defaults_for(workspace)
+end
+Rails.logger.debug '  Data retention policies seeded for all workspaces'
 
 Rails.logger.debug ''
 Rails.logger.debug '==> Seed complete!'

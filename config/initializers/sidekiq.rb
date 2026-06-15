@@ -38,6 +38,11 @@ if defined?(Sidekiq)
                                              'name'  => 'Anomaly Detector — every 15 minutes',
                                              'cron'  => '*/15 * * * *',
                                              'class' => 'AnomalyDetectorJob'
+                                           },
+                                           {
+                                             'name'  => 'Data Retention Purge — 2am daily',
+                                             'cron'  => '0 2 * * *',
+                                             'class' => 'DataRetentionJob'
                                            }
                                          ])
     end

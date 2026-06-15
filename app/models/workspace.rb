@@ -15,6 +15,8 @@ class Workspace < ApplicationRecord
   has_many :pattern_alerts,  dependent: :destroy
   has_many :spaces,          dependent: :destroy
   has_many :space_reservations, dependent: :destroy
+  has_many :compliance_logs,         dependent: :destroy
+  has_many :data_retention_policies, dependent: :destroy
 
   # ── Validations ───────────────────────────────────────────────────────────────
   validates :name, presence: true, length: { minimum: 2, maximum: 100 }

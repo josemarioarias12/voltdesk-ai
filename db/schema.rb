@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_14_073313) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_15_165213) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -103,6 +103,36 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_14_073313) do
     t.index ["workspace_id", "asset_number"], name: "index_assets_on_workspace_id_and_asset_number", unique: true
     t.index ["workspace_id", "risk_score"], name: "index_assets_on_workspace_id_and_risk_score"
     t.index ["workspace_id", "status"], name: "index_assets_on_workspace_id_and_status"
+  end
+
+  create_table "compliance_logs", force: :cascade do |t|
+    t.bigint "actor_id"
+    t.datetime "created_at", null: false
+    t.integer "event_type", default: 0, null: false
+    t.string "ip_address"
+    t.jsonb "metadata", default: {}, null: false
+    t.bigint "resource_id", null: false
+    t.string "resource_type", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["actor_id"], name: "index_compliance_logs_on_actor_id"
+    t.index ["created_at"], name: "index_compliance_logs_on_created_at"
+    t.index ["event_type"], name: "index_compliance_logs_on_event_type"
+    t.index ["metadata"], name: "index_compliance_logs_on_metadata", using: :gin
+    t.index ["resource_type", "resource_id"], name: "index_compliance_logs_on_resource_type_and_resource_id"
+    t.index ["workspace_id"], name: "index_compliance_logs_on_workspace_id"
+  end
+
+  create_table "data_retention_policies", force: :cascade do |t|
+    t.boolean "auto_purge", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "last_purge_at"
+    t.string "resource_type", null: false
+    t.integer "retention_days", default: 365, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["workspace_id", "resource_type"], name: "idx_data_retention_policies_workspace_resource", unique: true
+    t.index ["workspace_id"], name: "index_data_retention_policies_on_workspace_id"
   end
 
   create_table "departments", force: :cascade do |t|
@@ -401,6 +431,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_14_073313) do
   add_foreign_key "assets", "departments"
   add_foreign_key "assets", "users", column: "assigned_to_id"
   add_foreign_key "assets", "workspaces"
+  add_foreign_key "compliance_logs", "users", column: "actor_id"
+  add_foreign_key "compliance_logs", "workspaces"
+  add_foreign_key "data_retention_policies", "workspaces"
   add_foreign_key "departments", "workspaces"
   add_foreign_key "leave_requests", "users"
   add_foreign_key "leave_requests", "users", column: "approved_by_id"

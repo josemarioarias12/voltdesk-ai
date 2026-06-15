@@ -7,6 +7,8 @@ class WorkspacePolicy < ApplicationPolicy
   def update?  = super_admin? || (admin_or_above? && same_workspace?(record.id))
   def destroy? = super_admin?
   def manage_demo? = admin_or_above? && same_workspace?(record.id)
+  def compliance_report? = super_admin? || (admin_or_above? && same_workspace?(record.id))
+  def purge?             = super_admin? || (admin_or_above? && same_workspace?(record.workspace_id))
 
   class Scope < ApplicationPolicy::Scope
     def resolve

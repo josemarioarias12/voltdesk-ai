@@ -82,9 +82,12 @@ Rails.application.routes.draw do
     get '/',          to: 'overview#index',  as: :root
     get '/audit-log', to: 'audit_log#index', as: :audit_log
 
-    # S7
     resources :pattern_alerts, only: %i[index update]
     get '/operational-twin', to: 'operational_twin#show', as: :operational_twin
+
+    get  '/compliance',          to: 'compliance#show', as: :compliance
+    get  '/compliance/download', to: 'compliance#download_pdf', as: :compliance_download
+    post '/compliance/purge',    to: 'compliance#purge_user',   as: :compliance_purge
   end
 
   # ── S12: AI Agent Orchestrator ─────────────────────────────────────────────

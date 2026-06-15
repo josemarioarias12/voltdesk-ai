@@ -2,6 +2,7 @@
 
 class ApplicationController < ActionController::Base
   include Pundit::Authorization
+  include ComplianceLoggable
 
   before_action :authenticate_user!
   before_action :set_current_workspace
