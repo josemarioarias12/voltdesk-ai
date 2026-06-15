@@ -273,10 +273,10 @@ export default function SentimentTrendingIndex({ data, error, period }: Props) {
                   />
                   <Tooltip
                     contentStyle={{ borderRadius: 8, fontSize: 12 }}
-                    formatter={(value: number, name: string) => {
+                    formatter={((value: number, name: string) => {
                       if (name === "Sentiment Score") return [value.toFixed(3), name];
                       return [value, name];
-                    }}
+                    }) as unknown as never}
                   />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
                   <Bar

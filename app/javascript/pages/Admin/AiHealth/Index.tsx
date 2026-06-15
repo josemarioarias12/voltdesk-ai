@@ -144,7 +144,7 @@ export default function AiHealthIndex({ metrics, period_days }: Props) {
                 <XAxis dataKey="bucket" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip
-                  formatter={(value: number) => [value, "Operations"]}
+                  formatter={((value: number) => [value, "Operations"]) as never}
                   contentStyle={{ borderRadius: 8, fontSize: 12 }}
                 />
                 <Bar dataKey="count" radius={[4, 4, 0, 0]}>
@@ -169,7 +169,7 @@ export default function AiHealthIndex({ metrics, period_days }: Props) {
                   <XAxis type="number" domain={[0, 1]} tick={{ fontSize: 12 }} />
                   <YAxis dataKey="name" type="category" width={160} tick={{ fontSize: 11 }} />
                   <Tooltip
-                    formatter={(value: number) => [value.toFixed(3), "Avg Confidence"]}
+                    formatter={((value: number) => [value.toFixed(3), "Avg Confidence"]) as never}
                     contentStyle={{ borderRadius: 8, fontSize: 12 }}
                   />
                   <Bar dataKey="confidence" radius={[0, 4, 4, 0]}>
@@ -201,7 +201,7 @@ export default function AiHealthIndex({ metrics, period_days }: Props) {
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} angle={-20} textAnchor="end" height={50} />
                 <YAxis tick={{ fontSize: 12 }} tickFormatter={(v: number) => `$${v.toFixed(4)}`} />
                 <Tooltip
-                  formatter={(value: number) => [`$${value.toFixed(6)}`, "Avg Cost"]}
+                  formatter={((value: number) => [`$${value.toFixed(6)}`, "Avg Cost"]) as never}
                   contentStyle={{ borderRadius: 8, fontSize: 12 }}
                 />
                 <Bar dataKey="cost" fill={TEAL} radius={[4, 4, 0, 0]} />

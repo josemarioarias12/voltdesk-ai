@@ -159,7 +159,7 @@ export default function BenchmarkIndex({ benchmark, error }: Props) {
                   fillOpacity={0.2}
                 />
                 <Tooltip
-                  formatter={(value: number, name: string) => [`${value}th percentile`, name]}
+                  formatter={((value: number, name: string) => [`${value}th percentile`, name]) as never}
                   contentStyle={{ borderRadius: 8, fontSize: 12 }}
                 />
               </RadarChart>
