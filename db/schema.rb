@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_15_165213) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_15_184430) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -309,6 +309,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_165213) do
     t.index ["workspace_id"], name: "index_ticket_embeddings_on_workspace_id"
   end
 
+  create_table "ticket_satisfaction_surveys", force: :cascade do |t|
+    t.string "ai_themes", default: [], array: true
+    t.datetime "created_at", null: false
+    t.bigint "department_id", null: false
+    t.text "feedback"
+    t.integer "rating", null: false
+    t.decimal "sentiment_score", precision: 4, scale: 3, null: false
+    t.bigint "submitted_by_id", null: false
+    t.bigint "ticket_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["created_at"], name: "index_ticket_satisfaction_surveys_on_created_at"
+    t.index ["department_id"], name: "index_ticket_satisfaction_surveys_on_department_id"
+    t.index ["sentiment_score"], name: "index_ticket_satisfaction_surveys_on_sentiment_score"
+    t.index ["submitted_by_id"], name: "index_ticket_satisfaction_surveys_on_submitted_by_id"
+    t.index ["ticket_id"], name: "index_ticket_satisfaction_surveys_on_ticket_id"
+    t.index ["workspace_id", "department_id", "created_at"], name: "idx_surveys_workspace_dept_date"
+    t.index ["workspace_id"], name: "index_ticket_satisfaction_surveys_on_workspace_id"
+  end
+
   create_table "tickets", force: :cascade do |t|
     t.jsonb "ai_metadata", default: {}, null: false
     t.bigint "assigned_to_id"
@@ -455,6 +475,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_165213) do
   add_foreign_key "ticket_comments", "users"
   add_foreign_key "ticket_embeddings", "tickets"
   add_foreign_key "ticket_embeddings", "workspaces"
+  add_foreign_key "ticket_satisfaction_surveys", "departments"
+  add_foreign_key "ticket_satisfaction_surveys", "tickets"
+  add_foreign_key "ticket_satisfaction_surveys", "users", column: "submitted_by_id"
+  add_foreign_key "ticket_satisfaction_surveys", "workspaces"
   add_foreign_key "tickets", "departments"
   add_foreign_key "tickets", "sla_policies"
   add_foreign_key "tickets", "spaces"

@@ -56,6 +56,7 @@ Rails.application.routes.draw do
         post :reject
       end
     end
+    get '/sentiment-trending', to: 'sentiment_trending#index', as: :sentiment_trending
     resources :onboarding_plans, only: %i[show] do
       member do
         patch :update_task
@@ -84,6 +85,8 @@ Rails.application.routes.draw do
 
     resources :pattern_alerts, only: %i[index update]
     get '/operational-twin', to: 'operational_twin#show', as: :operational_twin
+    get '/ai-health', to: 'ai_health#index', as: :ai_health
+    get '/benchmark', to: 'benchmark#index', as: :benchmark
 
     get  '/compliance',          to: 'compliance#show', as: :compliance
     get  '/compliance/download', to: 'compliance#download_pdf', as: :compliance_download
