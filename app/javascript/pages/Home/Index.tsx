@@ -259,6 +259,71 @@ function ParticleCanvas() {
   );
 }
 
+// ─── Interactive Sparkline ────────────────────────────────────────────────────
+function SparklineChart() {
+  const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
+
+  const data = [28, 35, 31, 42, 38, 45, 40, 52, 48, 55, 47, 60, 54, 62, 58, 65, 61, 70, 64, 68, 72, 66, 74, 70, 78, 72, 80, 75, 82, 78];
+
+  const width = 160;
+  const height = 48;
+  const minVal = Math.min(...data);
+  const maxVal = Math.max(...data);
+
+  const getX = (i: number) => (i / (data.length - 1)) * width;
+  const getY = (v: number) => height - ((v - minVal) / (maxVal - minVal)) * (height - 8) - 4;
+
+  const pathD = data.map((v, i) => `${i === 0 ? "M" : "L"}${getX(i).toFixed(1)},${getY(v).toFixed(1)}`).join(" ");
+  const areaD = pathD + ` L${width},${height} L0,${height}Z`;
+
+  return (
+    <div style={{ position: "relative" }}>
+      <p style={{ color: "#475569", fontSize: 10, marginBottom: 8 }}>Ticket Volume — 30 Days</p>
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        style={{ width: "100%", height: 48, cursor: "crosshair", overflow: "visible" }}
+      >
+        <defs>
+          <linearGradient id="sg2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#02C39A" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#02C39A" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+
+        <path d={areaD} fill="url(#sg2)" />
+        <path d={pathD} fill="none" stroke="#02C39A" strokeWidth="1.5" strokeLinejoin="round" />
+
+        {data.map((v, i) => {
+          const x = getX(i);
+          const y = getY(v);
+          const isHovered = hoveredPoint === i;
+          return (
+            <g key={i}>
+              <rect
+                x={x - 4}
+                y={0}
+                width={8}
+                height={height}
+                fill="transparent"
+                onMouseEnter={() => setHoveredPoint(i)}
+                onMouseLeave={() => setHoveredPoint(null)}
+              />
+              {isHovered && (
+                <>
+                  <line x1={x} y1={0} x2={x} y2={height} stroke="rgba(2,195,154,0.3)" strokeWidth="1" strokeDasharray="2,2" />
+                  <circle cx={x} cy={y} r={3} fill="#02C39A" stroke="#0a1520" strokeWidth="1.5" />
+                  <rect x={Math.min(x - 16, width - 36)} y={y - 22} width={34} height={16} rx={4} fill="#028090" />
+                  <text x={Math.min(x, width - 19)} y={y - 11} textAnchor="middle" fill="#fff" fontSize={9} fontWeight={600}>{v} tkts</text>
+                </>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
 // ─── Dashboard Mockup ─────────────────────────────────────────────────────────
 function DashboardMockup() {
   return (
@@ -319,17 +384,7 @@ function DashboardMockup() {
             <div className="grid grid-cols-2 gap-3">
               {/* Sparkline */}
               <div className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                <p style={{ color: "#64748b", fontSize: 10, marginBottom: 8 }}>Ticket Volume — 30 Days</p>
-                <svg viewBox="0 0 160 50" style={{ width: "100%", height: 50 }}>
-                  <defs>
-                    <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#02C39A" stopOpacity="0.3" />
-                      <stop offset="100%" stopColor="#02C39A" stopOpacity="0" />
-                    </linearGradient>
-                  </defs>
-                  <path d="M0,40 C20,35 30,20 50,22 C70,24 80,15 100,18 C120,21 130,10 160,8" fill="none" stroke="#02C39A" strokeWidth="1.5" />
-                  <path d="M0,40 C20,35 30,20 50,22 C70,24 80,15 100,18 C120,21 130,10 160,8 L160,50 L0,50Z" fill="url(#sparkGrad)" />
-                </svg>
+                <SparklineChart />
               </div>
 
               {/* Recent tickets */}
@@ -667,8 +722,8 @@ export default function LandingPage() {
             >
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ display: "flex" }}>
-                  {["#e74c3c", "#3498db", "#2ecc71", "#f39c12", "#9b59b6"].map((color, i) => (
-                    <div key={i} style={{ width: 28, height: 28, borderRadius: "50%", background: color, border: "2px solid #0D1B2A", marginLeft: i > 0 ? -8 : 0 }} />
+                  {["https://i.pravatar.cc/40?img=1","https://i.pravatar.cc/40?img=5","https://i.pravatar.cc/40?img=12","https://i.pravatar.cc/40?img=23","https://i.pravatar.cc/40?img=31"].map((src, i) => (
+                    <img key={i} src={src} alt="user" style={{ width: 28, height: 28, borderRadius: "50%", border: "2px solid #0D1B2A", marginLeft: i > 0 ? -8 : 0, objectFit: "cover" }} />
                   ))}
                 </div>
                 <span style={{ color: "#64748b", fontSize: 13 }}>Trusted by 500+ teams</span>
