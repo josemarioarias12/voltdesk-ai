@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  get '/health', to: proc { [200, {}, ['OK']] }
+  get '/health', to: 'health#index'
 
   mount ActionCable.server => '/cable'
 

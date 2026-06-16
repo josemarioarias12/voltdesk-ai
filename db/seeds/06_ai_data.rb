@@ -1,0 +1,103 @@
+# frozen_string_literal: true
+
+Rails.logger.debug '  Creating AI audit logs and classification corrections...'
+
+AI_OPERATIONS = %w[
+  ticket_classification response_suggestion asset_risk_scoring
+  pattern_detection sla_prediction survey_analysis executive_report
+].freeze
+
+PROVIDERS_BY_WORKSPACE = {
+  'techcorp'     => { 'openai' => 0.80, 'anthropic' => 0.15, 'gemini' => 0.05 },
+  'healthco'     => { 'openai' => 0.75, 'anthropic' => 0.20, 'gemini' => 0.05 },
+  'retailplus'   => { 'openai' => 0.70, 'anthropic' => 0.20, 'gemini' => 0.10 },
+  'startupai'    => { 'openai' => 0.60, 'anthropic' => 0.30, 'gemini' => 0.10 },
+  'consultingpro' => { 'openai' => 0.65, 'anthropic' => 0.30, 'gemini' => 0.05 }
+}.freeze
+
+# Weighted random provider selection
+def pick_provider(ws_slug)
+  weights = PROVIDERS_BY_WORKSPACE[ws_slug] || PROVIDERS_BY_WORKSPACE['techcorp']
+  roll = rand
+  cumulative = 0.0
+  weights.each do |provider, weight|
+    cumulative += weight
+    return provider if roll < cumulative
+  end
+  'openai'
+end
+
+def model_for(provider)
+  { 'openai' => 'gpt-4o', 'anthropic' => 'claude-sonnet-4-6', 'gemini' => 'gemini-flash' }[provider]
+end
+
+# StartupAI intentionally has low confidence for AI Health Dashboard demo
+def confidence_for(ws_slug, operation)
+  if ws_slug == 'startupai'
+    operation == 'ticket_classification' ? rand(0.45..0.75).round(2) : rand(0.60..0.85).round(2)
+  else
+    rand(0.72..0.98).round(2)
+  end
+end
+
+Workspace.find_each do |ws|
+  next if ws.slug == 'demo'
+
+  admin  = User.find_by(workspace: ws, email: "admin@#{ws.slug}.pulsedesk.ai")
+  count  = ws.slug == 'techcorp' ? 200 : 80
+
+  count.times do |idx|
+    operation  = AI_OPERATIONS[idx % AI_OPERATIONS.size]
+    provider   = pick_provider(ws.slug)
+    model      = model_for(provider)
+    confidence = confidence_for(ws.slug, operation)
+    created_at = rand(1..60).days.ago + rand(0..23).hours
+
+    AiAuditLog.create!(
+      workspace:        ws,
+      user:             admin,
+      operation:        operation,
+      model:            model,
+      provider:         provider,
+      prompt:           "Process #{operation} for workspace #{ws.slug} item #{idx}",
+      response:         "{\"result\":\"processed\",\"confidence\":#{confidence}}",
+      prompt_tokens:    rand(150..600),
+      completion_tokens: rand(80..300),
+      duration_ms:      rand(400..3500),
+      confidence_score: confidence,
+      status:           confidence < 0.60 ? :error : :success,
+      created_at:       created_at,
+      updated_at:       created_at
+    )
+  end
+
+  Rails.logger.debug { "  AiAuditLog created for #{ws.name}: #{AiAuditLog.where(workspace: ws).count} entries" }
+
+  # ClassificationCorrections — StartupAI has most to show self-learning
+  tickets    = Ticket.where(workspace: ws).limit(ws.slug == 'techcorp' ? 60 : 20)
+  agent      = User.find_by(workspace: ws, email: "agent1@#{ws.slug}.pulsedesk.ai")
+  categories = %w[it hr facilities finance operations general]
+
+  tickets.each_with_index do |ticket, idx|
+    original  = categories[idx % categories.size]
+    corrected = categories[(idx + 1) % categories.size]
+    next if original == corrected
+
+    ClassificationCorrection.create!(
+      workspace:          ws,
+      ticket:             ticket,
+      agent:              agent,
+      original_category:  original,
+      corrected_category: corrected,
+      correction_note:    'Reclassified based on ticket content analysis.',
+      created_at:         rand(1..30).days.ago
+    )
+  end
+
+  Rails.logger.debug do
+    "  ClassificationCorrections for #{ws.name}: #{ClassificationCorrection.where(workspace: ws).count}"
+  end
+end
+
+Rails.logger.debug { "  AiAuditLog total: #{AiAuditLog.count}" }
+Rails.logger.debug { "  ClassificationCorrections total: #{ClassificationCorrection.count}" }
