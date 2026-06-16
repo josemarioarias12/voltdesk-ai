@@ -3,6 +3,7 @@
 module Api
   module V1
     class AssetsController < BaseController
+      before_action -> { enforce_scope!('assets:read') }, only: %i[index show]
       def index
         per_page     = params[:per_page].to_i
         per_page     = 25 unless per_page.positive?

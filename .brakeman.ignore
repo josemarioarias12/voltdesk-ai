@@ -1,0 +1,24 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "ba01e2b287a89cda1dd44fa308541a2aa9a03b724ee5b364b8cfc51e2f7f9db7",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/services/tickets/create_ticket.rb",
+      "line": 61,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Ticket.connection.execute(\"CREATE SEQUENCE IF NOT EXISTS #{seq_name} START 1\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Tickets::CreateTicket",
+        "method": "ensure_sequence_exists"
+      },
+      "user_input": null,
+      "confidence": "Medium",
+      "note": "FALSE POSITIVE: seq_name is constructed internally as workspace_ID_ticket_seq where ID is an ActiveRecord Integer PK from @workspace.id \u2014 never user input. DDL statements (CREATE SEQUENCE) have no parameterized alternative in PostgreSQL. Reviewed and approved S19 Security Hardening."
+    }
+  ]
+}

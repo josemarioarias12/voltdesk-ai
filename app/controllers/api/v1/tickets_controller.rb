@@ -3,6 +3,8 @@
 module Api
   module V1
     class TicketsController < BaseController
+      before_action -> { enforce_scope!('tickets:read') }, only: %i[index show]
+      before_action -> { enforce_scope!('tickets:create') }, only: %i[create]
       def index
         per_page     = params[:per_page].to_i
         per_page     = 25 unless per_page.positive?

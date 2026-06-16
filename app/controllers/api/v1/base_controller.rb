@@ -9,8 +9,8 @@ module Api
       skip_before_action :verify_authenticity_token
       skip_before_action :authenticate_user!, raise: false
 
-      rescue_from ActiveRecord::RecordNotFound do |err|
-        render json: { error: err.message, code: 'not_found', status: 404 }, status: :not_found
+      rescue_from ActiveRecord::RecordNotFound do
+        render json: { error: 'Record not found', code: 'not_found', status: 404 }, status: :not_found
       end
 
       rescue_from Pundit::NotAuthorizedError do

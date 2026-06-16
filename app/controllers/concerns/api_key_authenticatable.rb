@@ -49,4 +49,15 @@ module ApiKeyAuthenticatable
 
     auth_header.split(' ', 2).last
   end
+
+  def enforce_scope!(required_scope)
+    return if @current_api_key&.scopes&.include?(required_scope.to_s)
+
+    render json: {
+      error:    'Insufficient scope',
+      code:     'forbidden_scope',
+      required: required_scope,
+      status:   403
+    }, status: :forbidden
+  end
 end

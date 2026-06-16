@@ -7,7 +7,7 @@ RSpec.describe 'Api::V1::Assets', type: :request do
   let!(:user)       { create(:user, workspace: workspace) }
   let(:token)      { SecureRandom.hex(32) }
   let(:digest)     { Digest::SHA256.hexdigest(token) }
-  let!(:api_key) { create(:api_key, workspace: workspace, user: user, key_digest: digest) }
+  let!(:api_key) { create(:api_key, workspace: workspace, user: user, key_digest: digest, scopes: %w[assets:read]) }
   let(:headers) { { 'Authorization' => "Bearer #{token}" } }
   let!(:department) { create(:department, workspace: workspace) }
 

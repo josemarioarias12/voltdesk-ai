@@ -3,10 +3,12 @@
 class ApplicationController < ActionController::Base
   include Pundit::Authorization
   include ComplianceLoggable
+  include SecureHeaders
 
   before_action :authenticate_user!
   before_action :set_current_workspace
   before_action :set_current_user
+  before_action :set_secure_headers
 
   inertia_share do
     {
@@ -19,7 +21,8 @@ class ApplicationController < ActionController::Base
         alert: flash[:alert]
       },
       notifications: current_user ? serialize_notifications(current_user) : [],
-      unread_notifications_count: current_user ? current_user.notifications.unread.count : 0
+      unread_notifications_count: current_user ? current_user.notifications.unread.count : 0,
+      csp_nonce: content_security_policy_nonce
     }
   end
 
@@ -47,25 +50,26 @@ class ApplicationController < ActionController::Base
     redirect_back_or_to root_path, alert: t('errors.unauthorized')
   end
 
+  # Generic 404 — never expose record ID or model name to prevent enumeration attacks
   def handle_not_found
-    redirect_back_or_to root_path, alert: t('errors.not_found')
+    render inertia: 'errors/NotFound', props: { status: 404 }, status: :not_found
   end
 
   def serialize_user(user)
     {
-      id: user.id,
-      email: user.email,
-      full_name: user.full_name,
+      id:         user.id,
+      email:      user.email,
+      full_name:  user.full_name,
       first_name: user.first_name,
-      last_name: user.last_name,
-      role: user.role,
-      active: user.active
+      last_name:  user.last_name,
+      role:       user.role,
+      active:     user.active
     }
   end
 
   def serialize_workspace(workspace)
     {
-      id: workspace.id,
+      id:   workspace.id,
       name: workspace.name,
       slug: workspace.slug,
       plan: workspace.plan
@@ -76,16 +80,16 @@ class ApplicationController < ActionController::Base
     user.notifications
         .recent
         .limit(20)
-        .map do |n|
+        .map do |ntf|
           {
-            id: n.id,
-            title: n.title,
-            body: n.body,
-            notification_type: n.notification_type,
-            resource_type: n.resource_type,
-            resource_id: n.resource_id,
-            read: n.read,
-            created_at: n.created_at.iso8601
+            id:                ntf.id,
+            title:             ntf.title,
+            body:              ntf.body,
+            notification_type: ntf.notification_type,
+            resource_type:     ntf.resource_type,
+            resource_id:       ntf.resource_id,
+            read:              ntf.read,
+            created_at:        ntf.created_at.iso8601
           }
         end
   end

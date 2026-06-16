@@ -131,7 +131,7 @@ module Analytics
               'AVG(confidence_score) AS avg_confidence'
             )
           )
-          .having("COUNT(*) FILTER (WHERE status = #{AiAuditLog.statuses[:error]}) > 0")
+          .having(Arel.sql("COUNT(*) FILTER (WHERE status = #{AiAuditLog.statuses[:error]}) > 0"))
           .order(Arel.sql('error_count DESC'))
           .limit(5)
           .map do |row|

@@ -22,8 +22,11 @@ class ApiKey < ApplicationRecord
   def self.authenticate(token)
     return nil if token.blank?
 
-    digest = Digest::SHA256.hexdigest(token)
-    active.find_by(key_digest: digest)
+    computed_digest = Digest::SHA256.hexdigest(token)
+    candidate = active.find_by(key_digest: computed_digest)
+    return nil unless candidate
+
+    ActiveSupport::SecurityUtils.secure_compare(candidate.key_digest, computed_digest) ? candidate : nil
   end
 
   def revoke!

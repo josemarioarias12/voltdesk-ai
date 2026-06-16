@@ -31,7 +31,14 @@ Rails.application.configure do
   config.force_ssl = true
 
   # Skip http-to-https redirect for the default health check endpoint.
-  # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
+  config.ssl_options = { redirect: { status: 301 } }
+
+  config.session_store :cookie_store,
+                       key:          '_pulsedesk_session',
+                       httponly:     true,
+                       secure:       true,
+                       same_site:    :lax,
+                       expire_after: 8.hours
 
   # Log to STDOUT with the current request id as a default log tag.
   config.log_tags = [ :request_id ]

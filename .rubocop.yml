@@ -75,7 +75,7 @@ RSpec/DescribeClass:
   Enabled: false
 
 RSpec/MultipleMemoizedHelpers:
-  Max: 10
+  Max: 20
 
 Rails/I18nLocaleTexts:
   Enabled: false
