@@ -13,14 +13,16 @@ class ComplianceLog < ApplicationRecord
     user_invite: 5,
     user_role_change: 6,
     retention_policy_change: 7,
-    gdpr_request: 8
+    gdpr_request: 8,
+    data_access_denied: 9
   }, prefix: true
 
   validates :resource_type, presence: true
-  validates :resource_id, presence: true
-  validates :event_type, presence: true
+  validates :resource_id,   presence: true
+  validates :event_type,    presence: true
 
   scope :for_workspace, ->(workspace) { where(workspace: workspace) }
-  scope :recent, -> { order(created_at: :desc) }
-  scope :in_period, ->(start_date, end_date) { where(created_at: start_date..end_date) }
+  scope :recent,        -> { order(created_at: :desc) }
+  scope :in_period,     ->(start_date, end_date) { where(created_at: start_date..end_date) }
+  scope :access_denied, -> { where(event_type: event_types[:data_access_denied]) }
 end

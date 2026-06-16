@@ -42,6 +42,8 @@ module Api
       end
 
       def serialize_asset(asset, detailed: false)
+        api_user = @current_api_key.user
+
         base = {
           id:            asset.id,
           name:          asset.name,
@@ -55,6 +57,11 @@ module Api
 
         return base unless detailed
 
+        sensitive = mask(asset, {
+                           purchase_price:      asset.purchase_price,
+          vendor_contract_url: asset.vendor_contract_url
+                         }, api_user)
+
         base.merge(
           incident_count:      asset.incident_count,
           warranty_expires_at: asset.warranty_expires_at&.iso8601,
@@ -62,7 +69,7 @@ module Api
           assigned_to:         asset.assigned_to&.full_name,
           purchase_date:       asset.purchase_date&.iso8601,
           notes:               asset.notes
-        )
+        ).merge(sensitive)
       end
 
       def warranty_status_for(asset)

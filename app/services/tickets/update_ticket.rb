@@ -14,13 +14,13 @@ module Tickets
       return validate_status_transition if changing_status?
 
       snapshot = capture_snapshot
-
       ActiveRecord::Base.transaction do
         return ServiceResult.failure(@ticket.errors.full_messages.join(', ')) unless @ticket.update(permitted_params)
 
         record_changes(snapshot)
       end
 
+      record_classification_correction_if_needed(snapshot)
       broadcast_update
       ServiceResult.success(@ticket)
     rescue StandardError => e
@@ -29,6 +29,19 @@ module Tickets
     end
 
     private
+
+    def record_classification_correction_if_needed(snapshot)
+      return unless snapshot['category'] != @ticket.category
+      return if @ticket.ai_metadata&.dig('category').blank?
+
+      Tickets::RecordClassificationCorrection.call(
+        ticket:             @ticket,
+        agent:              @user,
+        corrected_category: @ticket.category
+      )
+    rescue StandardError => e
+      Rails.logger.error("[UpdateTicket] correction record failed: #{e.message}")
+    end
 
     def changing_status?
       @params.key?(:status) && @params[:status].to_s != @ticket.status

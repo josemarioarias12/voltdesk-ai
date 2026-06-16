@@ -179,14 +179,30 @@ activities: :user).find(params.expect(:id))
 
   def serialize_ticket_detail(tkt)
     serialize_ticket(tkt).merge(
-      comments: policy_scope(tkt.comments).chronological.map do |c|
-        { id: c.id, body: c.body, internal: c.internal, created_at: c.created_at.iso8601, user: user_stub(c.user) }
+      comments: policy_scope(tkt.comments).chronological.map do |com|
+        { id: com.id, body: com.body, internal: com.internal, created_at: com.created_at.iso8601,
+user: user_stub(com.user) }
       end,
-      activities: tkt.activities.chronological.map do |a|
-        { id: a.id, action: a.action, metadata: a.metadata, created_at: a.created_at.iso8601,
-          user: a.user ? user_stub(a.user) : nil }
-      end
+      activities: tkt.activities.chronological.map do |act|
+        { id: act.id, action: act.action, metadata: act.metadata, created_at: act.created_at.iso8601,
+          user: act.user ? user_stub(act.user) : nil }
+      end,
+      correction_rate: build_correction_rate(tkt)
     )
+  end
+
+  def build_correction_rate(tkt)
+    ai_category = tkt.ai_metadata&.dig('category')
+    return nil if ai_category.blank?
+
+    {
+      category: ai_category,
+      times_corrected: ClassificationCorrection.where(
+        original_category: ai_category,
+        workspace: tkt.workspace
+      ).count,
+      total_in_workspace: Ticket.where(workspace: tkt.workspace).count
+    }
   end
 
   def user_stub(usr)

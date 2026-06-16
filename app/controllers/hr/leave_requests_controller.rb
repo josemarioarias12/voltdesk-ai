@@ -2,13 +2,13 @@
 
 module Hr
   class LeaveRequestsController < ApplicationController
+    include MaskableSerializer
+
     before_action :set_leave_request, only: %i[show approve reject]
 
     def index
       authorize :leave_request, :index?
-
       requests = policy_scope(LeaveRequest).includes(:approved_by, user: :department).recent
-
       render inertia: 'HR/LeaveRequests/Index', props: {
         leave_requests: requests.map { |lr| serialize_leave_request(lr) },
         stats: build_stats(requests)
@@ -17,7 +17,6 @@ module Hr
 
     def show
       authorize @leave_request
-
       render inertia: 'HR/LeaveRequests/Show', props: {
         leave_request: serialize_leave_request(@leave_request)
       }
@@ -25,7 +24,6 @@ module Hr
 
     def new
       authorize :leave_request, :create?
-
       render inertia: 'HR/LeaveRequests/New', props: {
         leave_types: LeaveRequest.leave_types.keys
       }
@@ -33,14 +31,12 @@ module Hr
 
     def create
       authorize :leave_request, :create?
-
       result = Hr::ProcessLeaveRequest.call(
         workspace: current_workspace,
         user: current_user,
         action: :create,
         options: { params: leave_request_params }
       )
-
       if result.success?
         redirect_to hr_leave_requests_path, notice: t('hr.leave_requests.created')
       else
@@ -50,14 +46,12 @@ module Hr
 
     def approve
       authorize @leave_request, :approve?
-
       result = Hr::ProcessLeaveRequest.call(
         workspace: current_workspace,
         user: current_user,
         action: :approve,
         options: { leave_request: @leave_request, actor: current_user }
       )
-
       if result.success?
         redirect_to hr_leave_requests_path, notice: t('hr.leave_requests.approved')
       else
@@ -67,7 +61,6 @@ module Hr
 
     def reject
       authorize @leave_request, :reject?
-
       result = Hr::ProcessLeaveRequest.call(
         workspace: current_workspace,
         user: current_user,
@@ -78,7 +71,6 @@ module Hr
           params: { rejection_reason: params[:rejection_reason] }
         }
       )
-
       if result.success?
         redirect_to hr_leave_requests_path, notice: t('hr.leave_requests.rejected')
       else
@@ -106,7 +98,7 @@ module Hr
     end
 
     def serialize_leave_request(leave_req)
-      {
+      base = {
         id: leave_req.id,
         leave_type: leave_req.leave_type,
         start_date: leave_req.start_date,
@@ -119,15 +111,22 @@ module Hr
         user: serialize_lr_user(leave_req.user),
         approved_by: serialize_lr_approver(leave_req.approved_by)
       }
+
+      sensitive = mask(leave_req, {
+                         medical_notes: leave_req.medical_notes,
+        doctor_certificate_url: leave_req.doctor_certificate_url
+                       }, current_user)
+
+      base.merge(sensitive)
     end
 
-    def serialize_lr_user(user)
+    def serialize_lr_user(usr)
       {
-        id: user.id,
-        full_name: user.full_name,
-        email: user.email,
-        role: user.role,
-        department: user.department&.name
+        id: usr.id,
+        full_name: usr.full_name,
+        email: usr.email,
+        role: usr.role,
+        department: usr.department&.name
       }
     end
 

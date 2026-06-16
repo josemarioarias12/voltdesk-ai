@@ -112,6 +112,18 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
               <span style={{ fontSize: 12, fontWeight: 600, padding: '4px 12px', borderRadius: 20, background: '#DCFCE7', color: '#16A34A' }}>Resolved</span>
             </div>
           )}
+
+          {/* Correction rate */}
+          {ticket.correction_rate && ticket.correction_rate.times_corrected > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderRadius: 10, background: ticket.correction_rate.times_corrected > 5 ? '#FFFBEB' : '#F8FAFC', border: `1px solid ${ticket.correction_rate.times_corrected > 5 ? '#FDE68A' : '#E2E8F0'}`, marginTop: 12 }}>
+              <span style={{ fontSize: 13, color: '#475569' }}>
+                Category <strong style={{ color: '#028090' }}>{ticket.correction_rate.category}</strong> was corrected <strong>{ticket.correction_rate.times_corrected}</strong> times by agents in this workspace
+              </span>
+              {ticket.correction_rate.times_corrected > 5 && (
+                <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: '#FEF3C7', color: '#D97706' }}>⚠ High correction rate</span>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

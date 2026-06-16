@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_15_212056) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_16_014743) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -122,6 +122,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_212056) do
     t.string "serial_number"
     t.integer "status", default: 0, null: false
     t.datetime "updated_at", null: false
+    t.string "vendor_contract_url"
     t.jsonb "warranty_alerts_sent", default: {}, null: false
     t.date "warranty_expires_at"
     t.bigint "workspace_id", null: false
@@ -133,6 +134,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_212056) do
     t.index ["workspace_id", "asset_number"], name: "index_assets_on_workspace_id_and_asset_number", unique: true
     t.index ["workspace_id", "risk_score"], name: "index_assets_on_workspace_id_and_risk_score"
     t.index ["workspace_id", "status"], name: "index_assets_on_workspace_id_and_status"
+  end
+
+  create_table "classification_corrections", force: :cascade do |t|
+    t.bigint "agent_id", null: false
+    t.string "corrected_category", null: false
+    t.text "correction_note"
+    t.datetime "created_at", null: false
+    t.string "original_category", null: false
+    t.bigint "ticket_id", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["agent_id"], name: "index_classification_corrections_on_agent_id"
+    t.index ["ticket_id"], name: "index_classification_corrections_on_ticket_id"
+    t.index ["workspace_id", "created_at"], name: "idx_on_workspace_id_created_at_685388b11c"
+    t.index ["workspace_id"], name: "index_classification_corrections_on_workspace_id"
   end
 
   create_table "compliance_logs", force: :cascade do |t|
@@ -179,8 +194,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_212056) do
   create_table "leave_requests", force: :cascade do |t|
     t.bigint "approved_by_id"
     t.datetime "created_at", null: false
+    t.string "doctor_certificate_url"
     t.date "end_date", null: false
     t.integer "leave_type", null: false
+    t.text "medical_notes"
     t.text "reason"
     t.text "rejection_reason"
     t.date "start_date", null: false
@@ -401,6 +418,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_212056) do
 
   create_table "users", force: :cascade do |t|
     t.boolean "active", default: true, null: false
+    t.string "bank_account"
     t.datetime "created_at", null: false
     t.bigint "department_id"
     t.string "email", default: "", null: false
@@ -412,6 +430,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_212056) do
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
     t.integer "role", default: 8, null: false
+    t.decimal "salary"
     t.string "uid"
     t.datetime "updated_at", null: false
     t.bigint "workspace_id"
@@ -500,6 +519,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_212056) do
   add_foreign_key "assets", "departments"
   add_foreign_key "assets", "users", column: "assigned_to_id"
   add_foreign_key "assets", "workspaces"
+  add_foreign_key "classification_corrections", "tickets"
+  add_foreign_key "classification_corrections", "users", column: "agent_id"
+  add_foreign_key "classification_corrections", "workspaces"
   add_foreign_key "compliance_logs", "users", column: "actor_id"
   add_foreign_key "compliance_logs", "workspaces"
   add_foreign_key "data_retention_policies", "workspaces"

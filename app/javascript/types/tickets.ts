@@ -58,6 +58,7 @@ export interface Ticket {
   source: TicketSource
   urgency_score: number
   ai_metadata: AiMetadata | null
+  correction_rate: { category: string; times_corrected: number; total_in_workspace: number } | null
   due_at: string | null
   resolved_at: string | null
   created_at: string

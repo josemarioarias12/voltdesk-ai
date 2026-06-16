@@ -6,11 +6,13 @@ class WorkspacePolicy < ApplicationPolicy
   def create?  = super_admin?
   def update?  = super_admin? || (admin_or_above? && same_workspace?(record.id))
   def destroy? = super_admin?
-  def manage_demo? = admin_or_above? && same_workspace?(record.id)
-  def manage_api_keys? = admin_or_above? && same_workspace?(record.id)
-  def manage_webhooks? = admin_or_above? && same_workspace?(record.id)
-  def compliance_report? = super_admin? || (admin_or_above? && same_workspace?(record.id))
-  def purge?             = super_admin? || (admin_or_above? && same_workspace?(record.workspace_id))
+  def manage_demo?            = admin_or_above? && same_workspace?(record.id)
+  def manage_api_keys?        = admin_or_above? && same_workspace?(record.id)
+  def manage_webhooks?        = admin_or_above? && same_workspace?(record.id)
+  def compliance_report?      = super_admin? || (admin_or_above? && same_workspace?(record.id))
+  def purge?                  = super_admin? || (admin_or_above? && same_workspace?(record.workspace_id))
+  def view_data_access_log?   = super_admin? || (admin_or_above? && same_workspace?(record.id))
+  def manage_learning?        = admin_or_above? && same_workspace?(record.id)
 
   class Scope < ApplicationPolicy::Scope
     def resolve

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class AssetsController < ApplicationController
+  include MaskableSerializer
+
   def index
     authorize :asset, :index?
     assets = policy_scope(Asset).includes(:assigned_to, :department).ordered_by_risk
@@ -19,9 +21,9 @@ class AssetsController < ApplicationController
   def new
     authorize :asset, :create?
     render inertia: 'Assets/New', props: {
-      departments: current_workspace.departments.order(:name).map { |d| { id: d.id, name: d.name } },
-      users: current_workspace.users.active.order(:first_name).map do |u|
-        { id: u.id, name: "#{u.first_name} #{u.last_name}" }
+      departments: current_workspace.departments.order(:name).map { |dep| { id: dep.id, name: dep.name } },
+      users: current_workspace.users.active.order(:first_name).map do |usr|
+        { id: usr.id, name: "#{usr.first_name} #{usr.last_name}" }
       end
     }
   end
@@ -29,7 +31,6 @@ class AssetsController < ApplicationController
   def create
     authorize :asset, :create?
     result = It::CreateAsset.call(workspace: current_workspace, user: current_user, params: asset_params)
-
     if result.success?
       redirect_to assets_path, notice: t('assets.created')
     else
@@ -41,7 +42,6 @@ class AssetsController < ApplicationController
     asset = policy_scope(Asset).includes(:assigned_to, :department, :asset_incidents).find(params.expect(:id))
     authorize asset
     result = It::UpdateAsset.call(asset: asset, user: current_user, params: asset_params)
-
     if result.success?
       redirect_to asset_path(asset), notice: t('assets.updated')
     else
@@ -76,23 +76,20 @@ class AssetsController < ApplicationController
   end
 
   def serialize_assets(assets)
-    assets.map do |a|
+    assets.map do |ast|
       {
-        id: a.id,
-        asset_number: a.asset_number,
-        name: a.name,
-        model_spec: a.model_spec,
-        serial_number: a.serial_number,
-        asset_type: a.asset_type,
-        status: a.status,
-        risk_score: a.risk_score,
-        warranty_expires_at: a.warranty_expires_at,
-        assigned_to: if a.assigned_to
-                       { id: a.assigned_to.id,
-                         name: "#{a.assigned_to.first_name} #{a.assigned_to.last_name}" }
-                     end,
-        department: a.department ? { id: a.department.id, name: a.department.name } : nil,
-        updated_at: a.updated_at
+        id: ast.id,
+        asset_number: ast.asset_number,
+        name: ast.name,
+        model_spec: ast.model_spec,
+        serial_number: ast.serial_number,
+        asset_type: ast.asset_type,
+        status: ast.status,
+        risk_score: ast.risk_score,
+        warranty_expires_at: ast.warranty_expires_at,
+        assigned_to: ast.assigned_to ? { id: ast.assigned_to.id, name: ast.assigned_to.full_name } : nil,
+        department: ast.department ? { id: ast.department.id, name: ast.department.name } : nil,
+        updated_at: ast.updated_at
       }
     end
   end
@@ -101,7 +98,7 @@ class AssetsController < ApplicationController
     incidents = asset.asset_incidents.order(created_at: :desc).limit(10)
     risk_meta = asset.ai_metadata['risk_assessment']
 
-    {
+    base = {
       id: asset.id,
       asset_number: asset.asset_number,
       name: asset.name,
@@ -111,7 +108,6 @@ class AssetsController < ApplicationController
       status: asset.status,
       risk_score: asset.risk_score,
       purchase_date: asset.purchase_date,
-      purchase_price: asset.purchase_price,
       warranty_expires_at: asset.warranty_expires_at,
       days_until_warranty: asset.days_until_warranty_expires,
       last_maintenance_at: asset.last_maintenance_at,
@@ -119,22 +115,23 @@ class AssetsController < ApplicationController
       condition_at_assignment: asset.condition_at_assignment,
       assigned_at: asset.assigned_at,
       notes: asset.notes,
-      assigned_to: if asset.assigned_to
-                     { id: asset.assigned_to.id,
-                       name: "#{asset.assigned_to.first_name} #{asset.assigned_to.last_name}" }
-                   end,
+      assigned_to: asset.assigned_to ? { id: asset.assigned_to.id, name: asset.assigned_to.full_name } : nil,
       department: asset.department ? { id: asset.department.id, name: asset.department.name } : nil,
       risk_assessment: risk_meta,
       incidents: serialize_incidents(incidents),
       created_at: asset.created_at,
       updated_at: asset.updated_at
     }
+
+    sensitive = mask(asset, { purchase_price: asset.purchase_price,
+                               vendor_contract_url: asset.vendor_contract_url }, current_user)
+    base.merge(sensitive)
   end
 
   def serialize_incidents(incidents)
-    incidents.map do |i|
-      { id: i.id, title: i.title, severity: i.severity,
-        status: i.status, created_at: i.created_at, resolved_at: i.resolved_at }
+    incidents.map do |inc|
+      { id: inc.id, title: inc.title, severity: inc.severity,
+        status: inc.status, created_at: inc.created_at, resolved_at: inc.resolved_at }
     end
   end
 end

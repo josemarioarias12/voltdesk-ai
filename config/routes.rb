@@ -30,7 +30,7 @@ Rails.application.routes.draw do
   # ── Dashboard ──────────────────────────────────────────────────────────────
   get '/dashboard', to: 'dashboards#show', as: :dashboard
 
-  # ── S3: Ticket Engine ──────────────────────────────────────────────────────
+  #  Ticket Engine ──────────────────────────────────────────────────────
   resources :tickets, except: %i[edit] do
     member do
       post :resolve
@@ -46,7 +46,7 @@ Rails.application.routes.draw do
   get   '/settings',    to: 'settings#index',     as: :settings
   patch '/settings/ai', to: 'settings#update_ai', as: :settings_ai
 
-  # ── S5: HR Operations Hub ──────────────────────────────────────────────────
+  #  HR Operations Hub ──────────────────────────────────────────────────
   get '/hr', to: redirect('/hr/leave_requests'), as: :hr_root
 
   namespace :hr do
@@ -64,7 +64,7 @@ Rails.application.routes.draw do
     end
   end
 
-  # ── S5: Notifications ──────────────────────────────────────────────────────
+  # Notifications ──────────────────────────────────────────────────────
   resources :notifications, only: %i[index] do
     collection do
       post :mark_read
@@ -74,7 +74,7 @@ Rails.application.routes.draw do
     end
   end
 
-  # ── S6: IT Asset Management ────────────────────────────────────────────────
+  #  IT Asset Management ────────────────────────────────────────────────
   # /assets conflicts with Rails asset pipeline middleware — use /inventory
   resources :assets, path: 'inventory', except: %i[edit]
 
@@ -93,7 +93,7 @@ Rails.application.routes.draw do
     post '/compliance/purge',    to: 'compliance#purge_user',   as: :compliance_purge
   end
 
-  # ── S12: AI Agent Orchestrator ─────────────────────────────────────────────
+  #  AI Agent Orchestrator ─────────────────────────────────────────────
   resources :agent_actions, only: [:index] do
     member do
       patch :approve
@@ -101,7 +101,7 @@ Rails.application.routes.draw do
     end
   end
 
-  # ── S12: Workflow Engine ────────────────────────────────────────────────────
+  #  Workflow Engine ────────────────────────────────────────────────────
   resources :workflow_rules, only: %i[index create update destroy]
 
   # QR Demo Mode
@@ -116,7 +116,7 @@ Rails.application.routes.draw do
     get 'demo/status', to: 'demo_modes#status', as: :demo_status
   end
 
-  # ── S14: Facilities & Space Management ────────────────────────────────────
+  # Facilities & Space Management ────────────────────────────────────
   namespace :facilities do
     resources :spaces, only: %i[index show] do
       collection do
@@ -132,7 +132,7 @@ Rails.application.routes.draw do
     end
   end
 
-  # ── S17: Public API ────────────────────────────────────────────────────────
+  #  Public API ────────────────────────────────────────────────────────
   namespace :api do
     namespace :v1 do
       resources :tickets, only: %i[index show create]
@@ -140,16 +140,23 @@ Rails.application.routes.draw do
     end
   end
 
-  # ── S17: Settings — API Keys & Webhooks ───────────────────────────────────
+  #  Settings — API Keys & Webhooks ───────────────────────────────────
   namespace :settings do
     resources :api_keys,  only: %i[index create destroy]
     resources :webhooks,  only: %i[index create destroy] do
       member { patch :toggle }
     end
+    resources :learning, only: [:index] do
+      collection do
+        post :apply
+        post :dismiss
+      end
+    end
   end
 
-  # ── S17: API Dashboard ────────────────────────────────────────────────────
+  # API Dashboard ────────────────────────────────────────────────────
   namespace :admin do
     get 'api_dashboard', to: 'api_dashboard#index', as: :api_dashboard
+    get 'data_access_log', to: 'data_access_log#index', as: :data_access_log
   end
 end
