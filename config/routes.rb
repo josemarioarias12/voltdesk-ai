@@ -3,6 +3,9 @@
 Rails.application.routes.draw do
   get '/health', to: 'health#index'
 
+  # Public marketing landing page — no authentication required
+  get '/', to: 'public#landing', as: :landing
+
   mount ActionCable.server => '/cable'
 
   require 'sidekiq/web'
