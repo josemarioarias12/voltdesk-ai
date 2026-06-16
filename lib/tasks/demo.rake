@@ -65,6 +65,8 @@ namespace :demo do
         next unless embedding
 
         TicketEmbedding.find_or_initialize_by(ticket: ticket).tap do |rec|
+          rec.workspace = ticket.workspace
+          rec.content   = "#{ticket.title} #{ticket.description}".truncate(2000)
           rec.embedding = embedding
           rec.save!
         end
