@@ -62,3 +62,16 @@ Run `npx vite-bundle-visualizer` to audit. Target: < 500kb gzipped.
 ## Seed Performance
 
 Full `rails db:seed` completes in ~36 seconds for 540 tickets, 60 users, 6 workspaces.
+## Bundle Size (Vite Production Build)
+
+| Chunk | Raw | Gzip |
+|-------|-----|------|
+| inertia (React + Inertia.js) | 329 kb | 103 kb |
+| CategoricalChart (Recharts) | 282 kb | 86 kb |
+| proxy (D3.js) | 121 kb | 39 kb |
+| OperationalTwin | 53 kb | 17 kb |
+| AppLayout | 49 kb | 14 kb |
+
+**Total gzip (main chunks): ~270kb — Target < 500kb ✅**
+
+Tree-shaking active on Recharts and D3. No additional splitting required.

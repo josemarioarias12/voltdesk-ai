@@ -143,26 +143,59 @@ Rails sends typed props directly to React components. Eliminates the entire API 
 ## Quality
 
 ```bash
-bundle exec rspec          # 407 examples, 0 failures — SimpleCov > 80%
+bundle exec rspec          # 622 examples, 0 failures
 npx tsc --noEmit           # 0 TypeScript errors
 bundle exec rubocop        # 0 offenses
+rails demo:verify          # 54/54 checks ✅
 ```
+
+## Performance
+
+See [PERFORMANCE.md](PERFORMANCE.md) for full benchmarks.
+
+| Metric | Result | Target |
+|--------|--------|--------|
+| p95 query time | < 57ms | < 200ms ✅ |
+| Bundle size (gzip) | ~270kb | < 500kb ✅ |
+| pgvector similarity search | < 50ms | < 50ms ✅ |
+| db:seed time | ~37s | < 5min ✅ |
+| GET /health | 200 OK | Railway healthcheck ✅ |
 
 ---
 
-## Demo Data
-
-The Railway instance is pre-loaded with realistic seed data:
+## Demo Data 
 
 | Entity | Count |
 |--------|-------|
-| Workspaces | 5 |
-| Users (across all roles) | 66 |
-| Tickets | 342 |
-| IT Assets | 30 |
-| AI Audit Log entries | 300+ |
+| Workspaces | 6 (5 industry + 1 DEMO) |
+| Users | 60 (all roles per workspace) |
+| Tickets | 575 (60 days historical) |
+| IT Assets | 51 |
+| AiAuditLog entries | 540 |
+| ComplianceLogs | 362 |
+| ApiRequests | 820 |
+| PatternAlerts | 8 active |
+| AgentActions | 6 pending approval |
 
----
+### Demo Credentials
+
+All passwords: `Password123x` — DEMO workspace: `DemoPass2024!`
+
+| Workspace | Scenario | Admin Email |
+|-----------|----------|-------------|
+| TechCorp Inc | DB outage crisis — SLA breach in 25min | admin@techcorp.pulsedesk.ai |
+| HealthCo Medical | Medical equipment offline + sentiment drop | admin@healthco.pulsedesk.ai |
+| RetailPlus | POS spike — 8 stores down + anomaly Z-score 3.8 | admin@retailplus.pulsedesk.ai |
+| StartupAI | AI confidence < 0.70 on 30% of tickets | admin@startupai.pulsedesk.ai |
+| ConsultingPro | SOC 2 audit + GDPR purge logs | admin@consultingpro.pulsedesk.ai |
+| PulseDesk Demo | All modules in 5 min — QR Demo Mode | demo_admin@pulsedesk.ai |
+
+### Demo Verification
+
+```bash
+rails demo:verify           # 54/54 checks across all workspaces
+rails demo:generate_embeddings  # pgvector HNSW embeddings (real or synthetic)
+```
 
 ## Branch Strategy
 
