@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { motion, useScroll, useSpring } from "framer-motion";
 import Navbar from "./components/Navbar";
 import DashboardMockup from "./components/DashboardMockup";
@@ -25,7 +25,19 @@ function CheckIcon() {
   );
 }
 
+const TECH_DESCRIPTIONS: Record<string, string> = {
+  "Rails": "Backend framework · API & business logic",
+  "PostgreSQL": "Primary database · ACID compliant",
+  "Redis": "Cache & job queues · Sub-ms latency",
+  "OpenAI": "GPT-4o · Classification & RAG",
+  "Anthropic": "Claude Sonnet · Complex analysis",
+  "Google AI": "Gemini Flash · High-speed ops",
+  "React": "Frontend UI · React 19 + TypeScript",
+  "pgvector": "Vector search · 1536-dim embeddings",
+};
+
 export default function LandingPage() {
+  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
@@ -327,146 +339,218 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" style={{ background: "#fff", padding: "96px 24px" }}>
+      <section id="pricing" style={{ background: "#0a0f1a", padding: "96px 24px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(2,128,144,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(2,128,144,0.04) 1px, transparent 1px)", backgroundSize: "48px 48px", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 600, height: 600, background: "radial-gradient(ellipse, rgba(2,195,154,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: "center", marginBottom: 64 }}>
-            <p style={{ color: "#028090", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 12 }}>✦ Pricing</p>
-            <h2 style={{ fontSize: "clamp(28px,4vw,44px)", fontWeight: 800, color: "#0f172a", marginBottom: 12, letterSpacing: "-0.02em" }}>Simple, transparent pricing</h2>
-            <p style={{ color: "#64748b", fontSize: 18 }}>Start free. Scale as you grow. No hidden fees.</p>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0}} viewport={{ once: true }} style={{ textAlign: "center", marginBottom: 64, position: "relative" }}>
+            <p style={{ color: "#02C39A", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 12 }}>✦ Pricing</p>
+            <h2 style={{ fontSize: "clamp(28px,4vw,48px)", fontWeight: 800, color: "#fff", marginBottom: 12, letterSpacing: "-0.02em" }}>Simple, transparent pricing</h2>
+            <p style={{ color: "#64748b", fontSize: 18, marginBottom: 32 }}>Start free. Scale as you grow. No hidden fees.</p>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 0, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: 4 }}>
+              <button onClick={() => setBilling("monthly")} style={{ padding: "8px 20px", borderRadius: 9, border: "none", cursor: "pointer", fontWeight: 600, fontSize: 14, transition: "all 0.2s", background: billing === "monthly" ? "rgba(2,128,144,0.9)" : "transparent", color: billing === "monthly" ? "#fff" : "#64748b" }}>Monthly</button>
+              <button onClick={() => setBilling("annual")} style={{ padding: "8px 20px", borderRadius: 9, border: "none", cursor: "pointer", fontWeight: 600, fontSize: 14, transition: "all 0.2s", background: billing === "annual" ? "rgba(2,128,144,0.9)" : "transparent", color: billing === "annual" ? "#fff" : "#64748b", display: "flex", alignItems: "center", gap: 8 }}>
+                Annual
+                <span style={{ background: "linear-gradient(135deg,#028090,#02C39A)", color: "#fff", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20, letterSpacing: "0.05em" }}>-20%</span>
+              </button>
+            </div>
           </motion.div>
-          <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}
+         <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}
             style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 24, alignItems: "stretch" }}>
-            {PRICING_PLANS.map((plan) => (
-              <motion.div
-                key={plan.name}
-                variants={fadeUp}
-                whileHover={{ y: plan.highlight ? -4 : -6 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                style={{
-                  background: plan.highlight ? "linear-gradient(160deg,#0D1B2A 0%,#0a2030 100%)" : "#fff",
-                  borderRadius: 20,
-                  padding: 32,
-                  border: plan.highlight ? "1px solid rgba(2,195,154,0.4)" : "1px solid #e2e8f0",
-                  position: "relative",
-                  boxShadow: plan.highlight ? "0 24px 64px rgba(2,128,144,0.2)" : "none",
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                {plan.badge && (
-                  <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg,#028090,#02C39A)", color: "#fff", fontSize: 11, fontWeight: 700, padding: "4px 16px", borderRadius: 100, whiteSpace: "nowrap", letterSpacing: "0.05em" }}>
-                    {plan.badge}
-                  </div>
-                )}
-                <div style={{ marginBottom: 24 }}>
-                  <h3 style={{ fontSize: 18, fontWeight: 700, color: plan.highlight ? "#fff" : "#0f172a", marginBottom: 8 }}>{plan.name}</h3>
-                  <p style={{ color: plan.highlight ? "#64748b" : "#64748b", fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}>{plan.description}</p>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 4 }}>
-                    {plan.price !== null ? (
-                      <>
-                        <span style={{ fontSize: 48, fontWeight: 800, color: plan.highlight ? "#fff" : "#0f172a", letterSpacing: "-0.03em" }}>${plan.price}</span>
-                        <span style={{ color: "#64748b", fontSize: 15 }}>/{plan.period}</span>
-                      </>
-                    ) : (
-                      <span style={{ fontSize: 36, fontWeight: 800, color: plan.highlight ? "#fff" : "#0f172a", letterSpacing: "-0.02em" }}>Custom</span>
-                    )}
-                  </div>
-                  {plan.price !== null && <p style={{ color: "#64748b", fontSize: 13 }}>per workspace · billed monthly</p>}
-                </div>
-
-                <div style={{ flex: 1, marginBottom: 28 }}>
-                  {plan.features.map((feature) => (
-                    <div key={feature} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 12 }}>
-                      <div style={{ flexShrink: 0, marginTop: 1 }}><CheckIcon /></div>
-                      <span style={{ color: plan.highlight ? "#cbd5e1" : "#475569", fontSize: 14, lineHeight: 1.5 }}>{feature}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <motion.a
-                  href={plan.href}
-                  whileHover={{ scale: 1.03, boxShadow: plan.highlight ? "0 8px 32px rgba(2,128,144,0.45)" : "0 4px 16px rgba(0,0,0,0.1)" }}
-                  whileTap={{ scale: 0.97 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            {PRICING_PLANS.map((plan) => {
+              const displayPrice = plan.price !== null ? (billing === "annual" ? Math.round(plan.price * 0.8) : plan.price) : null;
+              return (
+                <motion.div
+                  key={plan.name}
+                  variants={fadeUp}
+                  whileHover={{ y: plan.highlight ? -8 : -6, boxShadow: plan.highlight ? "0 32px 80px rgba(2,128,144,0.35)" : "0 16px 48px rgba(0,0,0,0.2)" }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   style={{
-                    display: "block",
-                    textAlign: "center",
-                    padding: "13px 24px",
-                    borderRadius: 10,
-                    fontWeight: 700,
-                    fontSize: 15,
-                    textDecoration: "none",
-                    background: plan.highlight ? "linear-gradient(135deg,#028090,#02C39A)" : "transparent",
-                    color: plan.highlight ? "#fff" : "#028090",
-                    border: plan.highlight ? "none" : "2px solid #028090",
+                    background: plan.highlight ? "linear-gradient(160deg,#0c1f35 0%,#0a1628 100%)" : "rgba(255,255,255,0.03)",
+                    borderRadius: 24,
+                    padding: plan.highlight ? 36 : 32,
+                    border: plan.highlight ? "1px solid rgba(2,195,154,0.5)" : "1px solid rgba(255,255,255,0.08)",
+                    position: "relative",
+                    boxShadow: plan.highlight ? "0 24px 64px rgba(2,128,144,0.25), inset 0 1px 0 rgba(255,255,255,0.08)" : "none",
+                    display: "flex",
+                    flexDirection: "column",
+                    transform: plan.highlight ? "scale(1.03)" : "scale(1)",
                   }}
                 >
-                  {plan.cta}
-                </motion.a>
-              </motion.div>
-            ))}
+                  {plan.highlight && (
+                    <div style={{ position: "absolute", inset: 0, borderRadius: 24, background: "radial-gradient(ellipse at top, rgba(2,195,154,0.08) 0%, transparent 60%)", pointerEvents: "none" }} />
+                  )}
+                  {plan.badge && (
+                    <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg,#028090,#02C39A)", color: "#fff", fontSize: 11, fontWeight: 700, padding: "5px 18px", borderRadius: 100, whiteSpace: "nowrap", letterSpacing: "0.08em", boxShadow: "0 4px 16px rgba(2,195,154,0.4)" }}>
+                      {plan.badge}
+                    </div>
+                  )}
+                  <div style={{ marginBottom: 24, position: "relative" }}>
+                    <h3 style={{ fontSize: 20, fontWeight: 700, color: "#fff", marginBottom: 8 }}>{plan.name}</h3>
+                    <p style={{ color: "#475569", fontSize: 14, lineHeight: 1.6, marginBottom: 24 }}>{plan.description}</p>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 4 }}>
+                      {displayPrice !== null ? (
+                        <>
+                          <span style={{ fontSize: 56, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1 }}>${displayPrice}</span>
+                          <span style={{ color: "#475569", fontSize: 15 }}>/mo</span>
+                        </>
+                      ) : (
+                        <span style={{ fontSize: 40, fontWeight: 800, color: "#fff", letterSpacing: "-0.02em" }}>Custom</span>
+                      )}
+                    </div>
+                    {displayPrice !== null && (
+                      <p style={{ color: "#475569", fontSize: 13 }}>
+                        per workspace · {billing === "annual" ? "billed annually" : "billed monthly"}
+                        {billing === "annual" && <span style={{ color: "#02C39A", fontWeight: 600, marginLeft: 8 }}>Save 20%</span>}
+                      </p>
+                    )}
+                  </div>
+                  <div style={{ flex: 1, marginBottom: 28, borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 24 }}>
+                    {plan.features.map((feature) => (
+                      <motion.div key={feature} whileHover={{ x: 4 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                        style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 14, cursor: "default" }}>
+                        <div style={{ flexShrink: 0, marginTop: 1 }}><CheckIcon /></div>
+                        <span style={{ color: "#94a3b8", fontSize: 14, lineHeight: 1.5 }}>{feature}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+                  <motion.a
+                    href={plan.href}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                    style={{
+                      display: "block",
+                      textAlign: "center",
+                      padding: "14px 24px",
+                      borderRadius: 12,
+                      fontWeight: 700,
+                      fontSize: 15,
+                      textDecoration: "none",
+                      position: "relative",
+                      background: plan.highlight ? "linear-gradient(135deg,#028090,#02C39A)" : "rgba(255,255,255,0.06)",
+                      color: "#fff",
+                      border: plan.highlight ? "none" : "1px solid rgba(255,255,255,0.12)",
+                      boxShadow: plan.highlight ? "0 4px 24px rgba(2,128,144,0.4)" : "none",
+                    }}
+                  >
+                    {plan.cta}
+                  </motion.a>
+                </motion.div>
+              );
+            })}
           </motion.div>
-          <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.4 }}
-            style={{ textAlign: "center", color: "#94a3b8", fontSize: 14, marginTop: 40 }}>
+          <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{once: true }} transition={{ delay: 0.4 }}
+            style={{ textAlign: "center", color: "#475569", fontSize: 14, marginTop: 48 }}>
             All plans include a 14-day free trial · No credit card required · Cancel anytime
           </motion.p>
         </div>
       </section>
 
       {/* Tech Stack */}
-      <section id="api" style={{ background: "#f8fafc", padding: "72px 24px", borderTop: "1px solid #e2e8f0" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
+      <section id="api" style={{ background: "#f8fafc", padding: "96px 0", borderTop: "1px solid #e2e8f0", position: "relative", overflow: "hidden" }}>
+        <style>{`
+          @keyframes marquee-left { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+          @keyframes marquee-right { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
+          .marquee-left { display: flex; gap: 16px; width: max-content; animation: marquee-left 32s linear infinite; }
+          .marquee-right { display: flex; gap: 16px; width: max-content; animation: marquee-right 28s linear infinite; }
+          .marquee-left:hover, .marquee-right:hover { animation-play-state: paused; }
+        `}</style>
+        <div style={{ textAlign: "center", marginBottom: 72, padding: "0 24px" }}>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <h2 style={{ fontSize: 28, fontWeight: 800, color: "#0f172a", marginBottom: 8, letterSpacing: "-0.02em" }}>Built on technology you trust</h2>
-            <p style={{ color: "#64748b", fontSize: 15, marginBottom: 52 }}>Open standards. No vendor lock-in.</p>
+            <p style={{ color: "#028090", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 12 }}>✦ Infrastructure</p>
+            <h2 style={{ fontSize: "clamp(28px,3vw,44px)", fontWeight: 800, color: "#0f172a", marginBottom: 12, letterSpacing: "-0.02em" }}>Built on technology you trust</h2>
+            <p style={{ color: "#64748b", fontSize: 17 }}>Open standards. No vendor lock-in. Enterprise-grade reliability.</p>
           </motion.div>
-          <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 20 }}>
-            {TECH_STACK.map((tech) => (
-              <motion.div key={tech.name} variants={fadeUp} whileHover={{ scale: 1.1, y: -6, boxShadow: "0 12px 32px rgba(0,0,0,0.1)" }} transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, cursor: "default" }}>
-                <div
-                  style={{ width: 60, height: 60, borderRadius: 16, background: tech.bg, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(0,0,0,0.06)", padding: 12 }}
-                  dangerouslySetInnerHTML={{ __html: tech.svg.replace('<svg', '<svg width="32" height="32"') }}
-                />
-                <span style={{ color: "#64748b", fontSize: 12, fontWeight: 500 }}>{tech.name}</span>
-              </motion.div>
+        </div>
+        <div style={{ position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 160, background: "linear-gradient(90deg, #f8fafc, transparent)", zIndex: 2, pointerEvents: "none" }} />
+          <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 160, background: "linear-gradient(270deg, #f8fafc, transparent)", zIndex: 2, pointerEvents: "none" }} />
+          {/* Row 1 — left to right */}
+          <div className="marquee-left">
+            {[...TECH_STACK, ...TECH_STACK].map((tech, index) => (
+              <div key={`row1-${tech.name}-${index}`}
+                style={{ display: "flex", alignItems: "center", gap: 16, padding: "20px 28px", borderRadius: 18, background: "#fff", border: "1px solid #e2e8f0", cursor: "default", textAlign: "left", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", minWidth: 260, flexShrink: 0, transition: "all 0.25s ease" }}
+                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 16px 48px rgba(0,0,0,0.1)"; e.currentTarget.style.borderColor = "rgba(2,128,144,0.3)"; e.currentTarget.style.transform = "translateY(-4px)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)"; e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.transform = "translateY(0)"; }}
+              >
+                <div style={{ width: 52, height: 52, borderRadius: 14, background: tech.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "1px solid rgba(0,0,0,0.06)" }}
+                  dangerouslySetInnerHTML={{ __html: tech.svg.replace('<svg', '<svg width="28" height="28"') }} />
+                <div>
+                  <p style={{ color: "#0f172a", fontSize: 16, fontWeight: 700, marginBottom: 3 }}>{tech.name}</p>
+                  <p style={{ color: "#64748b", fontSize: 13, lineHeight: 1.4 }}>{TECH_DESCRIPTIONS[tech.name] ?? ""}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* Row 2 — right to left */}
+          <div className="marquee-right">
+            {[...TECH_STACK.slice().reverse(), ...TECH_STACK.slice().reverse()].map((tech, index) => (
+              <div key={`row2-${tech.name}-${index}`}
+                style={{ display: "flex", alignItems: "center", gap: 16, padding: "20px 28px", borderRadius: 18, background: "#fff", border: "1px solid #e2e8f0", cursor: "default", textAlign: "left", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", minWidth: 260, flexShrink: 0, transition: "all 0.25s ease" }}
+                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 16px 48px rgba(0,0,0,0.1)"; e.currentTarget.style.borderColor = "rgba(2,128,144,0.3)"; e.currentTarget.style.transform = "translateY(-4px)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)"; e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.transform = "translateY(0)"; }}
+              >
+                <div style={{ width: 52, height: 52, borderRadius: 14, background: tech.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "1px solid rgba(0,0,0,0.06)" }}
+                  dangerouslySetInnerHTML={{ __html: tech.svg.replace('<svg', '<svg width="28" height="28"') }} />
+                <div>
+                  <p style={{ color: "#0f172a", fontSize: 16, fontWeight: 700, marginBottom: 3 }}>{tech.name}</p>
+                  <p style={{ color: "#64748b", fontSize: 13, lineHeight: 1.4 }}>{TECH_DESCRIPTIONS[tech.name] ?? ""}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section style={{ background: "linear-gradient(160deg, #0a2a30 0%, #028090 40%, #02C39A 100%)", padding: "120px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 30% 50%, rgba(255,255,255,0.07) 0%, transparent 60%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 80% 20%, rgba(0,0,0,0.1) 0%, transparent 50%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: "20%", left: "10%", width: 300, height: 300, background: "radial-gradient(ellipse, rgba(2,128,144,0.08) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: "20%", right: "10%", width: 250, height: 250, background: "radial-gradient(ellipse, rgba(2,195,154,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "relative", maxWidth: 700, margin: "0 auto" }}>
+          <motion.div initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(2,195,154,0.1)", border: "1px solid rgba(2,195,154,0.25)", borderRadius: 100, padding: "6px 16px", marginBottom: 32 }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#02C39A", boxShadow: "0 0 8px rgba(2,195,154,0.8)" }} />
+            <span style={{ color: "#02C39A", fontSize: 13, fontWeight: 600 }}>500+ enterprises already onboard</span>
+          </motion.div>
+          <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.05 }}
+            style={{ fontSize: "clamp(32px,5vw,64px)", fontWeight: 800, color: "#fff", marginBottom: 20, letterSpacing: "-0.03em", lineHeight: 1.1 }}>
+            Stop managing chaos.<br />
+            <span style={{ color: "#fff" }}>Start commanding it.</span>
+          </motion.h2>
+          <motion.p initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+            style={{ color: "rgba(255,255,255,0.82)", fontSize: 18, marginBottom: 48, lineHeight: 1.7 }}>
+            PulseDesk AI gives your team the intelligence layer<br />to classify, predict, and act — automatically.
+          </motion.p>
+          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }}
+            style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 48 }}>
+            <motion.a href="/login" whileHover={{ scale: 1.04, boxShadow: "0 8px 40px rgba(2,128,144,0.5)" }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              style={{ background: "linear-gradient(135deg,#028090,#02C39A)", color: "#fff", fontWeight: 700, fontSize: 16, padding: "15px 36px", borderRadius: 12, textDecoration: "none", boxShadow: "0 4px 24px rgba(2,128,144,0.35)" }}>
+              Request Demo →
+            </motion.a>
+            <motion.a href="/login" whileHover={{ scale: 1.04, borderColor: "rgba(2,195,154,0.5)", color: "#02C39A" }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              style={{ background: "transparent", color: "#fff", fontWeight: 600, fontSize: 16, padding: "15px 36px", borderRadius: 12, textDecoration: "none", border: "1px solid rgba(255,255,255,0.15)" }}>
+              Schedule a call
+            </motion.a>
+          </motion.div>
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.25 }}
+            style={{ display: "flex", justifyContent: "center", gap: 40, flexWrap: "wrap" }}>
+            {[["99.9%", "Uptime SLA"], ["< 3s", "AI Classification"], ["SOC 2", "Compliant"], ["14-day", "Free Trial"]].map(([value, label]) => (
+              <div key={label} style={{ textAlign: "center" }}>
+                <p style={{ color: "#fff", fontSize: 20, fontWeight: 800, letterSpacing: "-0.02em" }}>{value}</p>
+                <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 13, marginTop: 2 }}>{label}</p>
+              </div>
             ))}
           </motion.div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section style={{ background: "linear-gradient(135deg,#028090 0%,#02C39A 100%)", padding: "96px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 30% 50%, rgba(255,255,255,0.08) 0%, transparent 60%)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 80% 20%, rgba(0,0,0,0.08) 0%, transparent 50%)", pointerEvents: "none" }} />
-        <div style={{ position: "relative", maxWidth: 600, margin: "0 auto" }}>
-          <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            style={{ fontSize: "clamp(28px,4vw,48px)", fontWeight: 800, color: "#fff", marginBottom: 16, letterSpacing: "-0.02em" }}>
-            Ready to transform your operations?
-          </motion.h2>
-          <motion.p initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
-            style={{ color: "rgba(255,255,255,0.82)", fontSize: 18, marginBottom: 40 }}>
-            Start your demo today — no credit card required.
-          </motion.p>
-          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
-            style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-            <motion.a href="/login" whileHover={{ scale: 1.05, boxShadow: "0 8px 32px rgba(0,0,0,0.25)" }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              style={{ background: "#fff", color: "#028090", fontWeight: 700, fontSize: 16, padding: "14px 32px", borderRadius: 10, textDecoration: "none" }}>
-              Request Demo
-            </motion.a>
-            <motion.a href="/login" whileHover={{ scale: 1.05, background: "rgba(255,255,255,0.18)" }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              style={{ background: "rgba(255,255,255,0.1)", color: "#fff", fontWeight: 600, fontSize: 16, padding: "14px 32px", borderRadius: 10, textDecoration: "none", border: "1px solid rgba(255,255,255,0.3)" }}>
-              Schedule a call →
-            </motion.a>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer style={{ background: "#0D1B2A", padding: "64px 24px 32px" }}>
+   {/* Footer */}
+      <footer style={{ background: "#0D1B2A", borderTop: "1px solid rgba(255,255,255,0.08)", padding: "72px 24px 32px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 48, marginBottom: 48 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1.8fr 1fr 1fr 1fr 1fr", gap: 32, marginBottom: 64 }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
                 <div style={{ width: 34, height: 34, borderRadius: 9, background: "linear-gradient(135deg,#028090,#02C39A)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 12px rgba(2,195,154,0.3)" }}>
@@ -474,19 +558,24 @@ export default function LandingPage() {
                 </div>
                 <span style={{ color: "#fff", fontWeight: 700, fontSize: 16 }}>PulseDesk <span style={{ color: "#02C39A" }}>AI</span></span>
               </div>
-              <p style={{ fontSize: 14, lineHeight: 1.7, color: "#64748b", marginBottom: 20 }}>The intelligent operating platform for modern enterprises.</p>
+              <p style={{ fontSize: 14, lineHeight: 1.8, color: "#475569", marginBottom: 16, maxWidth: 260 }}>AI-native helpdesk that classifies, predicts, and acts. Built for teams that can't afford to slow down.</p>
+              
+              <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(2,195,154,0.08)", border: "1px solid rgba(2,195,154,0.2)", borderRadius: 20, padding: "6px 12px", width: "fit-content", marginBottom: 20 }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#02C39A", boxShadow: "0 0 6px rgba(2,195,154,0.8)" }} />
+                <span style={{ color: "#02C39A", fontSize: 12, fontWeight: 600 }}>All systems operational</span>
+              </div>
               <div style={{ display: "flex", gap: 10 }}>
                 <a href="https://x.com" target="_blank" rel="noreferrer"
-                  style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", border: "1px solid rgba(255,255,255,0.08)" }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
+                  style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(255,255,255,0.04)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", border: "1px solid rgba(255,255,255,0.08)", transition: "all 0.2s" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.16)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="#64748b"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.742l7.732-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                 </a>
                 <a href="https://linkedin.com" target="_blank" rel="noreferrer"
-                  style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", border: "1px solid rgba(255,255,255,0.08)" }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
+                  style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(255,255,255,0.04)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", border: "1px solid rgba(255,255,255,0.08)", transition: "all 0.2s" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.16)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="#64748b"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
                 </a>
@@ -494,14 +583,14 @@ export default function LandingPage() {
             </div>
             {FOOTER_SECTIONS.map((section) => (
               <div key={section.title}>
-                <p style={{ color: "#94a3b8", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 16 }}>{section.title}</p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <p style={{ color: "#64748b", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 16 }}>{section.title}</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {section.links.map((link) => (
                     <a key={link.label} href={link.href}
                       onClick={link.href.startsWith("#") ? (e) => handleAnchorClick(e, link.href) : undefined}
-                      style={{ color: "#64748b", fontSize: 14, textDecoration: "none", transition: "color 0.2s" }}
-                      onMouseEnter={(e) => (e.currentTarget.style.color = "#cbd5e1")}
-                      onMouseLeave={(e) => (e.currentTarget.style.color = "#64748b")}
+                      style={{ color: "#64748b", fontSize: 14, textDecoration: "none", transition: "color 0.15s" }}
+                      onMouseEnter={(e) => { e.currentTarget.style.color = "#02C39A"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.color = "#94a3b8"; }}
                     >
                       {link.label}
                     </a>
@@ -510,9 +599,11 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-          <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-            <p style={{ color: "#334155", fontSize: 13 }}>© 2026 PulseDesk AI. All rights reserved.</p>
-            <p style={{ color: "#334155", fontSize: 13 }}>❤ Made in Costa Rica</p>
+          <div style={{ position: "relative", paddingTop: 28 }}>
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(2,128,144,0.4) 30%, rgba(2,195,154,0.4) 50%, rgba(2,128,144,0.4) 70%, transparent 100%)" }} />
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+              <p style={{ color: "#475569", fontSize: 13 }}>© 2026 PulseDesk AI · All rights reserved.</p>
+            </div>
           </div>
         </div>
       </footer>
