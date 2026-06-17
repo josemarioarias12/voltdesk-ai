@@ -46,7 +46,7 @@ export default function LandingPage() {
       <section style={{ background: "#0D1B2A", minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingTop: 80, paddingBottom: 80, position: "relative", overflow: "hidden" }}>
         <ParticleCanvas />
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 50% at 50% 30%, rgba(2,128,144,0.13) 0%, transparent 60%)", pointerEvents: "none" }} />
-        <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 24px", textAlign: "center", position: "relative", zIndex: 1, width: "100%" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px", textAlign: "center", position: "relative", zIndex: 1, width: "100%" }}>
           <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ display: "inline-block", marginBottom: 32 }}>
             <motion.div
               animate={{ boxShadow: ["0 0 0 0 rgba(2,195,154,0.4)", "0 0 0 8px rgba(2,195,154,0)", "0 0 0 0 rgba(2,195,154,0)"] }}
@@ -59,8 +59,8 @@ export default function LandingPage() {
           </motion.div>
 
           <motion.div variants={staggerContainer} initial="hidden" animate="visible">
-            <motion.h1 variants={fadeUp} style={{ fontSize: "clamp(36px,6vw,72px)", fontWeight: 800, lineHeight: 1.1, color: "#fff", margin: "0 0 24px", letterSpacing: "-0.02em" }}>
-              The Operating System<br />for Modern{" "}
+            <motion.h1 variants={fadeUp} style={{ fontSize: "clamp(48px,7vw,88px)", fontWeight: 800, lineHeight: 1.05, color: "#fff", margin: "0 0 24px", letterSpacing: "-0.04em" }}>
+              The Operating System for Modern{" "}
               <span style={{ background: "linear-gradient(135deg,#028090 0%,#02C39A 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Enterprises</span>
             </motion.h1>
             <motion.p variants={fadeUp} style={{ fontSize: "clamp(16px,2.2vw,20px)", color: "#94a3b8", lineHeight: 1.65, maxWidth: 560, margin: "0 auto 40px" }}>
