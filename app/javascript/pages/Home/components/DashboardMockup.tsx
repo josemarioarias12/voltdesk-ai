@@ -73,16 +73,6 @@ export default function DashboardMockup() {
         animate={{ y: [0, -8, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       >
-        {/* Glow border animado */}
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
-          style={{
-            position: "absolute", inset: -2, borderRadius: 22, zIndex: -1,
-            background: "conic-gradient(from 0deg, #028090, #02C39A, #028090, #0D1B2A, #028090)",
-            filter: "blur(4px)",
-          }}
-        />
 
         <div style={{ borderRadius: 20, overflow: "hidden", border: "1px solid rgba(2,128,144,0.3)", background: "#0D1B2A", boxShadow: "0 40px 80px rgba(0,0,0,0.6)" }}>
           {/* Browser chrome */}
