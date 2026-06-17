@@ -2,6 +2,7 @@ export interface FeatureCard {
   icon: string;
   title: string;
   description: string;
+  href: string;
 }
 
 export interface Testimonial {
@@ -9,6 +10,7 @@ export interface Testimonial {
   name: string;
   role: string;
   initials: string;
+  avatar: string;
 }
 
 export interface StatItem {
@@ -26,4 +28,16 @@ export interface NavLink {
 export interface FooterSection {
   title: string;
   links: { label: string; href: string }[];
+}
+
+export interface PricingPlan {
+  name: string;
+  price: number | null;
+  period: string | null;
+  description: string;
+  highlight: boolean;
+  badge: string | null;
+  features: string[];
+  cta: string;
+  href: string;
 }
