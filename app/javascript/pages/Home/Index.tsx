@@ -133,15 +133,52 @@ export default function LandingPage() {
                 key={feature.title}
                 href={feature.href}
                 variants={fadeUp}
-                whileHover={{ y: -6, boxShadow: "0 20px 48px rgba(2,128,144,0.14)", borderColor: "rgba(2,195,154,0.4)" }}
+                whileHover="hover"
+                initial="rest"
+                animate="rest"
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                style={{ background: "#fff", borderRadius: 16, padding: 28, border: "1px solid #e2e8f0", textDecoration: "none", display: "block", cursor: "pointer" }}
+                style={{ background: "#fff", borderRadius: 16, padding: 28, border: "1px solid #e2e8f0", textDecoration: "none", display: "flex", flexDirection: "column", cursor: "pointer", position: "relative", overflow: "hidden" }}
               >
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: "rgba(2,128,144,0.08)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16, color: "#028090" }}
-                  dangerouslySetInnerHTML={{ __html: feature.icon.replace('<svg', '<svg width="22" height="22"') }}
+                {/* Hover background gradient */}
+                <motion.div
+                  variants={{ rest: { opacity: 0 }, hover: { opacity: 1 } }}
+                  transition={{ duration: 0.3 }}
+                  style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(2,128,144,0.04) 0%, rgba(2,195,154,0.06) 100%)", pointerEvents: "none" }}
                 />
+                {/* Hover border glow */}
+                <motion.div
+                  variants={{ rest: { opacity: 0 }, hover: { opacity: 1 } }}
+                  transition={{ duration: 0.3 }}
+                  style={{ position: "absolute", inset: 0, borderRadius: 16, border: "1.5px solid rgba(2,195,154,0.5)", pointerEvents: "none" }}
+                />
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 }}>
+                  {/* Icon */}
+                  <motion.div
+                    variants={{ rest: { scale: 1, background: "rgba(2,128,144,0.08)", boxShadow: "none" }, hover: { scale: 1.12, background: "rgba(2,128,144,0.15)", boxShadow: "0 0 20px rgba(2,195,154,0.25)" } }}
+                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                    style={{ width: 44, height: 44, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", color: "#028090" }}
+                    dangerouslySetInnerHTML={{ __html: feature.icon.replace('<svg', '<svg width="22" height="22"') }}
+                  />
+                  {/* Badge */}
+                  {feature.badge && (
+                    <span style={{ background: "rgba(2,128,144,0.08)", color: "#028090", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 100, border: "1px solid rgba(2,128,144,0.15)", letterSpacing: "0.03em" }}>
+                      {feature.badge}
+                    </span>
+                  )}
+                </div>
                 <h3 style={{ fontSize: 17, fontWeight: 700, color: "#0f172a", marginBottom: 8 }}>{feature.title}</h3>
-                <p style={{ color: "#64748b", fontSize: 15, lineHeight: 1.65, margin: 0 }}>{feature.description}</p>
+                <p style={{ color: "#64748b", fontSize: 15, lineHeight: 1.65, margin: 0, flex: 1 }}>{feature.description}</p>
+                {/* Arrow */}
+                <motion.div
+                  variants={{ rest: { opacity: 0, x: -6 }, hover: { opacity: 1, x: 0 } }}
+                  transition={{ duration: 0.2 }}
+                  style={{ marginTop: 20, display: "flex", alignItems: "center", gap: 6, color: "#028090", fontSize: 13, fontWeight: 600 }}
+                >
+                  Explore feature
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                  </svg>
+                </motion.div>
               </motion.a>
             ))}
           </motion.div>

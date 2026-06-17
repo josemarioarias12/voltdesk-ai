@@ -3,6 +3,7 @@ export interface FeatureCard {
   title: string;
   description: string;
   href: string;
+  badge?: string;
 }
 
 export interface Testimonial {
