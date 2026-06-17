@@ -285,26 +285,39 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials */}
-      <section style={{ background: "#f8fafc", padding: "96px 24px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: "center", marginBottom: 56 }}>
-            <h2 style={{ fontSize: "clamp(28px,4vw,44px)", fontWeight: 800, color: "#0f172a", letterSpacing: "-0.02em", marginBottom: 12 }}>Built for enterprise teams</h2>
-            <p style={{ color: "#64748b", fontSize: 17 }}>Trusted by operations leaders across industries.</p>
+      <section style={{ background: "#0D1B2A", padding: "96px 24px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(2,128,144,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(2,128,144,0.03) 1px, transparent 1px)", backgroundSize: "48px 48px", pointerEvents: "none" }} />
+        <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative" }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: "center", marginBottom: 64 }}>
+            <p style={{ color: "#02C39A", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 12 }}>✦ Customer Stories</p>
+            <h2 style={{ fontSize: "clamp(28px,4vw,44px)", fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", marginBottom: 12 }}>Built for enterprise teams</h2>
+            <p style={{ color: "#475569", fontSize: 17 }}>Trusted by operations leaders across industries.</p>
           </motion.div>
           <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 24 }}>
+            style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 20 }}>
             {TESTIMONIALS.map((t) => (
-              <motion.div key={t.name} variants={fadeUp} whileHover={{ y: -4, boxShadow: "0 16px 40px rgba(0,0,0,0.08)", borderColor: "#e2e8f0" }} transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                style={{ background: "#fff", borderRadius: 20, padding: 32, border: "1px solid #e2e8f0", position: "relative" }}>
-                <div style={{ display: "flex", gap: 2, marginBottom: 16 }}>
-                  {Array.from({ length: 5 }).map((_, i) => <span key={i} style={{ color: "#f59e0b", fontSize: 15 }}>★</span>)}
+              <motion.div
+                key={t.name}
+                variants={fadeUp}
+                whileHover={{ y: -6, borderColor: "rgba(2,195,154,0.4)", boxShadow: "0 24px 48px rgba(0,0,0,0.3)" }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                style={{ background: "rgba(255,255,255,0.04)", borderRadius: 20, padding: 32, border: "1px solid rgba(255,255,255,0.08)", position: "relative", backdropFilter: "blur(8px)" }}
+              >
+                {/* Quote mark */}
+                <div style={{ position: "absolute", top: 20, right: 24, color: "rgba(2,195,154,0.15)", fontSize: 64, fontFamily: "Georgia, serif", lineHeight: 1, fontWeight: 700, userSelect: "none" }}>"</div>
+                {/* Stars */}
+                <div style={{ display: "flex", gap: 3, marginBottom: 20 }}>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <motion.span key={i} initial={{ opacity: 0, scale: 0 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 + i * 0.06, type: "spring", stiffness: 400 }}
+                      style={{ color: "#f59e0b", fontSize: 14 }}>★</motion.span>
+                  ))}
                 </div>
-                <p style={{ color: "#1e293b", fontSize: 15, lineHeight: 1.75, marginBottom: 24, fontStyle: "italic" }}>"{t.quote}"</p>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <img src={t.avatar} alt={t.name} style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", border: "2px solid #e2e8f0" }} />
+                <p style={{ color: "#cbd5e1", fontSize: 15, lineHeight: 1.8, marginBottom: 28, fontStyle: "italic", position: "relative" }}>"{t.quote}"</p>
+                <div style={{ display: "flex", alignItems: "center", gap: 14, paddingTop: 20, borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+                  <img src={t.avatar} alt={t.name} style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(2,195,154,0.4)", flexShrink: 0 }} />
                   <div>
-                    <p style={{ fontWeight: 700, fontSize: 14, color: "#0f172a", margin: 0 }}>{t.name}</p>
-                    <p style={{ color: "#64748b", fontSize: 13, margin: 0 }}>{t.role}</p>
+                    <p style={{ fontWeight: 700, fontSize: 14, color: "#fff", margin: 0 }}>{t.name}</p>
+                    <p style={{ color: "#475569", fontSize: 13, margin: 0 }}>{t.role}</p>
                   </div>
                 </div>
               </motion.div>
