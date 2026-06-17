@@ -152,13 +152,20 @@ export default function LandingPage() {
                   style={{ position: "absolute", inset: 0, borderRadius: 16, border: "1.5px solid rgba(2,195,154,0.5)", pointerEvents: "none" }}
                 />
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 }}>
-                  {/* Icon */}
+                 {/* Icon */}
                   <motion.div
-                    variants={{ rest: { scale: 1, background: "rgba(2,128,144,0.18)", boxShadow: "0 0 0 1px rgba(2,128,144,0.15)" }, hover: { scale: 1.12, background: "rgba(2,195,154,0.2)", boxShadow: "0 0 24px rgba(2,195,154,0.35)" } }}
+                    variants={{
+                      rest: { scale: 1, background: "rgba(2,128,144,0.18)", boxShadow: "0 0 0 1px rgba(2,128,144,0.2)" },
+                      hover: { scale: 1.12, background: "rgba(2,195,154,0.25)", boxShadow: "0 0 24px rgba(2,195,154,0.4)" }
+                    }}
                     transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                    style={{ width: 44, height: 44, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", color: "#028090" }}
-                    dangerouslySetInnerHTML={{ __html: feature.icon.replace('<svg', '<svg width="22" height="22"') }}
-                  />
+                    style={{ width: 44, height: 44, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}
+                  >
+                    <div
+                      style={{ color: "#028090", display: "flex", alignItems: "center", justifyContent: "center" }}
+                      dangerouslySetInnerHTML={{ __html: feature.icon.replace('<svg', '<svg width="22" height="22"') }}
+                    />
+                  </motion.div>
                   {/* Badge */}
                   {feature.badge && (
                     <span style={{ background: "rgba(2,128,144,0.08)", color: "#028090", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 100, border: "1px solid rgba(2,128,144,0.15)", letterSpacing: "0.03em" }}>
