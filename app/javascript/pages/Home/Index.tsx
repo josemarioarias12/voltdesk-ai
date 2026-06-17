@@ -192,31 +192,95 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* AI Explainability */}
-      <section id="demo" style={{ background: "#0D1B2A", padding: "96px 24px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 64, alignItems: "center" }}>
-          <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
-            <p style={{ color: "#028090", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 16 }}>✦ Powered by Multi-Provider AI</p>
-            <h2 style={{ fontSize: "clamp(28px,4vw,48px)", fontWeight: 800, color: "#fff", marginBottom: 20, lineHeight: 1.15, letterSpacing: "-0.02em" }}>AI that explains itself</h2>
-            <p style={{ color: "#64748b", fontSize: 17, lineHeight: 1.7, marginBottom: 40 }}>Every decision is transparent, auditable, and reversible. No black boxes.</p>
-            {[
-              { icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#02C39A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`, title: "XAI Panel", desc: "See exactly why the AI classified each ticket — signal by signal." },
-              { icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#02C39A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`, title: "Confidence Score", desc: "Red-flag when AI is uncertain. Always know when to review manually." },
-              { icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#02C39A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`, title: "Full Audit Log", desc: "Every prompt, token count, and cost tracked and exportable." },
-            ].map((item, i) => (
-              <motion.div key={item.title} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.12 }}
-                style={{ display: "flex", gap: 16, marginBottom: 24 }}>
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(2,195,154,0.1)", border: "1px solid rgba(2,195,154,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
-                  dangerouslySetInnerHTML={{ __html: item.icon.replace('<svg', '<svg width="18" height="18"') }}
-                />
-                <div>
-                  <p style={{ color: "#fff", fontWeight: 600, fontSize: 15, marginBottom: 4 }}><span style={{ color: "#02C39A" }}>✦ </span>{item.title}</p>
-                  <p style={{ color: "#64748b", fontSize: 14, lineHeight: 1.55, margin: 0 }}>{item.desc}</p>
-                </div>
-              </motion.div>
-            ))}
+      {/* AI Explainability — Linear style */}
+      <section id="demo" style={{ background: "#0D1B2A", padding: "112px 24px", position: "relative", overflow: "hidden" }}>
+        {/* Background grid */}
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(2,128,144,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(2,128,144,0.04) 1px, transparent 1px)", backgroundSize: "48px 48px", pointerEvents: "none" }} />
+        {/* Radial glow */}
+        <div style={{ position: "absolute", top: "20%", right: "10%", width: 400, height: 400, background: "radial-gradient(circle, rgba(2,195,154,0.08) 0%, transparent 70%)", pointerEvents: "none" }} />
+
+        <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative" }}>
+          {/* Top label */}
+          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#02C39A", boxShadow: "0 0 8px rgba(2,195,154,0.8)" }} />
+            <span style={{ color: "#02C39A", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.15em" }}>Powered by Multi-Provider AI</span>
           </motion.div>
-          <div style={{ display: "flex", justifyContent: "center" }}><XAIPanelMockup /></div>
+
+          {/* Main grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+
+            {/* Left — text */}
+            <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
+              <h2 style={{ fontSize: "clamp(36px,5vw,64px)", fontWeight: 800, color: "#fff", marginBottom: 20, lineHeight: 1.05, letterSpacing: "-0.03em" }}>
+                AI that<br />
+                <span style={{ background: "linear-gradient(135deg,#028090,#02C39A)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>explains itself</span>
+              </h2>
+              <p style={{ color: "#64748b", fontSize: 18, lineHeight: 1.75, marginBottom: 56, maxWidth: 440 }}>
+                Every decision is transparent, auditable, and reversible. No black boxes. Ever.
+              </p>
+
+              {/* Feature items — Linear timeline style */}
+              <div style={{ position: "relative" }}>
+                {/* Vertical line */}
+                <div style={{ position: "absolute", left: 19, top: 20, bottom: 20, width: 1, background: "linear-gradient(to bottom, rgba(2,195,154,0.6), rgba(2,128,144,0.2), transparent)" }} />
+
+                {[
+                  {
+                    svg: `<svg viewBox="0 0 24 24" fill="none" stroke="#02C39A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+                    title: "XAI Panel",
+                    desc: "See exactly why the AI classified each ticket — signal by signal. Full transparency on every decision.",
+                    tag: "Explainability",
+                  },
+                  {
+                    svg: `<svg viewBox="0 0 24 24" fill="none" stroke="#02C39A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
+                    title: "Confidence Score",
+                    desc: "Red-flag when AI is uncertain. Always know when to review manually before executing.",
+                    tag: "Trust",
+                  },
+                  {
+                    svg: `<svg viewBox="0 0 24 24" fill="none" stroke="#02C39A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
+                    title: "Full Audit Log",
+                    desc: "Every prompt, token count, cost, and latency tracked and exportable. SOC 2 ready.",
+                    tag: "Compliance",
+                  },
+                ].map((item, i) => (
+                  <motion.div
+                    key={item.title}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: i * 0.15 }}
+                    whileHover={{ x: 6 }}
+                    style={{ display: "flex", gap: 20, marginBottom: 36, cursor: "default" }}
+                  >
+                    {/* Icon circle */}
+                    <div style={{ flexShrink: 0, width: 40, height: 40, borderRadius: "50%", background: "rgba(2,195,154,0.1)", border: "1px solid rgba(2,195,154,0.3)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 16px rgba(2,195,154,0.15)", zIndex: 1 }}
+                      dangerouslySetInnerHTML={{ __html: item.svg.replace('<svg', '<svg width="18" height="18"') }}
+                    />
+                    <div style={{ paddingTop: 8 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                        <span style={{ color: "#fff", fontWeight: 700, fontSize: 16 }}>{item.title}</span>
+                        <span style={{ background: "rgba(2,195,154,0.1)", color: "#02C39A", fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 100, border: "1px solid rgba(2,195,154,0.2)", letterSpacing: "0.05em" }}>{item.tag}</span>
+                      </div>
+                      <p style={{ color: "#64748b", fontSize: 14, lineHeight: 1.65, margin: 0 }}>{item.desc}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Right — XAI Panel */}
+            <motion.div
+              initial={{ opacity: 0, x: 40, y: 20 }}
+              whileInView={{ opacity: 1, x: 0, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              style={{ display: "flex", justifyContent: "center" }}
+            >
+              <XAIPanelMockup />
+            </motion.div>
+          </div>
         </div>
       </section>
 
