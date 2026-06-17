@@ -154,7 +154,7 @@ export default function LandingPage() {
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 }}>
                   {/* Icon */}
                   <motion.div
-                    variants={{ rest: { scale: 1, background: "rgba(2,128,144,0.08)", boxShadow: "none" }, hover: { scale: 1.12, background: "rgba(2,128,144,0.15)", boxShadow: "0 0 20px rgba(2,195,154,0.25)" } }}
+                    variants={{ rest: { scale: 1, background: "rgba(2,128,144,0.12)", boxShadow: "none" }, hover: { scale: 1.12, background: "rgba(2,195,154,0.2)", boxShadow: "0 0 24px rgba(2,195,154,0.35)" } }}
                     transition={{ type: "spring", stiffness: 400, damping: 20 }}
                     style={{ width: 44, height: 44, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", color: "#028090" }}
                     dangerouslySetInnerHTML={{ __html: feature.icon.replace('<svg', '<svg width="22" height="22"') }}
