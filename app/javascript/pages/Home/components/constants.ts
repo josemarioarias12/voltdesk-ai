@@ -16,42 +16,42 @@ export const STATS: StatItem[] = [
 
 export const FEATURES: FeatureCard[] = [
   {
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
     title: "Smart Ticket Engine",
     description: "Auto-classify, prioritize, and route tickets in under 3 seconds with GPT-4o.",
     badge: "< 3s",
     href: "/tickets",
   },
   {
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>`,
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>`,
     title: "AI Agent Orchestrator",
     description: "Let AI resolve routine tickets automatically with full audit trail and human approval.",
     badge: "Auto-pilot",
     href: "/tickets",
   },
   {
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>`,
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>`,
     title: "Predictive SLA Engine",
     description: "Know which tickets will breach SLA before they do. Act before the deadline.",
     badge: "Predictive",
     href: "/tickets",
   },
   {
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
     title: "Facilities & Space Mgmt",
     description: "Interactive floor maps, room reservations, and AI-powered space optimization.",
     badge: "Real-time",
     href: "/dashboard",
   },
   {
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>`,
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>`,
     title: "Operational Twin",
     description: "Real-time D3.js visualization of your entire operations. Live. Interactive. Actionable.",
     badge: "D3.js",
     href: "/dashboard",
   },
   {
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
     title: "Enterprise Compliance",
     description: "SOC 2-ready audit logs, GDPR right to forget, and data retention policies built in.",
     badge: "SOC 2",
