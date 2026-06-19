@@ -48,7 +48,20 @@ class DemoController < ApplicationController
     )
 
     if result.success?
-      render inertia: 'Demo/TicketCreated', props: { ticket_number: result.data.ticket_number }
+      ticket = result.data
+      ActionCable.server.broadcast(
+        "demo_#{session[:demo_token]}",
+        {
+          type:          'ticket_created',
+          id:            ticket.id,
+          ticket_number: ticket.ticket_number,
+          title:         ticket.title,
+          department:    ticket.department&.name.to_s,
+          priority:      ticket.priority.to_s,
+          created_at:    ticket.created_at.iso8601
+        }
+      )
+      render inertia: 'Demo/TicketCreated', props: { ticket_number: ticket.ticket_number }
     else
       redirect_back_or_to demo_join_path(session[:demo_token]), alert: result.error
     end
