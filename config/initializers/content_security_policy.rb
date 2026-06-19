@@ -18,8 +18,8 @@ Rails.application.configure do
       policy.connect_src :self, 'wss:', 'ws:'
     end
     policy.frame_ancestors :none
-    policy.form_action    :self
-    policy.object_src     :none
+    policy.form_action :self, 'https://accounts.google.com'
+    policy.object_src :none
   end
   config.content_security_policy_nonce_generator = ->(_request) { SecureRandom.base64(16) }
   config.content_security_policy_nonce_directives = %w[script-src]
