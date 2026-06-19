@@ -76,7 +76,7 @@ export default function AuthLogin() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '24px',
+      padding: '64px 24px 24px',
       fontFamily: 'Inter, system-ui, sans-serif',
       position: 'relative',
       overflow: 'hidden',
