@@ -2,6 +2,7 @@ import { SharedProps } from '@/types'
 import { useForm } from 'react-hook-form'
 import { usePage } from '@inertiajs/react'
 import { useState, useRef } from 'react'
+import { motion } from 'framer-motion'
 import {
   IconBrandGoogle,
   IconShieldCheck,
@@ -19,59 +20,26 @@ interface LoginForm {
   [key: string]: string
 }
 
-function PasswordStrength({ password }: { password: string }) {
-  const getStrength = (p: string) => {
-    let score = 0
-    if (p.length >= 8) score++
-    if (/[A-Z]/.test(p)) score++
-    if (/[0-9]/.test(p)) score++
-    if (/[^A-Za-z0-9]/.test(p)) score++
-    return score
-  }
-
-  const strength = getStrength(password)
-  const labels = ['', 'Weak', 'Fair', 'Good', 'Strong']
-  const colors = ['', '#EF4444', '#F97316', '#EAB308', '#028090']
-
-  if (!password) return null
-
-  return (
-    <div className="mt-2">
-      <div className="flex gap-1 mb-1">
-        {[1, 2, 3, 4].map((i) => (
-          <div
-            key={i}
-            className="h-1 flex-1 rounded-full transition-all duration-300"
-            style={{ background: i <= strength ? colors[strength] : '#E2E8F0' }}
-          />
-        ))}
-      </div>
-      <p className="text-xs" style={{ color: colors[strength] }}>
-        {labels[strength]}
-      </p>
-    </div>
-  )
-}
-
 export default function AuthLogin() {
   const { flash } = usePage<SharedProps>().props
   const [showPassword, setShowPassword] = useState(false)
-  const [password, setPassword] = useState('')
   const { register, handleSubmit } = useForm<LoginForm>()
   const emailRef    = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
+  const [emailFocus, setEmailFocus]       = useState(false)
+  const [passwordFocus, setPasswordFocus] = useState(false)
 
- const getCsrfToken = () =>
+  const getCsrfToken = () =>
     document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? ''
 
   const handleGoogleLogin = () => {
-    const form = document.createElement('form')
+    const form  = document.createElement('form')
     form.method = 'POST'
     form.action = '/users/auth/google_oauth2'
-    const input = document.createElement('input')
-    input.type = 'hidden'
-    input.name = 'authenticity_token'
-    input.value = getCsrfToken()
+    const input   = document.createElement('input')
+    input.type    = 'hidden'
+    input.name    = 'authenticity_token'
+    input.value   = getCsrfToken()
     form.appendChild(input)
     document.body.appendChild(form)
     form.submit()
@@ -80,18 +48,15 @@ export default function AuthLogin() {
   const onSubmit = () => {
     const email    = emailRef.current?.value ?? ''
     const password = passwordRef.current?.value ?? ''
-
-    const form = document.createElement('form')
-    form.method = 'POST'
-    form.action = '/users/login'
+    const form     = document.createElement('form')
+    form.method    = 'POST'
+    form.action    = '/users/login'
     form.style.display = 'none'
-
     const fields: Record<string, string> = {
-      'authenticity_token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '',
+      'authenticity_token': getCsrfToken(),
       'user[email]':        email,
       'user[password]':     password,
     }
-
     Object.entries(fields).forEach(([name, value]) => {
       const input = document.createElement('input')
       input.type  = 'hidden'
@@ -99,202 +64,292 @@ export default function AuthLogin() {
       input.value = value
       form.appendChild(input)
     })
-
     document.body.appendChild(form)
     form.submit()
   }
 
-
-
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-4 py-8"
-      style={{ background: '#0F172A' }}
-    >
-      <div
-        className="w-full max-w-md bg-white rounded-2xl overflow-hidden"
-        style={{ boxShadow: '0 24px 48px rgba(0,0,0,0.4)' }}
+    <div style={{
+      minHeight: '100vh',
+      background: '#0D1B2A',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '24px',
+      fontFamily: 'Inter, system-ui, sans-serif',
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+
+      {/* Background grid */}
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        backgroundImage: `linear-gradient(rgba(2,128,144,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(2,128,144,0.04) 1px, transparent 1px)`,
+        backgroundSize: '48px 48px',
+      }} />
+
+      {/* Radial glow */}
+      <div style={{
+        position: 'absolute', top: '30%', left: '50%', transform: 'translate(-50%,-50%)',
+        width: 600, height: 600,
+        background: 'radial-gradient(circle, rgba(2,128,144,0.08) 0%, transparent 70%)',
+        pointerEvents: 'none',
+      }} />
+
+      {/* Top accent line */}
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg,#028090,#02C39A)', zIndex: 9999 }} />
+
+      {/* Back to home */}
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9998, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 24px' }}>
+        <motion.a
+          href="/"
+          initial={{ opacity: 0, x: -8 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#475569', fontSize: 12, fontWeight: 600, textDecoration: 'none', fontFamily: 'Inter, system-ui, sans-serif', padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', transition: 'all 0.15s' }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = '#02C39A'; e.currentTarget.style.borderColor = 'rgba(2,195,154,0.3)'; e.currentTarget.style.background = 'rgba(2,195,154,0.05)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 5 5 12 12 19"/>
+          </svg>
+          Back to home
+        </motion.a>
+        <div />
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        style={{
+          width: '100%',
+          maxWidth: 440,
+          background: 'rgba(13,27,42,0.95)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: 20,
+          boxShadow: '0 32px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(2,195,154,0.05)',
+          overflow: 'hidden',
+          position: 'relative',
+          zIndex: 1,
+        }}
       >
+        {/* Inner glow top */}
+        <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 300, height: 1, background: 'linear-gradient(90deg, transparent, rgba(2,195,154,0.4), transparent)' }} />
+
         {/* Header */}
-        <div className="px-8 pt-8 pb-6 text-center">
-          <div className="inline-flex items-center gap-2 mb-2">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ background: '#028090' }}
-            >
+        <div style={{ padding: '32px 32px 24px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1, type: 'spring', stiffness: 300 }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 8 }}
+          >
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#028090,#02C39A)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(2,195,154,0.3)' }}>
               <IconBolt size={18} color="#fff" />
             </div>
-            <span className="text-2xl font-bold" style={{ color: '#028090' }}>
+            <span style={{ fontSize: 20, fontWeight: 800, background: 'linear-gradient(135deg,#028090,#02C39A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               PulseDesk AI
             </span>
-          </div>
-          <p className="text-sm" style={{ color: '#94A3B8' }}>
+          </motion.div>
+          <p style={{ fontSize: 12, color: '#334155', margin: 0, fontWeight: 500 }}>
             Enterprise Operational Intelligence Platform
           </p>
         </div>
 
-        <div className="mx-8" style={{ height: '0.5px', background: '#E2E8F0' }} />
+        <div style={{ padding: '28px 32px 32px' }}>
 
-        <div className="px-8 py-6">
           {/* Flash messages */}
           {flash?.alert && (
-            <div
-              className="mb-4 px-4 py-3 rounded-xl text-sm"
-              style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{ marginBottom: 16, padding: '12px 16px', borderRadius: 12, background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.2)', color: '#EF4444', fontSize: 13 }}
             >
               {flash.alert}
-            </div>
+            </motion.div>
           )}
           {flash?.notice && (
-            <div
-              className="mb-4 px-4 py-3 rounded-xl text-sm"
-              style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', color: '#16A34A' }}
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{ marginBottom: 16, padding: '12px 16px', borderRadius: 12, background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', color: '#16A34A', fontSize: 13 }}
             >
               {flash.notice}
-            </div>
+            </motion.div>
           )}
 
-          <p className="text-center font-bold mb-5" style={{ fontSize: '16px', color: '#0F172A' }}>
+          <p style={{ textAlign: 'center', fontWeight: 700, fontSize: 15, color: '#fff', marginBottom: 20 }}>
             Sign in to your workspace
           </p>
 
-        {/* Google OAuth */}
-          <button
+          {/* Google OAuth */}
+          <motion.button
             type="button"
             onClick={handleGoogleLogin}
-            className="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl text-sm font-medium transition-colors cursor-pointer mb-2"
-            style={{ border: '1px solid #E2E8F0', background: '#fff', color: '#1E293B' }}
+            whileHover={{ scale: 1.02, background: 'rgba(255,255,255,0.07)' }}
+            whileTap={{ scale: 0.98 }}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
+              width: '100%', padding: '12px 16px', borderRadius: 12,
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer',
+              fontFamily: 'Inter, system-ui, sans-serif',
+              marginBottom: 6,
+            }}
           >
             <IconBrandGoogle size={18} />
             Continue with Google
-          </button>
-
-          <p className="text-center text-xs mb-5" style={{ color: '#94A3B8' }}>
+          </motion.button>
+          <p style={{ textAlign: 'center', fontSize: 11, color: '#334155', marginBottom: 20 }}>
             Use your corporate Google Workspace account
           </p>
 
           {/* Divider */}
-          <div className="flex items-center gap-3 mb-5">
-            <div className="flex-1" style={{ height: '0.5px', background: '#E2E8F0' }} />
-            <span className="text-xs" style={{ color: '#94A3B8' }}>
-              Secure enterprise login
-            </span>
-            <div className="flex-1" style={{ height: '0.5px', background: '#E2E8F0' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+            <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
+            <span style={{ fontSize: 11, color: '#334155', fontWeight: 500 }}>Secure enterprise login</span>
+            <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
           </div>
 
           {/* Trust badges */}
-          <div className="grid grid-cols-3 gap-2 mb-5">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginBottom: 20 }}>
             {[
-              { icon: <IconShieldCheck size={18} color="#028090" />, label: 'SOC 2 Type II' },
-              { icon: <IconBuilding size={18} color="#028090" />, label: 'Multi-tenant Isolated' },
-              { icon: <IconRobot size={18} color="#028090" />, label: 'AI Audit Log' },
+              { icon: <IconShieldCheck size={16} color="#028090" />, label: 'SOC 2 Type II' },
+              { icon: <IconBuilding size={16} color="#028090" />, label: 'Multi-tenant Isolated' },
+              { icon: <IconRobot size={16} color="#028090" />, label: 'AI Audit Log' },
             ].map((badge) => (
               <div
                 key={badge.label}
-                className="flex flex-col items-center gap-1 py-2 px-1 rounded-xl"
-                style={{ border: '1px solid #E2E8F0', background: '#F8FAFC' }}
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '10px 8px', borderRadius: 10, background: 'rgba(2,128,144,0.06)', border: '1px solid rgba(2,128,144,0.12)' }}
               >
                 {badge.icon}
-                <span
-                  className="text-center font-medium"
-                  style={{ fontSize: '10px', color: '#475569' }}
-                >
-                  {badge.label}
-                </span>
+                <span style={{ fontSize: 10, color: '#475569', fontWeight: 600, textAlign: 'center' }}>{badge.label}</span>
               </div>
             ))}
           </div>
 
-          <div className="mb-5" style={{ height: '0.5px', background: '#E2E8F0' }} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', marginBottom: 20 }} />
 
           {/* Email + Password */}
-          <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }} className="space-y-4">
+          <form onSubmit={(e) => { e.preventDefault(); onSubmit() }} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div>
-              <label
-                className="block text-sm font-medium mb-1.5"
-                style={{ color: '#475569' }}
-              >
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 8 }}>
                 Work email
               </label>
               <input
-                {...register('email')} ref={emailRef}
+                {...register('email')}
+                ref={emailRef}
                 type="email"
                 autoComplete="email"
                 placeholder="you@company.com"
-                className="w-full px-3 py-3 rounded-xl text-sm outline-none transition-all"
+                onFocus={() => setEmailFocus(true)}
+                onBlur={() => setEmailFocus(false)}
                 style={{
-                  border: '1px solid #E2E8F0',
-                  color: '#0F172A',
-                  background: '#fff',
+                  width: '100%',
+                  padding: '11px 14px',
+                  borderRadius: 10,
+                  border: `1px solid ${emailFocus ? '#028090' : 'rgba(255,255,255,0.08)'}`,
+                  background: 'rgba(255,255,255,0.04)',
+                  color: '#fff',
+                  fontSize: 14,
+                  outline: 'none',
+                  fontFamily: 'Inter, system-ui, sans-serif',
+                  transition: 'border-color 0.2s',
+                  boxSizing: 'border-box' as const,
                 }}
-                onFocus={(e) => (e.target.style.borderColor = '#028090')}
-                onBlur={(e) => (e.target.style.borderColor = '#E2E8F0')}
               />
             </div>
 
             <div>
-              <div className="flex justify-between items-center mb-1.5">
-                <label className="text-sm font-medium" style={{ color: '#475569' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <label style={{ fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>
                   Password
                 </label>
-                <a href="/users/password/new" className="text-xs" style={{ color: '#028090' }}>
+                <a href="/users/password/new" style={{ fontSize: 11, color: '#028090', textDecoration: 'none', fontWeight: 500 }}>
                   Forgot password?
                 </a>
               </div>
-              <div className="relative">
+              <div style={{ position: 'relative' }}>
                 <input
-                  {...register('password')} ref={passwordRef}
+                  {...register('password')}
+                  ref={passwordRef}
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   placeholder="••••••••"
-                  className="w-full px-3 py-3 rounded-xl text-sm outline-none pr-10 transition-all"
+                  onFocus={() => setPasswordFocus(true)}
+                  onBlur={() => setPasswordFocus(false)}
                   style={{
-                    border: '1px solid #E2E8F0',
-                    color: '#0F172A',
-                    background: '#fff',
+                    width: '100%',
+                    padding: '11px 42px 11px 14px',
+                    borderRadius: 10,
+                    border: `1px solid ${passwordFocus ? '#028090' : 'rgba(255,255,255,0.08)'}`,
+                    background: 'rgba(255,255,255,0.04)',
+                    color: '#fff',
+                    fontSize: 14,
+                    outline: 'none',
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                    transition: 'border-color 0.2s',
+                    boxSizing: 'border-box' as const,
                   }}
-                  onFocus={(e) => (e.target.style.borderColor = '#028090')}
-                  onBlur={(e) => (e.target.style.borderColor = '#E2E8F0')}
-                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
-                  style={{ color: '#94A3B8' }}
+                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#334155', display: 'flex', padding: 0 }}
                 >
-                  {showPassword
-                    ? <IconEyeOff size={16} />
-                    : <IconEye size={16} />
-                  }
+                  {showPassword ? <IconEyeOff size={16} /> : <IconEye size={16} />}
                 </button>
               </div>
-              <PasswordStrength password={password} />
             </div>
 
-            <button
+            <motion.button
               type="submit"
-              className="w-full py-3 px-4 rounded-xl text-sm font-semibold text-white transition-colors"
-              style={{ background: '#028090' }}
+              whileHover={{ scale: 1.02, boxShadow: '0 8px 24px rgba(2,128,144,0.4)' }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                width: '100%',
+                padding: '13px',
+                borderRadius: 12,
+                background: 'linear-gradient(135deg,#028090,#02C39A)',
+                border: 'none',
+                color: '#fff',
+                fontSize: 15,
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: 'Inter, system-ui, sans-serif',
+                boxShadow: '0 4px 16px rgba(2,128,144,0.3)',
+                marginTop: 4,
+              }}
             >
               Sign in
-            </button>
+            </motion.button>
           </form>
 
-          <div
-            className="flex items-center justify-center gap-2 mt-5 pt-5"
-            style={{ borderTop: '0.5px solid #E2E8F0' }}
-          >
-            <IconLock size={12} color="#94A3B8" />
-            <p className="text-center" style={{ fontSize: '11px', color: '#94A3B8' }}>
+          {/* Footer */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 20, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <IconLock size={11} color="#334155" />
+            <p style={{ fontSize: 11, color: '#334155', margin: 0 }}>
               256-bit encryption ·{' '}
-              <a href="#" style={{ color: '#028090' }}>Terms</a>
-              {' '}·{' '}
-              <a href="#" style={{ color: '#028090' }}>Privacy</a>
+              <a href="#" style={{ color: '#475569', textDecoration: 'none' }}>Terms</a>
+              {' · '}
+              <a href="#" style={{ color: '#475569', textDecoration: 'none' }}>Privacy</a>
             </p>
           </div>
         </div>
-      </div>
+      </motion.div>
+
+      {/* Footer note */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        style={{ marginTop: 24, fontSize: 12, color: '#475569', textAlign: 'center', position: 'relative', zIndex: 1 }}
+      >
+        Don't have an account? Contact your workspace administrator.
+      </motion.p>
     </div>
   )
 }
