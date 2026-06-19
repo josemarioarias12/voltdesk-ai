@@ -187,7 +187,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       "24/7 dedicated support",
     ],
     cta: "Contact sales",
-    href: "/login",
+    href: "#contact",
   },
 ];
 

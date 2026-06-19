@@ -38,6 +38,7 @@ const TECH_DESCRIPTIONS: Record<string, string> = {
 
 export default function LandingPage() {
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
+  const [showContact, setShowContact] = useState(false);
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
@@ -80,7 +81,8 @@ export default function LandingPage() {
             </motion.p>
             <motion.div variants={fadeUp} style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 48 }}>
               <motion.a
-                href="/login"
+                href="#pricing"
+                onClick={(e) => handleAnchorClick(e, "#pricing")}
                 whileHover={{ scale: 1.04, boxShadow: "0 0 32px rgba(2,128,144,0.55)" }}
                 whileTap={{ scale: 0.97 }}
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
@@ -414,28 +416,30 @@ export default function LandingPage() {
                       </motion.div>
                     ))}
                   </div>
-                  <motion.a
-                    href={plan.href}
+                  <motion.button
+                    onClick={() => plan.href === "#contact" ? setShowContact(true) : window.location.href = plan.href}
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
                     transition={{ type: "spring", stiffness: 400, damping: 20 }}
                     style={{
                       display: "block",
+                      width: "100%",
                       textAlign: "center",
                       padding: "14px 24px",
                       borderRadius: 12,
                       fontWeight: 700,
                       fontSize: 15,
-                      textDecoration: "none",
                       position: "relative",
                       background: plan.highlight ? "linear-gradient(135deg,#028090,#02C39A)" : "rgba(255,255,255,0.06)",
                       color: "#fff",
                       border: plan.highlight ? "none" : "1px solid rgba(255,255,255,0.12)",
                       boxShadow: plan.highlight ? "0 4px 24px rgba(2,128,144,0.4)" : "none",
+                      cursor: "pointer",
+                      fontFamily: "Inter, sans-serif",
                     }}
                   >
                     {plan.cta}
-                  </motion.a>
+                  </motion.button>
                 </motion.div>
               );
             })}
@@ -526,14 +530,14 @@ export default function LandingPage() {
           </motion.p>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }}
             style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 48 }}>
-            <motion.a href="/login" whileHover={{ scale: 1.04, boxShadow: "0 8px 40px rgba(2,128,144,0.5)" }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              style={{ background: "linear-gradient(135deg,#028090,#02C39A)", color: "#fff", fontWeight: 700, fontSize: 16, padding: "15px 36px", borderRadius: 12, textDecoration: "none", boxShadow: "0 4px 24px rgba(2,128,144,0.35)" }}>
+            <motion.button onClick={() => setShowContact(true)} whileHover={{ scale: 1.04, boxShadow: "0 8px 40px rgba(2,128,144,0.5)" }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              style={{ background: "linear-gradient(135deg,#028090,#02C39A)", color: "#fff", fontWeight: 700, fontSize: 16, padding: "15px 36px", borderRadius: 12, border: "none", cursor: "pointer", boxShadow: "0 4px 24px rgba(2,128,144,0.35)", fontFamily: "Inter, sans-serif" }}>
               Request Demo →
-            </motion.a>
-            <motion.a href="/login" whileHover={{ scale: 1.04, borderColor: "rgba(2,195,154,0.5)", color: "#02C39A" }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              style={{ background: "transparent", color: "#fff", fontWeight: 600, fontSize: 16, padding: "15px 36px", borderRadius: 12, textDecoration: "none", border: "1px solid rgba(255,255,255,0.15)" }}>
+            </motion.button>
+            <motion.button onClick={() => setShowContact(true)} whileHover={{ scale: 1.04, borderColor: "rgba(2,195,154,0.5)", color: "#02C39A" }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              style={{ background: "transparent", color: "#fff", fontWeight: 600, fontSize: 16, padding: "15px 36px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.15)", cursor: "pointer", fontFamily: "Inter, sans-serif" }}>
               Schedule a call
-            </motion.a>
+            </motion.button>
           </motion.div>
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.25 }}
             style={{ display: "flex", justifyContent: "center", gap: 40, flexWrap: "wrap" }}>
@@ -607,6 +611,83 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+    {/* Contact Modal */}
+      {showContact && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setShowContact(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)", zIndex: 10000, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
+        >
+          <motion.div
+            initial={{ scale: 0.92, opacity: 0, y: 16 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 350, damping: 25 }}
+            onClick={(e) => e.stopPropagation()}
+            style={{ background: "#0D1B2A", border: "1px solid rgba(2,195,154,0.2)", borderRadius: 20, padding: 40, maxWidth: 480, width: "100%", position: "relative" }}
+          >
+            {/* Close */}
+            <button
+              onClick={() => setShowContact(false)}
+              style={{ position: "absolute", top: 16, right: 16, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b" }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+
+            {/* Header */}
+            <div style={{ marginBottom: 28 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#02C39A", boxShadow: "0 0 8px rgba(2,195,154,0.8)" }} />
+                <span style={{ color: "#02C39A", fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.1em" }}>Enterprise Sales</span>
+              </div>
+              <h3 style={{ fontSize: 24, fontWeight: 800, color: "#fff", marginBottom: 8, letterSpacing: "-0.02em" }}>Let's talk about your team</h3>
+              <p style={{ color: "#475569", fontSize: 14, lineHeight: 1.6 }}>Our team will reach out within 24 hours to schedule a personalized demo.</p>
+            </div>
+
+            {/* Fields */}
+            <div style={{ display: "flex", flexDirection: "column" as const, gap: 14, marginBottom: 24 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: "#475569", textTransform: "uppercase" as const, letterSpacing: "0.08em", display: "block", marginBottom: 6 }}>First name</label>
+                  <input type="text" placeholder="Jose" style={{ width: "100%", padding: "10px 14px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, color: "#fff", fontSize: 14, outline: "none", fontFamily: "Inter, sans-serif", boxSizing: "border-box" as const }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: "#475569", textTransform: "uppercase" as const, letterSpacing: "0.08em", display: "block", marginBottom: 6 }}>Last name</label>
+                  <input type="text" placeholder="Arias" style={{ width: "100%", padding: "10px 14px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, color: "#fff", fontSize: 14, outline: "none", fontFamily: "Inter, sans-serif", boxSizing: "border-box" as const }} />
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: "#475569", textTransform: "uppercase" as const, letterSpacing: "0.08em", display: "block", marginBottom: 6 }}>Work email</label>
+                <input type="email" placeholder="jose@company.com" style={{ width: "100%", padding: "10px 14px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, color: "#fff", fontSize: 14, outline: "none", fontFamily: "Inter, sans-serif", boxSizing: "border-box" as const }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: "#475569", textTransform: "uppercase" as const, letterSpacing: "0.08em", display: "block", marginBottom: 6 }}>Company</label>
+                <input type="text" placeholder="Acme Corp" style={{ width: "100%", padding: "10px 14px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, color: "#fff", fontSize: 14, outline: "none", fontFamily: "Inter, sans-serif", boxSizing: "border-box" as const }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: "#475569", textTransform: "uppercase" as const, letterSpacing: "0.08em", display: "block", marginBottom: 6 }}>Message</label>
+                <textarea placeholder="Tell us about your team size and use case…" rows={3} style={{ width: "100%", padding: "10px 14px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, color: "#fff", fontSize: 14, outline: "none", fontFamily: "Inter, sans-serif", resize: "none", boxSizing: "border-box" as const }} />
+              </div>
+            </div>
+
+            {/* Submit */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                setShowContact(false);
+              }}
+              style={{ width: "100%", padding: "14px", background: "linear-gradient(135deg,#028090,#02C39A)", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 700, color: "#fff", cursor: "pointer", fontFamily: "Inter, sans-serif", boxShadow: "0 4px 24px rgba(2,128,144,0.3)" }}
+            >
+              Send message →
+            </motion.button>
+            <p style={{ textAlign: "center" as const, fontSize: 12, color: "#334155", marginTop: 12 }}>We'll respond within 24 hours · No spam ever</p>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 }
