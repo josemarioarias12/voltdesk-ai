@@ -158,7 +158,7 @@ export default function AuthLogin() {
           </p>
         </div>
 
-        <div style={{ padding: '28px 32px 32px' }}>
+        <div style={{ padding: '20px 32px 24px' }}>
 
           {/* Flash messages */}
           {flash?.alert && (
@@ -234,7 +234,7 @@ export default function AuthLogin() {
           <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', marginBottom: 20 }} />
 
           {/* Email + Password */}
-          <form onSubmit={(e) => { e.preventDefault(); onSubmit() }} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <form onSubmit={(e) => { e.preventDefault(); onSubmit() }} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div>
               <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 8 }}>
                 Work email
