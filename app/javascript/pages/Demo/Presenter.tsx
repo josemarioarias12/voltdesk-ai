@@ -124,7 +124,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
         if (!json) return
         if (json.guest_count !== undefined) setGuestCount(json.guest_count)
         if (json.expires_in  !== undefined) setSecondsLeft(json.expires_in)
-        if (json.tickets)                   setTickets(json.tickets)
+        if (json.tickets) { setTickets(json.tickets); setTotalCount(json.tickets.length) }
       })
       .catch(console.error)
   }, [token])
