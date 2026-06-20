@@ -265,7 +265,7 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
 
           {/* My Tickets */}
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.35 }}>
-            <div style={card}>
+            <div style={{ ...card, borderTop: '3px solid #028090' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                 <h2 style={sectionTitle}>My Tickets</h2>
                 <Link href="/tickets" style={{ fontSize: '11px', color: '#028090', textDecoration: 'none', fontWeight: 600 }}>View all →</Link>
@@ -305,7 +305,7 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
 
           {/* My Leave Requests */}
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32, duration: 0.35 }}>
-            <div style={card}>
+            <div style={{ ...card, borderTop: '3px solid #F97316' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                 <h2 style={sectionTitle}>My Leave Requests</h2>
                 <Link href="/hr/leave_requests/new" style={{ fontSize: '11px', color: '#028090', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
@@ -391,9 +391,21 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
             </motion.div>
           )}
 
+          {!metrics.onboarding && (
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.35 }}>
+              <div style={{ ...card, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', minHeight: '180px' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#F8FAFC', border: '1px dashed #CBD5E1', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px' }}>
+                  <DashIcon />
+                </div>
+                <p style={{ fontSize: '13px', color: '#64748B', margin: '0 0 2px', fontWeight: 500 }}>No onboarding plan</p>
+                <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>Contact HR if you believe this is an error</p>
+              </div>
+            </motion.div>
+          )}
+
           {/* Notifications */}
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.46, duration: 0.35 }}>
-            <div style={card}>
+            <div style={{ ...card, borderTop: '3px solid #028090' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                 <h2 style={sectionTitle}>Recent Notifications</h2>
                 <Link href="/notifications" style={{ fontSize: '11px', color: '#028090', textDecoration: 'none', fontWeight: 600 }}>View all</Link>
