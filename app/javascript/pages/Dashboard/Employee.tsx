@@ -161,22 +161,33 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
               initial={{ opacity: 0, scale: 0.85 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.3 }}
-              style={{ background: 'rgba(2,128,144,0.15)', border: '1px solid rgba(2,195,154,0.3)', borderRadius: '12px', padding: '12px 20px', textAlign: 'center' }}
+              style={{
+                background: metrics.tickets.open > 0 ? 'rgba(2,128,144,0.15)' : 'rgba(255,255,255,0.04)',
+                border: `1px solid ${metrics.tickets.open > 0 ? 'rgba(2,195,154,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                borderRadius: '12px', padding: '12px 20px', textAlign: 'center', minWidth: '76px',
+              }}
             >
-              <p style={{ fontSize: '24px', fontWeight: 700, color: '#02C39A', margin: 0, lineHeight: 1 }}>{metrics.tickets.open}</p>
+              <p style={{ fontSize: '24px', fontWeight: 700, color: metrics.tickets.open > 0 ? '#02C39A' : '#475569', margin: 0, lineHeight: 1 }}>
+                {metrics.tickets.open}
+              </p>
               <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Tickets</p>
             </motion.div>
-            {metrics.leave_requests.pending > 0 && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.85 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.28, duration: 0.3 }}
-                style={{ background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.25)', borderRadius: '12px', padding: '12px 20px', textAlign: 'center' }}
-              >
-                <p style={{ fontSize: '24px', fontWeight: 700, color: '#F97316', margin: 0, lineHeight: 1 }}>{metrics.leave_requests.pending}</p>
-                <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Leave</p>
-              </motion.div>
-            )}
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.28, duration: 0.3 }}
+              style={{
+                background: metrics.leave_requests.pending > 0 ? 'rgba(249,115,22,0.12)' : 'rgba(255,255,255,0.04)',
+                border: `1px solid ${metrics.leave_requests.pending > 0 ? 'rgba(249,115,22,0.25)' : 'rgba(255,255,255,0.08)'}`,
+                borderRadius: '12px', padding: '12px 20px', textAlign: 'center', minWidth: '76px',
+              }}
+            >
+              <p style={{ fontSize: '24px', fontWeight: 700, color: metrics.leave_requests.pending > 0 ? '#F97316' : '#475569', margin: 0, lineHeight: 1 }}>
+                {metrics.leave_requests.pending}
+              </p>
+              <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Leave</p>
+            </motion.div>
           </div>
         </motion.div>
 
@@ -235,7 +246,15 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
                   </p>
                 </>
               ) : (
-                <p style={{ fontSize: '13px', color: '#94A3B8', margin: '8px 0 0' }}>No plan assigned</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '4px 0 2px' }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#F8FAFC', border: '1px dashed #CBD5E1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <DashIcon />
+                  </div>
+                  <div>
+                    <p style={{ fontSize: '13px', color: '#64748B', margin: '0 0 1px', fontWeight: 500 }}>No plan assigned</p>
+                    <p style={{ fontSize: '10px', color: '#94A3B8', margin: 0 }}>Contact HR to get started</p>
+                  </div>
+                </div>
               )}
             </div>
           </motion.div>
@@ -510,6 +529,14 @@ function BellIcon() {
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
       <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    </svg>
+  )
+}
+
+function DashIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="5" y1="12" x2="19" y2="12"/>
     </svg>
   )
 }
