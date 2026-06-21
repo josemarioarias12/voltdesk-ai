@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion'
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts'
 import { router } from '@inertiajs/react'
 import ErrorBoundary from '@/components/ErrorBoundary'
 
@@ -39,7 +39,12 @@ function heatColor(count: number, max: number): string {
   if (ratio > 0.75) return '#EF4444'
   if (ratio > 0.5)  return '#026E7A'
   if (ratio > 0.25) return '#028090'
-  return '#B2E0E5'
+  return '#7FC7CE'
+}
+
+function isCurrentHourCell(dow: number, hour: number): boolean {
+  const now = new Date()
+  return now.getDay() === dow && now.getHours() === hour
 }
 
 function riskColor(prob: number): string {
@@ -233,13 +238,31 @@ export default function ManagerDashboard({ metrics }: Props) {
             <div style={{ ...card, borderTop: '3px solid #028090' }}>
               <h2 style={cardTitle}>Ticket Volume — Last 30 Days</h2>
               <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={metrics.ticket_volume_30d}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94A3B8' }} interval={6} />
-                  <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} />
-                  <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '13px' }} />
-                  <Line type="monotone" dataKey="count" stroke="#028090" strokeWidth={2} dot={false} animationDuration={900} />
-                </LineChart>
+                <AreaChart data={metrics.ticket_volume_30d}>
+                  <defs>
+                    <linearGradient id="ticketVolumeGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#028090" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#028090" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94A3B8' }} interval={6} axisLine={{ stroke: '#E2E8F0' }} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} width={28} />
+                  <Tooltip
+                    contentStyle={{ borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '13px', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}
+                    labelStyle={{ color: '#0F172A', fontWeight: 600, marginBottom: '4px' }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="count"
+                    stroke="#028090"
+                    strokeWidth={2.5}
+                    fill="url(#ticketVolumeGradient)"
+                    dot={false}
+                    activeDot={{ r: 5, fill: '#028090', stroke: '#fff', strokeWidth: 2 }}
+                    animationDuration={900}
+                  />
+                </AreaChart>
               </ResponsiveContainer>
             </div>
           </motion.div>
@@ -247,12 +270,23 @@ export default function ManagerDashboard({ metrics }: Props) {
             <div style={{ ...card, borderTop: '3px solid #028090' }}>
               <h2 style={cardTitle}>By Category</h2>
               <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={metrics.tickets_by_category} layout="vertical">
+                <BarChart data={metrics.tickets_by_category} layout="vertical" margin={{ right: 28 }}>
+                  <defs>
+                    <linearGradient id="categoryBarGradient" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#02C39A" />
+                      <stop offset="100%" stopColor="#028090" />
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" horizontal={false} />
-                  <XAxis type="number" tick={{ fontSize: 11, fill: '#94A3B8' }} />
-                  <YAxis type="category" dataKey="category" tick={{ fontSize: 11, fill: '#94A3B8' }} width={70} />
-                  <Tooltip contentStyle={{ borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '13px' }} />
-                  <Bar dataKey="count" fill="#028090" radius={[0, 4, 4, 0]} animationDuration={900} />
+                  <XAxis type="number" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+                  <YAxis type="category" dataKey="category" tick={{ fontSize: 11, fill: '#475569', fontWeight: 600 }} width={72} axisLine={false} tickLine={false} />
+                  <Tooltip
+                    cursor={{ fill: '#F8FAFC' }}
+                    contentStyle={{ borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '13px', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}
+                  />
+                  <Bar dataKey="count" fill="url(#categoryBarGradient)" radius={[0, 6, 6, 0]} animationDuration={900} barSize={16}>
+                    <LabelList dataKey="count" position="right" style={{ fontSize: 12, fontWeight: 700, fill: '#0F172A' }} />
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -284,16 +318,23 @@ export default function ManagerDashboard({ metrics }: Props) {
                     {hour === 0 ? '12a' : hour < 12 ? `${hour}a` : hour === 12 ? '12p' : `${hour - 12}p`}
                   </div>
                   {DAYS.map((_, dow) => {
-                    const cell  = metrics.heatmap.find(c => c.dow === dow && c.hour === hour)
-                    const count = cell?.count ?? 0
+                    const cell    = metrics.heatmap.find(c => c.dow === dow && c.hour === hour)
+                    const count   = cell?.count ?? 0
+                    const isNow   = isCurrentHourCell(dow, hour)
                     return (
                       <motion.div
                         key={`${dow}-${hour}`}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.5 + (hour * 7 + dow) * 0.0015, duration: 0.25 }}
-                        title={`${DAYS[dow]} ${hour}:00 — ${count} tickets`}
-                        style={{ height: '14px', borderRadius: '2px', background: heatColor(count, maxHeat) }}
+                        title={`${DAYS[dow]} ${hour}:00 — ${count} tickets${isNow ? ' (current hour)' : ''}`}
+                        style={{
+                          height: '14px',
+                          borderRadius: '2px',
+                          background: heatColor(count, maxHeat),
+                          outline: isNow ? '2px solid #0D1B2A' : 'none',
+                          outlineOffset: isNow ? '-1px' : '0',
+                        }}
                       />
                     )
                   })}
