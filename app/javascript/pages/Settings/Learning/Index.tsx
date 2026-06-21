@@ -3,6 +3,7 @@ import { Head, router } from '@inertiajs/react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { motion, AnimatePresence } from 'framer-motion'
 import AppLayout from '@/components/AppLayout'
+import SettingsTabs from '@/components/SettingsTabs'
 import { useActionCable } from '@/hooks/useActionCable'
 
 interface Pattern {
@@ -79,7 +80,7 @@ export default function LearningIndex({
   }
 
   return (
-    <AppLayout>
+    <AppLayout title="AI Self-Learning">
       <Head title="AI Self-Learning" />
 
       <AnimatePresence>
@@ -95,7 +96,9 @@ export default function LearningIndex({
         )}
       </AnimatePresence>
 
-      <div className="p-6 max-w-5xl mx-auto space-y-6">
+      <div className="max-w-4xl space-y-6">
+        <SettingsTabs active="learning" />
+
         <div>
           <h1 className="text-2xl font-bold text-slate-800">AI Self-Learning</h1>
           <p className="text-slate-500 mt-1">

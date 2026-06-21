@@ -3,9 +3,6 @@
 Rails.application.routes.draw do
   get '/health', to: 'health#index'
 
-  # Public marketing landing page — no authentication required
-  get '/', to: 'public#landing', as: :landing
-
   mount ActionCable.server => '/cable'
 
   require 'sidekiq/web'
@@ -24,7 +21,9 @@ Rails.application.routes.draw do
     get '/users/login', to: redirect('/login')
   end
 
-  root 'dashboards#show'
+  # Public landing page for guests; PublicController#landing redirects
+  # authenticated users internally to /dashboard.
+  root 'public#landing'
 
   get  '/login',           to: 'sessions#new',    as: :login_page
   get  '/forgot-password', to: 'sessions#forgot', as: :forgot_password_page
@@ -48,6 +47,7 @@ Rails.application.routes.draw do
   # ── Settings ───────────────────────────────────────────────────────────────
   get   '/settings',    to: 'settings#index',     as: :settings
   patch '/settings/ai', to: 'settings#update_ai', as: :settings_ai
+  patch '/settings/automation', to: 'settings#update_automation', as: :settings_automation
 
   #  HR Operations Hub ──────────────────────────────────────────────────
   get '/hr', to: redirect('/hr/leave_requests'), as: :hr_root

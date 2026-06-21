@@ -9,7 +9,9 @@ class SettingsController < ApplicationController
     render inertia: 'Settings/Index', props: {
       workspace: workspace_ai_props,
       provider_models: Ai::ModelRouter::PROVIDER_MODELS,
-      cost_table: build_cost_table
+      cost_table: build_cost_table,
+      automation: workspace_automation_props,
+      ticket_categories: Ticket.categories.keys
     }
   end
 
@@ -28,6 +30,21 @@ class SettingsController < ApplicationController
     end
   end
 
+  def update_automation
+    authorize :settings, :update_automation?
+
+    result = Settings::UpdateAutomationConfig.call(
+      workspace: current_workspace,
+      params: automation_params
+    )
+
+    if result.success?
+      redirect_to settings_path, notice: t('settings.automation_saved')
+    else
+      redirect_to settings_path, alert: result.error
+    end
+  end
+
   private
 
   def workspace_ai_props
@@ -37,6 +54,16 @@ class SettingsController < ApplicationController
       ai_model: w.ai_model,
       ai_fallback_provider: w.ai_fallback_provider,
       ai_selection_mode: w.ai_selection_mode
+    }
+  end
+
+  def workspace_automation_props
+    s = current_workspace.settings
+    {
+      agent_urgency_threshold: s.fetch('agent_urgency_threshold', 60).to_f,
+      agent_similarity_threshold: s.fetch('agent_similarity_threshold', 0.75).to_f,
+      human_in_the_loop: s.fetch('human_in_the_loop', false),
+      automatable_categories: s.fetch('automatable_categories', %w[it hr facilities])
     }
   end
 
@@ -61,4 +88,18 @@ class SettingsController < ApplicationController
                     ai_selection_mode]
     )
   end
+
+  # automatable_categories is a JSONB array - params.expect cannot express
+  # mixed scalar + array shapes (see S12.5 lessons). require/permit is the
+  # correct tool here, not a strong-params downgrade.
+  # rubocop:disable Rails/StrongParametersExpect
+  def automation_params
+    params.require(:workspace).permit(
+      :agent_urgency_threshold,
+      :agent_similarity_threshold,
+      :human_in_the_loop,
+      automatable_categories: []
+    )
+  end
+  # rubocop:enable Rails/StrongParametersExpect
 end

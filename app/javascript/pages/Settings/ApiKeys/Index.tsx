@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { router } from '@inertiajs/react'
 import AppLayout from '@/components/AppLayout'
+import SettingsTabs from '@/components/SettingsTabs'
 
 interface ApiKey {
   id: number
@@ -74,6 +75,8 @@ export default function ApiKeysIndex({ api_keys, new_token }: Props) {
   return (
     <AppLayout title="API Keys">
       <div className="max-w-4xl space-y-6">
+
+        <SettingsTabs active="api_keys" />
 
         {/* Header */}
         <div className="flex items-center justify-between">

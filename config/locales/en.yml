@@ -7,6 +7,10 @@ en:
     updated: "Asset updated."
     destroyed: "Asset removed from inventory."
 
+  settings:
+    ai_saved: "AI configuration saved successfully."
+    automation_saved: "Automation settings saved successfully."
+
   admin:
     pattern_alerts:
       resolved: "Alert resolved"

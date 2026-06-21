@@ -12,6 +12,7 @@ RSpec.describe SettingsPolicy do
 
     it { is_expected.to be_index }
     it { is_expected.to be_update_ai }
+    it { is_expected.to be_update_automation }
   end
 
   context 'when super_admin' do
@@ -19,6 +20,7 @@ RSpec.describe SettingsPolicy do
 
     it { is_expected.to be_index }
     it { is_expected.to be_update_ai }
+    it { is_expected.to be_update_automation }
   end
 
   context 'when employee' do
@@ -26,6 +28,7 @@ RSpec.describe SettingsPolicy do
 
     it { is_expected.not_to be_index }
     it { is_expected.not_to be_update_ai }
+    it { is_expected.not_to be_update_automation }
   end
 
   context 'when agent' do
@@ -33,5 +36,6 @@ RSpec.describe SettingsPolicy do
 
     it { is_expected.not_to be_index }
     it { is_expected.not_to be_update_ai }
+    it { is_expected.not_to be_update_automation }
   end
 end

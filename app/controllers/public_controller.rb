@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Rails/ApplicationController
 class PublicController < ActionController::Base
   include ActionController::Cookies
   include ActionController::RequestForgeryProtection
@@ -18,3 +19,4 @@ class PublicController < ActionController::Base
     request.env['warden']&.user
   end
 end
+# rubocop:enable Rails/ApplicationController

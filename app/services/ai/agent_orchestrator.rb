@@ -4,8 +4,6 @@ module Ai
   class AgentOrchestrator
     include AiAuditable
 
-    AUTOMATABLE_CATEGORIES = %w[it hr facilities].freeze
-
     def self.call(ticket:)
       new(ticket:).call
     end
@@ -34,7 +32,11 @@ module Ai
     private
 
     def automatable?
-      AUTOMATABLE_CATEGORIES.include?(@ticket.category)
+      automatable_categories.include?(@ticket.category)
+    end
+
+    def automatable_categories
+      @workspace.settings.fetch('automatable_categories', %w[it hr facilities])
     end
 
     def urgency_above_threshold?

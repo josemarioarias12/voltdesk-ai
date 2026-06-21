@@ -5,8 +5,9 @@ require 'rails_helper'
 RSpec.describe Ai::AgentOrchestrator do
   let(:workspace) do
     create(:workspace, settings: {
-             'agent_threshold'   => 80,
-             'human_in_the_loop' => false
+             'agent_urgency_threshold'    => 80,
+             'agent_similarity_threshold' => 0.75,
+             'human_in_the_loop'          => false
            })
   end
   let(:user)   { create(:user, workspace: workspace) }
@@ -47,7 +48,34 @@ RSpec.describe Ai::AgentOrchestrator do
       end
     end
 
-    context 'when confidence is below threshold' do
+    context 'when automatable_categories is customized in workspace settings' do
+      before do
+        workspace.update!(settings: workspace.settings.merge('automatable_categories' => %w[finance]))
+
+        ticket.update_columns(category: 'finance')
+      end
+
+      it 'allows a category outside the hardcoded default when explicitly enabled' do
+        expect { described_class.call(ticket: ticket) }
+          .to change(AgentAction, :count).by(1)
+      end
+    end
+
+    context 'when a default category is excluded via workspace settings' do
+      before do
+        workspace.update!(settings: workspace.settings.merge('automatable_categories' => %w[hr facilities]))
+      end
+
+      it 'returns failure for a category no longer in the allowed list' do
+        result = described_class.call(ticket: ticket)
+
+        expect(result).to be_failure
+
+        expect(result.error).to include('not automatable')
+      end
+    end
+
+    context 'when urgency is below threshold' do
       before { ticket.update_columns(urgency_score: 50) }
 
       it 'returns failure' do
@@ -59,10 +87,7 @@ RSpec.describe Ai::AgentOrchestrator do
 
     context 'when human_in_the_loop is true' do
       before do
-        workspace.update!(settings: {
-                            'agent_threshold'   => 80,
-                            'human_in_the_loop' => true
-                          })
+        workspace.update!(settings: workspace.settings.merge('human_in_the_loop' => true))
       end
 
       it 'creates a pending_approval AgentAction' do
