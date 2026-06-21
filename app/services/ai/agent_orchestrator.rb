@@ -11,19 +11,23 @@ module Ai
     end
 
     def initialize(ticket:)
-      @ticket    = ticket
-      @workspace = ticket.workspace
-      @threshold = @workspace.settings.fetch('agent_threshold', 0.85).to_f
+      @ticket              = ticket
+      @workspace           = ticket.workspace
+      @urgency_threshold   = @workspace.settings.fetch('agent_urgency_threshold', 60).to_f
+      @similarity_threshold = @workspace.settings.fetch('agent_similarity_threshold', 0.75).to_f
     end
 
     def call
       return ServiceResult.failure('Category not automatable') unless automatable?
-      return ServiceResult.failure('Confidence below threshold') unless above_threshold?
+      return ServiceResult.failure('Urgency below threshold') unless urgency_above_threshold?
+
+      rag_data = build_rag_data
+      return ServiceResult.failure('No confident precedent found') unless confident_match?(rag_data)
 
       if human_in_the_loop?
-        create_pending_action
+        create_pending_action(rag_data)
       else
-        execute_pipeline
+        execute_pipeline(rag_data: rag_data)
       end
     end
 
@@ -33,16 +37,19 @@ module Ai
       AUTOMATABLE_CATEGORIES.include?(@ticket.category)
     end
 
-    def above_threshold?
-      @ticket.urgency_score.to_f >= @threshold
+    def urgency_above_threshold?
+      @ticket.urgency_score.to_f >= @urgency_threshold
+    end
+
+    def confident_match?(rag_data)
+      rag_data[:top_similarity].to_f >= @similarity_threshold
     end
 
     def human_in_the_loop?
       @workspace.settings.fetch('human_in_the_loop', false)
     end
 
-    def create_pending_action
-      rag_data = build_rag_data
+    def create_pending_action(rag_data)
       action = AgentAction.create!(
         workspace:   @workspace,
         ticket:      @ticket,
@@ -60,9 +67,8 @@ module Ai
       ServiceResult.success(action)
     end
 
-    def execute_pipeline(agent_action: nil)
+    def execute_pipeline(rag_data:, agent_action: nil)
       steps_log = []
-      rag_data  = build_rag_data
       action    = agent_action || AgentAction.create!(
         workspace:   @workspace,
         ticket:      @ticket,
