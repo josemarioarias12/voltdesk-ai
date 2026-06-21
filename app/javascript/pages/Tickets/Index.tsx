@@ -1,6 +1,11 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
+import type { CSSProperties, ReactElement } from 'react'
 import { router } from '@inertiajs/react'
-import type { Ticket, TicketsIndexProps, TicketPriority, TicketStatus, SlaStatus } from '@/types/tickets'
+import { motion, AnimatePresence } from 'framer-motion'
+import type {
+  TicketPriority, TicketStatus, TicketCategory, SlaStatus,
+  TicketsIndexProps, TicketsFilters, TicketSortColumn, SortDirection,
+} from '@/types/tickets'
 import { useActionCable } from '@/hooks/useActionCable'
 import AppLayout from '@/components/AppLayout'
 import EmptyState from '@/components/EmptyState'
@@ -21,6 +26,22 @@ function formatSlaTime(seconds: number | null, slaStatus: SlaStatus) {
   return <span style={{ color, fontWeight: 500, fontSize: 13 }}>{label}</span>
 }
 
+function formatRelative(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime()
+  const h = Math.floor(diff / 3600000)
+  const d = Math.floor(diff / 86400000)
+  if (h < 1) return 'just now'
+  if (h < 24) return `${h}h ago`
+  return `${d}d ago`
+}
+
+// Fallback label for any status the enum gains later but STATUS_CFG hasn't been updated for yet.
+function humanizeStatus(status: string): string {
+  return status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+}
+
+// ── Config ────────────────────────────────────────────────────────────────────
+
 const PRIORITY_CFG: Record<TicketPriority, { label: string; color: string }> = {
   critical: { label: 'Critical', color: '#EF4444' },
   high:     { label: 'High',     color: '#F97316' },
@@ -37,27 +58,97 @@ const STATUS_CFG: Record<TicketStatus, { label: string; bg: string; text: string
   pending_classification: { label: 'Classifying', bg: '#F3E8FF', text: '#9333EA' },
 }
 
-const CATEGORY_ICONS: Record<string, string> = {
-  it: '🖥', hr: '👤', facilities: '🏢', finance: '💰',
-  operations: '⚙️', support: '💬', general: '📋',
+const CATEGORY_LABELS: Record<TicketCategory, string> = {
+  it: 'IT', hr: 'HR', facilities: 'Facilities', finance: 'Finance',
+  operations: 'Operations', support: 'Support', general: 'General',
 }
 
-function formatRelative(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime()
-  const h = Math.floor(diff / 3600000)
-  const d = Math.floor(diff / 86400000)
-  if (h < 1) return 'just now'
-  if (h < 24) return `${h}h ago`
-  return `${d}d ago`
+// ── Icons ─────────────────────────────────────────────────────────────────────
+
+function IconChevronNeutral() {
+  return <svg width="14" height="14" fill="none" stroke="#CBD5E1" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>
+}
+function IconChevronUp() {
+  return <svg width="14" height="14" fill="none" stroke="#028090" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 15l6-6 6 6" /></svg>
+}
+function IconChevronDown() {
+  return <svg width="14" height="14" fill="none" stroke="#028090" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 9l6 6 6-6" /></svg>
+}
+function IconEmptyTicket() {
+  return (
+    <svg width="48" height="48" fill="none" stroke="#CBD5E1" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+    </svg>
+  )
+}
+function IconIt() {
+  return (
+    <svg width="16" height="16" fill="none" stroke="#475569" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="13" rx="2" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 21h8M12 17v4" />
+    </svg>
+  )
+}
+function IconHr() {
+  return (
+    <svg width="16" height="16" fill="none" stroke="#475569" viewBox="0 0 24 24">
+      <circle cx="12" cy="8" r="3.5" strokeWidth={2} />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 20a7 7 0 0114 0" />
+    </svg>
+  )
+}
+function IconFacilities() {
+  return (
+    <svg width="16" height="16" fill="none" stroke="#475569" viewBox="0 0 24 24">
+      <rect x="4" y="3" width="16" height="18" rx="1" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 8h1m4 0h1M9 12h1m4 0h1M9 16h1m4 0h1" />
+    </svg>
+  )
+}
+function IconFinance() {
+  return (
+    <svg width="16" height="16" fill="none" stroke="#475569" viewBox="0 0 24 24">
+      <rect x="2.5" y="6" width="19" height="12" rx="2" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="12" cy="12" r="2.5" strokeWidth={2} />
+    </svg>
+  )
+}
+function IconOperations() {
+  return (
+    <svg width="16" height="16" fill="none" stroke="#475569" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  )
+}
+function IconSupport() {
+  return (
+    <svg width="16" height="16" fill="none" stroke="#475569" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+    </svg>
+  )
+}
+function IconGeneral() {
+  return (
+    <svg width="16" height="16" fill="none" stroke="#475569" viewBox="0 0 24 24">
+      <rect x="6" y="4" width="12" height="16" rx="2" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9h6M9 13h6M9 17h4" />
+    </svg>
+  )
+}
+
+const CATEGORY_ICON_MAP: Record<TicketCategory, () => ReactElement> = {
+  it: IconIt, hr: IconHr, facilities: IconFacilities, finance: IconFinance,
+  operations: IconOperations, support: IconSupport, general: IconGeneral,
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 function StatCard({ label, value, sub, subColor }: { label: string; value: string | number; sub: string; subColor?: string }) {
   return (
-    <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2E8F0', padding: '20px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-      <p style={{ fontSize: 13, color: '#475569', marginBottom: 4 }}>{label}</p>
-      <p style={{ fontSize: 28, fontWeight: 700, color: '#0F172A' }}>{value}</p>
+    <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2E8F0', padding: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.05)' }}>
+      <p style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 6 }}>{label}</p>
+      <p style={{ fontSize: 24, fontWeight: 600, color: '#0F172A' }}>{value}</p>
       <p style={{ fontSize: 12, color: subColor ?? '#16A34A', marginTop: 2 }}>{sub}</p>
     </div>
   )
@@ -80,32 +171,80 @@ function Avatar({ name }: { name: string }) {
   )
 }
 
+function Checkbox({ checked, onClick, ariaLabel }: { checked: boolean; onClick: () => void; ariaLabel: string }) {
+  return (
+    <div
+      role="checkbox"
+      aria-checked={checked}
+      aria-label={ariaLabel}
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() } }}
+      style={{
+        width: 15, height: 15, borderRadius: 4, cursor: 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        border: `2px solid ${checked ? '#028090' : '#CBD5E1'}`,
+        background: checked ? '#028090' : '#fff',
+        transition: 'background 0.15s, border-color 0.15s',
+      }}
+    >
+      {checked && (
+        <svg width="9" height="9" fill="none" stroke="#fff" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+        </svg>
+      )}
+    </div>
+  )
+}
+
+const TH_STYLE: CSSProperties = { padding: '10px 12px', textAlign: 'left', fontSize: 11, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }
+
+function SortableTh({ label, column, filters, onSort }: { label: string; column: TicketSortColumn; filters: TicketsFilters; onSort: (column: TicketSortColumn) => void }) {
+  const isActive = filters.sort === column
+  const Chevron = !isActive ? IconChevronNeutral : filters.direction === 'asc' ? IconChevronUp : IconChevronDown
+  return (
+    <th onClick={() => onSort(column)} style={{ ...TH_STYLE, cursor: 'pointer', userSelect: 'none' }}>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+        {label}
+        <Chevron />
+      </span>
+    </th>
+  )
+}
+
+const toolbarControlStyle: CSSProperties = {
+  background: 'rgba(255,255,255,0.08)', color: '#fff', border: '1px solid rgba(255,255,255,0.18)',
+  borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 500, cursor: 'pointer',
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 
-const STATUS_TABS = [
-  { key: '',            label: 'All Tickets' },
-  { key: 'open',        label: 'Open' },
-  { key: 'in_progress', label: 'In Progress' },
-  { key: 'pending',     label: 'Pending' },
-  { key: 'resolved',    label: 'Resolved' },
-]
-
-export default function TicketsIndex({ tickets, departments, stats, filters, pagination }: TicketsIndexProps) {
+export default function TicketsIndex({ tickets, departments, assignable_agents, stats, filters, pagination }: TicketsIndexProps) {
   const [activeTab, setActiveTab]       = useState(filters.status ?? '')
   const [searchQuery, setSearchQuery]   = useState(filters.q ?? '')
   const [selectedPriority, setPriority] = useState(filters.priority ?? '')
   const [selectedDept, setDept]         = useState(filters.department_id ?? '')
+  const [selectedIds, setSelectedIds]   = useState<Set<number>>(new Set())
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useActionCable({ channel: 'TicketsChannel' }, useCallback(() => {
     router.reload({ only: ['tickets', 'stats'] })
   }, []))
 
-  function applyFilters(overrides: Record<string, string> = {}) {
+  // Selection only makes sense against the tickets currently on screen — clear it whenever
+  // the list changes (filters, sort, pagination, ActionCable push, or a bulk action completing).
+  useEffect(() => {
+    setSelectedIds(new Set())
+  }, [tickets])
+
+  function applyFilters(overrides: Partial<TicketsFilters> = {}) {
     router.get('/tickets', {
       status:        overrides.status        ?? (activeTab || undefined),
       priority:      overrides.priority      ?? (selectedPriority || undefined),
       department_id: overrides.department_id ?? (selectedDept || undefined),
       q:             overrides.q             ?? (searchQuery || undefined),
+      sort:          overrides.sort          ?? filters.sort,
+      direction:     overrides.direction     ?? filters.direction,
     }, { preserveScroll: true, replace: true })
   }
 
@@ -114,13 +253,44 @@ export default function TicketsIndex({ tickets, departments, stats, filters, pag
     applyFilters({ status: key })
   }
 
-  const tabCounts: Record<string, number> = {
-    '': pagination.total_count,
-    open: stats.total_open,
-    in_progress: stats.in_progress,
-    pending: 0,
-    resolved: stats.resolved_today,
+  function handleSort(column: TicketSortColumn) {
+    const nextDirection: SortDirection = filters.sort === column && filters.direction === 'desc' ? 'asc' : 'desc'
+    applyFilters({ sort: column, direction: nextDirection })
   }
+
+  function toggleRow(id: number) {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id); else next.add(id)
+      return next
+    })
+  }
+
+  function toggleSelectAll() {
+    setSelectedIds(prev => prev.size === tickets.length ? new Set() : new Set(tickets.map(t => t.id)))
+  }
+
+  function runBulkAction(bulkAction: string, value?: string | number) {
+    setIsSubmitting(true)
+    router.patch('/tickets/bulk_update', {
+      bulk_action: bulkAction,
+      value,
+      ticket_ids: Array.from(selectedIds),
+    }, {
+      preserveScroll: true,
+      onFinish: () => setIsSubmitting(false),
+    })
+  }
+
+  const tabs = [
+    { key: '', label: 'All Tickets', count: pagination.total_count },
+    // Object.entries widens keys to string even though stats.by_status is typed Record<TicketStatus, number>.
+    ...(Object.entries(stats.by_status) as Array<[TicketStatus, number]>).map(([status, count]) => ({
+      key: status,
+      label: STATUS_CFG[status]?.label ?? humanizeStatus(status),
+      count,
+    })),
+  ]
 
   return (
     <AppLayout title="Tickets">
@@ -145,7 +315,7 @@ export default function TicketsIndex({ tickets, departments, stats, filters, pag
       </div>
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 24 }}>
         <StatCard label="Total Open"     value={stats.total_open}     sub={`+${stats.delta.total_open_today} today`} />
         <StatCard label="In Progress"    value={stats.in_progress}    sub={`↑ ${stats.delta.in_progress_vs_last_week} vs last week`} />
         <StatCard label="SLA Breached"   value={stats.sla_breached}   sub={`${stats.delta.sla_breached_critical} critical`} subColor="#EF4444" />
@@ -154,20 +324,19 @@ export default function TicketsIndex({ tickets, departments, stats, filters, pag
       </div>
 
       {/* Main card */}
-      <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+      <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
         {/* Tabs */}
         <div style={{ display: 'flex', borderBottom: '1px solid #E2E8F0', padding: '0 24px' }}>
-          {STATUS_TABS.map(tab => {
-            const count = tabCounts[tab.key] ?? 0
+          {tabs.map(tab => {
             const isActive = activeTab === tab.key
             return (
               <button key={tab.key} onClick={() => handleTabChange(tab.key)}
                 style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 4px', marginRight: 24, fontSize: 13, fontWeight: 500, border: 'none', background: 'none', cursor: 'pointer', borderBottom: isActive ? '2px solid #028090' : '2px solid transparent', color: isActive ? '#028090' : '#475569' }}
               >
                 {tab.label}
-                {count > 0 && (
+                {tab.count > 0 && (
                   <span style={{ fontSize: 11, padding: '1px 7px', borderRadius: 20, fontWeight: 600, background: isActive ? '#028090' : '#F1F5F9', color: isActive ? '#fff' : '#475569' }}>
-                    {count}
+                    {tab.count}
                   </span>
                 )}
               </button>
@@ -198,61 +367,133 @@ export default function TicketsIndex({ tickets, departments, stats, filters, pag
           </select>
         </div>
 
+        {/* Bulk actions toolbar */}
+        <AnimatePresence>
+          {selectedIds.size > 0 && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              style={{ overflow: 'hidden' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#0D1B2A', padding: '10px 16px' }}>
+                <span style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>{selectedIds.size} selected</span>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <select
+                    value=""
+                    disabled={isSubmitting}
+                    onChange={e => { if (e.target.value) runBulkAction('assign', Number(e.target.value)) }}
+                    style={toolbarControlStyle}
+                  >
+                    <option value="" disabled>Assign to...</option>
+                    {assignable_agents.map(a => <option key={a.id} value={a.id}>{a.full_name}</option>)}
+                  </select>
+                  <button onClick={() => runBulkAction('resolve')} disabled={isSubmitting} style={toolbarControlStyle}>
+                    Resolve
+                  </button>
+                  <select
+                    value=""
+                    disabled={isSubmitting}
+                    onChange={e => { if (e.target.value) runBulkAction('priority', e.target.value) }}
+                    style={toolbarControlStyle}
+                  >
+                    <option value="" disabled>Priority...</option>
+                    <option value="critical">Critical</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </select>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Table */}
         <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-          <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse' }}>
+          <table style={{ width: '100%', minWidth: '680px', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
-                {['ID', 'TITLE', 'CATEGORY', 'DEPARTMENT', 'STATUS', 'PRIORITY', 'ASSIGNEE', 'SLA', 'UPDATED'].map(h => (
-                  <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontSize: 11, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
+                <th style={{ padding: '10px 12px', width: 36 }} onClick={e => e.stopPropagation()}>
+                  <Checkbox
+                    checked={tickets.length > 0 && selectedIds.size === tickets.length}
+                    onClick={toggleSelectAll}
+                    ariaLabel="Select all tickets on this page"
+                  />
+                </th>
+                {['ID', 'TITLE', 'CATEGORY', 'DEPARTMENT', 'STATUS'].map(h => (
+                  <th key={h} style={TH_STYLE}>{h}</th>
                 ))}
+                <SortableTh label="PRIORITY" column="priority" filters={filters} onSort={handleSort} />
+                {['ASSIGNEE', 'SLA'].map(h => (
+                  <th key={h} style={TH_STYLE}>{h}</th>
+                ))}
+                <SortableTh label="UPDATED" column="updated_at" filters={filters} onSort={handleSort} />
               </tr>
             </thead>
             <tbody>
               {tickets.length === 0 ? (
-                <tr><td colSpan={9}><EmptyState icon="🎫" title="No tickets found" description="Try adjusting your filters or create a new ticket." action={{ label: 'New Ticket', onClick: () => router.get('/tickets/new') }} /></td></tr>
-              ) : tickets.map(ticket => (
-                <tr key={ticket.id} onClick={() => router.get(`/tickets/${ticket.id}`)}
-                  style={{ borderBottom: '1px solid #E2E8F0', cursor: 'pointer' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = '#F8FAFC')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                >
-                  <td style={{ padding: '14px 12px' }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: '#028090' }}>{ticket.ticket_number}</span>
-                  </td>
-                  <td style={{ padding: '14px 12px', maxWidth: 220 }}>
-                    <p style={{ fontSize: 13, fontWeight: 500, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ticket.title}</p>
-                    <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 2 }}>{ticket.created_by.full_name}</p>
-                  </td>
-                  <td style={{ padding: '14px 12px' }}>
-                    <span style={{ fontSize: 13, color: '#475569' }}>{CATEGORY_ICONS[ticket.category]} {ticket.category}</span>
-                  </td>
-                  <td style={{ padding: '14px 12px' }}>
-                    <span style={{ fontSize: 13, color: '#475569' }}>{ticket.department.name}</span>
-                  </td>
-                  <td style={{ padding: '14px 12px' }}><StatusBadge status={ticket.status} /></td>
-                  <td style={{ padding: '14px 12px' }}>
-                    <span style={{ fontSize: 13, fontWeight: 500, color: PRIORITY_CFG[ticket.priority]?.color }}>
-                      {PRIORITY_CFG[ticket.priority]?.label}
-                    </span>
-                  </td>
-                  <td style={{ padding: '14px 12px' }}>
-                    {ticket.assigned_to ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <Avatar name={ticket.assigned_to.full_name} />
-                        <span style={{ fontSize: 13, color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 80 }}>{ticket.assigned_to.full_name}</span>
-                      </div>
-                    ) : <span style={{ fontSize: 13, color: '#94A3B8', fontStyle: 'italic' }}>Unassigned</span>}
-                  </td>
-                  <td style={{ padding: '14px 12px' }}>{formatSlaTime(ticket.sla_remaining_seconds, ticket.sla_status)}</td>
-                  <td style={{ padding: '14px 12px' }}>
-                    <span style={{ fontSize: 13, color: '#94A3B8' }}>{formatRelative(ticket.updated_at)}</span>
-                  </td>
-                </tr>
-              ))}
+                <tr><td colSpan={10}><EmptyState icon={<IconEmptyTicket />} title="No tickets found" description="Try adjusting your filters or create a new ticket." action={{ label: 'New Ticket', onClick: () => router.get('/tickets/new') }} /></td></tr>
+              ) : (
+                <AnimatePresence>
+                  {tickets.map(ticket => {
+                    const CategoryIcon = CATEGORY_ICON_MAP[ticket.category] ?? IconGeneral
+                    return (
+                      <motion.tr key={ticket.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
+                        onClick={() => router.get(`/tickets/${ticket.id}`)}
+                        style={{ borderBottom: '1px solid #E2E8F0', cursor: 'pointer' }}
+                        onMouseEnter={e => (e.currentTarget.style.background = '#F8FAFC')}
+                        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                      >
+                        <td style={{ padding: '14px 12px' }} onClick={e => e.stopPropagation()}>
+                          <Checkbox checked={selectedIds.has(ticket.id)} onClick={() => toggleRow(ticket.id)} ariaLabel={`Select ticket ${ticket.ticket_number}`} />
+                        </td>
+                        <td style={{ padding: '14px 12px' }}>
+                          <span style={{ fontSize: 13, fontWeight: 600, color: '#028090' }}>{ticket.ticket_number}</span>
+                        </td>
+                        <td style={{ padding: '14px 12px', maxWidth: 220 }}>
+                          <p style={{ fontSize: 13, fontWeight: 500, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ticket.title}</p>
+                          <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 2 }}>{ticket.created_by.full_name}</p>
+                        </td>
+                        <td style={{ padding: '14px 12px' }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#475569' }}>
+                            <CategoryIcon />
+                            {CATEGORY_LABELS[ticket.category]}
+                          </span>
+                        </td>
+                        <td style={{ padding: '14px 12px' }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13, color: '#475569' }}>
+                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: ticket.department.color, flexShrink: 0 }} />
+                            {ticket.department.name}
+                          </span>
+                        </td>
+                        <td style={{ padding: '14px 12px' }}><StatusBadge status={ticket.status} /></td>
+                        <td style={{ padding: '14px 12px' }}>
+                          <span style={{ fontSize: 13, fontWeight: 500, color: PRIORITY_CFG[ticket.priority]?.color }}>
+                            {PRIORITY_CFG[ticket.priority]?.label}
+                          </span>
+                        </td>
+                        <td style={{ padding: '14px 12px' }}>
+                          {ticket.assigned_to ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <Avatar name={ticket.assigned_to.full_name} />
+                              <span style={{ fontSize: 13, color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 80 }}>{ticket.assigned_to.full_name}</span>
+                            </div>
+                          ) : <span style={{ fontSize: 13, color: '#94A3B8', fontStyle: 'italic' }}>Unassigned</span>}
+                        </td>
+                        <td style={{ padding: '14px 12px' }}>{formatSlaTime(ticket.sla_remaining_seconds, ticket.sla_status)}</td>
+                        <td style={{ padding: '14px 12px' }}>
+                          <span style={{ fontSize: 13, color: '#94A3B8' }}>{formatRelative(ticket.updated_at)}</span>
+                        </td>
+                      </motion.tr>
+                    )
+                  })}
+                </AnimatePresence>
+              )}
             </tbody>
           </table>
-          </div>
+        </div>
 
         {/* Pagination */}
         {pagination.total_pages > 1 && (
@@ -271,7 +512,7 @@ export default function TicketsIndex({ tickets, departments, stats, filters, pag
           </div>
         )}
       </div>
-    </ErrorBoundary>
+      </ErrorBoundary>
     </AppLayout>
   )
 }

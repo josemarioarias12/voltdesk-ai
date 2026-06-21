@@ -58,7 +58,7 @@ export interface Ticket {
   source: TicketSource
   urgency_score: number
   ai_metadata: AiMetadata | null
-  correction_rate: { category: string; times_corrected: number; total_in_workspace: number } | null
+  correction_rate: { category: string; times_corrected: number; total_in_workspace: number} | null
   due_at: string | null
   resolved_at: string | null
   created_at: string
@@ -89,9 +89,11 @@ export interface TicketActivity {
 export interface TicketStats {
   total_open: number
   in_progress: number
+  pending: number
   sla_breached: number
   resolved_today: number
   avg_response_hours: number
+  by_status: Record<TicketStatus, number>
   delta: {
     total_open_today: number
     in_progress_vs_last_week: number
@@ -107,16 +109,22 @@ export interface PaginationMeta {
   total_count: number
 }
 
+export type TicketSortColumn = 'priority' | 'updated_at'
+export type SortDirection = 'asc' | 'desc'
+
 export interface TicketsFilters {
   status?: string
   priority?: string
   department_id?: string
   q?: string
+  sort?: TicketSortColumn
+  direction?: SortDirection
 }
 
 export interface TicketsIndexProps {
   tickets: Ticket[]
   departments: Array<{ id: number; name: string }>
+  assignable_agents: Array<{ id: number; full_name: string }>
   stats: TicketStats
   filters: TicketsFilters
   pagination: PaginationMeta

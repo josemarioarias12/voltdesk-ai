@@ -37,6 +37,9 @@ Rails.application.routes.draw do
     member do
       post :resolve
     end
+    collection do
+      patch :bulk_update
+    end
     resources :comments, only: %i[create],
                          controller: 'ticket_comments',
                          as: :ticket_comments

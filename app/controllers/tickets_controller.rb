@@ -2,7 +2,7 @@
 
 class TicketsController < ApplicationController
   before_action :set_ticket, only: %i[show update resolve]
-
+  ALLOWED_SORT_COLUMNS = %w[priority updated_at].freeze
   def index
     authorize :ticket, :index?
 
@@ -10,11 +10,15 @@ class TicketsController < ApplicationController
               .includes(:department, :assigned_to, :created_by, :activities)
               .recent
               .then { |scope| apply_filters(scope) }
+              .then { |scope| apply_sort(scope) }
+
+    stats_result = Analytics::TicketIndexStats.call(workspace: current_workspace, scope: policy_scope(Ticket))
 
     render inertia: 'Tickets/Index', props: {
       tickets: serialize_tickets(tickets.limit(10).offset(page_offset)),
       departments: current_workspace.departments.ordered.map { |d| { id: d.id, name: d.name } },
-      stats: ticket_stats,
+      assignable_agents: assignable_agents_list,
+      stats: stats_result.data,
       filters: filter_params.to_h,
       pagination: pagination_meta(tickets)
     }
@@ -89,6 +93,27 @@ class TicketsController < ApplicationController
     end
   end
 
+  def bulk_update
+    authorize :ticket, :index?
+
+    result = Tickets::BulkUpdate.call(
+      workspace:  current_workspace,
+      user:       current_user,
+      ticket_ids: bulk_params[:ticket_ids],
+      action:     bulk_params[:bulk_action],
+      value:      bulk_params[:value]
+    )
+
+    if result.success?
+      message = "#{result.data[:updated_count]} ticket(s) updated."
+      skipped = result.data[:skipped_count]
+      message += " #{skipped} skipped (invalid status or permission)." if skipped.positive?
+      redirect_to tickets_path, notice: message
+    else
+      redirect_to tickets_path, alert: result.error
+    end
+  end
+
   private
 
   def set_ticket
@@ -104,8 +129,12 @@ activities: :user).find(params.expect(:id))
     params.expect(ticket: %i[title description priority status department_id assigned_to_id space_id])
   end
 
+  def bulk_params
+    params.permit(:bulk_action, :value, ticket_ids: [])
+  end
+
   def filter_params
-    params.permit(:status, :priority, :department_id, :q)
+    params.permit(:status, :priority, :department_id, :q, :sort, :direction)
   end
 
   def apply_filters(scope)
@@ -114,6 +143,20 @@ activities: :user).find(params.expect(:id))
     scope = scope.where(department_id: params[:department_id]) if params[:department_id].present?
     scope = scope.where('title ILIKE ?', "%#{params[:q]}%")    if params[:q].present?
     scope
+  end
+  def apply_sort(scope)
+    return scope unless ALLOWED_SORT_COLUMNS.include?(params[:sort])
+
+    direction = params[:direction] == 'asc' ? :asc : :desc
+    scope.reorder(params[:sort] => direction)
+  end
+
+  def assignable_agents_list
+    excluded_roles = User.roles.values_at('employee', 'guest')
+    current_workspace.users
+                      .where.not(role: excluded_roles)
+                      .order(:first_name, :last_name)
+                      .map { |u| { id: u.id, full_name: u.full_name } }
   end
 
   def page_offset
@@ -126,24 +169,6 @@ activities: :user).find(params.expect(:id))
       current_page: [params[:page].to_i, 1].max,
       total_pages: (total.to_f / 10).ceil,
       total_count: total
-    }
-  end
-
-  def ticket_stats
-    base = policy_scope(Ticket)
-    {
-      total_open: base.open_tickets.count,
-      in_progress: base.where(status: :in_progress).count,
-      sla_breached: base.sla_breached.count,
-      resolved_today: base.where(status: :resolved).where(resolved_at: Time.current.beginning_of_day..).count,
-      avg_response_hours: 1.4,
-      delta: {
-        total_open_today: base.where(created_at: Time.current.beginning_of_day..).count,
-        in_progress_vs_last_week: 5,
-        sla_breached_critical: base.sla_breached.where(priority: :critical).count,
-        resolved_today_vs_avg: 4,
-        avg_response_vs_avg_minutes: 18
-      }
     }
   end
 
