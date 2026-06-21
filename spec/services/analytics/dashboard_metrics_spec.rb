@@ -92,8 +92,18 @@ RSpec.describe Analytics::DashboardMetrics do
                            due_at: 1.hour.ago, resolved_at: Time.current)
       t1.update_columns(status: 4, resolved_at: t1.due_at - 1.minute)
       t2.update_columns(status: 4, resolved_at: t2.due_at + 1.hour)
+      result = described_class.call(user: user, workspace: workspace)
+      expect(result.data.dig(:kpis, :sla_compliance)).to eq(50.0)
+    end
+
+    it 'counts open tickets with a breached due_at as non-compliant, even when nothing is resolved yet' do
+      create(:ticket, workspace: workspace, created_by: user, status: :open,
+                       due_at: 1.hour.ago)
+      create(:ticket, workspace: workspace, created_by: user, status: :open,
+                       due_at: 1.hour.from_now)
 
       result = described_class.call(user: user, workspace: workspace)
+
       expect(result.data.dig(:kpis, :sla_compliance)).to eq(50.0)
     end
   end

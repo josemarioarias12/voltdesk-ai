@@ -104,11 +104,19 @@ module Analytics
     end
 
     def sla_compliance_percent(tickets)
-      resolved = tickets.where(status: %i[resolved closed])
-      return 100.0 if resolved.none?
+      with_deadline = tickets.where.not(due_at: nil)
+      return 100.0 if with_deadline.none?
 
-      on_time = resolved.where('resolved_at <= due_at').count
-      ((on_time.to_f / resolved.count) * 100).round(1)
+      breached_open = with_deadline.where(status: %i[open in_progress pending])
+                                   .where(due_at: ...Time.current)
+                                   .count
+      resolved      = with_deadline.where(status: %i[resolved closed])
+      late_resolved = resolved.where('resolved_at > due_at').count
+
+      total_with_deadline = with_deadline.count
+      non_compliant       = breached_open + late_resolved
+
+      (((total_with_deadline - non_compliant).to_f / total_with_deadline) * 100).round(1)
     end
 
     def avg_resolution_hours(tickets)
