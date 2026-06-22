@@ -38,7 +38,7 @@ const STATUS_CFG: Record<TicketStatus, { label: string; bg: string; text: string
   pending:                { label: 'Pending',     bg: '#FEFCE8', text: '#A16207', dot: '#EAB308' },
   resolved:               { label: 'Resolved',    bg: '#F0FDF4', text: '#15803D', dot: '#22C55E' },
   closed:                 { label: 'Closed',      bg: '#F8FAFC', text: '#475569', dot: '#94A3B8' },
-  pending_classification: { label: 'Classifying', bg: '#FAF5FF', text: '#7C3AED', dot: '#A855F7' },
+  pending_classification: { label: 'Classifying', bg: 'rgba(2,128,144,0.04)', text: '#028090', dot: '#02C39A' },
 }
 
 // ── Framer variants ───────────────────────────────────────────────────────────
@@ -96,24 +96,24 @@ function AiPipelineCard() {
   const progress = Math.round(((activeStep + 1) / PIPELINE_STEPS.length) * 100)
 
   return (
-    <motion.div variants={fadeUp} style={{ ...CARD, marginBottom: 10, borderLeft: '3px solid #7C3AED', overflow: 'hidden' }}>
+    <motion.div variants={fadeUp} style={{ ...CARD, marginBottom: 10, borderLeft: '3px solid #028090', overflow: 'hidden' }}>
       <div style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ position: 'relative', width: 8, height: 8 }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#7C3AED' }} />
-            <div style={{ position: 'absolute', inset: -3, borderRadius: '50%', border: '2px solid rgba(124,58,237,0.25)', animation: 'ping 1.8s ease-in-out infinite' }} />
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#028090' }} />
+            <div style={{ position: 'absolute', inset: -3, borderRadius: '50%', border: '2px solid rgba(2,128,144,0.25)', animation: 'ping 1.8s ease-in-out infinite' }} />
           </div>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#7C3AED' }}>AI Classification Pipeline</span>
-          <span style={{ fontSize: 10.5, padding: '2px 8px', borderRadius: 20, background: '#FAF5FF', color: '#7C3AED', border: '1px solid rgba(124,58,237,0.15)', fontWeight: 600 }}>GPT-4o</span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#028090' }}>AI Classification Pipeline</span>
+          <span style={{ fontSize: 10.5, padding: '2px 8px', borderRadius: 20, background: 'rgba(2,128,144,0.04)', color: '#028090', border: '1px solid rgba(2,128,144,0.15)', fontWeight: 600 }}>GPT-4o</span>
         </div>
         <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 600, fontFamily: 'monospace' }}>{activeStep + 1} / {PIPELINE_STEPS.length}</span>
       </div>
 
-      <div style={{ height: 2, background: 'rgba(124,58,237,0.08)', margin: '0 20px' }}>
+      <div style={{ height: 2, background: 'rgba(2,128,144,0.08)', margin: '0 20px' }}>
         <motion.div
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          style={{ height: '100%', background: '#7C3AED', borderRadius: 1 }}
+          style={{ height: '100%', background: '#028090', borderRadius: 1 }}
         />
       </div>
 
@@ -125,14 +125,14 @@ function AiPipelineCard() {
             <motion.div
               key={step.label}
               animate={{
-                background: current ? '#7C3AED' : done ? 'rgba(124,58,237,0.04)' : 'transparent',
+                background: current ? '#028090' : done ? 'rgba(2,128,144,0.04)' : 'transparent',
               }}
               transition={{ duration: 0.3 }}
               style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', borderRadius: 8 }}
             >
               <motion.div
                 animate={{
-                  background: done ? '#7C3AED' : current ? 'rgba(255,255,255,0.2)' : 'rgba(15,23,42,0.05)',
+                  background: done ? '#028090' : current ? 'rgba(255,255,255,0.2)' : 'rgba(15,23,42,0.05)',
                   scale: current ? 1.1 : 1,
                 }}
                 transition={{ duration: 0.3 }}
@@ -152,7 +152,7 @@ function AiPipelineCard() {
               </motion.div>
 
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 12, fontWeight: current ? 600 : 400, color: current ? '#fff' : done ? '#7C3AED' : '#94A3B8', lineHeight: 1.3 }}>
+                <p style={{ fontSize: 12, fontWeight: current ? 600 : 400, color: current ? '#fff' : done ? '#028090' : '#94A3B8', lineHeight: 1.3 }}>
                   {step.label}
                 </p>
                 <AnimatePresence>
