@@ -58,7 +58,7 @@ export interface Ticket {
   source: TicketSource
   urgency_score: number
   ai_metadata: AiMetadata | null
-  correction_rate: { category: string; times_corrected: number; total_in_workspace: number} | null
+  correction_rate: { category: string; times_corrected: number; total_in_workspace: number } | null
   due_at: string | null
   resolved_at: string | null
   created_at: string
@@ -130,6 +130,18 @@ export interface TicketsIndexProps {
   pagination: PaginationMeta
 }
 
+// AgentAction pending approval — propagated to Tickets/Show when human_in_the_loop is active
+export interface AgentActionPending {
+  id: number
+  action_type: string
+  status: string
+  confidence: number
+  ai_reasoning: string
+  similar_tickets: Array<{ id: number; title: string; similarity: number }>
+  top_similarity: number
+  created_at: string
+}
+
 export interface TicketsShowProps {
   ticket: Ticket & {
     comments: TicketComment[]
@@ -138,6 +150,7 @@ export interface TicketsShowProps {
   can_resolve: boolean
   can_assign: boolean
   can_internal: boolean
+  agent_action: AgentActionPending | null
 }
 
 export interface TicketsNewProps {

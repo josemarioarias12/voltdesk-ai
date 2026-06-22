@@ -28,10 +28,11 @@ class TicketsController < ApplicationController
     authorize @ticket
 
     render inertia: 'Tickets/Show', props: {
-      ticket: serialize_ticket_detail(@ticket),
-      can_resolve: policy(@ticket).resolve_ticket?,
-      can_assign: policy(@ticket).assign?,
-      can_internal: policy(@ticket).view_internal_comments?
+      ticket:       serialize_ticket_detail(@ticket),
+      can_resolve:  policy(@ticket).resolve_ticket?,
+      can_assign:   policy(@ticket).assign?,
+      can_internal: policy(@ticket).view_internal_comments?,
+      agent_action: serialize_pending_agent_action(@ticket)
     }
   end
 
@@ -239,5 +240,24 @@ user: user_stub(com.user) }
       .recent
       .limit(3)
       .map { |t| { id: t.id, ticket_number: t.ticket_number, title: t.title, status: t.status } }
+  end
+
+  def serialize_pending_agent_action(tkt)
+    action = AgentAction.where(ticket: tkt, status: AgentAction.statuses[:pending_approval])
+                        .order(created_at: :desc)
+                        .first
+    return nil unless action
+
+    result = action.result || {}
+    {
+      id:              action.id,
+      action_type:     action.action_type,
+      status:          action.status,
+      confidence:      action.confidence.to_f,
+      ai_reasoning:    result['ai_reasoning'].to_s,
+      similar_tickets: result['similar_tickets'] || [],
+      top_similarity:  result['top_similarity'].to_f,
+      created_at:      action.created_at.iso8601
+    }
   end
 end

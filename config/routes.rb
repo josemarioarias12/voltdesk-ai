@@ -104,6 +104,8 @@ Rails.application.routes.draw do
     member do
       patch :approve
       patch :reject
+      patch :ticket_approve
+      patch :ticket_reject
     end
   end
 
