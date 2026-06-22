@@ -202,6 +202,7 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
 
   return (
     <motion.div variants={fadeUp} style={{ ...CARD, marginBottom: 10, overflow: 'hidden' }}>
+      {/* Header */}
       <button
         onClick={() => setCollapsed(!collapsed)}
         style={{ width: '100%', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'none', border: 'none', cursor: 'pointer', borderBottom: collapsed ? 'none' : '1px solid rgba(15,23,42,0.05)' }}
@@ -217,11 +218,16 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
             <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>GPT-4o · {confidencePct}% confidence</p>
           </div>
         </div>
-        <motion.div animate={{ rotate: collapsed ? 0 : 180 }} transition={{ duration: 0.2 }}>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M3 5l4 4 4-4" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </motion.div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: isHigh ? '#F0FDF4' : '#FEF2F2', color: isHigh ? '#15803D' : '#DC2626', border: `1px solid ${isHigh ? 'rgba(21,128,61,0.15)' : 'rgba(220,38,38,0.15)'}` }}>
+            Conf. {confidence.toFixed(2)}
+          </span>
+          <motion.div animate={{ rotate: collapsed ? 0 : 180 }} transition={{ duration: 0.2 }}>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 5l4 4 4-4" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </motion.div>
+        </div>
       </button>
 
       <AnimatePresence initial={false}>
@@ -230,12 +236,15 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 0.28, ease: 'easeOut' }}
             style={{ overflow: 'hidden' }}
           >
-            <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                <div>
+            {/* Two-column layout: signals left, confidence right */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px', gap: 0 }}>
+
+              {/* Left — signals */}
+              <div style={{ padding: '16px 20px', borderRight: '1px solid rgba(15,23,42,0.05)' }}>
+                <div style={{ marginBottom: 16 }}>
                   <p style={{ ...LABEL, marginBottom: 8 }}>Category signals</p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
                     {category_signals.map((s, i) => (
@@ -245,11 +254,14 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: i * 0.05, duration: 0.2 }}
                         style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: 'rgba(2,128,144,0.07)', color: '#028090', border: '1px solid rgba(2,128,144,0.12)', fontWeight: 500 }}
-                      >{s}</motion.span>
+                      >
+                        {s}
+                      </motion.span>
                     ))}
                   </div>
                 </div>
-                <div>
+
+                <div style={{ marginBottom: 16 }}>
                   <p style={{ ...LABEL, marginBottom: 8 }}>Priority signals</p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
                     {priority_signals.map((s, i) => (
@@ -259,75 +271,89 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: i * 0.05 + 0.1, duration: 0.2 }}
                         style={{ fontSize: 11, padding: '3px 9px', borderRadius: 20, background: '#FFF7ED', border: '1px solid rgba(234,88,12,0.15)', color: '#C2410C', fontWeight: 500 }}
-                      >{s}</motion.span>
+                      >
+                        {s}
+                      </motion.span>
                     ))}
                   </div>
                 </div>
-              </div>
 
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <p style={LABEL}>Confidence score</p>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <motion.span
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                      style={{ fontSize: 22, fontWeight: 700, color: isHigh ? '#15803D' : '#DC2626', letterSpacing: '-0.02em', lineHeight: 1 }}
+                {/* Similar tickets list */}
+                {similar_ticket && (
+                  <div>
+                    <p style={{ ...LABEL, marginBottom: 8 }}>Similar tickets</p>
+                    <motion.div
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', borderRadius: 8, background: '#F8FAFC', border: '1px solid rgba(15,23,42,0.06)', cursor: 'pointer' }}
+                      onClick={() => router.get(`/tickets/${similar_ticket}`)}
                     >
-                      {confidencePct}%
-                    </motion.span>
-                    <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: isHigh ? '#F0FDF4' : '#FEF2F2', color: isHigh ? '#15803D' : '#DC2626', fontWeight: 600 }}>
-                      {isHigh ? 'High' : 'Low'}
-                    </span>
+                      <div style={{ minWidth: 0 }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#028090', fontFamily: 'monospace' }}>{similar_ticket}</span>
+                        <p style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>Similar issue — resolved</p>
+                      </div>
+                      <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#F0FDF4', color: '#15803D', border: '1px solid rgba(21,128,61,0.15)', flexShrink: 0, marginLeft: 8 }}>Resolved</span>
+                    </motion.div>
                   </div>
-                </div>
-                <div style={{ height: 5, background: '#F1F5F9', borderRadius: 3, overflow: 'hidden' }}>
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${confidencePct}%` }}
-                    transition={{ duration: 1, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.1 }}
-                    style={{ height: '100%', background: isHigh ? '#22C55E' : '#EF4444', borderRadius: 3 }}
-                  />
-                </div>
-                {!isHigh && (
-                  <motion.p
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                    style={{ fontSize: 11, color: '#DC2626', marginTop: 6, fontWeight: 500 }}
-                  >
-                    Manual review recommended — confidence below threshold
-                  </motion.p>
+                )}
+
+                {ticket.correction_rate && ticket.correction_rate.times_corrected > 0 && (
+                  <div style={{ marginTop: 14, padding: '9px 12px', borderRadius: 8, background: ticket.correction_rate.times_corrected > 5 ? '#FFFBEB' : '#F8FAFC', border: `1px solid ${ticket.correction_rate.times_corrected > 5 ? 'rgba(217,119,6,0.2)' : 'rgba(15,23,42,0.06)'}` }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: 11, color: '#475569' }}>
+                        Category <strong style={{ color: '#028090' }}>{ticket.correction_rate.category}</strong> corrected <strong>{ticket.correction_rate.times_corrected}×</strong>
+                      </span>
+                      {ticket.correction_rate.times_corrected > 5 && (
+                        <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: '#FEF3C7', color: '#D97706', flexShrink: 0, marginLeft: 8 }}>High rate</span>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
 
-              {similar_ticket && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderRadius: 8, background: '#F8FAFC', border: '1px solid rgba(15,23,42,0.06)' }}
-                >
-                  <div>
-                    <p style={{ ...LABEL, marginBottom: 3 }}>Similar ticket reference</p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: '#028090', fontFamily: 'monospace' }}>{similar_ticket}</span>
-                      <span style={{ fontSize: 12, color: '#64748B' }}>— Similar issue, resolved</span>
-                    </div>
-                  </div>
-                  <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: '#F0FDF4', color: '#15803D', border: '1px solid rgba(21,128,61,0.15)', flexShrink: 0 }}>Resolved</span>
-                </motion.div>
-              )}
+              {/* Right — confidence box (Banani style) */}
+              <div style={{ padding: '16px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: isHigh ? 'rgba(21,128,61,0.02)' : 'rgba(220,38,38,0.02)' }}>
+                <p style={{ ...LABEL, marginBottom: 12, textAlign: 'center' }}>Confidence</p>
 
-              {ticket.correction_rate && ticket.correction_rate.times_corrected > 0 && (
-                <div style={{ padding: '10px 14px', borderRadius: 8, background: ticket.correction_rate.times_corrected > 5 ? '#FFFBEB' : '#F8FAFC', border: `1px solid ${ticket.correction_rate.times_corrected > 5 ? 'rgba(217,119,6,0.2)' : 'rgba(15,23,42,0.06)'}` }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: 12, color: '#475569' }}>
-                      Category <strong style={{ color: '#028090' }}>{ticket.correction_rate.category}</strong> corrected <strong>{ticket.correction_rate.times_corrected}×</strong> in this workspace
-                    </span>
-                    {ticket.correction_rate.times_corrected > 5 && (
-                      <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#FEF3C7', color: '#D97706', flexShrink: 0, marginLeft: 8 }}>High rate</span>
-                    )}
-                  </div>
+                {/* Big number */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.6 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 280, damping: 18, delay: 0.1 }}
+                  style={{ textAlign: 'center', marginBottom: 10 }}
+                >
+                  <p style={{ fontSize: 36, fontWeight: 700, color: isHigh ? '#15803D' : '#DC2626', letterSpacing: '-0.03em', lineHeight: 1 }}>
+                    {confidence.toFixed(2)}
+                  </p>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: isHigh ? '#15803D' : '#DC2626', marginTop: 4 }}>
+                    {isHigh ? 'High Confidence' : 'Low Confidence'}
+                  </p>
+                </motion.div>
+
+                {/* Confidence bar */}
+                <div style={{ width: '100%', height: 5, background: 'rgba(15,23,42,0.06)', borderRadius: 3, overflow: 'hidden', marginBottom: 8 }}>
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${confidencePct}%` }}
+                    transition={{ duration: 1.2, ease: 'easeOut', delay: 0.15 }}
+                    style={{ height: '100%', background: isHigh ? '#22C55E' : '#EF4444', borderRadius: 3 }}
+                  />
                 </div>
-              )}
+
+                <p style={{ fontSize: 10.5, color: '#94A3B8', textAlign: 'center' }}>
+                  {confidencePct}% · {isHigh ? 'Auto-routing enabled' : 'Review recommended'}
+                </p>
+
+                {!isHigh && (
+                  <motion.div
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
+                    style={{ marginTop: 10, padding: '7px 10px', borderRadius: 7, background: '#FEF2F2', border: '1px solid rgba(220,38,38,0.15)', textAlign: 'center' }}
+                  >
+                    <p style={{ fontSize: 10.5, color: '#DC2626', fontWeight: 500 }}>Manual review recommended</p>
+                  </motion.div>
+                )}
+              </div>
             </div>
           </motion.div>
         )}
