@@ -628,7 +628,7 @@ export default function TicketsShow({
                 {ticket.priority}
               </span>
               <span style={{ marginLeft: 'auto', fontSize: 11, color: '#94A3B8', fontWeight: 500 }}>
-                {ticket.department.name} · {ticket.category}
+                {ticket.department.name} · {ticket.category.toUpperCase()}
               </span>
             </div>
             <h1 style={{ fontSize: 24, fontWeight: 700, color: '#0F172A', lineHeight: 1.25, letterSpacing: '-0.02em', marginBottom: 20 }}>
@@ -811,7 +811,7 @@ export default function TicketsShow({
             <p style={{ ...LABEL, marginBottom: 12 }}>Properties</p>
             {[
               { label: 'Department', value: ticket.department.name, color: undefined },
-              { label: 'Category',   value: ticket.category,       color: undefined, capitalize: true },
+              { label: 'Category',   value: ticket.category.toUpperCase(), color: undefined },
               { label: 'Priority',   value: ticket.priority,       color: priorityColor, capitalize: true },
               { label: 'Status',     value: statusCfg.label,       color: statusCfg.text },
               { label: 'Created',    value: new Date(ticket.created_at).toLocaleDateString(), color: '#94A3B8' },
