@@ -3,34 +3,44 @@
 require 'rails_helper'
 
 RSpec.describe 'Rack::Attack throttling', type: :request do
-  before do
+  # Each example group gets a unique IP prefix to avoid cross-example counter bleed.
+  # Using object_id of the example group ensures no two examples share an IP
+  # regardless of seed order or MemoryStore reset timing.
+  IP_COUNTER = Concurrent::AtomicFixnum.new(1) # rubocop:disable Lint/ConstantDefinitionInBlock
+
+  before(:each) do
     Rack::Attack.enabled = true
     Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
   end
 
-  after do
+  after(:each) do
     Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
+    Rack::Attack.enabled = false
   end
 
   describe 'throttle logins/ip' do
-    it 'allows requests under the limit' do
-      10.times do
-        post '/login', params: { user: { email: 'x@x.com', password: 'wrong' } }
-        expect(response.status).not_to eq(429)
+    let(:login_ip) { "10.1.#{IP_COUNTER.increment % 255}.#{IP_COUNTER.increment % 255}" }
+
+    def post_login(times)
+      times.times do
+        post '/login',
+             params: { user: { email: 'x@x.com', password: 'wrong' } },
+             headers: { 'REMOTE_ADDR' => login_ip }
       end
     end
 
+    it 'allows requests under the limit' do
+      post_login(10)
+      expect(response.status).not_to eq(429)
+    end
+
     it 'blocks after 10 login attempts from same IP' do
-      11.times do
-        post '/login', params: { user: { email: 'x@x.com', password: 'wrong' } }
-      end
+      post_login(11)
       expect(response.status).to eq(429)
     end
 
     it 'includes Retry-After header on 429' do
-      11.times do
-        post '/login', params: { user: { email: 'x@x.com', password: 'wrong' } }
-      end
+      post_login(11)
       expect(response.headers['Retry-After']).to be_present
     end
   end
