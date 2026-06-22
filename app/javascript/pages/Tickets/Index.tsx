@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import type { CSSProperties, ReactElement } from 'react'
 import { router } from '@inertiajs/react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -217,6 +217,76 @@ const toolbarControlStyle: CSSProperties = {
   borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 500, cursor: 'pointer',
 }
 
+/// ── Pattern Alert Banner ──────────────────────────────────────────────────────
+
+interface PatternAlertPayload {
+  type: string
+  alert_id: number
+  title: string
+  severity: string
+  description: string
+  created_at: string
+}
+
+function PatternAlertBanner({ alert, onDismiss }: { alert: PatternAlertPayload; onDismiss: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -12 }}
+      transition={{ duration: 0.2 }}
+      style={{
+        display: 'flex', alignItems: 'flex-start', gap: 12,
+        padding: '14px 20px',
+        background: 'linear-gradient(135deg, #0D1B2A 0%, #1a2f45 100%)',
+        border: '1px solid rgba(239,68,68,0.3)',
+        borderRadius: 12,
+        marginBottom: 16,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1), 0 4px 16px rgba(239,68,68,0.1)',
+      }}
+    >
+      {/* Pulsing dot */}
+      <div style={{ paddingTop: 2, flexShrink: 0 }}>
+        <div style={{ position: 'relative', width: 10, height: 10 }}>
+          <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#EF4444' }} />
+          <div style={{
+            position: 'absolute', inset: -3, borderRadius: '50%',
+            border: '2px solid rgba(239,68,68,0.4)',
+            animation: 'ping 1.5s ease-in-out infinite',
+          }} />
+        </div>
+      </div>
+
+      {/* Content */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            Pattern Detected
+          </span>
+          <span style={{ fontSize: 11, padding: '1px 8px', borderRadius: 20, background: 'rgba(239,68,68,0.15)', color: '#FCA5A5', fontWeight: 600 }}>
+            {alert.severity.toUpperCase()}
+          </span>
+        </div>
+        <p style={{ fontSize: 13, fontWeight: 600, color: '#fff', marginBottom: 3 }}>{alert.title}</p>
+        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>{alert.description}</p>
+      </div>
+
+      {/* Actions */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+        <button
+          onClick={onDismiss}
+          style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: 18, lineHeight: 1, padding: '0 4px' }}
+          aria-label="Dismiss pattern alert"
+        >
+          ×
+        </button>
+      </div>
+
+      <style>{`@keyframes ping { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.6);opacity:0} }`}</style>
+    </motion.div>
+  )
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 export default function TicketsIndex({ tickets, departments, assignable_agents, stats, filters, pagination }: TicketsIndexProps) {
@@ -226,13 +296,22 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
   const [selectedDept, setDept]         = useState(filters.department_id ?? '')
   const [selectedIds, setSelectedIds]   = useState<Set<number>>(new Set())
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [patternAlert, setPatternAlert] = useState<PatternAlertPayload | null>(null)
+  const alertShownIds                   = useRef<Set<number>>(new Set())
 
   useActionCable({ channel: 'TicketsChannel' }, useCallback(() => {
     router.reload({ only: ['tickets', 'stats'] })
   }, []))
 
-  // Selection only makes sense against the tickets currently on screen — clear it whenever
-  // the list changes (filters, sort, pagination, ActionCable push, or a bulk action completing).
+  useActionCable({ channel: 'WorkspaceChannel' }, useCallback((data: Record<string, unknown>) => {
+    if (data.type !== 'pattern_alert') return
+    const alert = data as unknown as PatternAlertPayload
+    // Deduplicate — same alert_id must not flash twice in the same session
+    if (alertShownIds.current.has(alert.alert_id)) return
+    alertShownIds.current.add(alert.alert_id)
+    setPatternAlert(alert)
+  }, []))
+
   useEffect(() => {
     setSelectedIds(new Set())
   }, [tickets])
@@ -284,7 +363,6 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
 
   const tabs = [
     { key: '', label: 'All Tickets', count: pagination.total_count },
-    // Object.entries widens keys to string even though stats.by_status is typed Record<TicketStatus, number>.
     ...(Object.entries(stats.by_status) as Array<[TicketStatus, number]>).map(([status, count]) => ({
       key: status,
       label: STATUS_CFG[status]?.label ?? humanizeStatus(status),
@@ -295,223 +373,233 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
   return (
     <AppLayout title="Tickets">
       <ErrorBoundary section="Tickets">
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
-        <div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A' }}>Tickets</h1>
-          <p style={{ fontSize: 13, color: '#475569', marginTop: 2 }}>Manage and track support, IT, HR, and operations requests</p>
-        </div>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', border: '1px solid #E2E8F0', borderRadius: 10, fontSize: 13, color: '#475569', background: '#fff', cursor: 'pointer' }}>
-            Export
-          </button>
-          <button
-            onClick={() => router.get('/tickets/new')}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: '#028090', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer' }}
-          >
-            + New Ticket
-          </button>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 24 }}>
-        <StatCard label="Total Open"     value={stats.total_open}     sub={`+${stats.delta.total_open_today} today`} />
-        <StatCard label="In Progress"    value={stats.in_progress}    sub={`↑ ${stats.delta.in_progress_vs_last_week} vs last week`} />
-        <StatCard label="SLA Breached"   value={stats.sla_breached}   sub={`${stats.delta.sla_breached_critical} critical`} subColor="#EF4444" />
-        <StatCard label="Resolved Today" value={stats.resolved_today} sub={`+${stats.delta.resolved_today_vs_avg} vs avg`} />
-        <StatCard label="Avg Response"   value={`${stats.avg_response_hours}h`} sub={`↓ ${Math.abs(stats.delta.avg_response_vs_avg_minutes)} min vs avg`} />
-      </div>
-
-      {/* Main card */}
-      <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
-        {/* Tabs */}
-        <div style={{ display: 'flex', borderBottom: '1px solid #E2E8F0', padding: '0 24px' }}>
-          {tabs.map(tab => {
-            const isActive = activeTab === tab.key
-            return (
-              <button key={tab.key} onClick={() => handleTabChange(tab.key)}
-                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 4px', marginRight: 24, fontSize: 13, fontWeight: 500, border: 'none', background: 'none', cursor: 'pointer', borderBottom: isActive ? '2px solid #028090' : '2px solid transparent', color: isActive ? '#028090' : '#475569' }}
-              >
-                {tab.label}
-                {tab.count > 0 && (
-                  <span style={{ fontSize: 11, padding: '1px 7px', borderRadius: 20, fontWeight: 600, background: isActive ? '#028090' : '#F1F5F9', color: isActive ? '#fff' : '#475569' }}>
-                    {tab.count}
-                  </span>
-                )}
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Filters */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 24px', borderBottom: '1px solid #E2E8F0' }}>
-          <input
-            type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && applyFilters()}
-            placeholder="Search tickets..."
-            style={{ padding: '8px 14px', border: '1px solid #E2E8F0', borderRadius: 10, fontSize: 13, color: '#0F172A', width: 220, outline: 'none' }}
-          />
-          <select value={selectedDept} onChange={e => { setDept(e.target.value); applyFilters({ department_id: e.target.value }) }}
-            style={{ padding: '8px 12px', border: '1px solid #E2E8F0', borderRadius: 10, fontSize: 13, color: '#475569', background: '#fff' }}>
-            <option value="">Category</option>
-            {departments.map(d => <option key={d.id} value={String(d.id)}>{d.name}</option>)}
-          </select>
-          <select value={selectedPriority} onChange={e => { setPriority(e.target.value); applyFilters({ priority: e.target.value }) }}
-            style={{ padding: '8px 12px', border: '1px solid #E2E8F0', borderRadius: 10, fontSize: 13, color: '#475569', background: '#fff' }}>
-            <option value="">Priority</option>
-            <option value="critical">Critical</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
-        </div>
-
-        {/* Bulk actions toolbar */}
-        <AnimatePresence>
-          {selectedIds.size > 0 && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              style={{ overflow: 'hidden' }}
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+          <div>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A' }}>Tickets</h1>
+            <p style={{ fontSize: 13, color: '#475569', marginTop: 2 }}>Manage and track support, IT, HR, and operations requests</p>
+          </div>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', border: '1px solid rgba(15,23,42,0.12)', borderRadius: 8, fontSize: 13, color: '#475569', background: '#fff', cursor: 'pointer' }}>
+              Export
+            </button>
+            <button
+              onClick={() => router.get('/tickets/new')}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: '#028090', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer' }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#0D1B2A', padding: '10px 16px' }}>
-                <span style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>{selectedIds.size} selected</span>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <select
-                    value=""
-                    disabled={isSubmitting}
-                    onChange={e => { if (e.target.value) runBulkAction('assign', Number(e.target.value)) }}
-                    style={toolbarControlStyle}
-                  >
-                    <option value="" disabled>Assign to...</option>
-                    {assignable_agents.map(a => <option key={a.id} value={a.id}>{a.full_name}</option>)}
-                  </select>
-                  <button onClick={() => runBulkAction('resolve')} disabled={isSubmitting} style={toolbarControlStyle}>
-                    Resolve
-                  </button>
-                  <select
-                    value=""
-                    disabled={isSubmitting}
-                    onChange={e => { if (e.target.value) runBulkAction('priority', e.target.value) }}
-                    style={toolbarControlStyle}
-                  >
-                    <option value="" disabled>Priority...</option>
-                    <option value="critical">Critical</option>
-                    <option value="high">High</option>
-                    <option value="medium">Medium</option>
-                    <option value="low">Low</option>
-                  </select>
-                </div>
-              </div>
-            </motion.div>
+              + New Ticket
+            </button>
+          </div>
+        </div>
+
+        {/* Pattern Alert Banner */}
+        <AnimatePresence>
+          {patternAlert && (
+            <PatternAlertBanner
+              alert={patternAlert}
+              onDismiss={() => setPatternAlert(null)}
+            />
           )}
         </AnimatePresence>
 
-        {/* Table */}
-        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-          <table style={{ width: '100%', minWidth: '680px', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
-                <th style={{ padding: '10px 12px', width: 36 }} onClick={e => e.stopPropagation()}>
-                  <Checkbox
-                    checked={tickets.length > 0 && selectedIds.size === tickets.length}
-                    onClick={toggleSelectAll}
-                    ariaLabel="Select all tickets on this page"
-                  />
-                </th>
-                {['ID', 'TITLE', 'CATEGORY', 'DEPARTMENT', 'STATUS'].map(h => (
-                  <th key={h} style={TH_STYLE}>{h}</th>
-                ))}
-                <SortableTh label="PRIORITY" column="priority" filters={filters} onSort={handleSort} />
-                {['ASSIGNEE', 'SLA'].map(h => (
-                  <th key={h} style={TH_STYLE}>{h}</th>
-                ))}
-                <SortableTh label="UPDATED" column="updated_at" filters={filters} onSort={handleSort} />
-              </tr>
-            </thead>
-            <tbody>
-              {tickets.length === 0 ? (
-                <tr><td colSpan={10}><EmptyState icon={<IconEmptyTicket />} title="No tickets found" description="Try adjusting your filters or create a new ticket." action={{ label: 'New Ticket', onClick: () => router.get('/tickets/new') }} /></td></tr>
-              ) : (
-                <AnimatePresence>
-                  {tickets.map(ticket => {
-                    const CategoryIcon = CATEGORY_ICON_MAP[ticket.category] ?? IconGeneral
-                    return (
-                      <motion.tr key={ticket.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
-                        onClick={() => router.get(`/tickets/${ticket.id}`)}
-                        style={{ borderBottom: '1px solid #E2E8F0', cursor: 'pointer' }}
-                        onMouseEnter={e => (e.currentTarget.style.background = '#F8FAFC')}
-                        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                      >
-                        <td style={{ padding: '14px 12px' }} onClick={e => e.stopPropagation()}>
-                          <Checkbox checked={selectedIds.has(ticket.id)} onClick={() => toggleRow(ticket.id)} ariaLabel={`Select ticket ${ticket.ticket_number}`} />
-                        </td>
-                        <td style={{ padding: '14px 12px' }}>
-                          <span style={{ fontSize: 13, fontWeight: 600, color: '#028090' }}>{ticket.ticket_number}</span>
-                        </td>
-                        <td style={{ padding: '14px 12px', maxWidth: 220 }}>
-                          <p style={{ fontSize: 13, fontWeight: 500, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ticket.title}</p>
-                          <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 2 }}>{ticket.created_by.full_name}</p>
-                        </td>
-                        <td style={{ padding: '14px 12px' }}>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#475569' }}>
-                            <CategoryIcon />
-                            {CATEGORY_LABELS[ticket.category]}
-                          </span>
-                        </td>
-                        <td style={{ padding: '14px 12px' }}>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13, color: '#475569' }}>
-                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: ticket.department.color, flexShrink: 0 }} />
-                            {ticket.department.name}
-                          </span>
-                        </td>
-                        <td style={{ padding: '14px 12px' }}><StatusBadge status={ticket.status} /></td>
-                        <td style={{ padding: '14px 12px' }}>
-                          <span style={{ fontSize: 13, fontWeight: 500, color: PRIORITY_CFG[ticket.priority]?.color }}>
-                            {PRIORITY_CFG[ticket.priority]?.label}
-                          </span>
-                        </td>
-                        <td style={{ padding: '14px 12px' }}>
-                          {ticket.assigned_to ? (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <Avatar name={ticket.assigned_to.full_name} />
-                              <span style={{ fontSize: 13, color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 80 }}>{ticket.assigned_to.full_name}</span>
-                            </div>
-                          ) : <span style={{ fontSize: 13, color: '#94A3B8', fontStyle: 'italic' }}>Unassigned</span>}
-                        </td>
-                        <td style={{ padding: '14px 12px' }}>{formatSlaTime(ticket.sla_remaining_seconds, ticket.sla_status)}</td>
-                        <td style={{ padding: '14px 12px' }}>
-                          <span style={{ fontSize: 13, color: '#94A3B8' }}>{formatRelative(ticket.updated_at)}</span>
-                        </td>
-                      </motion.tr>
-                    )
-                  })}
-                </AnimatePresence>
-              )}
-            </tbody>
-          </table>
+        {/* Stats */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 24 }}>
+          <StatCard label="Total Open"     value={stats.total_open}     sub={`+${stats.delta.total_open_today} today`} />
+          <StatCard label="In Progress"    value={stats.in_progress}    sub={`↑ ${stats.delta.in_progress_vs_last_week} vs last week`} />
+          <StatCard label="SLA Breached"   value={stats.sla_breached}   sub={`${stats.delta.sla_breached_critical} critical`} subColor="#EF4444" />
+          <StatCard label="Resolved Today" value={stats.resolved_today} sub={`+${stats.delta.resolved_today_vs_avg} vs avg`} />
+          <StatCard label="Avg Response"   value={`${stats.avg_response_hours}h`} sub={`↓ ${Math.abs(stats.delta.avg_response_vs_avg_minutes)} min vs avg`} />
         </div>
 
-        {/* Pagination */}
-        {pagination.total_pages > 1 && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 24px', borderTop: '1px solid #E2E8F0' }}>
-            <p style={{ fontSize: 13, color: '#475569' }}>
-              Showing {((pagination.current_page - 1) * 10) + 1}–{Math.min(pagination.current_page * 10, pagination.total_count)} of {pagination.total_count} tickets
-            </p>
-            <div style={{ display: 'flex', gap: 4 }}>
-              {Array.from({ length: Math.min(pagination.total_pages, 10) }, (_, i) => i + 1).map(page => (
-                <button key={page} onClick={() => router.get('/tickets', { ...filters, page })}
-                  style={{ width: 32, height: 32, borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: page === pagination.current_page ? 600 : 400, background: page === pagination.current_page ? '#028090' : 'transparent', color: page === pagination.current_page ? '#fff' : '#475569' }}>
-                  {page}
+        {/* Main card */}
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(15,23,42,0.08)', boxShadow: '0 1px 3px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+          {/* Tabs */}
+          <div style={{ display: 'flex', borderBottom: '1px solid rgba(15,23,42,0.06)', padding: '0 24px' }}>
+            {tabs.map(tab => {
+              const isActive = activeTab === tab.key
+              return (
+                <button key={tab.key} onClick={() => handleTabChange(tab.key)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 4px', marginRight: 24, fontSize: 13, fontWeight: 500, border: 'none', background: 'none', cursor: 'pointer', borderBottom: isActive ? '2px solid #028090' : '2px solid transparent', color: isActive ? '#028090' : '#475569', transition: 'color 120ms ease' }}
+                >
+                  {tab.label}
+                  {tab.count > 0 && (
+                    <span style={{ fontSize: 11, padding: '1px 7px', borderRadius: 20, fontWeight: 600, background: isActive ? '#028090' : '#F1F5F9', color: isActive ? '#fff' : '#475569' }}>
+                      {tab.count}
+                    </span>
+                  )}
                 </button>
-              ))}
-            </div>
+              )
+            })}
           </div>
-        )}
-      </div>
+
+          {/* Filters */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 24px', borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
+            <input
+              type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && applyFilters()}
+              placeholder="Search tickets..."
+              style={{ padding: '7px 14px', border: '1px solid rgba(15,23,42,0.12)', borderRadius: 8, fontSize: 13, color: '#0F172A', width: 220, outline: 'none' }}
+            />
+            <select value={selectedDept} onChange={e => { setDept(e.target.value); applyFilters({ department_id: e.target.value }) }}
+              style={{ padding: '7px 12px', border: '1px solid rgba(15,23,42,0.12)', borderRadius: 8, fontSize: 13, color: '#475569', background: '#fff' }}>
+              <option value="">Category</option>
+              {departments.map(d => <option key={d.id} value={String(d.id)}>{d.name}</option>)}
+            </select>
+            <select value={selectedPriority} onChange={e => { setPriority(e.target.value); applyFilters({ priority: e.target.value }) }}
+              style={{ padding: '7px 12px', border: '1px solid rgba(15,23,42,0.12)', borderRadius: 8, fontSize: 13, color: '#475569', background: '#fff' }}>
+              <option value="">Priority</option>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+
+          {/* Bulk actions toolbar */}
+          <AnimatePresence>
+            {selectedIds.size > 0 && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                style={{ overflow: 'hidden' }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#0D1B2A', padding: '10px 16px' }}>
+                  <span style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>{selectedIds.size} selected</span>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <select
+                      value=""
+                      disabled={isSubmitting}
+                      onChange={e => { if (e.target.value) runBulkAction('assign', Number(e.target.value)) }}
+                      style={toolbarControlStyle}
+                    >
+                      <option value="" disabled>Assign to...</option>
+                      {assignable_agents.map(a => <option key={a.id} value={a.id}>{a.full_name}</option>)}
+                    </select>
+                    <button onClick={() => runBulkAction('resolve')} disabled={isSubmitting} style={toolbarControlStyle}>
+                      Resolve
+                    </button>
+                    <select
+                      value=""
+                      disabled={isSubmitting}
+                      onChange={e => { if (e.target.value) runBulkAction('priority', e.target.value) }}
+                      style={toolbarControlStyle}
+                    >
+                      <option value="" disabled>Priority...</option>
+                      <option value="critical">Critical</option>
+                      <option value="high">High</option>
+                      <option value="medium">Medium</option>
+                      <option value="low">Low</option>
+                    </select>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Table */}
+          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+            <table style={{ width: '100%', minWidth: '680px', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
+                  <th style={{ padding: '10px 12px', width: 36 }} onClick={e => e.stopPropagation()}>
+                    <Checkbox
+                      checked={tickets.length > 0 && selectedIds.size === tickets.length}
+                      onClick={toggleSelectAll}
+                      ariaLabel="Select all tickets on this page"
+                    />
+                  </th>
+                  {['ID', 'TITLE', 'CATEGORY', 'DEPARTMENT', 'STATUS'].map(h => (
+                    <th key={h} style={TH_STYLE}>{h}</th>
+                  ))}
+                  <SortableTh label="PRIORITY" column="priority" filters={filters} onSort={handleSort} />
+                  {['ASSIGNEE', 'SLA'].map(h => (
+                    <th key={h} style={TH_STYLE}>{h}</th>
+                  ))}
+                  <SortableTh label="UPDATED" column="updated_at" filters={filters} onSort={handleSort} />
+                </tr>
+              </thead>
+              <tbody>
+                {tickets.length === 0 ? (
+                  <tr><td colSpan={10}><EmptyState icon={<IconEmptyTicket />} title="No tickets found" description="Try adjusting your filters or create a new ticket." action={{ label: 'New Ticket', onClick: () => router.get('/tickets/new') }} /></td></tr>
+                ) : (
+                  <AnimatePresence>
+                    {tickets.map(ticket => {
+                      const CategoryIcon = CATEGORY_ICON_MAP[ticket.category] ?? IconGeneral
+                      return (
+                        <motion.tr key={ticket.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
+                          onClick={() => router.get(`/tickets/${ticket.id}`)}
+                          style={{ borderBottom: '1px solid rgba(15,23,42,0.05)', cursor: 'pointer' }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.background = '#F8FAFC' }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = 'transparent' }}
+                        >
+                          <td style={{ padding: '14px 12px' }} onClick={e => e.stopPropagation()}>
+                            <Checkbox checked={selectedIds.has(ticket.id)} onClick={() => toggleRow(ticket.id)} ariaLabel={`Select ticket ${ticket.ticket_number}`} />
+                          </td>
+                          <td style={{ padding: '14px 12px' }}>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: '#028090', fontFamily: 'monospace' }}>{ticket.ticket_number}</span>
+                          </td>
+                          <td style={{ padding: '14px 12px', maxWidth: 220 }}>
+                            <p style={{ fontSize: 13, fontWeight: 500, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ticket.title}</p>
+                            <p style={{ fontSize: 12, color: '#A3ACBA', marginTop: 2 }}>{ticket.created_by.full_name}</p>
+                          </td>
+                          <td style={{ padding: '14px 12px' }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#475569' }}>
+                              <CategoryIcon />
+                              {CATEGORY_LABELS[ticket.category]}
+                            </span>
+                          </td>
+                          <td style={{ padding: '14px 12px' }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13, color: '#475569' }}>
+                              <span style={{ width: 8, height: 8, borderRadius: '50%', background: ticket.department.color, flexShrink: 0 }} />
+                              {ticket.department.name}
+                            </span>
+                          </td>
+                          <td style={{ padding: '14px 12px' }}><StatusBadge status={ticket.status} /></td>
+                          <td style={{ padding: '14px 12px' }}>
+                            <span style={{ fontSize: 13, fontWeight: 500, color: PRIORITY_CFG[ticket.priority]?.color }}>
+                              {PRIORITY_CFG[ticket.priority]?.label}
+                            </span>
+                          </td>
+                          <td style={{ padding: '14px 12px' }}>
+                            {ticket.assigned_to ? (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <Avatar name={ticket.assigned_to.full_name} />
+                                <span style={{ fontSize: 13, color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 80 }}>{ticket.assigned_to.full_name}</span>
+                              </div>
+                            ) : <span style={{ fontSize: 13, color: '#A3ACBA', fontStyle: 'italic' }}>Unassigned</span>}
+                          </td>
+                          <td style={{ padding: '14px 12px' }}>{formatSlaTime(ticket.sla_remaining_seconds, ticket.sla_status)}</td>
+                          <td style={{ padding: '14px 12px' }}>
+                            <span style={{ fontSize: 13, color: '#A3ACBA' }}>{formatRelative(ticket.updated_at)}</span>
+                          </td>
+                        </motion.tr>
+                      )
+                    })}
+                  </AnimatePresence>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          {pagination.total_pages > 1 && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 24px', borderTop: '1px solid rgba(15,23,42,0.06)' }}>
+              <p style={{ fontSize: 13, color: '#475569' }}>
+                Showing {((pagination.current_page - 1) * 10) + 1}–{Math.min(pagination.current_page * 10, pagination.total_count)} of {pagination.total_count} tickets
+              </p>
+              <div style={{ display: 'flex', gap: 4 }}>
+                {Array.from({ length: Math.min(pagination.total_pages, 10) }, (_, i) => i + 1).map(page => (
+                  <button key={page} onClick={() => router.get('/tickets', { ...filters, page })}
+                    style={{ width: 32, height: 32, borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: page === pagination.current_page ? 600 : 400, background: page === pagination.current_page ? '#028090' : 'transparent', color: page === pagination.current_page ? '#fff' : '#475569' }}>
+                    {page}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </ErrorBoundary>
     </AppLayout>
   )
