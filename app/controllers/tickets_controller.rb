@@ -144,6 +144,7 @@ activities: :user).find(params.expect(:id))
     scope = scope.where('title ILIKE ?', "%#{params[:q]}%")    if params[:q].present?
     scope
   end
+
   def apply_sort(scope)
     return scope unless ALLOWED_SORT_COLUMNS.include?(params[:sort])
 
@@ -154,9 +155,9 @@ activities: :user).find(params.expect(:id))
   def assignable_agents_list
     excluded_roles = User.roles.values_at('employee', 'guest')
     current_workspace.users
-                      .where.not(role: excluded_roles)
-                      .order(:first_name, :last_name)
-                      .map { |u| { id: u.id, full_name: u.full_name } }
+                     .where.not(role: excluded_roles)
+                     .order(:first_name, :last_name)
+                     .map { |u| { id: u.id, full_name: u.full_name } }
   end
 
   def page_offset

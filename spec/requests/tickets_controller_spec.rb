@@ -17,10 +17,10 @@ RSpec.describe TicketsController, type: :request do
     end
 
     it 'returns tickets, departments, assignable_agents, and stats props' do
-        get tickets_path, headers: inertia_headers
-        json = response.parsed_body
-        expect(json['props']).to include('tickets', 'departments', 'assignable_agents', 'stats')
-      end
+      get tickets_path, headers: inertia_headers
+      json = response.parsed_body
+      expect(json['props']).to include('tickets', 'departments', 'assignable_agents', 'stats')
+    end
 
     it 'does not return tickets from other workspaces' do
       other_ws   = create(:workspace)
@@ -203,14 +203,14 @@ RSpec.describe TicketsController, type: :request do
 
     it 'orders by priority descending by default direction' do
       get tickets_path, params: { sort: 'priority' }, headers: inertia_headers
-      ids = response.parsed_body['props']['tickets'].map { |t| t['id'] }
+      ids = response.parsed_body['props']['tickets'].pluck('id')
 
       expect(ids.index(critical_ticket.id)).to be < ids.index(low_ticket.id)
     end
 
     it 'orders by priority ascending when direction=asc' do
       get tickets_path, params: { sort: 'priority', direction: 'asc' }, headers: inertia_headers
-      ids = response.parsed_body['props']['tickets'].map { |t| t['id'] }
+      ids = response.parsed_body['props']['tickets'].pluck('id')
 
       expect(ids.index(low_ticket.id)).to be < ids.index(critical_ticket.id)
     end
