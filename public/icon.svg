@@ -1,4 +1,1 @@
-<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" rx="96" fill="#028090"/>
-  <path d="M296 80L176 284h144L200 432l216-224H272L296 80z" fill="#ffffff"/>
-</svg>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><rect width="512" height="512" rx="112" fill="#0D1B2A"/><polyline points="304,64 192,272 264,272 208,448 368,208 288,208 304,64" fill="none" stroke="#02C39A" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/></svg>
