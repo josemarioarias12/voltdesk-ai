@@ -235,7 +235,7 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
               <motion.div key="voice-panel"
                 initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.18 }}>
-                <div style={{ ...CARD, border: `1px solid ${isListening ? TEAL : 'rgba(2,128,144,0.25)'}`, marginBottom: 12, padding: '32px 24px', textAlign: 'center' }}>
+                <div style={{ background: 'linear-gradient(135deg, #028090, #026E7A)', borderRadius: 12, marginBottom: 12, padding: '32px 24px', textAlign: 'center' }}>
                   <button onClick={handleVoiceToggle} disabled={!isSupported} type="button"
                     style={{
                       width: 56, height: 56, borderRadius: '50%', border: 'none',
@@ -250,7 +250,7 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                   <p style={{ fontSize: 13, fontWeight: 600, color: TEAL, marginBottom: 4 }}>
                     {isListening ? 'Listening… click to stop' : 'Click to describe your issue by voice'}
                   </p>
-                  <p style={{ fontSize: 12, color: '#94A3B8' }}>
+                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>
                     Audio stays on your device · Web Speech API
                   </p>
                   {!isSupported && (
@@ -260,10 +260,11 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                   )}
 
                   {/* Transcript box */}
-                  <div style={{ marginTop: 16, background: '#F8FAFC', borderRadius: 8, padding: '10px 14px', minHeight: 40, textAlign: 'left' }}>
+                  <div style={{ marginTop: 16, background: 'rgba(255,255,255,0.12)', borderRadius: 8, padding: '10px 14px', minHeight: 40, textAlign: 'left' }}>
                     {data.title || interimTranscript
-                      ? <p style={{ fontSize: 13, color: NAVY }}>{data.title || interimTranscript}</p>
-                      : <p style={{ fontSize: 13, color: '#CBD5E1', fontStyle: 'italic' }}>Your transcript will appear here…</p>}
+                      ? <p style={{ fontSize: 13, color: '#fff' }}>{data.title || interimTranscript}</p>
+                      : <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', fontStyle: 'italic' }}>Your transcript will appear here…</p>
+                    }
                   </div>
                 </div>
 
