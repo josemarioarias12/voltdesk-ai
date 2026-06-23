@@ -54,8 +54,8 @@ export default function Navbar() {
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64 }}>
 
           <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", flexShrink: 0 }}>
-            <div style={{ width: 34, height: 34, borderRadius: 9, background: "linear-gradient(135deg,#028090,#02C39A)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 12px rgba(2,195,154,0.35)" }}>
-              <span style={{ color: "#fff", fontSize: 16, fontWeight: 800, letterSpacing: "-0.5px" }}>P</span>
+            <div style={{ width: 34, height: 34, borderRadius: 9, overflow: 'hidden', flexShrink: 0 }}>
+              <img src="/pulsedesk-navy.svg" alt="PulseDesk AI" style={{ width: 34, height: 34 }} />
             </div>
             <span style={{ color: "#fff", fontWeight: 700, fontSize: 16, letterSpacing: "-0.3px" }}>
               PulseDesk <span style={{ color: "#02C39A" }}>AI</span>
