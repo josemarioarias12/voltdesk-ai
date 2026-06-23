@@ -39,6 +39,7 @@ Rails.application.routes.draw do
     end
     collection do
       patch :bulk_update
+      get :ai_preview
     end
     resources :comments, only: %i[create],
                          controller: 'ticket_comments',

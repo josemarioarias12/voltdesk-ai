@@ -1,15 +1,20 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { router, useForm } from '@inertiajs/react'
+import { motion, AnimatePresence } from 'framer-motion'
 import type { TicketsNewProps, TicketPriority } from '@/types/tickets'
 import { useVoiceTicket } from '@/hooks/useVoiceTicket'
 import AppLayout from '@/components/AppLayout'
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
+const TEAL = '#028090'
+const MINT = '#02C39A'
+const NAVY = '#0D1B2A'
+
 const CARD: React.CSSProperties = {
   background: '#fff',
   borderRadius: 12,
   border: '1px solid rgba(15,23,42,0.08)',
-  boxShadow: '0 1px 3px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.05)',
+  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
 }
 
 const INPUT: React.CSSProperties = {
@@ -18,46 +23,104 @@ const INPUT: React.CSSProperties = {
   border: '1px solid rgba(15,23,42,0.12)',
   borderRadius: 8,
   fontSize: 13,
-  color: '#0F172A',
+  color: NAVY,
   outline: 'none',
   boxSizing: 'border-box',
   background: '#fff',
+  transition: 'border-color 120ms ease',
 }
 
-const LABEL_STYLE: React.CSSProperties = {
+const LABEL: React.CSSProperties = {
   display: 'block',
-  fontSize: 13,
+  fontSize: 10.5,
   fontWeight: 600,
-  color: '#0F172A',
+  color: '#94A3B8',
+  textTransform: 'uppercase',
+  letterSpacing: '0.09em',
   marginBottom: 6,
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-const PRIORITY_QUICK: Array<{ value: TicketPriority; label: string; color: string; bg: string }> = [
+const QUICK_TEMPLATES = [
+  { label: 'VPN Issue',         title: 'Cannot connect to VPN from home network',      department: 'IT' },
+  { label: 'Hardware Request',  title: 'Request for new hardware equipment',            department: 'IT' },
+  { label: 'Access Request',    title: 'Need access to internal system or application', department: 'IT' },
+  { label: 'Printer Issue',     title: 'Printer not working in the office',             department: 'IT' },
+  { label: 'Software License',  title: 'Request for software license renewal',          department: 'IT' },
+]
+
+const PRIORITY_OPTIONS: Array<{ value: TicketPriority; label: string; color: string; bg: string }> = [
   { value: 'low',      label: 'Low',      color: '#6B7280', bg: '#F1F5F9' },
   { value: 'medium',   label: 'Medium',   color: '#CA8A04', bg: '#FEF9C3' },
   { value: 'high',     label: 'High',     color: '#EA580C', bg: '#FFF7ED' },
   { value: 'critical', label: 'Critical', color: '#DC2626', bg: '#FEF2F2' },
 ]
 
-const DEPT_QUICK = ['IT', 'HR', 'Facilities', 'Finance', 'Operations', 'General']
+const STATUS_COLORS: Record<string, string> = {
+  open:        '#16A34A',
+  in_progress: '#2563EB',
+  resolved:    '#9333EA',
+  pending:     '#CA8A04',
+  closed:      '#64748B',
+}
 
-// ── Mic icon ──────────────────────────────────────────────────────────────────
-function MicIcon() {
+// ── SVG Icons ─────────────────────────────────────────────────────────────────
+function MicIcon({ size = 24, color = 'currentColor' }: { size?: number; color?: string }) {
   return (
-    <svg width="28" height="28" fill="none" stroke="rgba(255,255,255,0.95)" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+    <svg width={size} height={size} fill="none" stroke={color} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
     </svg>
   )
 }
 
-// ── Main ──────────────────────────────────────────────────────────────────────
+function TypeIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+    </svg>
+  )
+}
+
+function SparkleIcon({ size = 14, color = '#fff' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round"
+        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+    </svg>
+  )
+}
+
+function CheckCircleIcon({ color = TEAL }: { color?: string }) {
+  return (
+    <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  )
+}
+
+function BoltIcon({ size = 16, color = '#fff' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} stroke="none">
+      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+    </svg>
+  )
+}
+
+// ── AI Preview types ───────────────────────────────────────────────────────────
+interface AiPreviewData {
+  category:      string
+  category_conf: number
+  priority:      string
+  priority_conf: number
+  urgency_score: number
+  est_sla_hours: number
+}
+
+// ── Main Component ─────────────────────────────────────────────────────────────
 export default function TicketsNew({ departments, recent_tickets }: TicketsNewProps) {
-  const {
-    transcript, interimTranscript, voiceState,
-    isSupported, startListening, stopListening,
-    resetTranscript, errorMessage,
-  } = useVoiceTicket('es-ES')
+  const { transcript, interimTranscript, voiceState, isSupported, startListening, stopListening, resetTranscript, errorMessage } = useVoiceTicket('es-ES')
 
   const { data, setData, post, processing, errors } = useForm({
     title:         '',
@@ -67,22 +130,51 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
     source:        'web' as 'web' | 'voice',
   })
 
-  const [dragOver, setDragOver]           = useState(false)
-  const [selectedDeptQuick, setDeptQuick] = useState<string | null>(null)
+  const [inputMode,        setInputMode]        = useState<'voice' | 'type'>('voice')
+  const [dragOver,         setDragOver]          = useState(false)
+  const [selectedDept,     setSelectedDept]      = useState<string | null>(null)
+  const [aiPreview,        setAiPreview]         = useState<AiPreviewData | null>(null)
+  const [aiLoading,        setAiLoading]         = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Voice → title
   useEffect(() => {
     if (transcript) { setData('title', transcript); setData('source', 'voice') }
   }, [transcript])
 
-  function handleVoiceClick() {
-    if (voiceState === 'listening') { stopListening() }
+  // AI Preview debounce
+  const fetchAiPreview = useCallback(async (title: string, description: string) => {
+    if (title.trim().length < 6) { setAiPreview(null); return }
+    setAiLoading(true)
+    try {
+      const params = new URLSearchParams({ title, description })
+      const res = await fetch(`/tickets/ai_preview?${params.toString()}`, {
+        headers: { 'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? '' },
+      })
+      if (res.ok) setAiPreview(await res.json() as AiPreviewData)
+    } catch { /* silent */ } finally { setAiLoading(false) }
+  }, [])
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => { void fetchAiPreview(data.title, data.description) }, 800)
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
+  }, [data.title, data.description, fetchAiPreview])
+
+  function handleVoiceToggle() {
+    if (voiceState === 'listening') stopListening()
     else { resetTranscript(); startListening() }
   }
 
-  function handleDeptQuick(dept: string) {
-    setDeptQuick(dept)
-    const found = departments.find(d => d.name.toLowerCase() === dept.toLowerCase())
-    if (found) setData('department_id', String(found.id))
+  function handleTemplate(tmpl: typeof QUICK_TEMPLATES[number]) {
+    setData('title', tmpl.title)
+    const found = departments.find(d => d.name.toLowerCase() === tmpl.department.toLowerCase())
+    if (found) { setData('department_id', String(found.id)); setSelectedDept(found.name) }
+  }
+
+  function handleDeptQuick(dept: { id: number; name: string }) {
+    setSelectedDept(dept.name)
+    setData('department_id', String(dept.id))
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -90,178 +182,200 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
     post('/tickets')
   }
 
-  const isListening = voiceState === 'listening'
+  const isListening   = voiceState === 'listening'
+  const canSubmit     = !processing && !!data.title && !!data.department_id
+  const priorityMeta  = PRIORITY_OPTIONS.find(p => p.value === data.priority)
 
-  const recentStatusColors: Record<string, string> = {
-    open: '#16A34A', in_progress: '#2563EB', resolved: '#9333EA', pending: '#CA8A04',
-  }
+  const priorityColor = (val: string) => PRIORITY_OPTIONS.find(p => p.value === val)?.color ?? '#64748B'
 
   return (
     <AppLayout title="New Ticket">
-      {/* Breadcrumb */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, marginBottom: 20 }}>
-        <button onClick={() => router.get('/tickets')}
-          style={{ background: 'none', border: 'none', color: '#A3ACBA', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M9 11L5 7l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          Tickets
-        </button>
-        <span style={{ color: '#E2E8F0' }}>/</span>
-        <span style={{ color: '#0F172A', fontWeight: 500 }}>New Ticket</span>
+
+      {/* Header */}
+      <div style={{ marginBottom: 28 }}>
+        <p style={LABEL}>New Ticket</p>
+        <h1 style={{ fontSize: 22, fontWeight: 700, color: NAVY, letterSpacing: '-0.02em', marginBottom: 4 }}>
+          What do you need help with?
+        </h1>
+        <p style={{ fontSize: 13, color: '#64748B', lineHeight: 1.75 }}>
+          AI will classify, prioritize and route this automatically.
+        </p>
       </div>
 
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A' }}>New Ticket</h1>
-        <p style={{ fontSize: 13, color: '#64748B', marginTop: 4 }}>Describe your issue and our AI will classify and route it automatically</p>
-      </div>
+      <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
 
-      <div style={{ display: 'flex', gap: 24 }}>
-        {/* Left: form */}
+        {/* ── Left column ─────────────────────────────────────────────────── */}
         <div style={{ flex: 1, minWidth: 0 }}>
 
-          {/* Voice panel — intentionally keeps teal gradient */}
-          <div style={{ background: 'linear-gradient(135deg,#028090,#026E7A)', borderRadius: 12, marginBottom: 12, overflow: 'hidden' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '28px 24px' }}>
-              <button onClick={handleVoiceClick} disabled={!isSupported}
-                style={{
-                  width: 64, height: 64, borderRadius: '50%', border: 'none',
-                  background: isListening ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.2)',
-                  cursor: isSupported ? 'pointer' : 'not-allowed',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  marginBottom: 14,
-                  transform: isListening ? 'scale(1.1)' : 'scale(1)',
-                  transition: 'all 200ms ease',
-                }}>
-                <MicIcon />
-              </button>
-              <p style={{ color: '#fff', fontWeight: 600, fontSize: 14, marginBottom: 4 }}>
-                {isListening ? 'Listening… click to stop' : 'Click to describe your issue by voice'}
-              </p>
-              <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 12 }}>
-                Powered by Web Speech API — audio stays on your device
-              </p>
-              {!isSupported && (
-                <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, marginTop: 8, background: 'rgba(255,255,255,0.1)', padding: '5px 14px', borderRadius: 20 }}>
-                  Voice input requires Chrome or Edge
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Transcript display */}
-          <div style={{ ...CARD, padding: '12px 16px', marginBottom: 10, minHeight: 46 }}>
-            {data.title || interimTranscript ? (
-              <p style={{ fontSize: 13, color: '#0F172A' }}>{data.title || interimTranscript}</p>
-            ) : (
-              <p style={{ fontSize: 13, color: '#A3ACBA', fontStyle: 'italic' }}>Your speech will appear here in real time...</p>
-            )}
-          </div>
-
-          {/* Voice state indicators */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 20, padding: '0 4px' }}>
-            {(['idle', 'listening', 'processing'] as const).map(state => {
-              const dotColors = { idle: '#A3ACBA', listening: '#EF4444', processing: '#F97316' }
-              const isActive  = voiceState === state
+          {/* Segmented toggle */}
+          <div style={{ display: 'inline-flex', background: '#F1F5F9', borderRadius: 20, padding: 3, marginBottom: 20, gap: 2 }}>
+            {(['voice', 'type'] as const).map(mode => {
+              const active = inputMode === mode
               return (
-                <div key={state} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: isActive ? dotColors[state] : '#E2E8F0', display: 'inline-block' }} />
-                  <span style={{ fontSize: 12, color: isActive ? '#0F172A' : '#A3ACBA', fontWeight: isActive ? 500 : 400, textTransform: 'capitalize' }}>{state}</span>
-                </div>
+                <button key={mode} type="button" onClick={() => setInputMode(mode)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    padding: '6px 16px', borderRadius: 18, border: 'none', cursor: 'pointer',
+                    fontSize: 13, fontWeight: active ? 600 : 400,
+                    background: active ? '#fff' : 'transparent',
+                    color: active ? TEAL : '#64748B',
+                    boxShadow: active ? '0 1px 3px rgba(0,0,0,0.10)' : 'none',
+                    transition: 'all 120ms ease',
+                  }}>
+                  {mode === 'voice' ? <MicIcon size={14} color={active ? TEAL : '#94A3B8'} /> : <TypeIcon size={14} />}
+                  {mode === 'voice' ? 'Voice Input' : 'Type Manually'}
+                </button>
               )
             })}
-            <span style={{ marginLeft: 'auto', fontSize: 12, color: '#A3ACBA' }}>
-              Current: <span style={{ fontWeight: 500, textTransform: 'capitalize' }}>{voiceState}</span>
-            </span>
           </div>
 
-          {errorMessage && (
-            <div style={{ marginBottom: 16, padding: '10px 14px', background: '#FEF2F2', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: '#DC2626' }}>
-              {errorMessage}
-            </div>
-          )}
+          {/* Voice panel */}
+          <AnimatePresence>
+            {inputMode === 'voice' && (
+              <motion.div key="voice-panel"
+                initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.18 }}>
+                <div style={{ ...CARD, border: `1px solid ${isListening ? TEAL : 'rgba(2,128,144,0.25)'}`, marginBottom: 12, padding: '32px 24px', textAlign: 'center' }}>
+                  <button onClick={handleVoiceToggle} disabled={!isSupported} type="button"
+                    style={{
+                      width: 56, height: 56, borderRadius: '50%', border: 'none',
+                      background: isListening ? TEAL : 'rgba(2,128,144,0.08)',
+                      cursor: isSupported ? 'pointer' : 'not-allowed',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      margin: '0 auto 14px',
+                      transition: 'all 200ms ease',
+                    }}>
+                    <MicIcon size={24} color={isListening ? '#fff' : TEAL} />
+                  </button>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: TEAL, marginBottom: 4 }}>
+                    {isListening ? 'Listening… click to stop' : 'Click to describe your issue by voice'}
+                  </p>
+                  <p style={{ fontSize: 12, color: '#94A3B8' }}>
+                    Audio stays on your device · Web Speech API
+                  </p>
+                  {!isSupported && (
+                    <p style={{ fontSize: 12, color: '#EA580C', marginTop: 8, background: '#FFF7ED', padding: '4px 12px', borderRadius: 20, display: 'inline-block' }}>
+                      Requires Chrome or Edge
+                    </p>
+                  )}
 
+                  {/* Transcript box */}
+                  <div style={{ marginTop: 16, background: '#F8FAFC', borderRadius: 8, padding: '10px 14px', minHeight: 40, textAlign: 'left' }}>
+                    {data.title || interimTranscript
+                      ? <p style={{ fontSize: 13, color: NAVY }}>{data.title || interimTranscript}</p>
+                      : <p style={{ fontSize: 13, color: '#CBD5E1', fontStyle: 'italic' }}>Your transcript will appear here…</p>}
+                  </div>
+                </div>
+
+                {errorMessage && (
+                  <div style={{ marginBottom: 12, padding: '9px 14px', background: '#FEF2F2', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: '#DC2626' }}>
+                    {errorMessage}
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
             <div style={{ flex: 1, height: 1, background: 'rgba(15,23,42,0.06)' }} />
-            <span style={{ fontSize: 12, color: '#A3ACBA' }}>or type your request below</span>
+            <span style={{ fontSize: 11, color: '#CBD5E1', letterSpacing: '0.04em' }}>or type below</span>
             <div style={{ flex: 1, height: 1, background: 'rgba(15,23,42,0.06)' }} />
+          </div>
+
+          {/* Quick templates */}
+          <div style={{ marginBottom: 24 }}>
+            <p style={LABEL}>Quick Templates</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {QUICK_TEMPLATES.map((tmpl, i) => (
+                <motion.button key={tmpl.label} type="button" onClick={() => handleTemplate(tmpl)}
+                  initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  style={{
+                    padding: '5px 14px', borderRadius: 20, border: '1px solid rgba(15,23,42,0.12)',
+                    fontSize: 12, fontWeight: 500, cursor: 'pointer', background: '#fff', color: '#475569',
+                    transition: 'all 120ms ease',
+                  }}
+                  onMouseEnter={e => { const b = e.currentTarget; b.style.borderColor = TEAL; b.style.color = TEAL; b.style.background = 'rgba(2,128,144,0.04)' }}
+                  onMouseLeave={e => { const b = e.currentTarget; b.style.borderColor = 'rgba(15,23,42,0.12)'; b.style.color = '#475569'; b.style.background = '#fff' }}>
+                  {tmpl.label}
+                </motion.button>
+              ))}
+            </div>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
             {/* Title */}
             <div>
-              <label style={LABEL_STYLE}>
-                Title <span style={{ color: '#EF4444' }}>*</span>
-              </label>
-              <input
-                type="text"
-                value={data.title}
+              <label style={LABEL}>Title <span style={{ color: '#EF4444' }}>*</span></label>
+              <input type="text" value={data.title}
                 onChange={e => setData('title', e.target.value)}
-                placeholder='Brief summary, e.g. "Laptop not connecting to VPN"'
-                required
-                style={INPUT}
+                placeholder='e.g. "Cannot connect to VPN from home network"'
+                required style={INPUT}
+                onFocus={e => { e.target.style.borderColor = TEAL }}
+                onBlur={e => { e.target.style.borderColor = 'rgba(15,23,42,0.12)' }}
               />
               {errors.title && <p style={{ fontSize: 12, color: '#EF4444', marginTop: 4 }}>{errors.title}</p>}
             </div>
 
             {/* Description */}
             <div>
-              <label style={LABEL_STYLE}>Description</label>
-              <textarea
-                value={data.description}
+              <label style={LABEL}>Description</label>
+              <textarea value={data.description}
                 onChange={e => setData('description', e.target.value)}
-                placeholder="Describe the issue in detail..."
-                rows={5}
-                style={{ ...INPUT, resize: 'none', lineHeight: 1.6 }}
+                placeholder="Describe the issue in more detail…"
+                rows={4}
+                style={{ ...INPUT, resize: 'none', lineHeight: 1.75 }}
+                onFocus={e => { e.target.style.borderColor = TEAL }}
+                onBlur={e => { e.target.style.borderColor = 'rgba(15,23,42,0.12)' }}
               />
             </div>
 
             {/* Department + Priority */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+
+              {/* Department */}
               <div>
-                <label style={LABEL_STYLE}>
-                  Department <span style={{ color: '#EF4444' }}>*</span>
-                </label>
-                <select
-                  value={data.department_id}
+                <label style={LABEL}>Department <span style={{ color: '#EF4444' }}>*</span></label>
+                <select value={data.department_id}
                   onChange={e => setData('department_id', e.target.value)}
-                  required
-                  style={INPUT}
-                >
-                  <option value="">Select department...</option>
+                  required style={INPUT}
+                  onFocus={e => { e.target.style.borderColor = TEAL }}
+                  onBlur={e => { e.target.style.borderColor = 'rgba(15,23,42,0.12)' }}>
+                  <option value="">Select department…</option>
                   {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                 </select>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 8 }}>
-                  {DEPT_QUICK.map(dept => (
-                    <button key={dept} type="button" onClick={() => handleDeptQuick(dept)}
+                  {departments.slice(0, 5).map(d => (
+                    <button key={d.id} type="button" onClick={() => handleDeptQuick(d)}
                       style={{
                         fontSize: 11, padding: '3px 10px', borderRadius: 20, border: '1px solid', cursor: 'pointer',
-                        borderColor: selectedDeptQuick === dept ? '#028090' : 'rgba(15,23,42,0.12)',
-                        background: selectedDeptQuick === dept ? '#028090' : 'transparent',
-                        color: selectedDeptQuick === dept ? '#fff' : '#64748B',
+                        borderColor: selectedDept === d.name ? TEAL : 'rgba(15,23,42,0.12)',
+                        background: selectedDept === d.name ? TEAL : 'transparent',
+                        color: selectedDept === d.name ? '#fff' : '#64748B',
                         transition: 'all 120ms ease',
                       }}>
-                      {dept}
+                      {d.name}
                     </button>
                   ))}
                 </div>
               </div>
+
+              {/* Priority */}
               <div>
-                <label style={LABEL_STYLE}>Priority</label>
-                <select
-                  value={data.priority}
+                <label style={LABEL}>Priority</label>
+                <select value={data.priority}
                   onChange={e => setData('priority', e.target.value as TicketPriority)}
                   style={INPUT}
-                >
-                  <option value="">Select priority...</option>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                  <option value="critical">Critical</option>
+                  onFocus={e => { e.target.style.borderColor = TEAL }}
+                  onBlur={e => { e.target.style.borderColor = 'rgba(15,23,42,0.12)' }}>
+                  <option value="">Select priority…</option>
+                  {PRIORITY_OPTIONS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
                 </select>
                 <div style={{ display: 'flex', gap: 5, marginTop: 8, flexWrap: 'wrap' }}>
-                  {PRIORITY_QUICK.map(p => (
+                  {PRIORITY_OPTIONS.map(p => (
                     <button key={p.value} type="button" onClick={() => setData('priority', p.value)}
                       style={{
                         fontSize: 11, padding: '3px 10px', borderRadius: 20, border: '1px solid', cursor: 'pointer', fontWeight: 500,
@@ -274,129 +388,165 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                     </button>
                   ))}
                 </div>
-                <p style={{ fontSize: 11, color: '#A3ACBA', marginTop: 6 }}>AI will adjust priority after classification</p>
+                <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 6 }}>AI will adjust after classification</p>
               </div>
             </div>
 
             {/* Attachments */}
             <div>
-              <label style={LABEL_STYLE}>Attachments</label>
+              <label style={LABEL}>Attachments</label>
               <div
                 onDragOver={e => { e.preventDefault(); setDragOver(true) }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={e => { e.preventDefault(); setDragOver(false) }}
                 style={{
-                  border: `2px dashed ${dragOver ? '#028090' : 'rgba(15,23,42,0.12)'}`,
-                  borderRadius: 8, padding: '28px 24px', textAlign: 'center',
+                  border: `2px dashed ${dragOver ? TEAL : 'rgba(15,23,42,0.10)'}`,
+                  borderRadius: 8, padding: '24px', textAlign: 'center',
                   background: dragOver ? 'rgba(2,128,144,0.04)' : '#FAFAFA',
                   cursor: 'pointer', transition: 'all 120ms ease',
                 }}>
-                <svg width="24" height="24" fill="none" stroke="#A3ACBA" viewBox="0 0 24 24" style={{ marginBottom: 8 }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <svg width="22" height="22" fill="none" stroke="#CBD5E1" viewBox="0 0 24 24" style={{ marginBottom: 8 }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
-                <p style={{ fontSize: 13, color: '#64748B', marginBottom: 4 }}>Drag and drop files here</p>
-                <button type="button"
-                  style={{ padding: '6px 16px', border: '1px solid rgba(15,23,42,0.12)', borderRadius: 8, fontSize: 12, color: '#64748B', background: '#fff', cursor: 'pointer', marginTop: 4 }}>
-                  Browse files
-                </button>
-                <p style={{ fontSize: 11, color: '#A3ACBA', marginTop: 8 }}>PNG, JPG, PDF, TXT up to 10MB</p>
+                <p style={{ fontSize: 13, color: '#94A3B8', marginBottom: 4 }}>Drop files here or click to upload</p>
+                <p style={{ fontSize: 11, color: '#CBD5E1' }}>PNG, JPG, PDF up to 10MB</p>
               </div>
             </div>
 
             {/* Submit */}
-            <button
-              type="submit"
-              disabled={processing || !data.title || !data.department_id}
+            <motion.button type="submit" disabled={!canSubmit}
+              whileHover={canSubmit ? { scale: 1.005 } : {}}
+              whileTap={canSubmit ? { scale: 0.995 } : {}}
               style={{
-                width: '100%', padding: '12px', background: '#028090', border: 'none',
-                borderRadius: 8, fontSize: 14, fontWeight: 600, color: '#fff',
-                cursor: processing || !data.title || !data.department_id ? 'default' : 'pointer',
-                opacity: processing || !data.title || !data.department_id ? 0.5 : 1,
-                transition: 'opacity 120ms ease',
+                width: '100%', padding: '13px', background: canSubmit ? TEAL : '#94A3B8',
+                border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, color: '#fff',
+                cursor: canSubmit ? 'pointer' : 'default',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                transition: 'background 120ms ease',
               }}>
-              {processing ? 'Creating…' : 'Create Ticket — AI Classification Starts Immediately'}
-            </button>
+              <BoltIcon size={15} color="#fff" />
+              {processing ? 'Creating…' : 'Create Ticket — AI classifies immediately'}
+            </motion.button>
 
             <div style={{ textAlign: 'center' }}>
               <button type="button" onClick={() => router.get('/tickets')}
-                style={{ background: 'none', border: 'none', fontSize: 13, color: '#A3ACBA', cursor: 'pointer' }}>
+                style={{ background: 'none', border: 'none', fontSize: 13, color: '#94A3B8', cursor: 'pointer' }}>
                 Cancel
               </button>
             </div>
           </form>
         </div>
 
-        {/* Right sidebar */}
-        <div style={{ width: 252, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {/* AI detection — intentionally keeps teal gradient */}
-          <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05), 0 4px 16px rgba(2,128,144,0.15)' }}>
-            <div style={{ background: 'linear-gradient(135deg,#028090,#026E7A)', padding: '12px 16px' }}>
-              <p style={{ fontSize: 12, fontWeight: 600, color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                  <path d="M6.5 1l1.2 2.5L10.5 4l-2 2 .5 2.8L6.5 7.5 4 8.8l.5-2.8-2-2 2.8-.5z" stroke="#fff" strokeWidth="1.2" strokeLinejoin="round" />
-                </svg>
-                AI will automatically detect
+        {/* ── Right sidebar — single #FAFAFA surface ───────────────────────── */}
+        <div style={{ width: 264, flexShrink: 0, background: '#FAFAFA', borderRadius: 12, border: '1px solid rgba(15,23,42,0.07)', overflow: 'hidden' }}>
+
+          {/* AI PREVIEW */}
+          <div style={{ padding: '16px 18px', borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 14 }}>
+              <div style={{ position: 'relative', width: 8, height: 8 }}>
+                <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: MINT, opacity: aiLoading ? 1 : 0.9 }} />
+                {aiLoading && (
+                  <span style={{ position: 'absolute', inset: -2, borderRadius: '50%', border: `2px solid ${MINT}`, animation: 'ping 1s cubic-bezier(0,0,0.2,1) infinite', opacity: 0.4 }} />
+                )}
+              </div>
+              <p style={{ fontSize: 10.5, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
+                AI Preview
               </p>
             </div>
-            <div style={{ background: 'linear-gradient(135deg,#028090,#026E7A)', padding: '10px 16px 16px' }}>
-              {[
-                'Category and department routing',
-                'Urgency score 0–100',
-                'Similar resolved tickets',
-                'Suggested response for agents',
-                'SLA deadline based on priority',
-              ].map(item => (
-                <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 9 }}>
-                  <div style={{ width: 15, height: 15, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-                      <path d="M1.5 4l1.5 1.5L6.5 2" stroke="#fff" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+
+            <AnimatePresence mode="wait">
+              {aiPreview ? (
+                <motion.div key="preview-data"
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}>
+
+                  {/* Category */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                    <span style={{ fontSize: 12, color: '#64748B' }}>Category</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 20, background: 'rgba(2,128,144,0.10)', color: TEAL }}>
+                      {aiPreview.category} · {aiPreview.category_conf}%
+                    </span>
                   </div>
-                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }}>{item}</span>
-                </div>
-              ))}
-            </div>
+
+                  {/* Priority */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                    <span style={{ fontSize: 12, color: '#64748B' }}>Priority</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 20,
+                      background: PRIORITY_OPTIONS.find(p => p.value === aiPreview.priority)?.bg ?? '#F1F5F9',
+                      color: priorityColor(aiPreview.priority) }}>
+                      {aiPreview.priority.charAt(0).toUpperCase() + aiPreview.priority.slice(1)} · {aiPreview.priority_conf}%
+                    </span>
+                  </div>
+
+                  {/* Est. SLA */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                    <span style={{ fontSize: 12, color: '#64748B' }}>Est. SLA</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: NAVY }}>
+                      {aiPreview.est_sla_hours < 24 ? `${aiPreview.est_sla_hours} hours` : `${aiPreview.est_sla_hours / 24} days`}
+                    </span>
+                  </div>
+
+                  {/* Urgency bar */}
+                  <div style={{ marginBottom: 4 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+                      <span style={{ fontSize: 12, color: '#64748B' }}>Urgency</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: aiPreview.urgency_score >= 70 ? '#DC2626' : TEAL }}>
+                        {aiPreview.urgency_score}
+                      </span>
+                    </div>
+                    <div style={{ height: 4, borderRadius: 2, background: 'rgba(15,23,42,0.08)', overflow: 'hidden' }}>
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${aiPreview.urgency_score}%` }}
+                        transition={{ duration: 0.4, ease: 'easeOut' }}
+                        style={{ height: '100%', borderRadius: 2, background: aiPreview.urgency_score >= 70 ? '#DC2626' : TEAL }} />
+                    </div>
+                  </div>
+
+                  <p style={{ fontSize: 11, color: '#CBD5E1', marginTop: 10 }}>Predictions update as you type</p>
+                </motion.div>
+              ) : (
+                <motion.div key="preview-empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <p style={{ fontSize: 12, color: '#CBD5E1', lineHeight: 1.6 }}>
+                    Start typing a title to see AI predictions…
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          {/* Tips */}
-          <div style={{ ...CARD, padding: 16 }}>
-            <p style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <circle cx="7" cy="7" r="5.5" stroke="#028090" strokeWidth="1.3" />
-                <path d="M7 5v2.5M7 9h.01" stroke="#028090" strokeWidth="1.3" strokeLinecap="round" />
-              </svg>
-              Tips for faster resolution
-            </p>
+          {/* AI WILL DETECT */}
+          <div style={{ padding: '14px 18px', borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
+            <p style={{ ...LABEL, marginBottom: 10 }}>AI Will Detect</p>
             {[
-              'Be specific — include error messages, device names, and affected users.',
-              'Attach screenshots or logs to help AI and agents diagnose faster.',
-              'Mention urgency context (e.g. "month-close in 2 hours") to trigger Critical priority.',
-            ].map((tip, i) => (
-              <p key={i} style={{ fontSize: 12, color: '#64748B', lineHeight: 1.6, marginBottom: 8 }}>{tip}</p>
+              'Category routing',
+              'Urgency 0–100',
+              'Similar resolved tickets',
+              'Suggested response for agents',
+              'SLA deadline based on priority',
+            ].map(item => (
+              <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
+                <CheckCircleIcon color={TEAL} />
+                <span style={{ fontSize: 12, color: '#475569' }}>{item}</span>
+              </div>
             ))}
           </div>
 
-          {/* Recent tickets */}
+          {/* YOUR RECENT TICKETS */}
           {recent_tickets.length > 0 && (
-            <div style={{ ...CARD, padding: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>Your recent tickets</span>
-                <button onClick={() => router.get('/tickets')}
-                  style={{ background: 'none', border: 'none', fontSize: 12, fontWeight: 500, color: '#028090', cursor: 'pointer' }}>
-                  View all
-                </button>
-              </div>
+            <div style={{ padding: '14px 18px' }}>
+              <p style={{ ...LABEL, marginBottom: 10 }}>Your Recent Tickets</p>
               {recent_tickets.map(t => (
-                <button key={t.id} onClick={() => router.get(`/tickets/${t.id}`)}
-                  style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 8px', borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer', marginBottom: 3, transition: 'background 120ms ease' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#F8FAFC' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent' }}
-                >
-                  <div style={{ textAlign: 'left' }}>
-                    <p style={{ fontSize: 12, fontWeight: 600, color: '#028090', fontFamily: 'monospace' }}>{t.ticket_number}</p>
-                    <p style={{ fontSize: 12, color: '#64748B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 136 }}>{t.title}</p>
+                <button key={t.id} type="button" onClick={() => router.get(`/tickets/${t.id}`)}
+                  style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '7px 6px', borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer', marginBottom: 2, transition: 'background 120ms ease', textAlign: 'left' }}
+                  onMouseEnter={e => { (e.currentTarget).style.background = 'rgba(15,23,42,0.04)' }}
+                  onMouseLeave={e => { (e.currentTarget).style.background = 'none' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: 11, fontWeight: 600, color: TEAL, fontFamily: 'monospace', marginBottom: 2 }}>{t.ticket_number}</p>
+                    <p style={{ fontSize: 11, color: '#64748B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.title}</p>
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 500, color: recentStatusColors[t.status] ?? '#A3ACBA', textTransform: 'capitalize' }}>
+                  <span style={{ fontSize: 10, fontWeight: 600, color: STATUS_COLORS[t.status] ?? '#94A3B8', textTransform: 'capitalize', flexShrink: 0, marginLeft: 6, marginTop: 1 }}>
                     {t.status.replace(/_/g, ' ')}
                   </span>
                 </button>
@@ -405,6 +555,9 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
           )}
         </div>
       </div>
+
+      {/* Ping animation keyframe */}
+      <style>{`@keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }`}</style>
     </AppLayout>
   )
 }
