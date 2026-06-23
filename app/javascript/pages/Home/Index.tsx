@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { Head } from "@inertiajs/react";
 import { motion, useScroll, useSpring } from "framer-motion";
 import Navbar from "./components/Navbar";
 import DashboardMockup from "./components/DashboardMockup";
@@ -51,6 +52,7 @@ export default function LandingPage() {
 
   return (
     <div style={{ fontFamily: "Inter, sans-serif", background: "#fff", color: "#1E293B", overflowX: "hidden" }}>
+      <Head title="PulseDesk AI" />
       <motion.div style={{ scaleX, transformOrigin: "left", position: "fixed", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg,#028090,#02C39A)", zIndex: 9999 }} />
 
       <Navbar />
