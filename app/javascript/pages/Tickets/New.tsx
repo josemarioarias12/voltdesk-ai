@@ -20,7 +20,7 @@ const CARD: React.CSSProperties = {
 const INPUT: React.CSSProperties = {
   width: '100%',
   padding: '9px 14px',
-  border: '1px solid rgba(15,23,42,0.12)',
+  border: '1px solid rgba(15,23,42,0.18)',
   borderRadius: 8,
   fontSize: 13,
   color: NAVY,
@@ -42,26 +42,26 @@ const LABEL: React.CSSProperties = {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const QUICK_TEMPLATES = [
-  { label: 'VPN Issue',         title: 'Cannot connect to VPN from home network',      department: 'IT' },
-  { label: 'Hardware Request',  title: 'Request for new hardware equipment',            department: 'IT' },
-  { label: 'Access Request',    title: 'Need access to internal system or application', department: 'IT' },
-  { label: 'Printer Issue',     title: 'Printer not working in the office',             department: 'IT' },
-  { label: 'Software License',  title: 'Request for software license renewal',          department: 'IT' },
+  { label: 'VPN Issue', title: 'Cannot connect to VPN from home network', department: 'IT' },
+  { label: 'Hardware Request', title: 'Request for new hardware equipment', department: 'IT' },
+  { label: 'Access Request', title: 'Need access to internal system or application', department: 'IT' },
+  { label: 'Printer Issue', title: 'Printer not working in the office', department: 'IT' },
+  { label: 'Software License', title: 'Request for software license renewal', department: 'IT' },
 ]
 
 const PRIORITY_OPTIONS: Array<{ value: TicketPriority; label: string; color: string; bg: string }> = [
-  { value: 'low',      label: 'Low',      color: '#6B7280', bg: '#F1F5F9' },
-  { value: 'medium',   label: 'Medium',   color: '#CA8A04', bg: '#FEF9C3' },
-  { value: 'high',     label: 'High',     color: '#EA580C', bg: '#FFF7ED' },
+  { value: 'low', label: 'Low', color: '#6B7280', bg: '#F1F5F9' },
+  { value: 'medium', label: 'Medium', color: '#CA8A04', bg: '#FEF9C3' },
+  { value: 'high', label: 'High', color: '#EA580C', bg: '#FFF7ED' },
   { value: 'critical', label: 'Critical', color: '#DC2626', bg: '#FEF2F2' },
 ]
 
 const STATUS_COLORS: Record<string, string> = {
-  open:        '#16A34A',
+  open: '#16A34A',
   in_progress: '#2563EB',
-  resolved:    '#9333EA',
-  pending:     '#CA8A04',
-  closed:      '#64748B',
+  resolved: '#9333EA',
+  pending: '#CA8A04',
+  closed: '#64748B',
 }
 
 // ── SVG Icons ─────────────────────────────────────────────────────────────────
@@ -110,9 +110,9 @@ function BoltIcon({ size = 16, color = '#fff' }: { size?: number; color?: string
 
 // ── AI Preview types ───────────────────────────────────────────────────────────
 interface AiPreviewData {
-  category:      string
+  category: string
   category_conf: number
-  priority:      string
+  priority: string
   priority_conf: number
   urgency_score: number
   est_sla_hours: number
@@ -123,18 +123,18 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
   const { transcript, interimTranscript, voiceState, isSupported, startListening, stopListening, resetTranscript, errorMessage } = useVoiceTicket('es-ES')
 
   const { data, setData, post, processing, errors } = useForm({
-    title:         '',
-    description:   '',
+    title: '',
+    description: '',
     department_id: '',
-    priority:      '' as TicketPriority | '',
-    source:        'web' as 'web' | 'voice',
+    priority: '' as TicketPriority | '',
+    source: 'web' as 'web' | 'voice',
   })
 
-  const [inputMode,        setInputMode]        = useState<'voice' | 'type'>('voice')
-  const [dragOver,         setDragOver]          = useState(false)
-  const [selectedDept,     setSelectedDept]      = useState<string | null>(null)
-  const [aiPreview,        setAiPreview]         = useState<AiPreviewData | null>(null)
-  const [aiLoading,        setAiLoading]         = useState(false)
+  const [inputMode, setInputMode] = useState<'voice' | 'type'>('voice')
+  const [dragOver, setDragOver] = useState(false)
+  const [selectedDept, setSelectedDept] = useState<string | null>(null)
+  const [aiPreview, setAiPreview] = useState<AiPreviewData | null>(null)
+  const [aiLoading, setAiLoading] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Voice → title
@@ -182,9 +182,9 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
     post('/tickets')
   }
 
-  const isListening   = voiceState === 'listening'
-  const canSubmit     = !processing && !!data.title && !!data.department_id
-  const priorityMeta  = PRIORITY_OPTIONS.find(p => p.value === data.priority)
+  const isListening = voiceState === 'listening'
+  const canSubmit = !processing && !!data.title && !!data.department_id
+  const priorityMeta = PRIORITY_OPTIONS.find(p => p.value === data.priority)
 
   const priorityColor = (val: string) => PRIORITY_OPTIONS.find(p => p.value === val)?.color ?? '#64748B'
 
@@ -215,14 +215,18 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                 <button key={mode} type="button" onClick={() => setInputMode(mode)}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 6,
-                    padding: '6px 16px', borderRadius: 18, border: 'none', cursor: 'pointer',
+                    padding: '6px 16px', borderRadius: 18,
+                    border: active ? `1.5px solid rgba(2,128,144,0.25)` : '1.5px solid transparent',
+                    cursor: 'pointer', outline: 'none',
                     fontSize: 13, fontWeight: active ? 600 : 400,
                     background: active ? '#fff' : 'transparent',
-                    color: active ? TEAL : '#64748B',
-                    boxShadow: active ? '0 1px 3px rgba(0,0,0,0.10)' : 'none',
+                    color: active ? TEAL : '#94A3B8',
+                    boxShadow: active ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
                     transition: 'all 120ms ease',
                   }}>
-                  {mode === 'voice' ? <MicIcon size={14} color={active ? TEAL : '#94A3B8'} /> : <TypeIcon size={14} />}
+                  {mode === 'voice'
+                    ? <MicIcon size={14} color={active ? TEAL : '#94A3B8'} />
+                    : <TypeIcon size={14} />}
                   {mode === 'voice' ? 'Voice Input' : 'Type Manually'}
                 </button>
               )
@@ -239,15 +243,15 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                   <button onClick={handleVoiceToggle} disabled={!isSupported} type="button"
                     style={{
                       width: 56, height: 56, borderRadius: '50%', border: 'none',
-                      background: isListening ? TEAL : 'rgba(2,128,144,0.08)',
+                      background: isListening ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.2)',
                       cursor: isSupported ? 'pointer' : 'not-allowed',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       margin: '0 auto 14px',
                       transition: 'all 200ms ease',
                     }}>
-                    <MicIcon size={24} color={isListening ? '#fff' : TEAL} />
+                    <MicIcon size={24} color="rgba(255,255,255,0.95)" />
                   </button>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: TEAL, marginBottom: 4 }}>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: '#fff', marginBottom: 4 }}>
                     {isListening ? 'Listening… click to stop' : 'Click to describe your issue by voice'}
                   </p>
                   <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>
@@ -280,7 +284,7 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
           {/* Divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
             <div style={{ flex: 1, height: 1, background: 'rgba(15,23,42,0.06)' }} />
-            <span style={{ fontSize: 11, color: '#CBD5E1', letterSpacing: '0.04em' }}>or type below</span>
+            <span style={{ fontSize: 11, color: '#94A3B8', letterSpacing: '0.06em' }}>or type below</span>
             <div style={{ flex: 1, height: 1, background: 'rgba(15,23,42,0.06)' }} />
           </div>
 
@@ -293,7 +297,7 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                   initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
                   style={{
-                    padding: '5px 14px', borderRadius: 20, border: '1px solid rgba(15,23,42,0.12)',
+                    padding: '5px 14px', borderRadius: 20, border: '1px solid rgba(15,23,42,0.18)',
                     fontSize: 12, fontWeight: 500, cursor: 'pointer', background: '#fff', color: '#475569',
                     transition: 'all 120ms ease',
                   }}
@@ -417,16 +421,25 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
 
             {/* Submit */}
             <motion.button type="submit" disabled={!canSubmit}
-              whileHover={canSubmit ? { scale: 1.005 } : {}}
+              whileHover={canSubmit ? { scale: 1.008 } : {}}
               whileTap={canSubmit ? { scale: 0.995 } : {}}
               style={{
-                width: '100%', padding: '13px', background: canSubmit ? TEAL : '#94A3B8',
-                border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, color: '#fff',
+                width: '100%', padding: '13px 24px',
+                background: canSubmit
+                  ? `linear-gradient(135deg, ${TEAL}, #026E7A)`
+                  : 'linear-gradient(135deg, #F1F5F9, #E8EEF4)',
+                border: canSubmit ? 'none' : `1.5px solid rgba(2,128,144,0.20)`,
+                borderRadius: 8, fontSize: 14, fontWeight: 600,
+                color: canSubmit ? '#fff' : '#94A3B8',
                 cursor: canSubmit ? 'pointer' : 'default',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                transition: 'background 120ms ease',
+                transition: 'all 200ms ease',
+                boxShadow: canSubmit
+                  ? '0 4px 12px rgba(2,128,144,0.30), 0 1px 3px rgba(0,0,0,0.08)'
+                  : 'inset 0 1px 2px rgba(0,0,0,0.04)',
+                letterSpacing: canSubmit ? '-0.01em' : '0',
               }}>
-              <BoltIcon size={15} color="#fff" />
+              <BoltIcon size={15} color={canSubmit ? '#fff' : '#B8C4CE'} />
               {processing ? 'Creating…' : 'Create Ticket — AI classifies immediately'}
             </motion.button>
 
@@ -451,7 +464,7 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                   <span style={{ position: 'absolute', inset: -2, borderRadius: '50%', border: `2px solid ${MINT}`, animation: 'ping 1s cubic-bezier(0,0,0.2,1) infinite', opacity: 0.4 }} />
                 )}
               </div>
-              <p style={{ fontSize: 10.5, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
+              <p style={{ fontSize: 10.5, fontWeight: 700, color: TEAL, textTransform: 'uppercase', letterSpacing: '0.09em' }}>
                 AI Preview
               </p>
             </div>
@@ -473,9 +486,11 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                   {/* Priority */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                     <span style={{ fontSize: 12, color: '#64748B' }}>Priority</span>
-                    <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 20,
+                    <span style={{
+                      fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 20,
                       background: PRIORITY_OPTIONS.find(p => p.value === aiPreview.priority)?.bg ?? '#F1F5F9',
-                      color: priorityColor(aiPreview.priority) }}>
+                      color: priorityColor(aiPreview.priority)
+                    }}>
                       {aiPreview.priority.charAt(0).toUpperCase() + aiPreview.priority.slice(1)} · {aiPreview.priority_conf}%
                     </span>
                   </div>
@@ -509,7 +524,7 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                 </motion.div>
               ) : (
                 <motion.div key="preview-empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <p style={{ fontSize: 12, color: '#CBD5E1', lineHeight: 1.6 }}>
+                  <p style={{ fontSize: 12, color: '#94A3B8', lineHeight: 1.6 }}>
                     Start typing a title to see AI predictions…
                   </p>
                 </motion.div>

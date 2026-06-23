@@ -628,7 +628,7 @@ export default function TicketsShow({
                 {ticket.priority}
               </span>
               <span style={{ marginLeft: 'auto', fontSize: 11, color: '#94A3B8', fontWeight: 500 }}>
-                {ticket.department.name} · {ticket.category.toUpperCase()}
+                {ticket.department.name}{ticket.category && ticket.category.toUpperCase() !== ticket.department.name.toUpperCase() ? ` · ${ticket.category.toUpperCase()}` : ''}
               </span>
             </div>
             <h1 style={{ fontSize: 24, fontWeight: 700, color: '#0F172A', lineHeight: 1.25, letterSpacing: '-0.02em', marginBottom: 20 }}>

@@ -44,6 +44,7 @@ export interface SharedProps {
   flash: { notice: string | null; alert: string | null }
   notifications: Notification[]
   unread_notifications_count: number
+  active_tickets_count: number
   [key: string]: unknown
 }
 

@@ -22,7 +22,7 @@ const NAV_ITEMS = [
 ]
 
 export default function AppLayout({ children, title }: Props) {
-  const { auth, workspace, notifications, unread_notifications_count, flash } = usePage<SharedProps>().props
+  const { auth, workspace, notifications, unread_notifications_count, active_tickets_count, flash } = usePage<SharedProps>().props
   const currentPath = window.location.pathname
   const [navigating, setNavigating] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -93,7 +93,7 @@ export default function AppLayout({ children, title }: Props) {
                     className="text-xs font-bold px-1.5 py-0.5 rounded-full"
                     style={{ background: '#028090', color: '#fff' }}
                   >
-                    24
+                    {active_tickets_count}
                   </span>
                 )}
               </button>

@@ -22,6 +22,13 @@ class ApplicationController < ActionController::Base
       },
       notifications: current_user ? serialize_notifications(current_user) : [],
       unread_notifications_count: current_user ? current_user.notifications.unread.count : 0,
+      active_tickets_count: if current_user && current_workspace
+                              current_workspace.tickets
+                                               .where(status: %w[open in_progress
+                                                                 pending]).count
+                            else
+                              0
+                            end,
       csp_nonce: content_security_policy_nonce
     }
   end
