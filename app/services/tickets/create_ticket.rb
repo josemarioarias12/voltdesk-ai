@@ -22,6 +22,7 @@ module Tickets
       end
 
       Ai::ClassifyTicketJob.perform_later(ticket.id)
+      Tickets::SendConfirmationEmailJob.perform_later(ticket.id)
       Webhooks::TriggerService.call(
         workspace: @workspace,
         event:     'ticket.created',

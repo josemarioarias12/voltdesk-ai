@@ -5,6 +5,17 @@ import type { TicketsNewProps, TicketPriority } from '@/types/tickets'
 import { useVoiceTicket } from '@/hooks/useVoiceTicket'
 import AppLayout from '@/components/AppLayout'
 
+// ── Responsive hook ───────────────────────────────────────────────────────────
+function useWindowWidth() {
+  const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
+  useEffect(() => {
+    const handler = () => setWidth(window.innerWidth)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
+  return width
+}
+
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const TEAL = '#028090'
 const MINT = '#02C39A'
@@ -74,14 +85,6 @@ function MicIcon({ size = 24, color = 'currentColor' }: { size?: number; color?:
   )
 }
 
-function TypeIcon({ size = 14 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-    </svg>
-  )
-}
 
 function SparkleIcon({ size = 14, color = '#fff' }: { size?: number; color?: string }) {
   return (
@@ -130,7 +133,6 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
     source: 'web' as 'web' | 'voice',
   })
 
-  const [inputMode, setInputMode] = useState<'voice' | 'type'>('voice')
   const [dragOver, setDragOver] = useState(false)
   const [selectedDept, setSelectedDept] = useState<string | null>(null)
   const [aiPreview, setAiPreview] = useState<AiPreviewData | null>(null)
@@ -185,6 +187,9 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
   const isListening = voiceState === 'listening'
   const canSubmit = !processing && !!data.title && !!data.department_id
   const priorityMeta = PRIORITY_OPTIONS.find(p => p.value === data.priority)
+  const windowWidth  = useWindowWidth()
+  const isMobile     = windowWidth < 768
+  const isTablet     = windowWidth < 1024
 
   const priorityColor = (val: string) => PRIORITY_OPTIONS.find(p => p.value === val)?.color ?? '#64748B'
 
@@ -202,44 +207,17 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
         </p>
       </div>
 
-      <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+      <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start', flexDirection: isMobile ? 'column' : 'row' }}>
 
         {/* ── Left column ─────────────────────────────────────────────────── */}
         <div style={{ flex: 1, minWidth: 0 }}>
 
-          {/* Segmented toggle */}
-          <div style={{ display: 'inline-flex', background: '#F1F5F9', borderRadius: 20, padding: 3, marginBottom: 20, gap: 2 }}>
-            {(['voice', 'type'] as const).map(mode => {
-              const active = inputMode === mode
-              return (
-                <button key={mode} type="button" onClick={() => setInputMode(mode)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 6,
-                    padding: '6px 16px', borderRadius: 18,
-                    border: active ? `1.5px solid rgba(2,128,144,0.25)` : '1.5px solid transparent',
-                    cursor: 'pointer', outline: 'none',
-                    fontSize: 13, fontWeight: active ? 600 : 400,
-                    background: active ? '#fff' : 'transparent',
-                    color: active ? TEAL : '#94A3B8',
-                    boxShadow: active ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
-                    transition: 'all 120ms ease',
-                  }}>
-                  {mode === 'voice'
-                    ? <MicIcon size={14} color={active ? TEAL : '#94A3B8'} />
-                    : <TypeIcon size={14} />}
-                  {mode === 'voice' ? 'Voice Input' : 'Type Manually'}
-                </button>
-              )
-            })}
-          </div>
 
           {/* Voice panel */}
-          <AnimatePresence>
-            {inputMode === 'voice' && (
-              <motion.div key="voice-panel"
-                initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.18 }}>
-                <div style={{ background: 'linear-gradient(135deg, #028090, #026E7A)', borderRadius: 12, marginBottom: 12, padding: '32px 24px', textAlign: 'center' }}>
+          <motion.div
+            initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.18 }}>
+                <div style={{ background: 'linear-gradient(135deg, #028090, #026E7A)', borderRadius: 12, marginBottom: 12, padding: isMobile ? '24px 16px' : '32px 24px', textAlign: 'center' }}>
                   <button onClick={handleVoiceToggle} disabled={!isSupported} type="button"
                     style={{
                       width: 56, height: 56, borderRadius: '50%', border: 'none',
@@ -278,8 +256,6 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                   </div>
                 )}
               </motion.div>
-            )}
-          </AnimatePresence>
 
           {/* Divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
@@ -339,7 +315,7 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
             </div>
 
             {/* Department + Priority */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
 
               {/* Department */}
               <div>
@@ -453,7 +429,7 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
         </div>
 
         {/* ── Right sidebar — single #FAFAFA surface ───────────────────────── */}
-        <div style={{ width: 264, flexShrink: 0, background: '#FAFAFA', borderRadius: 12, border: '1px solid rgba(15,23,42,0.07)', overflow: 'hidden' }}>
+        <div style={{ width: isMobile ? '100%' : isTablet ? 220 : 264, flexShrink: 0, background: '#FAFAFA', borderRadius: 12, border: '1px solid rgba(15,23,42,0.07)', overflow: 'hidden', order: isMobile ? -1 : 0 }}>
 
           {/* AI PREVIEW */}
           <div style={{ padding: '16px 18px', borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
@@ -499,7 +475,9 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                     <span style={{ fontSize: 12, color: '#64748B' }}>Est. SLA</span>
                     <span style={{ fontSize: 12, fontWeight: 600, color: NAVY }}>
-                      {aiPreview.est_sla_hours < 24 ? `${aiPreview.est_sla_hours} hours` : `${aiPreview.est_sla_hours / 24} days`}
+                      {aiPreview.est_sla_hours < 24
+  ? `${aiPreview.est_sla_hours} ${aiPreview.est_sla_hours === 1 ? 'hour' : 'hours'}`
+  : `${aiPreview.est_sla_hours / 24} ${aiPreview.est_sla_hours / 24 === 1 ? 'day' : 'days'}`}
                     </span>
                   </div>
 

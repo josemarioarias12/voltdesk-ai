@@ -1,0 +1,27 @@
+PulseDesk AI — Ticket Confirmation
+===================================
+
+Hi <%= @user.full_name %>,
+
+Your ticket has been received and AI classification has started.
+
+TICKET NUMBER: <%= @ticket.ticket_number %>
+SUBJECT: <%= @ticket.title %>
+DEPARTMENT: <%= @ticket.department.name %>
+PRIORITY: <%= @ticket.priority&.capitalize || 'Pending AI' %>
+SUBMITTED: <%= @ticket.created_at.strftime('%b %d, %Y at %I:%M %p') %>
+
+<% if @ticket.description.present? %>
+DESCRIPTION:
+<%= @ticket.description %>
+<% end %>
+
+Our AI is analyzing your ticket to detect category, urgency score,
+similar resolved cases, and the optimal agent for routing.
+
+View your ticket:
+<%= ENV.fetch('APP_HOST', 'https://pulsedesk-ai-production.up.railway.app') %>/tickets/<%= @ticket.id %>
+
+---
+<%= @workspace.name %> · Powered by PulseDesk AI
+This is an automated notification. Please do not reply to this email.

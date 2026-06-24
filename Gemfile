@@ -88,3 +88,5 @@ gem 'gemini-ai', '~> 4.2'
 gem 'ruby-anthropic', '~> 0.4'
 
 gem 'redis', '~> 5.4'
+
+gem 'resend'
