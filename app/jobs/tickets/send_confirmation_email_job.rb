@@ -10,7 +10,16 @@ module Tickets
       return unless ticket
       return if ticket.created_by&.email.blank?
 
-      TicketMailer.confirmation(ticket).deliver_now
+      html = TicketMailer.confirmation(ticket).html_part.body.to_s
+      text = TicketMailer.confirmation(ticket).text_part.body.to_s
+
+      Resend::Emails.send({
+                            from:    'PulseDesk AI <onboarding@resend.dev>',
+        to:      ticket.created_by.email,
+        subject: "[#{ticket.ticket_number}] Ticket received — AI classification in progress",
+        html:    html,
+        text:    text
+                          })
     end
   end
 end

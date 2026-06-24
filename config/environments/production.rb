@@ -65,15 +65,7 @@ Rails.application.configure do
 
   # Set host to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST', 'pulsedesk-ai-production.up.railway.app') }
-  config.action_mailer.delivery_method = :smtp
-  config.action_mailer.smtp_settings = {
-    address:              'smtp.resend.com',
-    port:                 465,
-    user_name:            'resend',
-    password:             ENV.fetch('RESEND_API_KEY', nil),
-    authentication:       :plain,
-    ssl:                  true
-  }
+  config.action_mailer.delivery_method = :resend
   config.action_mailer.perform_deliveries = true
   config.action_mailer.raise_delivery_errors = false
 
