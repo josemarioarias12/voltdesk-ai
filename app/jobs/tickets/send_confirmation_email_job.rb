@@ -15,7 +15,7 @@ module Tickets
 
       Resend::Emails.send({
                             from:    'PulseDesk AI <onboarding@resend.dev>',
-        to:      ticket.created_by.email,
+        to:      ENV.fetch('DEMO_EMAIL', ticket.created_by.email),
         subject: "[#{ticket.ticket_number}] Ticket received — AI classification in progress",
         html:    html,
         text:    text
