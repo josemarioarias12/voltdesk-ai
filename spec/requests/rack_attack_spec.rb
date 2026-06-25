@@ -6,14 +6,14 @@ RSpec.describe 'Rack::Attack throttling', type: :request do
   # Each example group gets a unique IP prefix to avoid cross-example counter bleed.
   # Using object_id of the example group ensures no two examples share an IP
   # regardless of seed order or MemoryStore reset timing.
-  IP_COUNTER = Concurrent::AtomicFixnum.new(1) # rubocop:disable Lint/ConstantDefinitionInBlock
+  IP_COUNTER = Concurrent::AtomicFixnum.new(1) # rubocop:disable Lint/ConstantDefinitionInBlock, RSpec/LeakyConstantDeclaration
 
-  before(:each) do
+  before do
     Rack::Attack.enabled = true
     Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
   end
 
-  after(:each) do
+  after do
     Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
     Rack::Attack.enabled = false
   end
