@@ -12,8 +12,9 @@ class AgentActionsController < ApplicationController
   def approve
     action = AgentAction.find(params.expect(:id))
     authorize action, :approve?
-    result = Ai::AgentOrchestrator.new(ticket: action.ticket).send(:execute_pipeline,
-                                                                   rag_data: action.result.symbolize_keys, agent_action: action)
+    rag = action.result.symbolize_keys
+    result = Ai::AgentOrchestrator.new(ticket: action.ticket)
+                                  .send(:execute_pipeline, rag_data: rag, agent_action: action)
     action.update!(approved_by: current_user)
     redirect_to agent_actions_path, notice: result.success? ? 'Action executed successfully.' : result.error
   end
@@ -29,8 +30,9 @@ class AgentActionsController < ApplicationController
   def ticket_approve
     action = AgentAction.find(params.expect(:id))
     authorize action, :approve?
-    result = Ai::AgentOrchestrator.new(ticket: action.ticket).send(:execute_pipeline,
-                                                                   rag_data: action.result.symbolize_keys, agent_action: action)
+    rag = action.result.symbolize_keys
+    result = Ai::AgentOrchestrator.new(ticket: action.ticket)
+                                  .send(:execute_pipeline, rag_data: rag, agent_action: action)
     action.update!(approved_by: current_user)
     redirect_to ticket_path(action.ticket_id),
                 notice: result.success? ? 'AI action approved and executed.' : result.error
