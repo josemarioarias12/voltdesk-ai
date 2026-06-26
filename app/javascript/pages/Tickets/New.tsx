@@ -184,7 +184,12 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    post('/tickets', { forceFormData: true })
+    post('/tickets', {
+      forceFormData: true,
+      headers: {
+        'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? '',
+      },
+    })
   }
 
   function handleFiles(files: FileList | File[]) {
