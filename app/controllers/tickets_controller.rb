@@ -133,7 +133,7 @@ activities: :user).find(params.expect(:id))
   end
 
   def ticket_params
-    params.expect(ticket: %i[title description department_id priority category source space_id])
+    params.expect(ticket: %i[title description department_id priority category source space_id] + [{ attachments: [] }])
   end
 
   def ticket_update_params

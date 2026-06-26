@@ -126,14 +126,17 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
   const { transcript, interimTranscript, voiceState, isSupported, startListening, stopListening, resetTranscript, errorMessage } = useVoiceTicket('es-ES')
 
   const { data, setData, post, processing, errors } = useForm({
-    title: '',
-    description: '',
+    title:         '',
+    description:   '',
     department_id: '',
-    priority: '' as TicketPriority | '',
-    source: 'web' as 'web' | 'voice',
+    priority:      '' as TicketPriority | '',
+    source:        'web' as 'web' | 'voice',
+    attachments:   [] as File[],
   })
 
-  const [dragOver, setDragOver] = useState(false)
+  const [dragOver,         setDragOver]          = useState(false)
+  const [previews,         setPreviews]           = useState<Array<{ name: string; url: string; type: string }>>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [selectedDept, setSelectedDept] = useState<string | null>(null)
   const [aiPreview, setAiPreview] = useState<AiPreviewData | null>(null)
   const [aiLoading, setAiLoading] = useState(false)
@@ -181,7 +184,39 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    post('/tickets')
+    post('/tickets', { forceFormData: true })
+  }
+
+  function handleFiles(files: FileList | File[]) {
+    const arr = Array.from(files).filter(f => f.size <= 10 * 1024 * 1024)
+    if (!arr.length) return
+    setData('attachments', [...data.attachments, ...arr])
+    arr.forEach(file => {
+      const url = URL.createObjectURL(file)
+      setPreviews(prev => [...prev, { name: file.name, url, type: file.type }])
+    })
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setDragOver(false)
+    if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files)
+  }
+
+  function handlePaste(e: React.ClipboardEvent) {
+    const items = Array.from(e.clipboardData.items)
+    const imageFiles = items
+      .filter(item => item.kind === 'file' && item.type.startsWith('image/'))
+      .map(item => item.getAsFile())
+      .filter((f): f is File => f !== null)
+    if (imageFiles.length) handleFiles(imageFiles)
+  }
+
+  function removeAttachment(index: number) {
+    const newFiles = data.attachments.filter((_, i) => i !== index)
+    const newPreviews = previews.filter((_, i) => i !== index)
+    setData('attachments', newFiles)
+    setPreviews(newPreviews)
   }
 
   const isListening = voiceState === 'listening'
@@ -374,25 +409,54 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
             </div>
 
             {/* Attachments */}
-            <div>
+            <div onPaste={handlePaste}>
               <label style={LABEL}>Attachments</label>
+              <input ref={fileInputRef} type="file" multiple accept="image/*,.pdf"
+                style={{ display: 'none' }}
+                onChange={e => { if (e.target.files) handleFiles(e.target.files) }} />
               <div
                 onDragOver={e => { e.preventDefault(); setDragOver(true) }}
                 onDragLeave={() => setDragOver(false)}
-                onDrop={e => { e.preventDefault(); setDragOver(false) }}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
                 style={{
                   border: `2px dashed ${dragOver ? TEAL : 'rgba(15,23,42,0.10)'}`,
-                  borderRadius: 8, padding: '24px', textAlign: 'center',
+                  borderRadius: 8, padding: '20px 24px', textAlign: 'center',
                   background: dragOver ? 'rgba(2,128,144,0.04)' : '#FAFAFA',
                   cursor: 'pointer', transition: 'all 120ms ease',
                 }}>
-                <svg width="22" height="22" fill="none" stroke="#CBD5E1" viewBox="0 0 24 24" style={{ marginBottom: 8 }}>
+                <svg width="22" height="22" fill="none" stroke={dragOver ? TEAL : '#CBD5E1'} viewBox="0 0 24 24" style={{ marginBottom: 8 }}>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
-                <p style={{ fontSize: 13, color: '#94A3B8', marginBottom: 4 }}>Drop files here or click to upload</p>
+                <p style={{ fontSize: 13, color: '#64748B', marginBottom: 2 }}>
+                  Drop files, <span style={{ color: TEAL, fontWeight: 600 }}>click to browse</span>, or paste an image
+                </p>
                 <p style={{ fontSize: 11, color: '#CBD5E1' }}>PNG, JPG, PDF up to 10MB</p>
               </div>
+
+              {/* Previews */}
+              {previews.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
+                  {previews.map((p, i) => (
+                    <div key={i} style={{ position: 'relative', width: 72, height: 72, borderRadius: 8, overflow: 'hidden', border: '1px solid rgba(15,23,42,0.10)' }}>
+                      {p.type.startsWith('image/') ? (
+                        <img src={p.url} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ width: '100%', height: '100%', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <span style={{ fontSize: 10, color: '#64748B', textAlign: 'center', padding: 4 }}>{p.name.slice(0, 12)}</span>
+                        </div>
+                      )}
+                      <button type="button" onClick={e => { e.stopPropagation(); removeAttachment(i) }}
+                        style={{ position: 'absolute', top: 2, right: 2, width: 18, height: 18, borderRadius: '50%', background: 'rgba(15,23,42,0.6)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="#fff" strokeWidth="1.5">
+                          <path d="M1 1l6 6M7 1L1 7" strokeLinecap="round" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Submit */}
