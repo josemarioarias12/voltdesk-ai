@@ -133,7 +133,10 @@ activities: :user).find(params.expect(:id))
   end
 
   def ticket_params
-    params.expect(ticket: %i[title description department_id priority category source space_id] + [{ attachments: [] }])
+    # rubocop:disable Rails/StrongParametersExpect
+    params.require(:ticket).permit(:title, :description, :department_id, :priority, :category, :source, :space_id,
+                                   attachments: [])
+    # rubocop:enable Rails/StrongParametersExpect
   end
 
   def ticket_update_params
