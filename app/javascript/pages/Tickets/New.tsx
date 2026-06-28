@@ -136,7 +136,10 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
 
   const [dragOver,         setDragOver]          = useState(false)
   const [previews,         setPreviews]           = useState<Array<{ name: string; url: string; type: string }>>([])
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const fileInputRef    = useRef<HTMLInputElement>(null)
+  const cameraInputRef  = useRef<HTMLInputElement>(null)
+  const galleryInputRef = useRef<HTMLInputElement>(null)
+  const [showAttachmentModal, setShowAttachmentModal] = useState(false)
   const [selectedDept, setSelectedDept] = useState<string | null>(null)
   const [aiPreview, setAiPreview] = useState<AiPreviewData | null>(null)
   const [aiLoading, setAiLoading] = useState(false)
@@ -413,20 +416,30 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
               </div>
             </div>
 
-            {/* Attachments */}
+          {/* Attachments */}
             <div onPaste={handlePaste}>
               <label style={LABEL}>Attachments</label>
-              <input ref={fileInputRef} type="file" multiple accept="image/*,.pdf"
+
+              {/* Hidden inputs */}
+              <input ref={fileInputRef} type="file" multiple accept="image/*,.pdf,.doc,.docx,.txt"
                 style={{ display: 'none' }}
-                onChange={e => { if (e.target.files) handleFiles(e.target.files) }} />
+                onChange={e => { if (e.target.files) { handleFiles(e.target.files); setShowAttachmentModal(false) } }} />
+              <input ref={cameraInputRef} type="file" accept="image/*" capture="environment"
+                style={{ display: 'none' }}
+                onChange={e => { if (e.target.files) { handleFiles(e.target.files); setShowAttachmentModal(false) } }} />
+              <input ref={galleryInputRef} type="file" multiple accept="image/*"
+                style={{ display: 'none' }}
+                onChange={e => { if (e.target.files) { handleFiles(e.target.files); setShowAttachmentModal(false) } }} />
+
+              {/* Drop zone */}
               <div
                 onDragOver={e => { e.preventDefault(); setDragOver(true) }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => setShowAttachmentModal(true)}
                 style={{
                   border: `2px dashed ${dragOver ? TEAL : 'rgba(15,23,42,0.10)'}`,
-                  borderRadius: 8, padding: '20px 24px', textAlign: 'center',
+                  borderRadius: 8, padding: '18px 24px', textAlign: 'center',
                   background: dragOver ? 'rgba(2,128,144,0.04)' : '#FAFAFA',
                   cursor: 'pointer', transition: 'all 120ms ease',
                 }}>
@@ -435,9 +448,9 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
                 <p style={{ fontSize: 13, color: '#64748B', marginBottom: 2 }}>
-                  Drop files, <span style={{ color: TEAL, fontWeight: 600 }}>click to browse</span>, or paste an image
+                  Drop files or <span style={{ color: TEAL, fontWeight: 600 }}>click to add attachments</span>
                 </p>
-                <p style={{ fontSize: 11, color: '#CBD5E1' }}>PNG, JPG, PDF up to 10MB</p>
+                <p style={{ fontSize: 11, color: '#CBD5E1' }}>PNG, JPG, PDF, DOC up to 10MB</p>
               </div>
 
               {/* Previews */}
@@ -448,8 +461,11 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                       {p.type.startsWith('image/') ? (
                         <img src={p.url} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
-                        <div style={{ width: '100%', height: '100%', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <span style={{ fontSize: 10, color: '#64748B', textAlign: 'center', padding: 4 }}>{p.name.slice(0, 12)}</span>
+                        <div style={{ width: '100%', height: '100%', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 4 }}>
+                          <svg width="20" height="20" fill="none" stroke="#64748B" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <span style={{ fontSize: 9, color: '#64748B', textAlign: 'center', padding: '0 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 64 }}>{p.name.slice(0, 10)}</span>
                         </div>
                       )}
                       <button type="button" onClick={e => { e.stopPropagation(); removeAttachment(i) }}
@@ -463,6 +479,142 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                 </div>
               )}
             </div>
+
+            {/* Attachment Modal */}
+            <AnimatePresence>
+              {showAttachmentModal && (
+                <>
+                  {/* Backdrop */}
+                  <motion.div
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    onClick={() => setShowAttachmentModal(false)}
+                    style={{ position: 'fixed', inset: 0, background: 'rgba(13,27,42,0.5)', zIndex: 50, backdropFilter: 'blur(4px)' }} />
+
+                  {/* Modal */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                    transition={{ duration: 0.18, ease: 'easeOut' }}
+                    style={{
+                      position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                      zIndex: 51, background: '#fff', borderRadius: 16, width: 340,
+                      boxShadow: '0 20px 60px rgba(0,0,0,0.15), 0 4px 16px rgba(0,0,0,0.08)',
+                      overflow: 'hidden',
+                    }}>
+
+                    {/* Modal header */}
+                    <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <p style={{ fontSize: 10.5, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 2 }}>Add Attachment</p>
+                          <p style={{ fontSize: 16, fontWeight: 700, color: NAVY, letterSpacing: '-0.02em' }}>How would you like to add a file?</p>
+                        </div>
+                        <button type="button" onClick={() => setShowAttachmentModal(false)}
+                          style={{ width: 32, height: 32, borderRadius: '50%', border: 'none', background: '#F1F5F9', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#64748B" strokeWidth="2">
+                            <path d="M1 1l10 10M11 1L1 11" strokeLinecap="round" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Options */}
+                    <div style={{ padding: '12px 16px 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+
+                     {isMobile ? (
+                        <>
+                          {/* Mobile: Take Photo */}
+                          <button type="button" onClick={() => cameraInputRef.current?.click()}
+                            style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 12, border: '1px solid rgba(15,23,42,0.08)', background: '#fff', cursor: 'pointer', transition: 'all 120ms ease', textAlign: 'left', width: '100%' }}
+                            onMouseEnter={e => { e.currentTarget.style.background = '#F0FDFA'; e.currentTarget.style.borderColor = TEAL }}
+                            onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = 'rgba(15,23,42,0.08)' }}>
+                            <div style={{ width: 42, height: 42, borderRadius: 10, background: 'linear-gradient(135deg, #028090, #02C39A)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                              <svg width="20" height="20" fill="none" stroke="#fff" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                            </div>
+                            <div>
+                              <p style={{ fontSize: 14, fontWeight: 600, color: NAVY, marginBottom: 2 }}>Take a Photo</p>
+                              <p style={{ fontSize: 12, color: '#94A3B8' }}>Use your camera to capture the issue</p>
+                            </div>
+                          </button>
+
+                          {/* Mobile: Gallery */}
+                          <button type="button" onClick={() => galleryInputRef.current?.click()}
+                            style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 12, border: '1px solid rgba(15,23,42,0.08)', background: '#fff', cursor: 'pointer', transition: 'all 120ms ease', textAlign: 'left', width: '100%' }}
+                            onMouseEnter={e => { e.currentTarget.style.background = '#F0FDFA'; e.currentTarget.style.borderColor = TEAL }}
+                            onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = 'rgba(15,23,42,0.08)' }}>
+                            <div style={{ width: 42, height: 42, borderRadius: 10, background: 'linear-gradient(135deg, #7C3AED, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                              <svg width="20" height="20" fill="none" stroke="#fff" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                            <div>
+                              <p style={{ fontSize: 14, fontWeight: 600, color: NAVY, marginBottom: 2 }}>Choose from Gallery</p>
+                              <p style={{ fontSize: 12, color: '#94A3B8' }}>Select images from your device</p>
+                            </div>
+                          </button>
+
+                          {/* Mobile: Upload File */}
+                          <button type="button" onClick={() => fileInputRef.current?.click()}
+                            style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 12, border: '1px solid rgba(15,23,42,0.08)', background: '#fff', cursor: 'pointer', transition: 'all 120ms ease', textAlign: 'left', width: '100%' }}
+                            onMouseEnter={e => { e.currentTarget.style.background = '#F0FDFA'; e.currentTarget.style.borderColor = TEAL }}
+                            onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = 'rgba(15,23,42,0.08)' }}>
+                            <div style={{ width: 42, height: 42, borderRadius: 10, background: 'linear-gradient(135deg, #EA580C, #F97316)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                              <svg width="20" height="20" fill="none" stroke="#fff" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                              </svg>
+                            </div>
+                            <div>
+                              <p style={{ fontSize: 14, fontWeight: 600, color: NAVY, marginBottom: 2 }}>Upload a File</p>
+                              <p style={{ fontSize: 12, color: '#94A3B8' }}>PDF, DOC, TXT up to 10MB</p>
+                            </div>
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          {/* Desktop: Upload Files */}
+                          <button type="button" onClick={() => fileInputRef.current?.click()}
+                            style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 12, border: '1px solid rgba(15,23,42,0.08)', background: '#fff', cursor: 'pointer', transition: 'all 120ms ease', textAlign: 'left', width: '100%' }}
+                            onMouseEnter={e => { e.currentTarget.style.background = '#F0FDFA'; e.currentTarget.style.borderColor = TEAL }}
+                            onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = 'rgba(15,23,42,0.08)' }}>
+                            <div style={{ width: 42, height: 42, borderRadius: 10, background: 'linear-gradient(135deg, #028090, #02C39A)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                              <svg width="20" height="20" fill="none" stroke="#fff" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                              </svg>
+                            </div>
+                            <div>
+                              <p style={{ fontSize: 14, fontWeight: 600, color: NAVY, marginBottom: 2 }}>Upload Files</p>
+                              <p style={{ fontSize: 12, color: '#94A3B8' }}>Images, PDF, DOC up to 10MB</p>
+                            </div>
+                          </button>
+
+                          {/* Desktop: Upload Image */}
+                          <button type="button" onClick={() => galleryInputRef.current?.click()}
+                            style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 12, border: '1px solid rgba(15,23,42,0.08)', background: '#fff', cursor: 'pointer', transition: 'all 120ms ease', textAlign: 'left', width: '100%' }}
+                            onMouseEnter={e => { e.currentTarget.style.background = '#F0FDFA'; e.currentTarget.style.borderColor = TEAL }}
+                            onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = 'rgba(15,23,42,0.08)' }}>
+                            <div style={{ width: 42, height: 42, borderRadius: 10, background: 'linear-gradient(135deg, #7C3AED, #A855F7)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                              <svg width="20" height="20" fill="none" stroke="#fff" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                            <div>
+                              <p style={{ fontSize: 14, fontWeight: 600, color: NAVY, marginBottom: 2 }}>Upload Image</p>
+                              <p style={{ fontSize: 12, color: '#94A3B8' }}>PNG, JPG, GIF, WebP up to 10MB</p>
+                            </div>
+                          </button>
+
+                        </>
+                      )}
+
+                    </div>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
 
             {/* Submit */}
             <motion.button type="submit" disabled={!canSubmit}
