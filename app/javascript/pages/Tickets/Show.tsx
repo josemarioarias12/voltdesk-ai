@@ -639,6 +639,36 @@ export default function TicketsShow({
             <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.8, whiteSpace: 'pre-line' }}>
               {ticket.description ?? 'No description provided.'}
             </p>
+
+            {/* Attachments */}
+            {ticket.attachments?.length > 0 && (
+              <div style={{ marginTop: 20 }}>
+                <p style={{ ...LABEL, marginBottom: 10 }}>Attachments</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                  {ticket.attachments.map(att => (
+                    <a key={att.id} href={att.url} target="_blank" rel="noreferrer"
+                      style={{ textDecoration: 'none' }}>
+                      {att.content_type.startsWith('image/') ? (
+                        <div style={{ width: 120, height: 90, borderRadius: 8, overflow: 'hidden', border: '1px solid rgba(15,23,42,0.10)', cursor: 'pointer', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <img src={att.url} alt={att.filename}
+                            style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 8, border: '1px solid rgba(15,23,42,0.10)', background: '#F8FAFC', cursor: 'pointer' }}>
+                          <svg width="14" height="14" fill="none" stroke="#64748B" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                              d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                          </svg>
+                          <span style={{ fontSize: 12, color: '#475569', maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {att.filename}
+                          </span>
+                        </div>
+                      )}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
           </motion.div>
 
           {/* AI cards */}

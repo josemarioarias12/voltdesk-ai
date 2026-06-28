@@ -68,6 +68,7 @@ export interface Ticket {
   department: DepartmentStub
   created_by: UserStub
   assigned_to: UserStub | null
+  attachments: Array<{ id: number; filename: string; content_type: string; url: string }>
 }
 
 export interface TicketComment {

@@ -134,8 +134,13 @@ activities: :user).find(params.expect(:id))
 
   def ticket_params
     # rubocop:disable Rails/StrongParametersExpect
-    params.require(:ticket).permit(:title, :description, :department_id, :priority, :category, :source, :space_id,
-                                   attachments: [])
+    if params[:ticket].present?
+      params.require(:ticket).permit(:title, :description, :department_id, :priority, :category, :source, :space_id,
+                                     attachments: [])
+    else
+      params.permit(:title, :description, :department_id, :priority, :category, :source, :space_id,
+                    attachments: [])
+    end
     # rubocop:enable Rails/StrongParametersExpect
   end
 
@@ -211,7 +216,15 @@ activities: :user).find(params.expect(:id))
       sla_remaining_seconds: tkt.sla_remaining&.to_i,
       department: { id: tkt.department.id, name: tkt.department.name, color: tkt.department.color },
       created_by: user_stub(tkt.created_by),
-      assigned_to: tkt.assigned_to ? user_stub(tkt.assigned_to) : nil
+      assigned_to: tkt.assigned_to ? user_stub(tkt.assigned_to) : nil,
+      attachments: tkt.attachments.map do |att|
+        {
+          id:           att.id,
+          filename:     att.filename.to_s,
+          content_type: att.content_type,
+          url:          url_for(att)
+        }
+      end
     }
   end
 
