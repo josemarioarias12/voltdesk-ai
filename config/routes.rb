@@ -89,15 +89,14 @@ Rails.application.routes.draw do
   namespace :admin do
     get '/',          to: 'overview#index',  as: :root
     get '/audit-log', to: 'audit_log#index', as: :audit_log
-
     resources :pattern_alerts, only: %i[index update]
     get '/operational-twin', to: 'operational_twin#show', as: :operational_twin
     get '/ai-health', to: 'ai_health#index', as: :ai_health
     get '/benchmark', to: 'benchmark#index', as: :benchmark
-
     get  '/compliance',          to: 'compliance#show', as: :compliance
     get  '/compliance/download', to: 'compliance#download_pdf', as: :compliance_download
     post '/compliance/purge',    to: 'compliance#purge_user',   as: :compliance_purge
+    get  '/telegram-test',       to: 'telegram_test#show',      as: :telegram_test
   end
 
   #  AI Agent Orchestrator ─────────────────────────────────────────────

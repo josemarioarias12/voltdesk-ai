@@ -22,7 +22,6 @@ module Ai
 
       clusters = build_clusters(recent)
       alerts   = clusters.filter_map { |cluster| create_alert_for_cluster(cluster) }
-
       ServiceResult.success(alerts)
     rescue StandardError => e
       ServiceResult.failure(e.message)
@@ -76,17 +75,22 @@ module Ai
       return nil if duplicate_alert_exists?(cluster)
 
       ticket_numbers = cluster.map(&:ticket_number)
-
       alert = @workspace.pattern_alerts.create!(
         alert_type: :ticket_cluster,
         severity: :high,
         title: "#{cluster.size} similar tickets detected in the last #{WINDOW_HOURS}h",
         description: "Possible recurring incident. Tickets: #{ticket_numbers.join(', ')}",
         metadata: {
-          ticket_ids: cluster.map(&:id),
+          ticket_ids:     cluster.map(&:id),
           ticket_numbers: ticket_numbers,
-          detected_at: Time.current.iso8601
+          detected_at:    Time.current.iso8601
         }
+      )
+
+      TelegramNotifier.send_prediction(
+        message: "Pattern detected: #{cluster.size} similar tickets in #{WINDOW_HOURS}h " \
+                 "(#{ticket_numbers.join(', ')}). Possible recurring incident.",
+        level: :warning
       )
 
       broadcast_alert(alert)
@@ -95,7 +99,6 @@ module Ai
 
     def duplicate_alert_exists?(cluster)
       ticket_ids = cluster.map(&:id).sort
-
       @workspace.pattern_alerts
                 .alert_type_ticket_cluster
                 .where(created_at: 1.hour.ago..)
@@ -109,12 +112,12 @@ module Ai
       ActionCable.server.broadcast(
         "workspace_#{@workspace.id}_managers",
         {
-          type: 'pattern_alert',
-          alert_id: alert.id,
-          title: alert.title,
-          severity: alert.severity,
+          type:        'pattern_alert',
+          alert_id:    alert.id,
+          title:       alert.title,
+          severity:    alert.severity,
           description: alert.description,
-          created_at: alert.created_at
+          created_at:  alert.created_at
         }
       )
     end

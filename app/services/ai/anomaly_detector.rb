@@ -159,7 +159,7 @@ module Ai
                            .exists?(created_at: 2.hours.ago..)
       return nil if existing
 
-      PatternAlert.create!(
+      alert = PatternAlert.create!(
         workspace:  @workspace,
         alert_type: :department_surge,
         severity:   severity,
@@ -177,6 +177,14 @@ module Ai
           window_minutes:  ANOMALY_WINDOW_MINS
         }
       )
+
+      TelegramNotifier.send_prediction(
+        message: "Anomaly in #{dept.name}: #{current_count} tickets in window " \
+                 "(#{zscore.round(1)}σ above baseline of #{baseline[:mean]}). #{topic_summary}",
+        level: :warning
+      )
+
+      alert
     end
   end
 end
