@@ -12,28 +12,24 @@ module Ai
       end
 
       # Returns { content: String, tokens: Hash }
-      def chat(prompt:, system:, model: 'gpt-4o')
+      def chat(prompt:, system:, model: 'gpt-4o', messages: nil)
+        user_messages = messages || [{ role: 'user', content: prompt }]
         response = @client.chat(
           parameters: {
-            model: model,
+            model:       model,
             temperature: 0.2,
-            max_tokens: 500,
-            messages: [
-              { role: 'system', content: system },
-              { role: 'user',   content: prompt }
-            ]
+            max_tokens:  500,
+            messages:    [{ role: 'system', content: system }] + user_messages
           }
         )
-
         content = response.dig('choices', 0, 'message', 'content').to_s
         usage   = response['usage'] || {}
-
         {
           content: content,
           tokens: {
-            'prompt_tokens' => usage['prompt_tokens'] || 0,
-            'completion_tokens' => usage['completion_tokens'] || 0,
-            'total_tokens' => usage['total_tokens'] || 0
+            'prompt_tokens'       => usage['prompt_tokens'] || 0,
+            'completion_tokens'   => usage['completion_tokens'] || 0,
+            'total_tokens'        => usage['total_tokens'] || 0
           }
         }
       end

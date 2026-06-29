@@ -5,6 +5,7 @@ module Ai
     include AiAuditable
 
     VALID_CATEGORIES = %w[general it hr facilities finance operations support].freeze
+    IMAGE_TYPES      = %w[image/jpeg image/png image/gif image/webp].freeze
 
     SYSTEM_PROMPT = <<~PROMPT
       You are an enterprise support ticket classifier. Analyze the ticket and return ONLY valid JSON.
@@ -22,7 +23,8 @@ module Ai
           "similar_ticket": string | null
         },
         "tags": [string],
-        "suggested_agent": string | null
+        "suggested_agent": string | null,
+        "image_analysis": string | null
       }
 
       Category MUST be exactly one of: general, it, hr, facilities, finance, operations, support
@@ -42,6 +44,9 @@ module Ai
 
       Urgency score 0-100 gives granularity within priority:
       - critical: 80-100, high: 60-79, medium: 30-59, low: 0-29
+
+      If an image is provided, analyze it and populate image_analysis with a specific description
+      of visible hardware states, error indicators, or physical problems relevant to the ticket.
     PROMPT
 
     def self.call(ticket:)
@@ -55,27 +60,32 @@ module Ai
 
     def call
       adapter, model, provider = resolve_adapter
-      prompt = build_prompt
+      image_data = fetch_image_data
+      prompt     = build_prompt(image_data: image_data)
 
       with_ai_audit(operation: :ticket_classification, model: model, provider: provider) do |ctx|
         ctx[:prompt] = prompt
 
-        result = adapter.chat(prompt: prompt, system: SYSTEM_PROMPT, model: model)
+        result = adapter.chat(
+          prompt:   prompt,
+          system:   SYSTEM_PROMPT,
+          model:    image_data ? 'gpt-4o' : model,
+          messages: build_messages(prompt: prompt, image_data: image_data)
+        )
 
         parsed = parse_response(result[:content])
         ctx[:response]   = result[:content]
         ctx[:tokens]     = result[:tokens]
         ctx[:confidence] = parsed.dig('reasoning', 'confidence')
 
-        # Sanitize category — fallback to 'general' if invalid
         category = parsed['category'].to_s.downcase.strip
         category = 'general' unless VALID_CATEGORIES.include?(category)
 
         @ticket.update!(
-          category: category,
-          priority: parsed['priority'],
+          category:     category,
+          priority:     parsed['priority'],
           urgency_score: parsed['urgency_score'].to_i,
-          ai_metadata: (@ticket.ai_metadata || {}).merge(build_ai_metadata(parsed, model, provider))
+          ai_metadata:  (@ticket.ai_metadata || {}).merge(build_ai_metadata(parsed, model, provider))
         )
 
         ServiceResult.success(@ticket)
@@ -101,14 +111,41 @@ module Ai
       [adapter, 'gpt-4o', 'openai']
     end
 
-    def build_prompt
-      <<~PROMPT
+    def fetch_image_data
+      result = Ai::ImageAnalyzer.call(ticket: @ticket)
+      result.success? ? result.data : nil
+    end
+
+    def build_prompt(image_data: nil)
+      base = <<~PROMPT
         Ticket ##{@ticket.ticket_number}
         Title: #{@ticket.title}
         Description: #{@ticket.description.presence || 'No description provided'}
         Department: #{@ticket.department&.name || 'General'}
         Workspace context: #{@workspace.name}
       PROMPT
+
+      return base unless image_data
+
+      "#{base}\nAn image is attached. Analyze it and populate the image_analysis field.\n"
+    end
+
+    def build_messages(prompt:, image_data: nil)
+      return nil unless image_data
+
+      [{
+        role: 'user',
+        content: [
+          { type: 'text', text: prompt },
+          {
+            type: 'image_url',
+            image_url: {
+              url:    "data:#{image_data[:content_type]};base64,#{image_data[:base64]}",
+              detail: 'low'
+            }
+          }
+        ]
+      }]
     end
 
     def parse_response(content)
@@ -120,14 +157,15 @@ module Ai
 
     def build_ai_metadata(parsed, model, provider)
       {
-        category: parsed['category'],
-        priority: parsed['priority'],
-        urgency_score: parsed['urgency_score'],
-        provider: provider,
-        model: model,
-        reasoning: parsed['reasoning'],
-        tags: parsed['tags'] || [],
-        suggested_agent: parsed['suggested_agent']
+        category:        parsed['category'],
+        priority:        parsed['priority'],
+        urgency_score:   parsed['urgency_score'],
+        provider:        provider,
+        model:           model,
+        reasoning:       parsed['reasoning'],
+        tags:            parsed['tags'] || [],
+        suggested_agent: parsed['suggested_agent'],
+        image_analysis:  parsed['image_analysis']
       }
     end
   end

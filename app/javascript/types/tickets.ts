@@ -45,6 +45,7 @@ export interface AiMetadata {
   tags: string[]
   suggested_agent: string | null
   classified_at: string | null
+  image_analysis?: string
 }
 
 export interface Ticket {

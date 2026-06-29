@@ -362,6 +362,37 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
   )
 }
 
+// ── Vision AI Card ────────────────────────────────────────────────────────────
+function VisionAiCard({ ticket }: { ticket: Ticket }) {
+  const analysis = ticket.ai_metadata?.image_analysis
+  if (!analysis) return null
+
+  return (
+    <motion.div variants={fadeUp} style={{ ...CARD, marginBottom: 10 }}>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(15,23,42,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(2,128,144,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#028090" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              <circle cx="12" cy="12" r="3" stroke="#028090" strokeWidth="1.8" />
+            </svg>
+          </div>
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>Vision AI Analysis</p>
+            <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>GPT-4o Vision</p>
+          </div>
+        </div>
+        <span style={{ fontSize: 10.5, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: 'rgba(2,128,144,0.07)', color: '#028090', border: '1px solid rgba(2,128,144,0.15)' }}>
+          GPT-4o Vision
+        </span>
+      </div>
+      <div style={{ padding: '14px 20px', background: 'rgba(2,128,144,0.02)' }}>
+        <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.75, margin: 0 }}>{analysis}</p>
+      </div>
+    </motion.div>
+  )
+}
+
 // ── RAG Suggestion Card ───────────────────────────────────────────────────────
 function RagSuggestionCard({ agentAction, onAccept }: { agentAction: AgentActionPending; onAccept: (text: string) => void }) {
   const [dismissed, setDismissed] = useState(false)
@@ -680,6 +711,7 @@ export default function TicketsShow({
                 <RagSuggestionCard agentAction={agent_action} onAccept={acceptRagSuggestion} />
               )}
               <XaiPanel ticket={ticket} />
+              <VisionAiCard ticket={ticket} />
               <div style={{ height: 12 }} />
             </div>
           )}
