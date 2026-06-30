@@ -5,6 +5,7 @@ module Ai
     include AiAuditable
 
     BREACH_THRESHOLD = 0.70
+    MODEL = 'gpt-4o-mini'
     SCHEMA = {
       type: 'object',
       properties: {
@@ -28,23 +29,32 @@ module Ai
     def initialize(ticket:)
       @ticket    = ticket
       @workspace = ticket.workspace
-      @client    = OpenAI::Client.new
+      @adapter   = Ai::Providers::OpenaiAdapter.new
     end
 
     def call
-      factors  = gather_factors
-      response = invoke_gpt(factors)
-      return ServiceResult.failure('GPT returned nil') if response.nil?
+      factors = gather_factors
+      raw     = invoke_gpt(factors)
+      return ServiceResult.failure('GPT returned nil') if raw.nil?
 
-      parsed = parse_response(response)
+      parsed = parse_response(raw)
       persist_prediction(parsed[:probability])
 
+      if parsed[:probability] >= BREACH_THRESHOLD
+        TelegramNotifier.send_prediction(
+          message: "SLA breach risk: ticket #{@ticket.ticket_number} — " \
+                   "P(breach)=#{(parsed[:probability] * 100).round}% — " \
+                   "#{parsed[:contributing_factors]&.first(2)&.join(', ')}",
+          level: :critical
+        )
+      end
+
       ServiceResult.success(
-        probability:         parsed[:probability],
+        probability:          parsed[:probability],
         contributing_factors: parsed[:contributing_factors],
-        reasoning:           parsed[:reasoning],
-        ticket_id:           @ticket.id,
-        at_risk:             parsed[:probability] >= BREACH_THRESHOLD
+        reasoning:            parsed[:reasoning],
+        ticket_id:            @ticket.id,
+        at_risk:              parsed[:probability] >= BREACH_THRESHOLD
       )
     rescue StandardError => e
       ServiceResult.failure(e.message)
@@ -69,23 +79,18 @@ module Ai
     def invoke_gpt(factors)
       prompt = build_prompt(factors)
 
-      with_ai_audit(operation: :sla_prediction) do |ctx|
+      with_ai_audit(operation: :sla_prediction, model: MODEL, provider: 'openai') do |ctx|
         ctx[:prompt] = prompt
 
-        resp = @client.chat(
-          parameters: {
-            model:           'gpt-4o',
-            messages:        [{ role: 'user', content: prompt }],
-            max_tokens:      400,
-            temperature:     0.1,
-            response_format: { type: 'json_object' }
-          }
+        result = @adapter.chat(
+          prompt: prompt,
+          system: 'You are a SLA breach prediction engine. Respond only with valid JSON.',
+          model:  MODEL
         )
 
-        raw = resp.dig('choices', 0, 'message', 'content').to_s
-        ctx[:response] = raw
-        ctx[:tokens]   = resp['usage'] || {}
-        raw
+        ctx[:response] = result[:content]
+        ctx[:tokens]   = result[:tokens]
+        result[:content]
       end
     end
 
@@ -93,7 +98,6 @@ module Ai
       agent_name = @ticket.assigned_to&.full_name || 'Unassigned'
 
       <<~PROMPT
-        You are a SLA breach prediction engine for an enterprise helpdesk system.
         Analyze the following ticket factors and predict the probability of SLA breach.
 
         TICKET CONTEXT:
@@ -112,7 +116,7 @@ module Ai
         - Day of week: #{factors[:day_of_week]}
 
         INSTRUCTIONS:
-        Return a JSON object with exactly these fields:
+        Return ONLY a JSON object, no markdown, with exactly these fields:
         - probability: float between 0.0 and 1.0 representing breach probability
         - contributing_factors: array of 2-5 strings naming the top risk factors
         - reasoning: one sentence explaining the primary driver
@@ -123,7 +127,8 @@ module Ai
     end
 
     def parse_response(raw)
-      data = JSON.parse(raw)
+      clean = raw.to_s.gsub(/```json|```/, '').strip
+      data  = JSON.parse(clean)
       {
         probability:          data['probability'].to_f.clamp(0.0, 1.0),
         contributing_factors: Array(data['contributing_factors']).first(5),

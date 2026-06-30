@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+
 RSpec.describe Ai::SlaPredictor do
   include ActiveSupport::Testing::TimeHelpers
 
@@ -19,23 +20,17 @@ RSpec.describe Ai::SlaPredictor do
            status:      :open)
   end
 
-  let(:gpt_response) do
+  let(:gpt_content) do
     {
-      'choices' => [{
-        'message' => {
-          'content' => {
-            probability:          0.82,
-            contributing_factors: ['High urgency score', 'Low hours until due', 'Agent overloaded'],
-            reasoning:            'Ticket has high urgency and deadline is imminent.'
-          }.to_json
-        }
-      }],
-      'usage' => { 'prompt_tokens' => 200, 'completion_tokens' => 80 }
-    }
+      probability:          0.82,
+      contributing_factors: ['High urgency score', 'Low hours until due', 'Agent overloaded'],
+      reasoning:            'Ticket has high urgency and deadline is imminent.'
+    }.to_json
   end
 
   before do
-    allow_any_instance_of(OpenAI::Client).to receive(:chat).and_return(gpt_response)
+    allow_any_instance_of(Ai::Providers::OpenaiAdapter).to receive(:chat)
+      .and_return({ content: gpt_content, tokens: { 'prompt_tokens' => 200, 'completion_tokens' => 80 } })
   end
 
   describe '.call' do
@@ -57,14 +52,14 @@ RSpec.describe Ai::SlaPredictor do
       end
 
       it 'marks at_risk false when probability is below threshold' do
-        low_response = gpt_response.deep_dup
-        low_response['choices'][0]['message']['content'] = {
+        low_content = {
           probability:          0.45,
           contributing_factors: ['Low urgency'],
           reasoning:            'Ticket is on track.'
         }.to_json
 
-        allow_any_instance_of(OpenAI::Client).to receive(:chat).and_return(low_response)
+        allow_any_instance_of(Ai::Providers::OpenaiAdapter).to receive(:chat)
+          .and_return({ content: low_content, tokens: {} })
 
         result = described_class.call(ticket: ticket)
 
@@ -105,21 +100,18 @@ RSpec.describe Ai::SlaPredictor do
       end
 
       it 'sends hours_until_due as 0.0 in the prompt' do
-        expect_any_instance_of(OpenAI::Client).to receive(:chat) do |_, params|
-          prompt = params[:parameters][:messages].first[:content]
-          expect(prompt).to include('0.0')
-          gpt_response
+        expect_any_instance_of(Ai::Providers::OpenaiAdapter).to receive(:chat) do |_, args|
+          expect(args[:prompt]).to include('0.0')
+          { content: gpt_content, tokens: {} }
         end
-
         described_class.call(ticket: ticket)
       end
     end
 
     context 'when GPT returns malformed JSON' do
       before do
-        bad_response = gpt_response.deep_dup
-        bad_response['choices'][0]['message']['content'] = 'not json at all'
-        allow_any_instance_of(OpenAI::Client).to receive(:chat).and_return(bad_response)
+        allow_any_instance_of(Ai::Providers::OpenaiAdapter).to receive(:chat)
+          .and_return({ content: 'not json at all', tokens: {} })
       end
 
       it 'returns success with fallback probability 0.5' do
@@ -132,7 +124,8 @@ RSpec.describe Ai::SlaPredictor do
 
     context 'when OpenAI raises an error' do
       before do
-        allow_any_instance_of(OpenAI::Client).to receive(:chat).and_raise(StandardError, 'API timeout')
+        allow_any_instance_of(Ai::Providers::OpenaiAdapter).to receive(:chat)
+          .and_raise(StandardError, 'API timeout')
       end
 
       it 'returns failure with error message' do

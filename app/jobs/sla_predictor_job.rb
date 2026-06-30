@@ -3,8 +3,8 @@
 class SlaPredictorJob < ApplicationJob
   queue_as :ai_processing
 
-  BATCH_SIZE = 50
-  PREDICTION_COOLDOWN = 25.minutes
+  BATCH_SIZE = 10
+  PREDICTION_COOLDOWN = 4.hours
   BREACH_THRESHOLD = 0.70
 
   def perform(workspace_id = nil)
