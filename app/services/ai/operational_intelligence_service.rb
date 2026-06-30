@@ -4,7 +4,7 @@ module Ai
   class OperationalIntelligenceService
     include AiAuditable
 
-    MINIMUM_DAYS = 3
+    MINIMUM_DAYS = 1
 
     def self.call(workspace:, period: 7.days)
       new(workspace: workspace, period: period).call
