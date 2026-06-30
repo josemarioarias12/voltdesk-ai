@@ -15,7 +15,7 @@ jobs:
     name: Lint (RuboCop + TypeScript)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.4"
@@ -63,7 +63,7 @@ jobs:
       GEMINI_API_KEY: test-fake-gemini-key
       SECRET_KEY_BASE: testsecretkeybaselongerthan30chars
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.4"
