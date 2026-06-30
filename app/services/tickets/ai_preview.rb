@@ -25,12 +25,26 @@ module Tickets
       'low'      => %w[minor cosmetic typo suggestion improvement nice feature]
     }.freeze
 
+    FILLER_PHRASES = [
+      'por favor', 'please', 'necesito ayuda', 'need help', 'i need help',
+      'ayuda', 'help me', 'venir al', 'come to', 'gracias', 'thank you',
+      'urgente', 'urgent', 'cuanto antes', 'as soon as possible'
+    ].freeze
+
+    MAX_TITLE_LENGTH = 60
+
     def self.call(title:, description: '')
       new(title: title, description: description).call
     end
 
+    def self.suggest_title(description:)
+      new(title: '', description: description).suggest_title
+    end
+
     def initialize(title:, description: '')
-      @text = "#{title} #{description}".downcase
+      @raw_title       = title.to_s
+      @raw_description = description.to_s
+      @text            = "#{title} #{description}".downcase
     end
 
     def call
@@ -41,15 +55,48 @@ module Tickets
 
       ServiceResult.success({
                               category:       category,
-        category_conf:  category_confidence(category),
-        priority:       priority,
-        priority_conf:  priority_confidence(priority),
-        urgency_score:  urgency,
-        est_sla_hours:  sla_hours
+                              category_conf:  category_confidence(category),
+                              priority:       priority,
+                              priority_conf:  priority_confidence(priority),
+                              urgency_score:  urgency,
+                              est_sla_hours:  sla_hours,
+                              suggested_title: suggest_title
                             })
     end
 
+    def suggest_title
+      return '' if @raw_description.blank?
+
+      cleaned = strip_fillers(@raw_description)
+      clause  = first_meaningful_clause(cleaned)
+      title   = clause.presence || cleaned
+
+      truncate_title(capitalize_sentence(title))
+    end
+
     private
+
+    def strip_fillers(text)
+      result = text.dup
+      FILLER_PHRASES.each { |phrase| result = result.gsub(/#{Regexp.escape(phrase)}/i, '') }
+      result.squeeze(' ').strip
+    end
+
+    def first_meaningful_clause(text)
+      text.split(/[.!?]|,\s+(?:y|and|but|pero)\s+/i).first.to_s.strip
+    end
+
+    def capitalize_sentence(text)
+      return '' if text.blank?
+
+      text[0].upcase + text[1..]
+    end
+
+    def truncate_title(text)
+      return text if text.length <= MAX_TITLE_LENGTH
+
+      "#{text[0...MAX_TITLE_LENGTH].rstrip}..."
+    end
 
     def detect_category
       scores = CATEGORY_SIGNALS.transform_values do |keywords|

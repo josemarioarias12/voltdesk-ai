@@ -115,10 +115,11 @@ function BoltIcon({ size = 16, color = '#fff' }: { size?: number; color?: string
 interface AiPreviewData {
   category: string
   category_conf: number
-  priority: string
+  priority: TicketPriority
   priority_conf: number
   urgency_score: number
   est_sla_hours: number
+  suggested_title?: string
 }
 
 // ── Main Component ─────────────────────────────────────────────────────────────
@@ -145,14 +146,14 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
   const [aiLoading, setAiLoading] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Voice → title
+  // Voice → description (AI Preview will suggest a title from it)
   useEffect(() => {
-    if (transcript) { setData('title', transcript); setData('source', 'voice') }
+    if (transcript) { setData('description', transcript); setData('source', 'voice') }
   }, [transcript])
 
   // AI Preview debounce
   const fetchAiPreview = useCallback(async (title: string, description: string) => {
-    if (title.trim().length < 6) { setAiPreview(null); return }
+    if (title.trim().length < 6 && description.trim().length < 10) { setAiPreview(null); return }
     setAiLoading(true)
     try {
       const params = new URLSearchParams({ title, description })
@@ -168,6 +169,17 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
     debounceRef.current = setTimeout(() => { void fetchAiPreview(data.title, data.description) }, 800)
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
   }, [data.title, data.description, fetchAiPreview])
+
+  // Auto-fill title from AI suggestion when created via voice
+  const [titleAutoFilled, setTitleAutoFilled] = useState(false)
+  useEffect(() => {
+    if (data.source !== 'voice') return
+    if (!aiPreview?.suggested_title) return
+    if (data.title && !titleAutoFilled) return
+
+    setData('title', aiPreview.suggested_title)
+    setTitleAutoFilled(true)
+  }, [aiPreview?.suggested_title, data.source])
 
   function handleVoiceToggle() {
     if (voiceState === 'listening') stopListening()
