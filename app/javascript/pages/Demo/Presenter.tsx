@@ -189,7 +189,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 32px', borderBottom: '1px solid rgba(255,255,255,0.05)', position: 'relative', zIndex: 1, flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 16, fontWeight: 800, background: 'linear-gradient(135deg,#028090,#02C39A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-            PulseDesk AI
+            VoltDesk AI
           </span>
           <span style={{ fontSize: 13, color: '#334155', fontWeight: 500 }}>· {workspace_name}</span>
         </div>

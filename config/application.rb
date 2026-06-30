@@ -8,7 +8,7 @@ require 'rails/all'
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-module PulsedeskAi
+module VoltdeskAi
   class Application < Rails::Application
     config.middleware.use Rack::Attack
     # Initialize configuration defaults for originally generated Rails version.

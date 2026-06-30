@@ -131,7 +131,7 @@ export default function WebhooksIndex({ webhooks, supported_events, new_secret }
               </button>
             </div>
             <p className="text-xs" style={{ color: GRAY }}>
-              Use this secret to verify the <code className="font-mono">X-PulseDesk-Signature</code> header in your endpoint.
+              Use this secret to verify the <code className="font-mono">X-VoltDesk-Signature</code> header in your endpoint.
             </p>
           </div>
         )}

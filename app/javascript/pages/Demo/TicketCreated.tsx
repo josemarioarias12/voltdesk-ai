@@ -212,7 +212,7 @@ export default function DemoTicketCreated({ ticket_number }: Props) {
 
         {/* Footer */}
         <p style={{ fontSize: 11, color: '#1E293B', margin: 0, textAlign: 'center' as const }}>
-          PulseDesk AI · Read-only demo
+          VoltDesk AI · Read-only demo
         </p>
       </div>
     </div>

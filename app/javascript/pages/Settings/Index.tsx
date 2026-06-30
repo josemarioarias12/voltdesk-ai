@@ -152,7 +152,7 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
             <div className="rounded-2xl border p-6" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
               <h2 className="text-base font-semibold mb-1" style={{ color: '#0F172A' }}>AI Selection Mode</h2>
               <p className="text-sm mb-4" style={{ color: '#475569' }}>
-                Automatic lets PulseDesk pick the best model. Manual gives you full control.
+                Automatic lets VoltDesk pick the best model. Manual gives you full control.
               </p>
               <div className="flex gap-3">
                 {(['automatic', 'manual'] as const).map(m => (
@@ -264,7 +264,7 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
             <div className="rounded-2xl border p-6" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
               <h2 className="text-base font-semibold mb-1" style={{ color: '#0F172A' }}>Fallback Provider</h2>
               <p className="text-sm mb-4" style={{ color: '#475569' }}>
-                If the primary provider fails after 3 retries, PulseDesk automatically switches to this provider.
+                If the primary provider fails after 3 retries, VoltDesk automatically switches to this provider.
               </p>
               <select
                 value={fallback}

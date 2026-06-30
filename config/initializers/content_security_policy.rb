@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Content Security Policy — PulseDesk AI
+# Content Security Policy — VoltDesk AI
 Rails.application.configure do
   config.content_security_policy do |policy|
     policy.default_src :self

@@ -179,7 +179,7 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
       <div style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
         <div>
           <p style={{ fontSize: 14, fontWeight: 800, margin: 0, background: 'linear-gradient(135deg,#028090,#02C39A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-            PulseDesk AI
+            VoltDesk AI
           </p>
           <p style={{ fontSize: 11, color: '#475569', margin: '2px 0 0', fontWeight: 500 }}>{workspace_name}</p>
         </div>

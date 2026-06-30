@@ -14,7 +14,7 @@ class DemoController < ApplicationController
     sign_out(current_user) if user_signed_in?
 
     guest = workspace.users.create!(
-      email:      "guest-#{SecureRandom.hex(8)}@demo.pulsedesk.internal",
+      email:      "guest-#{SecureRandom.hex(8)}@demo.voltdesk.internal",
       password:   SecureRandom.hex(16),
       role:       :guest,
       first_name: 'Guest',

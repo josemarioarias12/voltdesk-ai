@@ -22,7 +22,7 @@ export default function LoginIndex() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600 mb-4">
             <span className="text-white font-bold text-2xl">P</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">PulseDesk AI</h1>
+          <h1 className="text-2xl font-bold text-slate-900">VoltDesk AI</h1>
           <p className="text-sm text-slate-500 mt-1">Enterprise Operational Intelligence</p>
         </div>
 

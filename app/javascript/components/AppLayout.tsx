@@ -68,7 +68,7 @@ export default function AppLayout({ children, title }: Props) {
           >
             <IconBolt size={16} color="#fff" />
           </div>
-          <span className="font-bold text-white text-sm">PulseDesk <span style={{ color: '#028090' }}>AI</span></span>
+          <span className="font-bold text-white text-sm">VoltDesk <span style={{ color: '#028090' }}>AI</span></span>
         </div>
 
         <nav className="flex-1 px-2 space-y-0.5">

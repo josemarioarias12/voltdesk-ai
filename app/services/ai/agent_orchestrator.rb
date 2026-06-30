@@ -221,7 +221,7 @@ module Ai
     end
 
     def bot_user
-      @bot_user ||= @workspace.users.find_by(email: 'agent@pulsedesk.ai') ||
+      @bot_user ||= @workspace.users.find_by(email: 'agent@voltdesk.app') ||
                     @workspace.users.role_agent.first
     end
   end

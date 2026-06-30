@@ -86,7 +86,7 @@ export default function DashboardMockup() {
                 transition={{ duration: 0.5 }}
                 style={{ width: 6, height: 6, borderRadius: "50%", background: "#02C39A", flexShrink: 0 }}
               />
-              app.pulsedesk.ai
+              app.voltdesk.app
             </div>
           </div>
 

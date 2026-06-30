@@ -150,7 +150,7 @@ export default function AuthLogin() {
               <IconBolt size={18} color="#fff" />
             </div>
             <span style={{ fontSize: 20, fontWeight: 800, background: 'linear-gradient(135deg,#028090,#02C39A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-              PulseDesk AI
+              VoltDesk AI
             </span>
           </motion.div>
           <p style={{ fontSize: 12, color: '#334155', margin: 0, fontWeight: 500 }}>

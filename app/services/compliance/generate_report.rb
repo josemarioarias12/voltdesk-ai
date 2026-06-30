@@ -102,7 +102,7 @@ module Compliance
         )
 
         # Header
-        pdf.font('Helvetica', style: :bold, size: 20) { pdf.text 'PulseDesk AI — Compliance Report' }
+        pdf.font('Helvetica', style: :bold, size: 20) { pdf.text 'VoltDesk AI — Compliance Report' }
         pdf.font('Helvetica', size: 12) { pdf.text evidence[:workspace] }
         pdf.font('Helvetica', size: 10) do
           pdf.text "Period: #{evidence[:period][:start]} — #{evidence[:period][:end]}"

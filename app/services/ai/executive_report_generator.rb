@@ -152,7 +152,7 @@ module Ai
 
       <<~PROMPT
         You are an executive assistant generating a weekly operational intelligence briefing
-        for a C-suite audience using PulseDesk AI.
+        for a C-suite audience using VoltDesk AI.
 
         Write a professional report in structured prose with FOUR clearly labeled sections:
 

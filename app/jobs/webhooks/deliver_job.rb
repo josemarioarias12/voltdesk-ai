@@ -32,10 +32,10 @@ module Webhooks
 
       request                            = Net::HTTP::Post.new(uri.request_uri)
       request['Content-Type']            = 'application/json'
-      request['X-PulseDesk-Event']       = event
-      request['X-PulseDesk-Signature']   = webhook.sign(body)
-      request['X-PulseDesk-Delivery']    = SecureRandom.uuid
-      request.body                       = body
+      request['X-VoltDesk-Event']       = event
+      request['X-VoltDesk-Signature']   = webhook.sign(body)
+      request['X-VoltDesk-Delivery']    = SecureRandom.uuid
+      request.body = body
 
       response = http.request(request)
       Rails.logger.info("[Webhooks::DeliverJob] webhook=#{webhook.id} event=#{event} status=#{response.code}")

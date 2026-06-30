@@ -43,7 +43,7 @@ export default function AuthResetPassword() {
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
               </svg>
             </div>
-            <span className="text-2xl font-bold" style={{ color: '#028090' }}>PulseDesk AI</span>
+            <span className="text-2xl font-bold" style={{ color: '#028090' }}>VoltDesk AI</span>
           </div>
           <p className="text-sm" style={{ color: '#94A3B8' }}>Enterprise Operational Intelligence Platform</p>
         </div>
@@ -120,7 +120,7 @@ export default function AuthResetPassword() {
       </div>
 
       <p className="mt-6 text-center" style={{ fontSize: '11px', color: '#94A3B8' }}>
-        PulseDesk AI · Enterprise Platform · v1.0
+        VoltDesk AI · Enterprise Platform · v1.0
       </p>
     </div>
   )

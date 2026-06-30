@@ -61,7 +61,7 @@ export const FEATURES: FeatureCard[] = [
 
 export const TESTIMONIALS: Testimonial[] = [
   {
-    quote: "PulseDesk AI reduced our ticket classification time from 15 minutes to 3 seconds. The ROI was immediate.",
+    quote: "VoltDesk AI reduced our ticket classification time from 15 minutes to 3 seconds. The ROI was immediate.",
     name: "Carlos Mendez",
     role: "IT Director · TechCorp",
     avatar: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23028090'/%3E%3Ctext x='40' y='46' text-anchor='middle' fill='white' font-size='28' font-family='Inter,sans-serif' font-weight='700'%3ECM%3C/text%3E%3C/svg%3E",

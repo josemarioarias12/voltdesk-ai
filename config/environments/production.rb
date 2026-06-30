@@ -34,7 +34,7 @@ Rails.application.configure do
   config.ssl_options = { redirect: { status: 301 } }
 
   config.session_store :cookie_store,
-                       key:          '_pulsedesk_session',
+                       key:          '_voltdesk_session',
                        httponly:     true,
                        secure:       true,
                        same_site:    :lax,

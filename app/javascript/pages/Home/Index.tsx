@@ -52,7 +52,7 @@ export default function LandingPage() {
 
   return (
     <div style={{ fontFamily: "Inter, sans-serif", background: "#fff", color: "#1E293B", overflowX: "hidden" }}>
-      <Head title="PulseDesk AI" />
+      <Head title="VoltDesk AI" />
       <motion.div style={{ scaleX, transformOrigin: "left", position: "fixed", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg,#028090,#02C39A)", zIndex: 9999 }} />
 
       <Navbar />
@@ -79,7 +79,7 @@ export default function LandingPage() {
               <span style={{ background: "linear-gradient(135deg,#028090 0%,#02C39A 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Enterprises</span>
             </motion.h1>
             <motion.p variants={fadeUp} style={{ fontSize: "clamp(16px,2.2vw,20px)", color: "#94a3b8", lineHeight: 1.65, maxWidth: 560, margin: "0 auto 40px" }}>
-              PulseDesk AI unifies support, HR, IT assets, and facilities under one intelligent platform that classifies, predicts, and acts — automatically.
+              VoltDesk AI unifies support, HR, IT assets, and facilities under one intelligent platform that classifies, predicts, and acts — automatically.
             </motion.p>
             <motion.div variants={fadeUp} style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 48 }}>
               <motion.a
@@ -528,7 +528,7 @@ export default function LandingPage() {
           </motion.h2>
           <motion.p initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
             style={{ color: "rgba(255,255,255,0.82)", fontSize: 18, marginBottom: 48, lineHeight: 1.7 }}>
-            PulseDesk AI gives your team the intelligence layer<br />to classify, predict, and act — automatically.
+            VoltDesk AI gives your team the intelligence layer<br />to classify, predict, and act — automatically.
           </motion.p>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }}
             style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 48 }}>
@@ -562,7 +562,7 @@ export default function LandingPage() {
                 <div style={{ width: 34, height: 34, borderRadius: 9, background: "linear-gradient(135deg,#028090,#02C39A)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 12px rgba(2,195,154,0.3)" }}>
                   <span style={{ color: "#fff", fontSize: 16, fontWeight: 800 }}>P</span>
                 </div>
-                <span style={{ color: "#fff", fontWeight: 700, fontSize: 16 }}>PulseDesk <span style={{ color: "#02C39A" }}>AI</span></span>
+                <span style={{ color: "#fff", fontWeight: 700, fontSize: 16 }}>VoltDesk <span style={{ color: "#02C39A" }}>AI</span></span>
               </div>
               <p style={{ fontSize: 14, lineHeight: 1.8, color: "#475569", marginBottom: 16, maxWidth: 260 }}>AI-native helpdesk that classifies, predicts, and acts. Built for teams that can't afford to slow down.</p>
               
@@ -608,7 +608,7 @@ export default function LandingPage() {
           <div style={{ position: "relative", paddingTop: 28 }}>
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(2,128,144,0.4) 30%, rgba(2,195,154,0.4) 50%, rgba(2,128,144,0.4) 70%, transparent 100%)" }} />
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-              <p style={{ color: "#475569", fontSize: 13 }}>© 2026 PulseDesk AI · All rights reserved.</p>
+              <p style={{ color: "#475569", fontSize: 13 }}>© 2026 VoltDesk AI · All rights reserved.</p>
             </div>
           </div>
         </div>
