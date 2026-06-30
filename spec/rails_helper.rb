@@ -15,6 +15,7 @@ SimpleCov.start 'rails' do
 end
 
 require 'spec_helper'
+require 'webmock/rspec'
 ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 abort('The Rails environment is running in production mode!') if Rails.env.production?

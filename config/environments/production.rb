@@ -65,6 +65,7 @@ Rails.application.configure do
 
   # Set host to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST', 'voltdesk.app') }
+  Rails.application.routes.default_url_options[:host] = ENV.fetch('APP_HOST', 'voltdesk.app')
   config.action_mailer.delivery_method = :resend
   config.action_mailer.perform_deliveries = true
   config.action_mailer.raise_delivery_errors = false

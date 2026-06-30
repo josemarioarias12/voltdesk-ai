@@ -6,6 +6,12 @@ RSpec.describe Ai::ImageAnalyzer do
   let(:workspace) { create(:workspace) }
   let(:ticket)    { create(:ticket, workspace: workspace) }
 
+  around do |example|
+    ActiveStorage::Current.url_options = { host: 'example.com' }
+    example.run
+    ActiveStorage::Current.url_options = nil
+  end
+
   describe '.call' do
     context 'when ticket has no image attachments' do
       it 'returns failure' do
@@ -24,7 +30,10 @@ RSpec.describe Ai::ImageAnalyzer do
         )
       end
 
-      before { ticket.attachments.attach(blob) }
+      before do
+        ticket.attachments.attach(blob)
+        stub_request(:get, /.*/).to_return(status: 200, body: 'fake image data')
+      end
 
       it 'returns success with base64, content_type, filename' do
         result = described_class.call(ticket: ticket)
@@ -66,7 +75,7 @@ RSpec.describe Ai::ImageAnalyzer do
 
       before do
         allow_any_instance_of(described_class).to receive(:find_image_attachment).and_return(attachment)
-        allow(blob).to receive(:download).and_raise(StandardError, 'download failed')
+        allow(blob).to receive(:url).and_raise(StandardError, 'url generation failed')
       end
 
       it 'returns failure without raising' do

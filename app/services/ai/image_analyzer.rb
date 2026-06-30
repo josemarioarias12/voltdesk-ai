@@ -4,9 +4,8 @@ module Ai
   class ImageAnalyzer
     include AiAuditable
 
-    IMAGE_TYPES   = %w[image/jpeg image/png image/gif image/webp].freeze
-    MAX_SIZE      = 5 * 1024 * 1024
-    RETRY_DELAYS  = [0.3, 0.6, 1.0].freeze
+    IMAGE_TYPES = %w[image/jpeg image/png image/gif image/webp].freeze
+    MAX_SIZE    = 5 * 1024 * 1024
 
     def self.call(ticket:)
       new(ticket: ticket).call
@@ -23,7 +22,7 @@ module Ai
       blob = attachment.blob
       return ServiceResult.failure('image_too_large') if blob.byte_size > MAX_SIZE
 
-      data = download_with_retry(blob)
+      data = fetch_blob_bytes(blob)
       ServiceResult.success(
         base64:       Base64.strict_encode64(data),
         content_type: blob.content_type,
@@ -43,14 +42,21 @@ module Ai
              .first
     end
 
-    def download_with_retry(blob, attempt: 0)
-      blob.download
-    rescue ActiveStorage::FileNotFoundError
-      delay = RETRY_DELAYS[attempt]
-      raise if delay.nil?
+    # Fetch via HTTP instead of local disk read — Railway runs web and
+    # Sidekiq as separate containers with separate filesystems, so a
+    # blob written by the web process is not visible to Sidekiq's disk.
+    def fetch_blob_bytes(blob)
+      url = blob.url(expires_in: 5.minutes)
+      uri = URI(url)
 
-      sleep(delay)
-      download_with_retry(blob, attempt: attempt + 1)
+      response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https', open_timeout: 5,
+                                                       read_timeout: 10) do |http|
+        http.get(uri.request_uri)
+      end
+
+      raise "HTTP #{response.code} fetching blob" unless response.is_a?(Net::HTTPSuccess)
+
+      response.body
     end
   end
 end
