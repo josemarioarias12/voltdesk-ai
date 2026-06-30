@@ -43,14 +43,14 @@ module Ai
              .first
     end
 
-    def download_with_retry(blob)
+    def download_with_retry(blob, attempt: 0)
       blob.download
     rescue ActiveStorage::FileNotFoundError
-      delay = RETRY_DELAYS.shift
+      delay = RETRY_DELAYS[attempt]
       raise if delay.nil?
 
       sleep(delay)
-      retry
+      download_with_retry(blob, attempt: attempt + 1)
     end
   end
 end
