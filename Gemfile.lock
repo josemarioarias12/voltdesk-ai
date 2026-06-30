@@ -143,13 +143,13 @@ GEM
       railties (>= 6.1.0)
     faker (3.8.0)
       i18n (>= 1.8.11, < 2)
-    faraday (2.14.2)
+    faraday (2.14.3)
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
     faraday-multipart (1.2.0)
       multipart-post (~> 2.0)
-    faraday-net_http (3.4.3)
+    faraday-net_http (3.4.4)
       net-http (~> 0.5)
     faraday-typhoeus (1.1.0)
       faraday (~> 2.0)
@@ -465,7 +465,7 @@ GEM
       event_stream_parser (>= 0.3.0, < 2.0.0)
       faraday (>= 1)
       faraday-multipart (>= 1)
-    ruby-openai (7.4.0)
+    ruby-openai (8.3.0)
       event_stream_parser (>= 0.3.0, < 2.0.0)
       faraday (>= 1)
       faraday-multipart (>= 1)
@@ -598,7 +598,7 @@ DEPENDENCIES
   rubocop-rails-omakase
   rubocop-rspec (~> 3.10)
   ruby-anthropic (~> 0.4)
-  ruby-openai (~> 7.0)
+  ruby-openai (~> 8.3)
   shoulda-matchers
   sidekiq (~> 8.1)
   sidekiq-cron (~> 2.0)
@@ -661,9 +661,9 @@ CHECKSUMS
   factory_bot (6.6.0) sha256=1fc1b3b5620ec980a6a27aec1b6ec8c250ca82962e970e8a40f93e8d388d4b89
   factory_bot_rails (6.5.1) sha256=d3cc4851eae4dea8a665ec4a4516895045e710554d2b5ac9e68b94d351bc6d68
   faker (3.8.0) sha256=c147b308df73a90f27a4fc84f18d4c22ef0ad9c2a64b2b61c86fd0ca71753efc
-  faraday (2.14.2) sha256=73ccb9994a9e8648f010e32eca2ae82e41c57860aa10932cda29418b9e0223ad
+  faraday (2.14.3) sha256=1882247e6766615c8220b4392bf1d27f6ebb63d8e28267587cef1fb0bf37f278
   faraday-multipart (1.2.0) sha256=7d89a949693714176f612323ca13746a2ded204031a6ba528adee788694ef757
-  faraday-net_http (3.4.3) sha256=9db13becec9312f345a769eeeecf9049c9287d54c0ae053d7235228993a4eec1
+  faraday-net_http (3.4.4) sha256=0e78af151747ed1b00f33e25973b4bc220d7f16c00c39676817c8b12331eb588
   faraday-typhoeus (1.1.0) sha256=24c6147c213818dde3ebc50ae47ab92f9a7e554903aa362707126f749c6890e7
   ffi (1.17.4-aarch64-linux-gnu) sha256=b208f06f91ffd8f5e1193da3cae3d2ccfc27fc36fba577baf698d26d91c080df
   ffi (1.17.4-aarch64-linux-musl) sha256=9286b7a615f2676245283aef0a0a3b475ae3aae2bb5448baace630bb77b91f39
@@ -782,7 +782,7 @@ CHECKSUMS
   rubocop-rails-omakase (1.1.0) sha256=2af73ac8ee5852de2919abbd2618af9c15c19b512c4cfc1f9a5d3b6ef009109d
   rubocop-rspec (3.10.2) sha256=0b3e2ecc592cd10ecbf0095bb58d1e357905276e069643523cc19eb7495f65e2
   ruby-anthropic (0.4.2) sha256=a1cae63a9af944fe7606600881f7c53a81a967f47fe9d1e34c33d7310186eab3
-  ruby-openai (7.4.0) sha256=879f2446cbe5d85eabdd651d8cea8f29eb59d335dc4a5bf0a2c56961d1d6dcf4
+  ruby-openai (8.3.0) sha256=566dc279c42f4afed68a7a363dce2e594078abfc36b4e043102020b9a387ca69
   ruby-progressbar (1.13.0) sha256=80fc9c47a9b640d6834e0dc7b3c94c9df37f08cb072b7761e4a71e22cff29b33
   securerandom (0.4.1) sha256=cc5193d414a4341b6e225f0cb4446aceca8e50d5e1888743fac16987638ea0b1
   shoulda-matchers (6.5.0) sha256=ef6b572b2bed1ac4aba6ab2c5ff345a24b6d055a93a3d1c3bfc86d9d499e3f44
