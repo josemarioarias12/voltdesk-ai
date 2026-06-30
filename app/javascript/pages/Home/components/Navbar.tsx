@@ -55,7 +55,7 @@ export default function Navbar() {
 
           <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", flexShrink: 0 }}>
             <div style={{ width: 34, height: 34, borderRadius: 9, overflow: 'hidden', flexShrink: 0 }}>
-              <img src="/pulsedesk-navy.svg" alt="VoltDesk AI" style={{ width: 34, height: 34 }} />
+              <img src="/voltdesk-navy.svg" alt="VoltDesk AI" style={{ width: 34, height: 34 }} />
             </div>
             <span style={{ color: "#fff", fontWeight: 700, fontSize: 16, letterSpacing: "-0.3px" }}>
               VoltDesk <span style={{ color: "#02C39A" }}>AI</span>
