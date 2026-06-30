@@ -97,13 +97,13 @@ module Ai
             {
               "type": "volume_spike|sla_risk|confidence_drop|capacity_warning",
               "confidence": 0.0,
-              "message": "specific actionable prediction in Spanish",
-              "recommendation": "concrete action in Spanish",
+              "message": "specific actionable prediction",
+              "recommendation": "concrete action",
               "urgency": "critical|warning|info"
             }
           ],
           "weekly_roi": { "hours_saved": 0.0, "cost_saved": 0 },
-          "summary": "2-sentence executive summary in Spanish"
+          "summary": "2-sentence executive summary"
         }
       PROMPT
     end
