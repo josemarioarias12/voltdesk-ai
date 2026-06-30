@@ -46,6 +46,7 @@ module Ai
     # Sidekiq as separate containers with separate filesystems, so a
     # blob written by the web process is not visible to Sidekiq's disk.
     def fetch_blob_bytes(blob)
+      ActiveStorage::Current.url_options ||= default_url_options
       url = blob.url(expires_in: 5.minutes)
       uri = URI(url)
 
@@ -57,6 +58,11 @@ module Ai
       raise "HTTP #{response.code} fetching blob" unless response.is_a?(Net::HTTPSuccess)
 
       response.body
+    end
+
+    def default_url_options
+      host = ENV.fetch('APP_HOST', 'localhost')
+      { host: host, protocol: Rails.env.production? ? 'https' : 'http' }
     end
   end
 end
