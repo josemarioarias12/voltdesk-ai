@@ -14,7 +14,7 @@ Devise.setup do |config|
   # confirmation, reset password and unlock tokens in the database.
   # Devise will use the `secret_key_base` as its `secret_key`
   # by default. You can change it below and use your own secret key.
-  # config.secret_key = '797054f9c42ffb5d7409099580152367235c8cfa0412e7df5a2c94409c32457010e277ae8c4d5d858c9ce2519ca0a2660b0cc87859903b60c0c5db2ec6d76b84'
+  # config.secret_key = '797054f9c42ffb5d7409099580152367235c8cfa0412e7df5a2c94409c32457010e277ae8c4d5d858c9ce2519ca0a2660b0cc87859903b60c0c5db2ec6d76b84' # rubocop:disable Layout/LineLength
 
   # ==> Controller configuration
   # Configure the parent class to the devise controllers.
@@ -126,7 +126,6 @@ Devise.setup do |config|
   config.stretches = Rails.env.test? ? 1 : 12
 
   # Set up a pepper to generate the hashed password.
-  # config.pepper = 'a409e11829fd2ec1032a19d172cdf74d51f4d96bde3f6bcbc81408e10cd513f5d204438bb42632f107e69e6648b170e0246c9f6ad55050df5a24eff8ac4f80a0'
 
   # Send a notification to the original email when the user's email is changed.
   # config.send_email_changed_notification = false
@@ -197,7 +196,7 @@ Devise.setup do |config|
   # Defines which strategy will be used to lock an account.
   # :failed_attempts = Locks an account after a number of failed attempts to sign in.
   # :none            = No lock strategy. You should handle locking by yourself.
-  # config.lock_strategy = :failed_attempts
+  config.lock_strategy = :failed_attempts
 
   # Defines which key will be used when locking and unlocking an account
   # config.unlock_keys = [:email]
@@ -207,17 +206,17 @@ Devise.setup do |config|
   # :time  = Re-enables login after a certain amount of time (see :unlock_in below)
   # :both  = Enables both strategies
   # :none  = No unlock strategy. You should handle unlocking by yourself.
-  # config.unlock_strategy = :both
+  config.unlock_strategy = :time
 
   # Number of authentication tries before locking an account if lock_strategy
   # is failed attempts.
-  # config.maximum_attempts = 20
+  config.maximum_attempts = 5
 
   # Time interval to unlock the account if :time is enabled as unlock_strategy.
-  # config.unlock_in = 1.hour
+  config.unlock_in = 15.minutes
 
   # Warn on the last attempt before the account is locked.
-  # config.last_attempt_warning = true
+  config.last_attempt_warning = true
 
   # ==> Configuration for :recoverable
   #
@@ -281,11 +280,11 @@ Devise.setup do |config|
   # change the failure app, you can configure them inside the config.warden block.
   #
   config.warden do |warden_config|
-  warden_config.failure_app = ->(env) {
-    env['PATH_INFO'] = '/login'
-    SessionsController.action(:new).call(env)
-  }
-end
+    warden_config.failure_app = lambda { |env|
+      env['PATH_INFO'] = '/login'
+      SessionsController.action(:new).call(env)
+    }
+  end
 
   # ==> Mountable engine configurations
   # When using Devise inside an engine, let's call it `MyEngine`, and this engine

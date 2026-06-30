@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_26_001334) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_30_034039) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -451,8 +451,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_26_001334) do
     t.bigint "department_id"
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
+    t.integer "failed_attempts", default: 0, null: false
     t.string "first_name", default: "", null: false
     t.string "last_name", default: "", null: false
+    t.datetime "locked_at"
     t.string "provider"
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
@@ -460,11 +462,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_26_001334) do
     t.integer "role", default: 8, null: false
     t.decimal "salary"
     t.string "uid"
+    t.string "unlock_token"
     t.datetime "updated_at", null: false
     t.bigint "workspace_id"
     t.index ["department_id"], name: "index_users_on_department_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true, where: "(provider IS NOT NULL)"
+    t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
     t.index ["workspace_id", "role"], name: "index_users_on_workspace_id_and_role"
     t.index ["workspace_id"], name: "index_users_on_workspace_id"
   end
