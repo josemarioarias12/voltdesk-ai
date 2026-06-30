@@ -14,8 +14,8 @@ module Tickets
       text = TicketMailer.confirmation(ticket).text_part.body.to_s
 
       Resend::Emails.send({
-                            from:    'VoltDesk AI <onboarding@resend.dev>',
-        to:      ENV.fetch('DEMO_EMAIL', ticket.created_by.email),
+                            from:    'VoltDesk AI <noreply@voltdesk.app>',
+        to:      ticket.created_by.email,
         subject: "[#{ticket.ticket_number}] Ticket received — AI classification in progress",
         html:    html,
         text:    text
