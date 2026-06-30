@@ -4,8 +4,9 @@ module Ai
   class ImageAnalyzer
     include AiAuditable
 
-    IMAGE_TYPES = %w[image/jpeg image/png image/gif image/webp].freeze
-    MAX_SIZE    = 5 * 1024 * 1024
+    IMAGE_TYPES   = %w[image/jpeg image/png image/gif image/webp].freeze
+    MAX_SIZE      = 5 * 1024 * 1024
+    RETRY_DELAYS  = [0.3, 0.6, 1.0].freeze
 
     def self.call(ticket:)
       new(ticket: ticket).call
@@ -22,14 +23,14 @@ module Ai
       blob = attachment.blob
       return ServiceResult.failure('image_too_large') if blob.byte_size > MAX_SIZE
 
-      data = blob.download
+      data = download_with_retry(blob)
       ServiceResult.success(
         base64:       Base64.strict_encode64(data),
         content_type: blob.content_type,
         filename:     blob.filename.to_s
       )
     rescue StandardError => e
-      Rails.logger.warn("[ImageAnalyzer] ticket=#{@ticket.id} #{e.message}")
+      Rails.logger.warn("[ImageAnalyzer] ticket=#{@ticket.id} #{e.class}: #{e.message}")
       ServiceResult.failure(e.message)
     end
 
@@ -40,6 +41,16 @@ module Ai
              .joins(:blob)
              .where(active_storage_blobs: { content_type: IMAGE_TYPES })
              .first
+    end
+
+    def download_with_retry(blob)
+      blob.download
+    rescue ActiveStorage::FileNotFoundError
+      delay = RETRY_DELAYS.shift
+      raise if delay.nil?
+
+      sleep(delay)
+      retry
     end
   end
 end
