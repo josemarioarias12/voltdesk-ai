@@ -59,6 +59,8 @@ jobs:
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/pulsedesk_ai_test
       REDIS_URL: redis://localhost:6379/0
       OPENAI_API_KEY: sk-test-fake-key
+      ANTHROPIC_API_KEY: sk-ant-test-fake-key
+      GEMINI_API_KEY: test-fake-gemini-key
       SECRET_KEY_BASE: testsecretkeybaselongerthan30chars
     steps:
       - uses: actions/checkout@v4
