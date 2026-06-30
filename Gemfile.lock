@@ -459,9 +459,10 @@ GEM
       rubocop (>= 1.72)
       rubocop-performance (>= 1.24)
       rubocop-rails (>= 2.30)
-    rubocop-rspec (3.9.0)
+    rubocop-rspec (3.10.2)
       lint_roller (~> 1.1)
-      rubocop (~> 1.81)
+      regexp_parser (>= 2.0)
+      rubocop (~> 1.86, >= 1.86.2)
     ruby-anthropic (0.4.2)
       event_stream_parser (>= 0.3.0, < 2.0.0)
       faraday (>= 1)
@@ -601,7 +602,7 @@ DEPENDENCIES
   rubocop-performance (~> 1.26)
   rubocop-rails
   rubocop-rails-omakase
-  rubocop-rspec (~> 3.9)
+  rubocop-rspec (~> 3.10)
   ruby-anthropic (~> 0.4)
   ruby-openai (~> 7.0)
   shoulda-matchers
@@ -786,7 +787,7 @@ CHECKSUMS
   rubocop-performance (1.26.1) sha256=cd19b936ff196df85829d264b522fd4f98b6c89ad271fa52744a8c11b8f71834
   rubocop-rails (2.35.5) sha256=f00b3c936002ba8e9ac62e8607c54bb24cda44b36e41b9c7e4f3872e1b0f3fe3
   rubocop-rails-omakase (1.1.0) sha256=2af73ac8ee5852de2919abbd2618af9c15c19b512c4cfc1f9a5d3b6ef009109d
-  rubocop-rspec (3.9.0) sha256=8fa70a3619408237d789aeecfb9beef40576acc855173e60939d63332fdb55e2
+  rubocop-rspec (3.10.2) sha256=0b3e2ecc592cd10ecbf0095bb58d1e357905276e069643523cc19eb7495f65e2
   ruby-anthropic (0.4.2) sha256=a1cae63a9af944fe7606600881f7c53a81a967f47fe9d1e34c33d7310186eab3
   ruby-openai (7.4.0) sha256=879f2446cbe5d85eabdd651d8cea8f29eb59d335dc4a5bf0a2c56961d1d6dcf4
   ruby-progressbar (1.13.0) sha256=80fc9c47a9b640d6834e0dc7b3c94c9df37f08cb072b7761e4a71e22cff29b33

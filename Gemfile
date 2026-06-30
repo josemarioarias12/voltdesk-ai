@@ -52,7 +52,7 @@ group :development do
   gem 'bullet'
   gem 'rubocop-performance', '~> 1.26'
   gem 'rubocop-rails'
-  gem 'rubocop-rspec', '~> 3.9'
+  gem 'rubocop-rspec', '~> 3.10'
 end
 
 group :test do
