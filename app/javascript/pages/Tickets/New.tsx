@@ -344,17 +344,36 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
             {/* Title */}
-            <div>
-              <label style={LABEL}>Title <span style={{ color: '#EF4444' }}>*</span></label>
-              <input type="text" value={data.title}
-                onChange={e => setData('title', e.target.value)}
-                placeholder='e.g. "Cannot connect to VPN from home network"'
-                required style={INPUT}
-                onFocus={e => { e.target.style.borderColor = TEAL }}
-                onBlur={e => { e.target.style.borderColor = 'rgba(15,23,42,0.12)' }}
-              />
-              {errors.title && <p style={{ fontSize: 12, color: '#EF4444', marginTop: 4 }}>{errors.title}</p>}
-            </div>
+<div>
+  <label style={LABEL}>Title <span style={{ color: '#EF4444' }}>*</span></label>
+  <div style={{ position: 'relative' }}>
+    <input type="text" value={data.title}
+      onChange={e => setData('title', e.target.value)}
+      placeholder='e.g. "Cannot connect to VPN from home network"'
+      required style={{ ...INPUT, paddingRight: aiPreview?.suggested_title && !data.title ? 44 : undefined }}
+      onFocus={e => { e.target.style.borderColor = TEAL }}
+      onBlur={e => { e.target.style.borderColor = 'rgba(15,23,42,0.12)' }}
+    />
+    {aiPreview?.suggested_title && !data.title && (
+      <button
+        type="button"
+        onClick={() => setData('title', aiPreview.suggested_title!)}
+        title="Generate title from description"
+        style={{
+          position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
+          width: 28, height: 28, borderRadius: 6, border: '1px solid rgba(2,128,144,0.25)',
+          background: 'rgba(2,128,144,0.07)', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0
+        }}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#028090" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+    )}
+  </div>
+  {errors.title && <p style={{ fontSize: 12, color: '#EF4444', marginTop: 4 }}>{errors.title}</p>}
+</div>
 
             {/* Description */}
             <div>
