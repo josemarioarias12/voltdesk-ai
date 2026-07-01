@@ -96,11 +96,14 @@ class TicketsController < ApplicationController
 
   def ai_preview
     authorize :ticket, :create?
+    title       = params[:title].to_s.strip
+    description = params[:description].to_s.strip
+    if title.blank? && description.length < 10
+      return render json: { error: 'insufficient_input' },
+                    status: :unprocessable_content
+    end
 
-    title = params[:title].to_s.strip
-    return render json: { error: 'title required' }, status: :unprocessable_content if title.blank?
-
-    result = Tickets::AiPreview.call(title: title, description: params[:description].to_s)
+    result = Tickets::AiPreview.call(title: title, description: description)
     render json: result.data
   end
 
