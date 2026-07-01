@@ -76,6 +76,6 @@ class DemoController < ApplicationController
   private
 
   def ticket_params
-    params.expect(ticket: %i[title description department_id priority])
+    params.expect(ticket: [:title, :description, :department_id, :priority, { attachments: [] }])
   end
 end
