@@ -26,9 +26,19 @@ module Tickets
     }.freeze
 
     FILLER_PHRASES = [
-      'por favor', 'please', 'necesito ayuda', 'need help', 'i need help',
-      'ayuda', 'help me', 'venir al', 'come to', 'gracias', 'thank you',
-      'urgente', 'urgent', 'cuanto antes', 'as soon as possible'
+      # Spanish fillers
+      'por favor', 'necesito ayuda', 'ayuda', 'venir al', 'vengan', 've ',
+      'gracias', 'urgente por favor', 'cuanto antes', 'en este momento',
+      'estoy en una reunion', 'estoy en una reunión', 'por favor ayuda',
+      'hola ', 'buenos dias', 'buenas tardes', 'buenas noches',
+      'disculpe', 'disculpa', 'oye ', 'oiga ', 'mira ', 'mire ',
+      'ok ', 'okay ', 'este ', 'este,', 'eh ', 'ah ',
+      # English fillers
+      'please', 'need help', 'i need help', 'help me', 'come to',
+      'thank you', 'thanks', 'as soon as possible', 'asap',
+      'right now', 'in a meeting', 'hey ', 'hi ', 'hello ',
+      'excuse me', 'look ', 'so ', 'um ', 'uh ', 'like ',
+      'you know', 'basically', 'actually', 'literally'
     ].freeze
 
     MAX_TITLE_LENGTH = 60
