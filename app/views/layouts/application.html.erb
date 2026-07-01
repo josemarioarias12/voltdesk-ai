@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title data-inertia><%= content_for(:title) || "PulseDesk AI" %></title>
+    <title data-inertia><%= content_for(:title) || "VoltDesk AI" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="PulseDesk AI">
+    <meta name="application-name" content="VoltDesk AI">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta property="og:site_name" content="VoltDesk AI">
+    <meta property="og:title" content="VoltDesk AI">
+    <meta property="og:description" content="Enterprise Operational Intelligence Platform">
+    <meta property="og:url" content="https://voltdesk.app">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= yield :head %>
