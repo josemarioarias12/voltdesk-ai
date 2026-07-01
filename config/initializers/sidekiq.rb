@@ -20,8 +20,8 @@ if defined?(Sidekiq)
                                              'class' => 'WarrantyAlertJob'
                                            },
                                            {
-                                             'name'  => 'Pattern Detector — every hour',
-                                             'cron'  => '0 * * * *',
+                                             'name'  => 'Pattern Detector — daily 8am',
+                                             'cron'  => '0 8 * * *',
                                              'class' => 'PatternDetectorJob'
                                            },
                                            {
@@ -30,13 +30,13 @@ if defined?(Sidekiq)
                                              'class' => 'ExecutiveReportJob'
                                            },
                                            {
-                                             'name'  => 'SLA Predictor — every 30 minutes',
-                                             'cron'  => '*/30 * * * *',
+                                             'name'  => 'SLA Predictor — daily 8:30am',
+                                             'cron'  => '30 8 * * *',
                                              'class' => 'SlaPredictorJob'
                                            },
                                            {
-                                             'name'  => 'Anomaly Detector — every 15 minutes',
-                                             'cron'  => '*/15 * * * *',
+                                             'name'  => 'Anomaly Detector — daily 9am',
+                                             'cron'  => '0 9 * * *',
                                              'class' => 'AnomalyDetectorJob'
                                            },
                                            {
