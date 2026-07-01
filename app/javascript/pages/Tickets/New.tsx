@@ -170,17 +170,6 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
   }, [data.title, data.description, fetchAiPreview])
 
-// Auto-fill title from AI suggestion when created via voice
-  const [titleAutoFilled, setTitleAutoFilled] = useState(false)
-  useEffect(() => {
-    if (data.source !== 'voice') return
-    if (!aiPreview?.suggested_title) return
-    if (titleAutoFilled) return
-
-    setData('title', aiPreview.suggested_title)
-    setTitleAutoFilled(true)
-  }, [aiPreview?.suggested_title, data.source])
-
   function handleVoiceToggle() {
     if (voiceState === 'listening') stopListening()
     else { resetTranscript(); startListening() }
