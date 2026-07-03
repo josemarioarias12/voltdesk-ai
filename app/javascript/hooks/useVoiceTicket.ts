@@ -33,17 +33,9 @@ export function useVoiceTicket(lang = 'es-ES'): VoiceTicketHookResult {
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const isSupported    = isSpeechRecognitionSupported()
 
-  const startListening = useCallback(async () => {
+  const startListening = useCallback(() => {
     if (!isSupported) {
       setErrorMessage('Voice input requires Chrome or Edge')
-      setVoiceState('error')
-      return
-    }
-
-    try {
-      await navigator.mediaDevices.getUserMedia({ audio: true })
-    } catch {
-      setErrorMessage('Microphone access denied. Please allow microphone access and try again.')
       setVoiceState('error')
       return
     }
@@ -84,10 +76,11 @@ export function useVoiceTicket(lang = 'es-ES'): VoiceTicketHookResult {
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       const messages: Record<string, string> = {
-        'not-allowed': 'Microphone access denied.',
-        'no-speech':   'No speech detected. Please try again.',
-        'network':     'Network error during recognition.',
-        'aborted':     'Recording was cancelled.',
+        'not-allowed':         'Microphone access denied.',
+        'no-speech':           'No speech detected. Please try again.',
+        'network':             'Network error during recognition.',
+        'aborted':             'Recording was cancelled.',
+        'service-not-allowed': 'Voice input isn\'t available right now — you can type your issue below instead.',
       }
       setErrorMessage(messages[event.error] ?? `Recognition error: ${event.error}`)
       setVoiceState('error')
