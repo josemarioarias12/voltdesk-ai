@@ -16,7 +16,7 @@ const PRIORITIES = ['Low', 'Medium', 'High', 'Critical'] as const
 type Priority = typeof PRIORITIES[number]
 
 const PRIORITY_META: Record<Priority, { color: string; bg: string; border: string; dot: string }> = {
-  Low:      { color: '#6B7280', bg: 'rgba(107,114,128,0.08)',  border: 'rgba(107,114,128,0.4)',  dot: '#6B7280' },
+  Low:      { color: '#38BDF8', bg: 'rgba(56,189,248,0.10)',    border: 'rgba(56,189,248,0.4)',    dot: '#38BDF8' },
   Medium:   { color: '#CA8A04', bg: 'rgba(202,138,4,0.08)',    border: 'rgba(202,138,4,0.4)',    dot: '#EAB308' },
   High:     { color: '#EA580C', bg: 'rgba(234,88,12,0.08)',    border: 'rgba(234,88,12,0.4)',    dot: '#F97316' },
   Critical: { color: '#DC2626', bg: 'rgba(220,38,38,0.08)',    border: 'rgba(220,38,38,0.4)',    dot: '#EF4444' },
