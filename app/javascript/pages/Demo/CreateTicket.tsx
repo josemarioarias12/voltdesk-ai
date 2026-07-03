@@ -22,14 +22,7 @@ const PRIORITY_META: Record<Priority, { color: string; bg: string; border: strin
   Critical: { color: '#DC2626', bg: 'rgba(220,38,38,0.08)',    border: 'rgba(220,38,38,0.4)',    dot: '#EF4444' },
 }
 
-const DEPT_COLORS: Record<string, string> = {
-  IT:         '#028090',
-  HR:         '#8B5CF6',
-  Facilities: '#F97316',
-  Finance:    '#16A34A',
-  Operations: '#2563EB',
-  General:    '#6B7280',
-}
+interface DeptStyle { color: string; icon: React.ReactNode }
 
 const QUICK_CHIPS: Array<{ label: string; description: string; department: string }> = [
   { label: 'Printer issue',    description: 'Printer on my floor is not working',         department: 'IT' },
@@ -126,13 +119,26 @@ function IconClose() {
   )
 }
 
-const DEPT_ICONS: Record<string, React.ReactNode> = {
-  IT:         <IconMonitor />,
-  HR:         <IconUsers />,
-  Facilities: <IconBuilding />,
-  Finance:    <IconDollar />,
-  Operations: <IconSettings />,
-  General:    <IconFile />,
+interface DeptStyle { color: string; icon: React.ReactNode }
+
+const DEPT_STYLES: Array<{ keywords: string[]; color: string; icon: React.ReactNode }> = [
+  { keywords: ['it', 'infrastructure', 'network'], color: '#028090', icon: <IconMonitor /> },
+  { keywords: ['software', 'engineering', 'dev'],  color: '#6366F1', icon: <IconSettings /> },
+  { keywords: ['hr', 'human resources', 'people'], color: '#8B5CF6', icon: <IconUsers /> },
+  { keywords: ['facilities'],                      color: '#F97316', icon: <IconBuilding /> },
+  { keywords: ['finance'],                         color: '#16A34A', icon: <IconDollar /> },
+  { keywords: ['operations'],                      color: '#2563EB', icon: <IconSettings /> },
+]
+
+function getDeptStyle(name: string): DeptStyle {
+  const lower = name.toLowerCase()
+  const found = DEPT_STYLES.find(s => s.keywords.some(k => lower.includes(k)))
+  return found ?? { color: '#6B7280', icon: <IconFile /> }
+}
+
+function findDepartmentByKeyword(departments: Department[], keyword: string): Department | undefined {
+  const lower = keyword.toLowerCase()
+  return departments.find(d => d.name.toLowerCase().includes(lower))
 }
 
 function PulseDot({ color = '#028090' }: { color?: string }) {
@@ -227,7 +233,7 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
 
   function handleChip(chip: typeof QUICK_CHIPS[number]) {
     setDescription(chip.description)
-    const found = departments.find(d => d.name.toLowerCase() === chip.department.toLowerCase())
+    const found = findDepartmentByKeyword(departments, chip.department)
     if (found) setSelectedDept(found.id)
   }
 
@@ -471,8 +477,7 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
             {departments.map(dept => {
               const active = selectedDept === dept.id
-              const dColor = DEPT_COLORS[dept.name] ?? '#6B7280'
-              const dIcon  = DEPT_ICONS[dept.name] ?? <IconFile />
+              const { color: dColor, icon: dIcon } = getDeptStyle(dept.name)
               return (
                 <motion.button
                   key={dept.id}
