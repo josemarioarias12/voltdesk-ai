@@ -91,6 +91,7 @@ module Ai
           title:         ticket.title,
           department:    ticket.department&.name || 'General',
           priority:      ticket.priority,
+          ai_metadata:   ticket.ai_metadata,
           created_at:    ticket.created_at.iso8601
         }
       )

@@ -3,47 +3,51 @@ import { router } from '@inertiajs/react'
 import QRCode from 'qrcode'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useActionCable } from '@/hooks/useActionCable'
+import type { AiMetadata } from '@/types/tickets'
+import XaiPanel from '@/components/XaiPanel'
 
 interface LiveTicket {
-  id:            number
+  id: number
   ticket_number: string
-  title:         string
-  department:    string
-  priority:      'low' | 'medium' | 'high' | 'critical'
-  created_at:    string
+  title: string
+  department: string
+  priority: 'low' | 'medium' | 'high' | 'critical'
+  original_priority?: 'low' | 'medium' | 'high' | 'critical'
+  ai_metadata?: AiMetadata | null
+  created_at: string
 }
 
 interface Props {
-  token:          string
+  token: string
   workspace_name: string
 }
 
 const PRIORITY_COLORS: Record<string, string> = {
   critical: '#EF4444',
-  high:     '#F97316',
-  medium:   '#EAB308',
-  low:      '#6B7280',
+  high: '#F97316',
+  medium: '#EAB308',
+  low: '#6B7280',
 }
 
 const PRIORITY_BG: Record<string, string> = {
   critical: 'rgba(239,68,68,0.12)',
-  high:     'rgba(249,115,22,0.12)',
-  medium:   'rgba(234,179,8,0.12)',
-  low:      'rgba(107,114,128,0.12)',
+  high: 'rgba(249,115,22,0.12)',
+  medium: 'rgba(234,179,8,0.12)',
+  low: 'rgba(107,114,128,0.12)',
 }
 
 const DEPT_COLORS: Record<string, string> = {
-  IT:         '#028090',
-  HR:         '#8B5CF6',
+  IT: '#028090',
+  HR: '#8B5CF6',
   Facilities: '#F97316',
-  Finance:    '#16A34A',
+  Finance: '#16A34A',
   Operations: '#2563EB',
-  General:    '#6B7280',
+  General: '#6B7280',
 }
 
 function timeAgo(iso: string): string {
   const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
-  if (diff < 60)   return `${diff}s ago`
+  if (diff < 60) return `${diff}s ago`
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
   return `${Math.floor(diff / 3600)}h ago`
 }
@@ -73,9 +77,9 @@ function AnimatedNumber({ value, style }: { value: number; style?: React.CSSProp
 
   useEffect(() => {
     if (value === prev.current) return
-    const diff  = value - prev.current
+    const diff = value - prev.current
     const steps = Math.min(Math.abs(diff), 10)
-    let step    = 0
+    let step = 0
     const interval = setInterval(() => {
       step++
       setDisplay(Math.round(prev.current + (diff * step) / steps))
@@ -89,11 +93,21 @@ function AnimatedNumber({ value, style }: { value: number; style?: React.CSSProp
 
 export default function DemoPresenter({ token, workspace_name }: Props) {
   const [secondsLeft, setSecondsLeft] = useState(1800)
-  const [guestCount,  setGuestCount]  = useState(0)
-  const [tickets,     setTickets]     = useState<LiveTicket[]>([])
-  const [qrDataUrl,   setQrDataUrl]   = useState('')
-  const [totalCount,  setTotalCount]  = useState(0)
-  const [, setTick]                   = useState(0)
+  const [guestCount, setGuestCount] = useState(0)
+  const [tickets, setTickets] = useState<LiveTicket[]>([])
+  const [qrDataUrl, setQrDataUrl] = useState('')
+  const [totalCount, setTotalCount] = useState(0)
+  const [, setTick] = useState(0)
+
+  const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set())
+  function toggleExpand(id: number) {
+    setExpandedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
 
   const demoUrl = `${window.location.origin}/demo/${token}`
 
@@ -123,7 +137,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
       .then(json => {
         if (!json) return
         if (json.guest_count !== undefined) setGuestCount(json.guest_count)
-        if (json.expires_in  !== undefined) setSecondsLeft(json.expires_in)
+        if (json.expires_in !== undefined) setSecondsLeft(json.expires_in)
         if (json.tickets) { setTickets(json.tickets); setTotalCount(json.tickets.length) }
       })
       .catch(console.error)
@@ -133,9 +147,24 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
     { channel: 'DemoChannel', token },
     (data) => {
       if (data.type === 'ticket_created') {
-        const ticket = data as unknown as LiveTicket & { type: string }
-        setTickets(prev => [ticket, ...prev].slice(0, 12))
-        setTotalCount(prev => prev + 1)
+        const incoming = data as unknown as LiveTicket & { type: string }
+        setTickets(prev => {
+          const existingIndex = prev.findIndex(t => t.id === incoming.id)
+          if (existingIndex === -1) {
+            // Genuinely new ticket — original_priority locks in the guest's own choice
+            const withOriginal: LiveTicket = { ...incoming, original_priority: incoming.priority }
+            setTotalCount(c => c + 1)
+            return [withOriginal, ...prev].slice(0, 12)
+          }
+          // Same ticket reclassified by AI — preserve original_priority, move to front
+          const existing = prev[existingIndex]
+          const updated: LiveTicket = {
+            ...incoming,
+            original_priority: existing.original_priority ?? existing.priority,
+          }
+          const rest = prev.filter((_, i) => i !== existingIndex)
+          return [updated, ...rest].slice(0, 12)
+        })
       }
       if (data.type === 'guest_joined') {
         const count = data.guest_count
@@ -151,9 +180,9 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
 
   const deptCounts: Record<string, number> = {}
   tickets.forEach(t => { deptCounts[t.department] = (deptCounts[t.department] ?? 0) + 1 })
-  const topDept   = Object.entries(deptCounts).sort((a, b) => b[1] - a[1])[0]
+  const topDept = Object.entries(deptCounts).sort((a, b) => b[1] - a[1])[0]
   const isLowTime = secondsLeft < 300
-  const guestPct  = Math.min((guestCount / 50) * 100, 100)
+  const guestPct = Math.min((guestCount / 50) * 100, 100)
 
   return (
     <div style={{
@@ -286,8 +315,8 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
               {qrDataUrl
                 ? <img src={qrDataUrl} alt="QR Code" style={{ width: 300, height: 300, display: 'block' }} />
                 : <div style={{ width: 300, height: 300, background: '#F1F5F9', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ color: '#94A3B8', fontSize: 13 }}>Generating…</span>
-                  </div>
+                  <span style={{ color: '#94A3B8', fontSize: 13 }}>Generating…</span>
+                </div>
               }
             </motion.div>
 
@@ -332,11 +361,12 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
                 )}
 
                 {tickets.map((ticket, idx) => {
-                  const isNew  = idx === 0
+                  const isNew = idx === 0
                   const pColor = PRIORITY_COLORS[ticket.priority] ?? '#6B7280'
-                  const pBg    = PRIORITY_BG[ticket.priority] ?? 'rgba(107,114,128,0.12)'
+                  const pBg = PRIORITY_BG[ticket.priority] ?? 'rgba(107,114,128,0.12)'
                   const dColor = DEPT_COLORS[ticket.department] ?? '#94A3B8'
-
+                  const wasReclassified = !!(ticket.original_priority && ticket.original_priority !== ticket.priority)
+                  const isExpanded = expandedIds.has(ticket.id)
                   return (
                     <motion.div
                       key={ticket.id}
@@ -350,48 +380,84 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
                         border: `1px solid ${isNew ? 'rgba(2,195,154,0.25)' : 'rgba(255,255,255,0.05)'}`,
                         borderRadius: 12,
                         padding: '14px 20px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 14,
                       }}
                     >
-                      <div style={{ flexShrink: 0 }}>
-                        {isNew
-                          ? <PulseDot color="#02C39A" size={8} />
-                          : <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#334155', border: '1px solid #334155', display: 'inline-block' }} />
-                        }
-                      </div>
-
-                      <span style={{ fontSize: 13, fontWeight: 700, color: '#028090', fontFamily: 'monospace', minWidth: 86, flexShrink: 0 }}>
-                        {ticket.ticket_number}
-                      </span>
-
-                      <span style={{ fontSize: 14, color: '#CBD5E1', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
-                        {ticket.title}
-                      </span>
-
-                      {isNew && (
-                        <motion.span
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.3 }}
-                          style={{ fontSize: 10, fontWeight: 700, color: '#02C39A', background: 'rgba(2,195,154,0.08)', border: '1px solid rgba(2,195,154,0.2)', padding: '3px 10px', borderRadius: 6, flexShrink: 0, letterSpacing: '0.06em' }}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                        <div style={{ flexShrink: 0 }}>
+                          {isNew
+                            ? <PulseDot color="#02C39A" size={8} />
+                            : <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#334155', border: '1px solid #334155', display: 'inline-block' }} />
+                          }
+                        </div>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#028090', fontFamily: 'monospace', minWidth: 86, flexShrink: 0 }}>
+                          {ticket.ticket_number}
+                        </span>
+                        <span style={{ fontSize: 14, color: '#CBD5E1', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                          {ticket.title}
+                        </span>
+                        {isNew && (
+                          <motion.span
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.3 }}
+                            style={{ fontSize: 10, fontWeight: 700, color: '#02C39A', background: 'rgba(2,195,154,0.08)', border: '1px solid rgba(2,195,154,0.2)', padding: '3px 10px', borderRadius: 6, flexShrink: 0, letterSpacing: '0.06em' }}
+                          >
+                            ✦ AI CLASSIFIED
+                          </motion.span>
+                        )}
+                        <span style={{ fontSize: 12, fontWeight: 600, color: dColor, background: `${dColor}15`, padding: '3px 10px', borderRadius: 6, flexShrink: 0 }}>
+                          {ticket.department}
+                        </span>
+                        {wasReclassified ? (
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }}>
+                            <span style={{
+                              fontSize: 11, fontWeight: 600, color: '#64748B',
+                              background: 'rgba(255,255,255,0.04)', padding: '3px 8px', borderRadius: 6,
+                              textDecoration: 'line-through', textDecorationColor: 'rgba(100,116,139,0.5)',
+                            }}>
+                              {ticket.original_priority!.charAt(0).toUpperCase() + ticket.original_priority!.slice(1)}
+                            </span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth={2.5}>
+                              <path d="M5 12h14m-6-6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: pColor, background: pBg, padding: '3px 10px', borderRadius: 6 }}>
+                              {ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1)}
+                            </span>
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: 12, fontWeight: 700, color: pColor, background: pBg, padding: '3px 10px', borderRadius: 6, flexShrink: 0 }}>
+                            {ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1)}
+                          </span>
+                        )}
+                        <span style={{ fontSize: 11, color: '#334155', minWidth: 52, textAlign: 'right' as const, flexShrink: 0 }}>
+                          {timeAgo(ticket.created_at)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => toggleExpand(ticket.id)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex', flexShrink: 0 }}
                         >
-                          ✦ AI CLASSIFIED
-                        </motion.span>
-                      )}
-
-                      <span style={{ fontSize: 12, fontWeight: 600, color: dColor, background: `${dColor}15`, padding: '3px 10px', borderRadius: 6, flexShrink: 0 }}>
-                        {ticket.department}
-                      </span>
-
-                      <span style={{ fontSize: 12, fontWeight: 700, color: pColor, background: pBg, padding: '3px 10px', borderRadius: 6, flexShrink: 0 }}>
-                        {ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1)}
-                      </span>
-
-                      <span style={{ fontSize: 11, color: '#334155', minWidth: 52, textAlign: 'right' as const, flexShrink: 0 }}>
-                        {timeAgo(ticket.created_at)}
-                      </span>
+                          <motion.svg
+                            width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth={2}
+                            animate={{ rotate: isExpanded ? 180 : 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
+                          </motion.svg>
+                        </button>
+                      </div>
+                      <AnimatePresence>
+                        {isExpanded && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            style={{ overflow: 'hidden', marginTop: 12 }}
+                          >
+                            <XaiPanel aiMetadata={ticket.ai_metadata ?? null} ticketNumber={ticket.ticket_number} />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </motion.div>
                   )
                 })}
