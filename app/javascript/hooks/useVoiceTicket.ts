@@ -20,6 +20,13 @@ declare global {
   }
 }
 
+// iOS Safari's WebKit implementation frequently gets stuck in the 'listening'
+// state indefinitely — no onresult, onerror, or onend ever fires. This is a
+// long-documented platform bug, not something fixable from application code.
+// The watchdog below resets on every event (interim or final result) so it
+// only fires when Safari has gone genuinely silent/stuck, never during normal use.
+const SILENCE_WATCHDOG_MS = 8000
+
 function isSpeechRecognitionSupported(): boolean {
   return typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
@@ -31,7 +38,27 @@ export function useVoiceTicket(lang = 'es-ES'): VoiceTicketHookResult {
   const [interimTranscript, setInterimTranscript] = useState('')
   const [errorMessage,      setErrorMessage]      = useState<string | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
+  const watchdogRef    = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isSupported    = isSpeechRecognitionSupported()
+
+  const disarmWatchdog = useCallback(() => {
+    if (watchdogRef.current) {
+      clearTimeout(watchdogRef.current)
+      watchdogRef.current = null
+    }
+  }, [])
+
+  const armWatchdog = useCallback(() => {
+    disarmWatchdog()
+    watchdogRef.current = setTimeout(() => {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop() } catch { /* best-effort only */ }
+        recognitionRef.current = null
+      }
+      setInterimTranscript('')
+      setVoiceState(prev => prev === 'listening' ? 'idle' : prev)
+    }, SILENCE_WATCHDOG_MS)
+  }, [disarmWatchdog])
 
   const startListening = useCallback(() => {
     if (!isSupported) {
@@ -51,9 +78,12 @@ export function useVoiceTicket(lang = 'es-ES'): VoiceTicketHookResult {
     recognition.onstart = () => {
       setVoiceState('listening')
       setErrorMessage(null)
+      armWatchdog()
     }
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
+      armWatchdog()
+
       let interim = ''
       let final   = ''
 
@@ -75,6 +105,7 @@ export function useVoiceTicket(lang = 'es-ES'): VoiceTicketHookResult {
     }
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      disarmWatchdog()
       const messages: Record<string, string> = {
         'not-allowed':         'Microphone access denied.',
         'no-speech':           'No speech detected. Please try again.',
@@ -87,23 +118,26 @@ export function useVoiceTicket(lang = 'es-ES'): VoiceTicketHookResult {
     }
 
     recognition.onend = () => {
+      disarmWatchdog()
       setInterimTranscript('')
       setVoiceState(prev => prev === 'listening' ? 'idle' : prev)
     }
 
     recognitionRef.current = recognition
     recognition.start()
-  }, [isSupported, lang])
+  }, [isSupported, lang, armWatchdog, disarmWatchdog])
 
   const stopListening = useCallback(() => {
+    disarmWatchdog()
     if (recognitionRef.current) {
       setVoiceState('processing')
       recognitionRef.current.stop()
       recognitionRef.current = null
     }
-  }, [])
+  }, [disarmWatchdog])
 
   const resetTranscript = useCallback(() => {
+    disarmWatchdog()
     if (recognitionRef.current) {
       recognitionRef.current.abort()
       recognitionRef.current = null
@@ -112,7 +146,7 @@ export function useVoiceTicket(lang = 'es-ES'): VoiceTicketHookResult {
     setTranscript('')
     setInterimTranscript('')
     setErrorMessage(null)
-  }, [])
+  }, [disarmWatchdog])
 
   return {
     voiceState,
