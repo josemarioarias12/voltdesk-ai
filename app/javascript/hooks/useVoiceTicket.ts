@@ -32,7 +32,7 @@ function isSpeechRecognitionSupported(): boolean {
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
 }
 
-export function useVoiceTicket(lang = 'es-ES'): VoiceTicketHookResult {
+export function useVoiceTicket(lang: string = typeof navigator !== 'undefined' ? navigator.language : 'en-US'): VoiceTicketHookResult {
   const [voiceState,        setVoiceState]        = useState<VoiceState>('idle')
   const [transcript,        setTranscript]        = useState('')
   const [interimTranscript, setInterimTranscript] = useState('')

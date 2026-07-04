@@ -169,7 +169,7 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
   const {
     transcript, interimTranscript, voiceState, isSupported,
     startListening, stopListening, resetTranscript, errorMessage,
-  } = useVoiceTicket('es-ES')
+  } = useVoiceTicket()
 
   const [description,  setDescription]  = useState('')
   const [selectedDept, setSelectedDept] = useState<number | null>(null)
