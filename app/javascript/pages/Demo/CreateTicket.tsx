@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { router } from '@inertiajs/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useVoiceTicket } from '@/hooks/useVoiceTicket'
+import { useLocale } from '@/hooks/useLocale'
 
 interface Department { id: number; name: string }
 
@@ -166,10 +167,11 @@ interface AiPreviewData {
 interface AttachmentPreview { name: string; url: string; type: string }
 
 export default function DemoCreateTicket({ workspace_name, expires_in, guest_count, departments }: Props) {
+  const { locale, speechLang, toggleLocale } = useLocale()
   const {
     transcript, interimTranscript, voiceState, isSupported,
     startListening, stopListening, resetTranscript, errorMessage,
-  } = useVoiceTicket()
+  } = useVoiceTicket(speechLang)
 
   const [description,  setDescription]  = useState('')
   const [selectedDept, setSelectedDept] = useState<number | null>(null)
@@ -360,6 +362,20 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
               Issue description
             </label>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+
+            <button
+                type="button"
+                onClick={toggleLocale}
+                title="Switch voice recognition language"
+                style={{
+                  height: 26, padding: '0 8px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)',
+                  background: 'rgba(255,255,255,0.03)', color: '#94A3B8', fontSize: 10, fontWeight: 700,
+                  letterSpacing: '0.04em', cursor: 'pointer', display: 'flex', alignItems: 'center',
+                }}
+              >
+                {locale.toUpperCase()}
+              </button>
+              
               <button
                 type="button"
                 onClick={() => setShowAttachmentModal(true)}

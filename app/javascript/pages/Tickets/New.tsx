@@ -3,6 +3,7 @@ import { router, useForm } from '@inertiajs/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { TicketsNewProps, TicketPriority } from '@/types/tickets'
 import { useVoiceTicket } from '@/hooks/useVoiceTicket'
+import { useLocale } from '@/hooks/useLocale'
 import AppLayout from '@/components/AppLayout'
 
 // ── Responsive hook ───────────────────────────────────────────────────────────
@@ -124,7 +125,8 @@ interface AiPreviewData {
 
 // ── Main Component ─────────────────────────────────────────────────────────────
 export default function TicketsNew({ departments, recent_tickets }: TicketsNewProps) {
-  const { transcript, interimTranscript, voiceState, isSupported, startListening, stopListening, resetTranscript, errorMessage } = useVoiceTicket()
+  const { locale, speechLang, toggleLocale } = useLocale()
+  const { transcript, interimTranscript, voiceState, isSupported, startListening, stopListening, resetTranscript, errorMessage } = useVoiceTicket(speechLang)
 
   const { data, setData, post, processing, errors } = useForm({
     title:         '',
