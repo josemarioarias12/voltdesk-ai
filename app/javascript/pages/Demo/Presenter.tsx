@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useActionCable } from '@/hooks/useActionCable'
 import type { AiMetadata } from '@/types/tickets'
 import XaiPanel from '@/components/XaiPanel'
+import { getDeptColor } from '@/utils/departmentStyle'
 
 interface LiveTicket {
   id: number
@@ -26,24 +27,16 @@ const PRIORITY_COLORS: Record<string, string> = {
   critical: '#EF4444',
   high: '#F97316',
   medium: '#EAB308',
-  low: '#6B7280',
+  low: '#38BDF8',
 }
 
 const PRIORITY_BG: Record<string, string> = {
   critical: 'rgba(239,68,68,0.12)',
   high: 'rgba(249,115,22,0.12)',
   medium: 'rgba(234,179,8,0.12)',
-  low: 'rgba(107,114,128,0.12)',
+  low: 'rgba(56,189,248,0.12)',
 }
 
-const DEPT_COLORS: Record<string, string> = {
-  IT: '#028090',
-  HR: '#8B5CF6',
-  Facilities: '#F97316',
-  Finance: '#16A34A',
-  Operations: '#2563EB',
-  General: '#6B7280',
-}
 
 function timeAgo(iso: string): string {
   const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
@@ -295,7 +288,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
             />
             <p style={{ fontSize: 11, color: '#334155', marginTop: 8, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>Tickets submitted</p>
             {topDept && (
-              <p style={{ fontSize: 12, color: DEPT_COLORS[topDept[0]] ?? '#94A3B8', marginTop: 4, fontWeight: 600 }}>
+              <p style={{ fontSize: 12, color: getDeptColor(topDept[0]) ?? '#94A3B8', marginTop: 4, fontWeight: 600 }}>
                 Top: {topDept[0]}
               </p>
             )}
@@ -364,7 +357,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
                   const isNew = idx === 0
                   const pColor = PRIORITY_COLORS[ticket.priority] ?? '#6B7280'
                   const pBg = PRIORITY_BG[ticket.priority] ?? 'rgba(107,114,128,0.12)'
-                  const dColor = DEPT_COLORS[ticket.department] ?? '#94A3B8'
+                  const dColor = getDeptColor(ticket.department) ?? '#94A3B8'
                   const wasReclassified = !!(ticket.original_priority && ticket.original_priority !== ticket.priority)
                   const isExpanded = expandedIds.has(ticket.id)
                   return (

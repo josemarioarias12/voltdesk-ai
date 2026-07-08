@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useVoiceTicket } from '@/hooks/useVoiceTicket'
 import { useLocale } from '@/hooks/useLocale'
+import { getDeptCategory, getDeptColor, type DeptCategory } from '@/utils/departmentStyle'
 
 interface Department { id: number; name: string }
 
@@ -121,20 +122,17 @@ function IconClose() {
 }
 
 interface DeptStyle { color: string; icon: React.ReactNode }
-
-const DEPT_STYLES: Array<{ keywords: string[]; color: string; icon: React.ReactNode }> = [
-  { keywords: ['it', 'infrastructure', 'network'], color: '#028090', icon: <IconMonitor /> },
-  { keywords: ['software', 'engineering', 'dev'],  color: '#6366F1', icon: <IconSettings /> },
-  { keywords: ['hr', 'human resources', 'people'], color: '#8B5CF6', icon: <IconUsers /> },
-  { keywords: ['facilities'],                      color: '#F97316', icon: <IconBuilding /> },
-  { keywords: ['finance'],                         color: '#16A34A', icon: <IconDollar /> },
-  { keywords: ['operations'],                      color: '#2563EB', icon: <IconSettings /> },
-]
-
+const CATEGORY_ICONS: Record<DeptCategory, React.ReactNode> = {
+  it:         <IconMonitor />,
+  software:   <IconSettings />,
+  hr:         <IconUsers />,
+  facilities: <IconBuilding />,
+  finance:    <IconDollar />,
+  operations: <IconSettings />,
+  general:    <IconFile />,
+}
 function getDeptStyle(name: string): DeptStyle {
-  const lower = name.toLowerCase()
-  const found = DEPT_STYLES.find(s => s.keywords.some(k => lower.includes(k)))
-  return found ?? { color: '#6B7280', icon: <IconFile /> }
+  return { color: getDeptColor(name), icon: CATEGORY_ICONS[getDeptCategory(name)] }
 }
 
 function findDepartmentByKeyword(departments: Department[], keyword: string): Department | undefined {
