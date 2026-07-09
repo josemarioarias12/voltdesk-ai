@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import type { CSSProperties, ReactElement } from 'react'
-import { router } from '@inertiajs/react'
+import { router, usePage } from '@inertiajs/react'
+import type { SharedProps } from '@/types'
 import { motion, AnimatePresence } from 'framer-motion'
 import type {
   TicketPriority, TicketStatus, TicketCategory, SlaStatus,
@@ -10,6 +11,17 @@ import { useActionCable } from '@/hooks/useActionCable'
 import AppLayout from '@/components/AppLayout'
 import EmptyState from '@/components/EmptyState'
 import ErrorBoundary from '@/components/ErrorBoundary'
+
+
+function useWindowWidth() {
+  const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
+  useEffect(() => {
+    const handler = () => setWidth(window.innerWidth)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
+  return width
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -298,6 +310,9 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [patternAlert, setPatternAlert] = useState<PatternAlertPayload | null>(null)
   const alertShownIds                   = useRef<Set<number>>(new Set())
+  const { auth } = usePage<SharedProps>().props
+  const canManageTickets = auth.user?.role !== 'employee'
+  const isMobile = useWindowWidth() < 640
 
   useActionCable({ channel: 'TicketsChannel' }, useCallback(() => {
     router.reload({ only: ['tickets', 'stats'] })
@@ -374,7 +389,7 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
     <AppLayout title="Tickets">
       <ErrorBoundary section="Tickets">
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A' }}>Tickets</h1>
             <p style={{ fontSize: 13, color: '#475569', marginTop: 2 }}>Manage and track support, IT, HR, and operations requests</p>
@@ -433,7 +448,7 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
           </div>
 
           {/* Filters */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 24px', borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 24px', borderBottom: '1px solid rgba(15,23,42,0.06)', flexWrap: 'wrap' }}>
             <input
               type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && applyFilters()}
@@ -503,13 +518,15 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
             <table style={{ width: '100%', minWidth: '680px', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
-                  <th style={{ padding: '10px 12px', width: 36 }} onClick={e => e.stopPropagation()}>
-                    <Checkbox
-                      checked={tickets.length > 0 && selectedIds.size === tickets.length}
-                      onClick={toggleSelectAll}
-                      ariaLabel="Select all tickets on this page"
-                    />
-                  </th>
+                  {canManageTickets && (
+                    <th style={{ padding: '10px 12px', width: 36 }} onClick={e => e.stopPropagation()}>
+                      <Checkbox
+                        checked={tickets.length > 0 && selectedIds.size === tickets.length}
+                        onClick={toggleSelectAll}
+                        ariaLabel="Select all tickets on this page"
+                      />
+                    </th>
+                  )}
                   {['ID', 'TITLE', 'CATEGORY', 'DEPARTMENT', 'STATUS'].map(h => (
                     <th key={h} style={TH_STYLE}>{h}</th>
                   ))}
@@ -534,9 +551,11 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
                           onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.background = '#F8FAFC' }}
                           onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = 'transparent' }}
                         >
-                          <td style={{ padding: '14px 12px' }} onClick={e => e.stopPropagation()}>
-                            <Checkbox checked={selectedIds.has(ticket.id)} onClick={() => toggleRow(ticket.id)} ariaLabel={`Select ticket ${ticket.ticket_number}`} />
-                          </td>
+                          {canManageTickets && (
+                            <td style={{ padding: '14px 12px' }} onClick={e => e.stopPropagation()}>
+                              <Checkbox checked={selectedIds.has(ticket.id)} onClick={() => toggleRow(ticket.id)} ariaLabel={`Select ticket ${ticket.ticket_number}`} />
+                            </td>
+                          )}
                           <td style={{ padding: '14px 12px' }}>
                             <span style={{ fontSize: 13, fontWeight: 600, color: '#028090', fontFamily: 'monospace' }}>{ticket.ticket_number}</span>
                           </td>
