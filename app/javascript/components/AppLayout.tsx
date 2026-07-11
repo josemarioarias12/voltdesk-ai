@@ -170,14 +170,14 @@ export default function AppLayout({ children, title }: Props) {
           </div>
           <div className="flex items-center gap-3">
             <div
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium"
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium"
               style={{ background: '#F0FDFA', color: '#028090', border: '1px solid #99F6E4' }}
             >
               <span className="w-2 h-2 rounded-full" style={{ background: '#028090' }} />
               {workspace?.name}
             </div>
             <div
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm"
+              className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm"
               style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#94A3B8' }}
             >
               <SearchIcon />

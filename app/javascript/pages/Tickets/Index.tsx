@@ -56,17 +56,17 @@ function humanizeStatus(status: string): string {
 
 const PRIORITY_CFG: Record<TicketPriority, { label: string; color: string }> = {
   critical: { label: 'Critical', color: '#EF4444' },
-  high:     { label: 'High',     color: '#F97316' },
-  medium:   { label: 'Medium',   color: '#EAB308' },
-  low:      { label: 'Low',      color: '#6B7280' },
+  high: { label: 'High', color: '#F97316' },
+  medium: { label: 'Medium', color: '#EAB308' },
+  low: { label: 'Low', color: '#6B7280' },
 }
 
 const STATUS_CFG: Record<TicketStatus, { label: string; bg: string; text: string }> = {
-  open:                   { label: 'Open',        bg: '#DCFCE7', text: '#16A34A' },
-  in_progress:            { label: 'In Progress', bg: '#DBEAFE', text: '#2563EB' },
-  pending:                { label: 'Pending',     bg: '#FEF9C3', text: '#CA8A04' },
-  resolved:               { label: 'Resolved',    bg: '#DCFCE7', text: '#16A34A' },
-  closed:                 { label: 'Closed',      bg: '#F1F5F9', text: '#64748B' },
+  open: { label: 'Open', bg: '#DCFCE7', text: '#16A34A' },
+  in_progress: { label: 'In Progress', bg: '#DBEAFE', text: '#2563EB' },
+  pending: { label: 'Pending', bg: '#FEF9C3', text: '#CA8A04' },
+  resolved: { label: 'Resolved', bg: '#DCFCE7', text: '#16A34A' },
+  closed: { label: 'Closed', bg: '#F1F5F9', text: '#64748B' },
   pending_classification: { label: 'Classifying', bg: '#F3E8FF', text: '#9333EA' },
 }
 
@@ -302,14 +302,14 @@ function PatternAlertBanner({ alert, onDismiss }: { alert: PatternAlertPayload; 
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 export default function TicketsIndex({ tickets, departments, assignable_agents, stats, filters, pagination }: TicketsIndexProps) {
-  const [activeTab, setActiveTab]       = useState(filters.status ?? '')
-  const [searchQuery, setSearchQuery]   = useState(filters.q ?? '')
+  const [activeTab, setActiveTab] = useState(filters.status ?? '')
+  const [searchQuery, setSearchQuery] = useState(filters.q ?? '')
   const [selectedPriority, setPriority] = useState(filters.priority ?? '')
-  const [selectedDept, setDept]         = useState(filters.department_id ?? '')
-  const [selectedIds, setSelectedIds]   = useState<Set<number>>(new Set())
+  const [selectedDept, setDept] = useState(filters.department_id ?? '')
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [patternAlert, setPatternAlert] = useState<PatternAlertPayload | null>(null)
-  const alertShownIds                   = useRef<Set<number>>(new Set())
+  const alertShownIds = useRef<Set<number>>(new Set())
   const { auth } = usePage<SharedProps>().props
   const canManageTickets = auth.user?.role !== 'employee'
   const isMobile = useWindowWidth() < 640
@@ -333,12 +333,12 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
 
   function applyFilters(overrides: Partial<TicketsFilters> = {}) {
     router.get('/tickets', {
-      status:        overrides.status        ?? (activeTab || undefined),
-      priority:      overrides.priority      ?? (selectedPriority || undefined),
+      status: overrides.status ?? (activeTab || undefined),
+      priority: overrides.priority ?? (selectedPriority || undefined),
       department_id: overrides.department_id ?? (selectedDept || undefined),
-      q:             overrides.q             ?? (searchQuery || undefined),
-      sort:          overrides.sort          ?? filters.sort,
-      direction:     overrides.direction     ?? filters.direction,
+      q: overrides.q ?? (searchQuery || undefined),
+      sort: overrides.sort ?? filters.sort,
+      direction: overrides.direction ?? filters.direction,
     }, { preserveScroll: true, replace: true })
   }
 
@@ -419,17 +419,17 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
 
         {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 24 }}>
-          <StatCard label="Total Open"     value={stats.total_open}     sub={`+${stats.delta.total_open_today} today`} />
-          <StatCard label="In Progress"    value={stats.in_progress}    sub={`↑ ${stats.delta.in_progress_vs_last_week} vs last week`} />
-          <StatCard label="SLA Breached"   value={stats.sla_breached}   sub={`${stats.delta.sla_breached_critical} critical`} subColor="#EF4444" />
+          <StatCard label="Total Open" value={stats.total_open} sub={`+${stats.delta.total_open_today} today`} />
+          <StatCard label="In Progress" value={stats.in_progress} sub={`↑ ${stats.delta.in_progress_vs_last_week} vs last week`} />
+          <StatCard label="SLA Breached" value={stats.sla_breached} sub={`${stats.delta.sla_breached_critical} critical`} subColor="#EF4444" />
           <StatCard label="Resolved Today" value={stats.resolved_today} sub={`+${stats.delta.resolved_today_vs_avg} vs avg`} />
-          <StatCard label="Avg Response"   value={`${stats.avg_response_hours}h`} sub={`↓ ${Math.abs(stats.delta.avg_response_vs_avg_minutes)} min vs avg`} />
+          <StatCard label="Avg Response" value={`${stats.avg_response_hours}h`} sub={`↓ ${Math.abs(stats.delta.avg_response_vs_avg_minutes)} min vs avg`} />
         </div>
 
         {/* Main card */}
         <div style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(15,23,42,0.08)', boxShadow: '0 1px 3px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
           {/* Tabs */}
-          <div style={{ display: 'flex', borderBottom: '1px solid rgba(15,23,42,0.06)', padding: '0 24px' }}>
+          <div style={{ display: 'flex', borderBottom: '1px solid rgba(15,23,42,0.06)', padding: '0 24px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
             {tabs.map(tab => {
               const isActive = activeTab === tab.key
               return (
@@ -538,9 +538,7 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
                 </tr>
               </thead>
               <tbody>
-                {tickets.length === 0 ? (
-                  <tr><td colSpan={10}><EmptyState icon={<IconEmptyTicket />} title="No tickets found" description="Try adjusting your filters or create a new ticket." action={{ label: 'New Ticket', onClick: () => router.get('/tickets/new') }} /></td></tr>
-                ) : (
+                {tickets.length === 0 ? null : (
                   <AnimatePresence>
                     {tickets.map(ticket => {
                       const CategoryIcon = CATEGORY_ICON_MAP[ticket.category] ?? IconGeneral
@@ -601,7 +599,9 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
               </tbody>
             </table>
           </div>
-
+          {tickets.length === 0 && (
+            <EmptyState icon={<IconEmptyTicket />} title="No tickets found" description="Try adjusting your filters or create a new ticket." action={{ label: 'New Ticket', onClick: () => router.get('/tickets/new') }} />
+          )}
           {/* Pagination */}
           {pagination.total_pages > 1 && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 24px', borderTop: '1px solid rgba(15,23,42,0.06)' }}>
