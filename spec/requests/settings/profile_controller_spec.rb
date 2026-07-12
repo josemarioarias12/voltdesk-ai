@@ -23,18 +23,18 @@ RSpec.describe Settings::ProfileController, type: :request do
 
   describe 'PATCH /settings/profile' do
     it 'updates the name fields' do
-      patch settings_profile_path, params: { user: { first_name: 'Mario', last_name: 'Arias' } }
+      patch settings_profile_path, params: { first_name: 'Mario', last_name: 'Arias' }
       expect(user.reload.first_name).to eq('Mario')
     end
 
     it 'redirects back to the profile page on success' do
-      patch settings_profile_path, params: { user: { first_name: 'Mario', last_name: 'Arias' } }
+      patch settings_profile_path, params: { first_name: 'Mario', last_name: 'Arias' }
       expect(response).to redirect_to(settings_profile_path)
     end
 
     it 'attaches an avatar via multipart upload' do
       patch settings_profile_path, params: {
-        user: { first_name: user.first_name, last_name: user.last_name, avatar: build_avatar_upload }
+        first_name: user.first_name, last_name: user.last_name, avatar: build_avatar_upload
       }
       expect(user.reload.avatar).to be_attached
     end

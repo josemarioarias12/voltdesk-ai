@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useForm } from '@inertiajs/react'
 import AppLayout from '@/components/AppLayout'
+import SettingsTabs from '@/components/SettingsTabs'
 import Avatar from '@/components/Avatar'
 
 interface User {
@@ -58,6 +59,7 @@ export default function ProfileShow({ user }: Props) {
         <p style={{ fontSize: '13px', color: '#94A3B8', margin: '0 0 24px' }}>
           Manage your personal information
         </p>
+        <SettingsTabs active="profile" />
 
         <form
           onSubmit={handleSubmit}
@@ -69,7 +71,9 @@ export default function ProfileShow({ user }: Props) {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '28px' }}>
-            <Avatar avatarUrl={previewUrl ?? user.avatar_url} firstName={user.first_name} size={72} />
+            <label htmlFor="avatar-upload" style={{ cursor: 'pointer' }}>
+              <Avatar avatarUrl={previewUrl ?? user.avatar_url} firstName={user.first_name} size={72} />
+            </label>
             <div>
               <label
                 htmlFor="avatar-upload"
