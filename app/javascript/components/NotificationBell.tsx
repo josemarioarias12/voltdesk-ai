@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { useActionCable } from '@/hooks/useActionCable'
+import { useIsMobile } from '@/hooks/useIsMobile'
 import NotificationDropdown from '@/components/NotificationDropdown'
 import { router } from '@inertiajs/react'
 
@@ -21,9 +22,11 @@ interface Props {
 }
 
 export default function NotificationBell({ initialNotifications, initialUnreadCount, userId }: Props) {
-  const [notifications, setNotifications]   = useState<Notification[]>(initialNotifications)
-  const [unreadCount, setUnreadCount]       = useState(initialUnreadCount)
-  const [dropdownOpen, setDropdownOpen]     = useState(false)
+  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications)
+  const [unreadCount, setUnreadCount]     = useState(initialUnreadCount)
+  const [dropdownOpen, setDropdownOpen]   = useState(false)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const isMobile  = useIsMobile()
 
   useActionCable(
     { channel: 'NotificationsChannel' },
@@ -46,9 +49,14 @@ export default function NotificationBell({ initialNotifications, initialUnreadCo
     }
   }
 
+  const anchorTop = buttonRef.current
+    ? buttonRef.current.getBoundingClientRect().bottom + 8
+    : 0
+
   return (
     <div style={{ position: 'relative' }}>
       <button
+        ref={buttonRef}
         onClick={() => setDropdownOpen(prev => !prev)}
         style={{
           position:       'relative',
@@ -97,6 +105,8 @@ export default function NotificationBell({ initialNotifications, initialUnreadCo
           notifications={notifications}
           onMarkRead={handleMarkRead}
           onClose={() => setDropdownOpen(false)}
+          isMobile={isMobile}
+          anchorTop={anchorTop}
         />
       )}
     </div>
