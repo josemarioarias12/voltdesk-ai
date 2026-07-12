@@ -25,6 +25,7 @@ class User < ApplicationRecord
 
   # ── Associations ──────────────────────────────────────────────────────────────
   belongs_to :department, optional: true
+  has_one_attached :avatar
 
   has_many :created_tickets,  class_name: 'Ticket', foreign_key: :created_by_id,  dependent: :nullify
   has_many :assigned_tickets, class_name: 'Ticket', foreign_key: :assigned_to_id, dependent: :nullify

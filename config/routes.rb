@@ -160,6 +160,7 @@ Rails.application.routes.draw do
         post :dismiss
       end
     end
+    resource :profile, only: %i[show update], controller: 'profile'
   end
 
   # API Dashboard ────────────────────────────────────────────────────

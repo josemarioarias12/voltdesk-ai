@@ -70,7 +70,8 @@ class ApplicationController < ActionController::Base
       first_name: user.first_name,
       last_name:  user.last_name,
       role:       user.role,
-      active:     user.active
+      active:     user.active,
+      avatar_url: user.avatar.attached? ? url_for(user.avatar) : nil
     }
   end
 

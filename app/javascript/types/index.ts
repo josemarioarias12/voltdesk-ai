@@ -6,6 +6,7 @@ export interface User {
   last_name: string
   role: Role
   active: boolean
+  avatar_url: string | null
 }
 
 export type Role =

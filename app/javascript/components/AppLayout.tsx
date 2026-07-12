@@ -1,8 +1,9 @@
 import { ReactNode, useEffect, useState } from 'react'
-import { router, usePage } from '@inertiajs/react'
+import { router, usePage, Link } from '@inertiajs/react'
 import { SharedProps } from '@/types'
 import { IconBolt } from '@/components/Icons'
 import NotificationBell from '@/components/NotificationBell'
+import Avatar from '@/components/Avatar'
 import { SkeletonDashboard } from './Skeleton'
 import { Toaster, toast } from 'sonner'
 
@@ -104,14 +105,7 @@ export default function AppLayout({ children, title }: Props) {
         <div className="px-3 py-4 border-t" style={{ borderColor: '#1E293B' }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                style={{ background: '#028090' }}
-              >
-                <span className="text-white text-xs font-bold">
-                  {auth.user?.first_name?.charAt(0) ?? 'U'}
-                </span>
-              </div>
+              <Avatar avatarUrl={auth.user?.avatar_url} firstName={auth.user?.first_name} size={32} />
               <div className="min-w-0">
                 <p className="text-white text-xs font-medium truncate" title={auth.user?.full_name ?? ''}>
                   {(() => {
@@ -191,14 +185,7 @@ export default function AppLayout({ children, title }: Props) {
                 userId={auth.user.id}
               />
             )}
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center"
-              style={{ background: '#028090' }}
-            >
-              <span className="text-white text-sm font-bold">
-                {auth.user?.first_name?.charAt(0) ?? 'U'}
-              </span>
-            </div>
+            <Link href="/settings/profile" style={{ display: 'flex' }}><Avatar avatarUrl={auth.user?.avatar_url} firstName={auth.user?.first_name} size={36} /></Link>
           </div>
         </header>
 
