@@ -5,7 +5,7 @@ export const NOTIFICATION_ICON_COLOR: Record<string, string> = {
   ticket_assigned:         '#028090',
   ticket_sla_warning:      '#F97316',
   onboarding_plan_ready:   '#028090',
-  daily_digest:            '#475569',
+  daily_digest:            '#028090',
 }
 
 interface IconProps {
@@ -81,7 +81,12 @@ export function NotificationIconPath({ type }: { type: string }) {
         </>
       )
     case 'daily_digest':
-      return <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
+      return (
+        <>
+          <path d="M4 4h16v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z" />
+          <path d="M4 4l8 7 8-7" />
+        </>
+      )
     default:
       return (
         <>
