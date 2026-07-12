@@ -41,7 +41,7 @@ export default function NotificationBell({ initialNotifications, initialUnreadCo
     if (id === 'all') {
       setNotifications(prev => prev.map(n => ({ ...n, read: true })))
       setUnreadCount(0)
-      router.post('/notifications/mark_read', {}, { preserveState: true })
+      router.post('/notifications/mark_read', { id: 'all' }, { preserveState: true })
     } else {
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
       setUnreadCount(prev => Math.max(0, prev - 1))
