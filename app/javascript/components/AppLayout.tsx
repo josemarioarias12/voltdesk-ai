@@ -102,10 +102,10 @@ export default function AppLayout({ children, title }: Props) {
           })}
         </nav>
 
-        <div className="px-3 py-4 border-t" style={{ borderColor: '#1E293B' }}>
+       <div className="px-3 py-4 border-t" style={{ borderColor: '#1E293B' }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Avatar avatarUrl={auth.user?.avatar_url} firstName={auth.user?.first_name} size={32} />
+              <Link href="/settings/profile"><Avatar avatarUrl={auth.user?.avatar_url} firstName={auth.user?.first_name} size={32} /></Link>
               <div className="min-w-0">
                 <p className="text-white text-xs font-medium truncate" title={auth.user?.full_name ?? ''}>
                   {(() => {
@@ -141,7 +141,6 @@ export default function AppLayout({ children, title }: Props) {
           </div>
         </div>
       </aside>
-
       {/* ── Main ── */}
       <div className="flex-1 flex flex-col lg:ml-44 min-w-0">
         <header
