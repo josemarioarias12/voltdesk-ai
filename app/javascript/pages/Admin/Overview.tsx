@@ -19,7 +19,7 @@ export default function AdminOverview({ stats }: { stats: Stats }) {
   return (
     <AppLayout title="Admin">
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>Admin Control Center</h1>
             <p className="text-sm mt-1" style={{ color: '#475569' }}>AI operations overview for this workspace</p>
@@ -39,10 +39,17 @@ export default function AdminOverview({ stats }: { stats: Stats }) {
           >
             Compliance Report →
           </button>
+          <button
+            onClick={() => router.get('/admin/telegram-test')}
+            className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
+            style={{ background: '#0088CC' }}
+          >
+            Telegram Test →
+          </button>
         </div>
 
         {/* KPI Cards */}
-        <div className="grid grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {[
             { label: 'Total Operations', value: stats.total_operations.toLocaleString(), sub: 'all time' },
             { label: 'Total AI Cost', value: `$${stats.total_cost_usd.toFixed(4)}`, sub: 'estimated' },
@@ -59,7 +66,7 @@ export default function AdminOverview({ stats }: { stats: Stats }) {
         </div>
 
         {/* Provider Breakdown */}
-        <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="rounded-2xl border p-6" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
             <h2 className="text-base font-semibold mb-4" style={{ color: '#0F172A' }}>Provider Usage</h2>
             {Object.keys(PROVIDER_COLORS).map(p => {
@@ -94,7 +101,7 @@ export default function AdminOverview({ stats }: { stats: Stats }) {
 
         {/* QR Demo Mode */}
         <div className='rounded-2xl border p-6' style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
             <div>
               <h2 className='text-base font-semibold' style={{ color: '#0F172A' }}>QR Demo Mode</h2>
               <p className='text-sm mt-1' style={{ color: '#475569' }}>Activate a 30-minute guest session for live presentations</p>
