@@ -3,9 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe 'Rack::Attack throttling', type: :request do
-  # Each example group gets a unique IP prefix to avoid cross-example counter bleed.
-  # Using object_id of the example group ensures no two examples share an IP
-  # regardless of seed order or MemoryStore reset timing.
+  include ActiveSupport::Testing::TimeHelpers
+
+  # Each example gets a unique IP and API token to avoid cross-example counter
+  # bleed. Using a shared atomic counter ensures no two examples share a
+  # discriminator regardless of seed order or store reset timing.
   IP_COUNTER = Concurrent::AtomicFixnum.new(1) # rubocop:disable Lint/ConstantDefinitionInBlock, RSpec/LeakyConstantDeclaration
 
   before do
@@ -18,14 +20,22 @@ RSpec.describe 'Rack::Attack throttling', type: :request do
     Rack::Attack.enabled = false
   end
 
-  describe 'throttle logins/ip' do
-    let(:login_ip) { "10.1.#{IP_COUNTER.increment % 255}.#{IP_COUNTER.increment % 255}" }
+  def unique_ip
+    "10.1.#{IP_COUNTER.increment % 255}.#{IP_COUNTER.increment % 255}"
+  end
 
+  describe 'throttle logins/ip' do
+    let(:login_ip) { unique_ip }
+
+    # Frozen so a burst of rapid requests can never straddle Rack::Attack's
+    # 60-second throttle bucket boundary under slow full-suite load.
     def post_login(times)
-      times.times do
-        post '/login',
-             params: { user: { email: 'x@x.com', password: 'wrong' } },
-             headers: { 'REMOTE_ADDR' => login_ip }
+      freeze_time do
+        times.times do
+          post '/login',
+               params: { user: { email: 'x@x.com', password: 'wrong' } },
+               headers: { 'REMOTE_ADDR' => login_ip }
+        end
       end
     end
 
@@ -48,30 +58,34 @@ RSpec.describe 'Rack::Attack throttling', type: :request do
   describe 'throttle api/key' do
     let!(:workspace) { create(:workspace) }
     let!(:user)      { create(:user, workspace: workspace) }
-    let!(:token)     { 'test_token_rack_attack_key' }
+    let(:token)      { "test_token_rack_attack_key_#{IP_COUNTER.increment}" }
     let!(:digest)    { Digest::SHA256.hexdigest(token) }
     let!(:api_key)   { create(:api_key, workspace: workspace, user: user, key_digest: digest, scopes: ['tickets:read']) }
+    let(:request_ip) { unique_ip }
+
+    def get_tickets(times)
+      freeze_time do
+        times.times do
+          get '/api/v1/tickets',
+              headers: { 'Authorization' => "Bearer #{token}", 'REMOTE_ADDR' => request_ip }
+        end
+      end
+    end
 
     it 'blocks after 100 requests per minute with same API key' do
-      101.times do
-        get '/api/v1/tickets', headers: { 'Authorization' => "Bearer #{token}" }
-      end
+      get_tickets(101)
       expect(response.status).to eq(429)
     end
 
     it 'returns JSON error body for API throttle' do
-      101.times do
-        get '/api/v1/tickets', headers: { 'Authorization' => "Bearer #{token}" }
-      end
+      get_tickets(101)
       body = response.parsed_body
       expect(body['code']).to eq('rate_limited')
       expect(body['status']).to eq(429)
     end
 
     it 'includes Retry-After header' do
-      101.times do
-        get '/api/v1/tickets', headers: { 'Authorization' => "Bearer #{token}" }
-      end
+      get_tickets(101)
       expect(response.headers['Retry-After']).to be_present
     end
   end
@@ -79,13 +93,17 @@ RSpec.describe 'Rack::Attack throttling', type: :request do
   describe 'throttle api/ip' do
     let!(:workspace) { create(:workspace) }
     let!(:user)      { create(:user, workspace: workspace) }
-    let!(:token)     { 'test_token_rack_attack_ip' }
+    let(:token)      { "test_token_rack_attack_ip_#{IP_COUNTER.increment}" }
     let!(:digest)    { Digest::SHA256.hexdigest(token) }
     let!(:api_key)   { create(:api_key, workspace: workspace, user: user, key_digest: digest, scopes: ['tickets:read']) }
+    let(:request_ip) { unique_ip }
 
     it 'blocks after 300 requests from same IP' do
-      301.times do
-        get '/api/v1/tickets', headers: { 'Authorization' => "Bearer #{token}" }
+      freeze_time do
+        301.times do
+          get '/api/v1/tickets',
+              headers: { 'Authorization' => "Bearer #{token}", 'REMOTE_ADDR' => request_ip }
+        end
       end
       expect(response.status).to eq(429)
     end
