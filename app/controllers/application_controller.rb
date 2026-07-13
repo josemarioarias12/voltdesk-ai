@@ -22,13 +22,7 @@ class ApplicationController < ActionController::Base
       },
       notifications: current_user ? serialize_notifications(current_user) : [],
       unread_notifications_count: current_user ? current_user.notifications.unread.count : 0,
-      active_tickets_count: if current_user && current_workspace
-                              current_workspace.tickets
-                                               .where(status: %w[open in_progress
-                                                                 pending]).count
-                            else
-                              0
-                            end,
+      active_tickets_count: active_tickets_count_for_nav,
       csp_nonce: content_security_policy_nonce
     }
   end
@@ -60,6 +54,21 @@ class ApplicationController < ActionController::Base
   # Generic 404 — never expose record ID or model name to prevent enumeration attacks
   def handle_not_found
     render inertia: 'errors/NotFound', props: { status: 404 }, status: :not_found
+  end
+
+  def active_tickets_count_for_nav
+    return 0 unless current_user && current_workspace
+
+    base = current_workspace.tickets.where(status: %w[open in_progress pending])
+
+    case current_user.role
+    when 'employee', 'guest'
+      base.where(created_by: current_user).count
+    when 'agent'
+      base.where(assigned_to: current_user).count
+    else
+      base.count
+    end
   end
 
   def serialize_user(user)
