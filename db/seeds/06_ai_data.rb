@@ -7,20 +7,13 @@ AI_OPERATIONS = %w[
   pattern_detection sla_prediction survey_analysis executive_report
 ].freeze
 
-PROVIDERS_BY_WORKSPACE = {
-  'techcorp'     => { 'openai' => 0.80, 'anthropic' => 0.15, 'gemini' => 0.05 },
-  'healthco'     => { 'openai' => 0.75, 'anthropic' => 0.20, 'gemini' => 0.05 },
-  'retailplus'   => { 'openai' => 0.70, 'anthropic' => 0.20, 'gemini' => 0.10 },
-  'startupai'    => { 'openai' => 0.60, 'anthropic' => 0.30, 'gemini' => 0.10 },
-  'consultingpro' => { 'openai' => 0.65, 'anthropic' => 0.30, 'gemini' => 0.05 }
-}.freeze
+PROVIDER_WEIGHTS = { 'openai' => 0.70, 'anthropic' => 0.25, 'gemini' => 0.05 }.freeze
 
 # Weighted random provider selection
-def pick_provider(ws_slug)
-  weights = PROVIDERS_BY_WORKSPACE[ws_slug] || PROVIDERS_BY_WORKSPACE['techcorp']
+def pick_provider
   roll = rand
   cumulative = 0.0
-  weights.each do |provider, weight|
+  PROVIDER_WEIGHTS.each do |provider, weight|
     cumulative += weight
     return provider if roll < cumulative
   end
@@ -31,26 +24,21 @@ def model_for(provider)
   { 'openai' => 'gpt-4o', 'anthropic' => 'claude-sonnet-4-6', 'gemini' => 'gemini-flash' }[provider]
 end
 
-# StartupAI intentionally has low confidence for AI Health Dashboard demo
-def confidence_for(ws_slug, operation)
-  if ws_slug == 'startupai'
-    operation == 'ticket_classification' ? rand(0.45..0.75).round(2) : rand(0.60..0.85).round(2)
-  else
-    rand(0.72..0.98).round(2)
-  end
+# survey_analysis intentionally reports lower confidence to exercise
+# degraded-health alerting on the AI operations dashboard.
+def confidence_for(operation)
+  operation == 'survey_analysis' ? rand(0.45..0.75).round(2) : rand(0.72..0.98).round(2)
 end
 
 Workspace.find_each do |ws|
-  next if ws.slug == 'demo'
-
-  admin  = User.find_by(workspace: ws, email: "admin@#{ws.slug}.pulsedesk.ai")
-  count  = ws.slug == 'techcorp' ? 200 : 80
+  admin = User.find_by(workspace: ws, email: "admin@#{ws.slug}.pulsedesk.ai")
+  count = 200
 
   count.times do |idx|
     operation  = AI_OPERATIONS[idx % AI_OPERATIONS.size]
-    provider   = pick_provider(ws.slug)
+    provider   = pick_provider
     model      = model_for(provider)
-    confidence = confidence_for(ws.slug, operation)
+    confidence = confidence_for(operation)
     created_at = rand(1..60).days.ago + rand(0..23).hours
 
     AiAuditLog.create!(
@@ -73,8 +61,7 @@ Workspace.find_each do |ws|
 
   Rails.logger.debug { "  AiAuditLog created for #{ws.name}: #{AiAuditLog.where(workspace: ws).count} entries" }
 
-  # ClassificationCorrections — StartupAI has most to show self-learning
-  tickets    = Ticket.where(workspace: ws).limit(ws.slug == 'techcorp' ? 60 : 20)
+  tickets    = Ticket.where(workspace: ws).limit(60)
   agent      = User.find_by(workspace: ws, email: "agent1@#{ws.slug}.pulsedesk.ai")
   categories = %w[it hr facilities finance operations general]
 

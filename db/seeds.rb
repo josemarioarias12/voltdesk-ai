@@ -3,9 +3,9 @@
 total_start = Time.current
 
 seed_files = %w[
-  00_cleanup 01_workspaces 02_users 03_departments 04_tickets
+  00_cleanup 01_workspaces 03_departments 02_users 04_tickets
   05_assets 06_ai_data 07_hr_data 08_facilities 09_compliance
-  10_workflows 11_api_data 12_demo_workspace 13_pattern_alerts
+  10_workflows 11_api_data 13_pattern_alerts
 ]
 
 seed_files.each do |file|

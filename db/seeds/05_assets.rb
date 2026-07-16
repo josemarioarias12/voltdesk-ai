@@ -2,131 +2,90 @@
 
 Rails.logger.debug '  Creating assets...'
 
-ASSETS_BY_WORKSPACE = {
-  'techcorp' => [
-    { name: 'Production Server PSV-001',    asset_type: :server,  status: :active,         risk_score: 92,
-incident_count: 5, serial: 'PSV-001-TC', warranty_days: 15  },
-    { name: 'Production Server PSV-002',    asset_type: :server,  status: :active,         risk_score: 78,
-incident_count: 3, serial: 'PSV-002-TC', warranty_days: 45  },
-    { name: 'Backup Server BSV-001',        asset_type: :server,  status: :in_maintenance, risk_score: 65,
-incident_count: 2, serial: 'BSV-001-TC', warranty_days: 90  },
-    { name: 'MacBook Pro 16 M3 — Dev 01',   asset_type: :laptop,  status: :active,         risk_score: 12,
-incident_count: 0, serial: 'MBP-D01-TC', warranty_days: 400 },
-    { name: 'MacBook Pro 16 M3 — Dev 02',   asset_type: :laptop,  status: :active,         risk_score: 15,
-incident_count: 0, serial: 'MBP-D02-TC', warranty_days: 380 },
-    { name: 'MacBook Pro 16 M3 — Dev 03',   asset_type: :laptop,  status: :active,         risk_score: 18,
-incident_count: 1, serial: 'MBP-D03-TC', warranty_days: 350 },
-    { name: 'ThinkPad X1 Carbon — Ops 01',  asset_type: :laptop,  status: :active,         risk_score: 55,
-incident_count: 2, serial: 'TPX-O01-TC', warranty_days: 60  },
-    { name: 'ThinkPad X1 Carbon — Ops 02',  asset_type: :laptop,  status: :in_maintenance, risk_score: 72,
-incident_count: 4, serial: 'TPX-O02-TC', warranty_days: 20  },
-    { name: 'Dell XPS 15 — Finance 01',     asset_type: :laptop,  status: :active,         risk_score: 35,
-incident_count: 1, serial: 'XPS-F01-TC', warranty_days: 180 },
-    { name: 'HP EliteBook 840 — HR 01',     asset_type: :laptop,  status: :active,         risk_score: 28,
-incident_count: 1, serial: 'HPE-H01-TC', warranty_days: 200 },
-    { name: 'LG UltraWide 34 — Dev 01',     asset_type: :monitor, status: :active,         risk_score: 8,
-incident_count: 0, serial: 'LGU-D01-TC', warranty_days: 500 },
-    { name: 'Dell 27 4K — Dev 02',          asset_type: :monitor, status: :active,         risk_score: 10,
-incident_count: 0, serial: 'D27-D02-TC', warranty_days: 450 },
-    { name: 'iPhone 14 Pro — CTO',          asset_type: :phone,   status: :active,         risk_score: 5,
-incident_count: 0, serial: 'IP14-CTO-TC', warranty_days: 300 },
-    { name: 'Samsung Galaxy S23 — Lost',    asset_type: :phone,   status: :lost,           risk_score: 95,
-incident_count: 6, serial: 'SGS-L01-TC', warranty_days: 0   },
-    { name: 'Adobe CC License — 25 seats',  asset_type: :software, status: :active,        risk_score: 45,
-incident_count: 1, serial: 'ADO-CC-TC',  warranty_days: 60  }
-  ],
-  'healthco' => [
-    { name: 'MRI Machine — Radiology',      asset_type: :other,   status: :in_maintenance, risk_score: 88,
-incident_count: 4, serial: 'MRI-R01-HC', warranty_days: 30  },
-    { name: 'CT Scanner — Radiology',       asset_type: :other,   status: :active,         risk_score: 65,
-incident_count: 2, serial: 'CTS-R01-HC', warranty_days: 120 },
-    { name: 'EHR Server — Primary',         asset_type: :server,  status: :active,         risk_score: 82,
-incident_count: 3, serial: 'EHR-P01-HC', warranty_days: 45  },
-    { name: 'EHR Server — Backup',          asset_type: :server,  status: :active,         risk_score: 55,
-incident_count: 1, serial: 'EHR-B01-HC', warranty_days: 90  },
-    { name: 'Nurse Station PC — Floor 1',   asset_type: :desktop, status: :active,         risk_score: 40,
-incident_count: 2, serial: 'NPC-F1-HC',  warranty_days: 200 },
-    { name: 'Nurse Station PC — Floor 2',   asset_type: :desktop, status: :active,         risk_score: 35,
-incident_count: 1, serial: 'NPC-F2-HC',  warranty_days: 220 },
-    { name: 'Nurse Station PC — Floor 3',   asset_type: :desktop, status: :in_maintenance, risk_score: 70,
-incident_count: 3, serial: 'NPC-F3-HC',  warranty_days: 15  },
-    { name: 'Medication Dispenser — Pharm', asset_type: :other,   status: :active,         risk_score: 75,
-incident_count: 3, serial: 'MDS-P01-HC', warranty_days: 60  },
-    { name: 'Dell Laptop — Admin 01',       asset_type: :laptop,  status: :active,         risk_score: 22,
-incident_count: 0, serial: 'DLA-A01-HC', warranty_days: 300 },
-    { name: 'iPad — Doctor Rounds',         asset_type: :phone,   status: :active,         risk_score: 18,
-incident_count: 1, serial: 'IPD-DR-HC',  warranty_days: 250 }
-  ],
-  'retailplus' => [
-    { name: 'POS Terminal — Store 12 A',    asset_type: :desktop, status: :in_maintenance, risk_score: 90,
-incident_count: 5, serial: 'POS-12A-RP', warranty_days: 10  },
-    { name: 'POS Terminal — Store 12 B',    asset_type: :desktop, status: :in_maintenance, risk_score: 88,
-incident_count: 4, serial: 'POS-12B-RP', warranty_days: 10  },
-    { name: 'POS Terminal — Store 7 A',     asset_type: :desktop, status: :in_maintenance, risk_score: 85,
-incident_count: 4, serial: 'POS-07A-RP', warranty_days: 20  },
-    { name: 'POS Terminal — Store 3 A',     asset_type: :desktop, status: :active,         risk_score: 60,
-incident_count: 2, serial: 'POS-03A-RP', warranty_days: 60  },
-    { name: 'Inventory Scanner — Wh 01',    asset_type: :other,   status: :active,         risk_score: 45,
-incident_count: 2, serial: 'INV-W01-RP', warranty_days: 180 },
-    { name: 'Refrigeration Unit — St 4',    asset_type: :other,   status: :active,         risk_score: 78,
-incident_count: 3, serial: 'REF-S04-RP', warranty_days: 90  },
-    { name: 'Security Camera System',       asset_type: :other,   status: :in_maintenance, risk_score: 65,
-incident_count: 2, serial: 'CAM-P01-RP', warranty_days: 45  },
-    { name: 'Store Manager Laptop — 01',    asset_type: :laptop,  status: :active,         risk_score: 25,
-incident_count: 1, serial: 'SML-01-RP',  warranty_days: 300 },
-    { name: 'Store Manager Laptop — 02',    asset_type: :laptop,  status: :active,         risk_score: 20,
-incident_count: 0, serial: 'SML-02-RP',  warranty_days: 320 },
-    { name: 'Network Switch — HQ',          asset_type: :other,   status: :active,         risk_score: 55,
-incident_count: 2, serial: 'NSW-HQ-RP',  warranty_days: 120 }
-  ],
-  'startupai' => [
-    { name: 'MacBook Pro M3 — Eng 01',      asset_type: :laptop,  status: :active,         risk_score: 10,
-incident_count: 0, serial: 'MBP-E01-SA', warranty_days: 500 },
-    { name: 'MacBook Pro M3 — Eng 02',      asset_type: :laptop,  status: :active,         risk_score: 12,
-incident_count: 0, serial: 'MBP-E02-SA', warranty_days: 480 },
-    { name: 'MacBook Pro M3 — Eng 03',      asset_type: :laptop,  status: :active,         risk_score: 8,
-incident_count: 0, serial: 'MBP-E03-SA', warranty_days: 460 },
-    { name: 'AWS Production Account',       asset_type: :software, status: :active,        risk_score: 70,
-incident_count: 2, serial: 'AWS-P01-SA', warranty_days: 365 },
-    { name: 'GitHub Enterprise License',    asset_type: :software, status: :active,        risk_score: 15,
-incident_count: 0, serial: 'GHE-01-SA',  warranty_days: 200 },
-    { name: 'Office WiFi Router',           asset_type: :other,   status: :in_maintenance, risk_score: 72,
-incident_count: 4, serial: 'WFR-01-SA',  warranty_days: 30  },
-    { name: 'Standing Desk Monitor — 01',   asset_type: :monitor, status: :active,         risk_score: 5,
-incident_count: 0, serial: 'MON-01-SA',  warranty_days: 600 }
-  ],
-  'consultingpro' => [
-    { name: 'Dell PowerEdge — Primary',     asset_type: :server,  status: :active,         risk_score: 75,
-incident_count: 3, serial: 'DPE-P01-CP', warranty_days: 45  },
-    { name: 'Dell PowerEdge — Backup',      asset_type: :server,  status: :active,         risk_score: 55,
-incident_count: 1, serial: 'DPE-B01-CP', warranty_days: 90  },
-    { name: 'ThinkPad X1 — Partner 01',    asset_type: :laptop,  status: :active,         risk_score: 20,
-incident_count: 0, serial: 'TPX-P01-CP', warranty_days: 400 },
-    { name: 'ThinkPad X1 — Partner 02',    asset_type: :laptop,  status: :active,         risk_score: 22,
-incident_count: 1, serial: 'TPX-P02-CP', warranty_days: 380 },
-    { name: 'ThinkPad X1 — Consultant 01', asset_type: :laptop,  status: :active,         risk_score: 18,
-incident_count: 0, serial: 'TPX-C01-CP', warranty_days: 360 },
-    { name: 'Cisco VPN Appliance',         asset_type: :other,   status: :active,         risk_score: 60,
-incident_count: 2, serial: 'CVA-01-CP',  warranty_days: 120 },
-    { name: 'Document Scanner — Legal',    asset_type: :other,   status: :active,         risk_score: 30,
-incident_count: 1, serial: 'DSC-L01-CP', warranty_days: 200 },
-    { name: 'SharePoint Online License',   asset_type: :software, status: :active,        risk_score: 25,
-incident_count: 0, serial: 'SPO-01-CP',  warranty_days: 180 }
-  ]
-}.freeze
+ASSETS = [
+  # ── Core Infrastructure ────────────────────────────────────────────────────
+  { name: 'Core Banking Server — Primary',     asset_type: :server,  status: :active,         risk_score: 88,
+incident_count: 4, serial: 'CBS-P01-CB', warranty_days: 20  },
+  { name: 'Core Banking Server — Standby',     asset_type: :server,  status: :active,         risk_score: 60,
+incident_count: 1, serial: 'CBS-S01-CB', warranty_days: 90  },
+  { name: 'SWIFT Gateway Server',              asset_type: :server,  status: :active,         risk_score: 70,
+incident_count: 2, serial: 'SWG-01-CB',  warranty_days: 60  },
+  { name: 'Backup Server — Data Center',       asset_type: :server,  status: :in_maintenance, risk_score: 55,
+incident_count: 2, serial: 'BKS-01-CB',  warranty_days: 100 },
+  { name: 'Fraud Detection Server',            asset_type: :server,  status: :active,         risk_score: 45,
+incident_count: 1, serial: 'FDS-01-CB',  warranty_days: 200 },
+
+  # ── ATMs & Branch Security ─────────────────────────────────────────────────
+  { name: 'ATM — Branch 12 Downtown',          asset_type: :other,   status: :in_maintenance, risk_score: 90,
+incident_count: 5, serial: 'ATM-B12-CB', warranty_days: 10  },
+  { name: 'ATM — Branch 7 Riverside',          asset_type: :other,   status: :in_maintenance, risk_score: 85,
+incident_count: 4, serial: 'ATM-B07-CB', warranty_days: 15  },
+  { name: 'ATM — Branch 3 Main St',            asset_type: :other,   status: :active,         risk_score: 40,
+incident_count: 1, serial: 'ATM-B03-CB', warranty_days: 300 },
+  { name: 'ATM — Branch 9 Vestibule',          asset_type: :other,   status: :active,         risk_score: 35,
+incident_count: 1, serial: 'ATM-B09-CB', warranty_days: 250 },
+  { name: 'Vault Security System — Branch 3',  asset_type: :other,   status: :active,         risk_score: 65,
+incident_count: 2, serial: 'VLT-B03-CB', warranty_days: 90  },
+
+  # ── Teller & Branch Workstations ──────────────────────────────────────────
+  { name: 'Teller Workstation — Branch 4 #1',  asset_type: :desktop, status: :active,         risk_score: 30,
+incident_count: 1, serial: 'TWS-B4-1-CB', warranty_days: 200 },
+  { name: 'Teller Workstation — Branch 4 #2',  asset_type: :desktop, status: :active,         risk_score: 25,
+incident_count: 0, serial: 'TWS-B4-2-CB', warranty_days: 220 },
+  { name: 'Teller Workstation — Branch 12 #1', asset_type: :desktop, status: :in_maintenance, risk_score: 68,
+incident_count: 3, serial: 'TWS-B12-1-CB', warranty_days: 25 },
+  { name: 'Branch Manager Desktop — Branch 19', asset_type: :desktop, status: :active,        risk_score: 20,
+incident_count: 0, serial: 'BMD-B19-CB', warranty_days: 300 },
+
+  # ── Employee Laptops ───────────────────────────────────────────────────────
+  { name: 'MacBook Pro 16 M3 — IT Dev 01',     asset_type: :laptop,  status: :active,         risk_score: 12,
+incident_count: 0, serial: 'MBP-D01-CB', warranty_days: 400 },
+  { name: 'MacBook Pro 16 M3 — IT Dev 02',     asset_type: :laptop,  status: :active,         risk_score: 15,
+incident_count: 0, serial: 'MBP-D02-CB', warranty_days: 380 },
+  { name: 'ThinkPad X1 Carbon — Compliance 01', asset_type: :laptop, status: :active,          risk_score: 22,
+incident_count: 1, serial: 'TPX-C01-CB', warranty_days: 250 },
+  { name: 'Dell XPS 15 — Treasury 01',         asset_type: :laptop,  status: :active,         risk_score: 35,
+incident_count: 1, serial: 'XPS-T01-CB', warranty_days: 180 },
+  { name: 'HP EliteBook 840 — HR 01',          asset_type: :laptop,  status: :active,         risk_score: 28,
+incident_count: 1, serial: 'HPE-H01-CB', warranty_days: 200 },
+  { name: 'HP EliteBook 840 — Customer Service 01', asset_type: :laptop, status: :active,     risk_score: 18,
+incident_count: 0, serial: 'HPE-CS1-CB', warranty_days: 320 },
+
+  # ── Monitors ───────────────────────────────────────────────────────────────
+  { name: 'Dell UltraWide 34 — IT Dev 01',     asset_type: :monitor, status: :active,         risk_score: 8,
+incident_count: 0, serial: 'DUW-D01-CB', warranty_days: 500 },
+  { name: 'LG 27 4K — Treasury 01',            asset_type: :monitor, status: :active,         risk_score: 10,
+incident_count: 0, serial: 'LG27-T01-CB', warranty_days: 450 },
+
+  # ── Mobile Devices ─────────────────────────────────────────────────────────
+  { name: 'iPhone 14 Pro — Branch Manager',    asset_type: :phone,   status: :active,         risk_score: 5,
+incident_count: 0, serial: 'IP14-BM-CB', warranty_days: 300 },
+  { name: 'Samsung Galaxy S23 — Lost (Compliance Officer)', asset_type: :phone, status: :lost, risk_score: 95,
+incident_count: 6, serial: 'SGS-L01-CB', warranty_days: 0   },
+
+  # ── Software Licenses ──────────────────────────────────────────────────────
+  { name: 'Core Banking Software License',     asset_type: :software, status: :active,        risk_score: 40,
+incident_count: 1, serial: 'CBS-LIC-CB', warranty_days: 365 },
+  { name: 'AML Screening Software License',    asset_type: :software, status: :active,        risk_score: 25,
+incident_count: 0, serial: 'AML-LIC-CB', warranty_days: 300 },
+  { name: 'Microsoft 365 Enterprise License',  asset_type: :software, status: :active,        risk_score: 15,
+incident_count: 0, serial: 'M365-LIC-CB', warranty_days: 250 },
+
+  # ── Network & Physical Security ───────────────────────────────────────────
+  { name: 'Network Switch — HQ Data Center',   asset_type: :other,   status: :active,         risk_score: 55,
+incident_count: 2, serial: 'NSW-HQ-CB',  warranty_days: 120 },
+  { name: 'Security Camera System — HQ Parking', asset_type: :other, status: :in_maintenance, risk_score: 62,
+incident_count: 2, serial: 'CAM-HQ-CB',  warranty_days: 45  }
+].freeze
 
 asset_counter = 0
 
 Workspace.find_each do |ws|
-  next if ws.slug == 'demo'
-
   depts  = Department.where(workspace: ws).index_by(&:name)
   users  = User.where(workspace: ws)
   it_mgr = users.find(&:role_it_manager?) || users.find(&:role_workspace_admin?)
 
-  assets = ASSETS_BY_WORKSPACE[ws.slug] || ASSETS_BY_WORKSPACE['techcorp']
-
-  assets.each do |data|
+  ASSETS.each do |data|
     asset_counter += 1
     dept = depts.values.find { |d| d.name.include?('IT') || d.name.include?('Engineering') } || depts.values.first
 

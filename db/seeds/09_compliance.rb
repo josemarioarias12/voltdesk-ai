@@ -3,12 +3,10 @@
 Rails.logger.debug '  Creating compliance logs and data retention policies...'
 
 Workspace.find_each do |ws|
-  next if ws.slug == 'demo'
-
-  users  = User.where(workspace: ws)
-  admin  = users.find(&:role_workspace_admin?)
-  agent  = users.find(&:role_agent?)
-  count  = ws.slug == 'consultingpro' ? 200 : 40
+  users = User.where(workspace: ws)
+  admin = users.find(&:role_workspace_admin?)
+  agent = users.find(&:role_agent?)
+  count = 200
 
   event_types = ComplianceLog.event_types.keys
 
@@ -36,27 +34,25 @@ Workspace.find_each do |ws|
 
   Rails.logger.debug { "  ComplianceLogs for #{ws.name}: #{ComplianceLog.where(workspace: ws).count}" }
 
-  # GDPR purge simulation for ConsultingPro
-  if ws.slug == 'consultingpro'
-    2.times do |idx|
-      ComplianceLog.create!(
-        workspace:     ws,
-        actor:         admin,
-        event_type:    :gdpr_request,
-        resource_type: 'User',
-        resource_id:   "PURGED-#{idx + 1}",
-        ip_address:    '10.0.0.1',
-        metadata: {
-          'action'      => 'gdpr_right_to_erasure',
-          'purged_at'   => rand(5..30).days.ago.iso8601,
-          'ghost_user'  => true,
-          'fields_cleared' => %w[email first_name last_name bank_account salary]
-        },
-        created_at: rand(5..30).days.ago
-      )
-    end
-    Rails.logger.debug { "  GDPR purge logs added for #{ws.name}" }
+  # GDPR purge simulation
+  2.times do |idx|
+    ComplianceLog.create!(
+      workspace:     ws,
+      actor:         admin,
+      event_type:    :gdpr_request,
+      resource_type: 'User',
+      resource_id:   "PURGED-#{idx + 1}",
+      ip_address:    '10.0.0.1',
+      metadata: {
+        'action'      => 'gdpr_right_to_erasure',
+        'purged_at'   => rand(5..30).days.ago.iso8601,
+        'ghost_user'  => true,
+        'fields_cleared' => %w[email first_name last_name bank_account salary]
+      },
+      created_at: rand(5..30).days.ago
+    )
   end
+  Rails.logger.debug { "  GDPR purge logs added for #{ws.name}" }
 
   # Data Retention Policies
   DataRetentionPolicy.seed_defaults_for(ws)

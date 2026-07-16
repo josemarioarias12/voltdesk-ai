@@ -3,34 +3,34 @@
 Rails.logger.debug '  Creating HR data (leave requests, onboarding, surveys)...'
 
 ONBOARDING_TASKS = [
-  { title: 'Complete IT security training',          category: :systems,       order: 1 },
-  { title: 'Set up workstation and development env', category: :setup,         order: 2 },
-  { title: 'Meet with direct manager',               category: :team,          order: 3 },
-  { title: 'Review company policies and handbook',   category: :systems,       order: 4 },
-  { title: 'Access all required tools and systems',  category: :setup,         order: 5 },
-  { title: 'Complete HR onboarding paperwork',       category: :setup,         order: 6 },
-  { title: 'Shadow a senior team member',            category: :team,          order: 7 },
+  { title: 'Complete IT security training',          category: :systems,   order: 1 },
+  { title: 'Set up workstation and development env', category: :setup,   order: 2 },
+  { title: 'Meet with direct manager',               category: :team,   order: 3 },
+  { title: 'Review company policies and handbook',   category: :systems,   order: 4 },
+  { title: 'Access all required tools and systems',  category: :setup,   order: 5 },
+  { title: 'Complete HR onboarding paperwork',       category: :setup,   order: 6 },
+  { title: 'Shadow a senior team member',            category: :team,   order: 7 },
   { title: 'Complete first independent task',        category: :contributions, order: 8 }
 ].freeze
 
 Workspace.find_each do |ws|
-  next if ws.slug == 'demo'
-
   users      = User.where(workspace: ws)
   hr_manager = users.find(&:role_hr_manager?)
   employees  = users.select { |u| u.role_employee? || u.role_agent? }
 
-  # Leave Requests — HealthCo has medical_notes for masking demo
   leave_scenarios = [
-    { user_key: 0, type: :vacation,   start_offset: 10,  end_offset: 17,  status: :approved, medical_notes: nil },
+    { user_key: 0, type: :vacation,   start_offset: 10,  end_offset: 17,  status: :approved,
+      medical_notes: nil },
     { user_key: 1, type: :sick_leave, start_offset: -5,  end_offset: -3,  status: :approved,
-      medical_notes: ws.slug == 'healthco' ? 'Doctor diagnosed acute gastroenteritis. Rest required.' : nil },
-    { user_key: 2, type: :personal,   start_offset: 5,   end_offset: 7,   status: :pending, medical_notes: nil },
+      medical_notes: 'Doctor diagnosed acute condition. Rest required.' },
+    { user_key: 2, type: :personal,   start_offset: 5,   end_offset: 7,   status: :pending,
+      medical_notes: nil },
     { user_key: 0, type: :maternity,  start_offset: 30,  end_offset: 120, status: :pending,
-      medical_notes: ws.slug == 'healthco' ? 'OB-GYN confirms pregnancy week 28. Maternity leave approved.' : nil },
-    { user_key: 1, type: :vacation,   start_offset: 20,  end_offset: 27,  status: :pending, medical_notes: nil },
+      medical_notes: 'OB-GYN confirms pregnancy week 28. Maternity leave approved.' },
+    { user_key: 1, type: :vacation,   start_offset: 20,  end_offset: 27,  status: :pending,
+      medical_notes: nil },
     { user_key: 2, type: :sick_leave, start_offset: -10, end_offset: -8,  status: :approved,
-      medical_notes: ws.slug == 'healthco' ? 'Surgical procedure required. 3 days recovery.' : nil }
+      medical_notes: 'Minor surgical procedure required. 3 days recovery.' }
   ]
 
   leave_scenarios.each do |scenario|
@@ -57,7 +57,7 @@ Workspace.find_each do |ws|
 
   # Onboarding Plans — 3 employees in different stages
   employees.first(3).each_with_index do |emp, idx|
-    completed_tasks = [8, 4, 1][idx] # different completion stages
+    completed_tasks = [8, 4, 1][idx]
 
     plan = OnboardingPlan.create!(
       workspace:             ws,
@@ -82,7 +82,7 @@ Workspace.find_each do |ws|
 
   Rails.logger.debug { "  OnboardingPlans for #{ws.name}: #{OnboardingPlan.where(workspace: ws).count}" }
 
-  # Satisfaction Surveys — HealthCo Nursing dept shows sentiment drop
+  # Satisfaction Surveys — Customer Service shows a sentiment drop for trending demo
   tickets    = Ticket.where(workspace: ws).where.not(status: :open).limit(30)
   depts      = Department.where(workspace: ws).index_by(&:name)
   submitters = employees
@@ -90,8 +90,7 @@ Workspace.find_each do |ws|
   tickets.each_with_index do |ticket, idx|
     next if TicketSatisfactionSurvey.exists?(ticket: ticket)
 
-    # HealthCo Nursing: intentionally low sentiment for trending demo
-    sentiment = if ws.slug == 'healthco' && ticket.department&.name == 'Nursing'
+    sentiment = if ticket.department&.name == 'Customer Service'
                   rand(-0.8..-0.2).round(2)
                 else
                   rand(0.1..0.95).round(2)
