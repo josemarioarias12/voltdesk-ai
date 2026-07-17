@@ -1,0 +1,90 @@
+{
+  "title": "Tickets",
+  "subtitle": "Gestioná y seguí solicitudes de soporte, TI, RRHH y operaciones",
+  "export": "Exportar",
+  "newTicket": "+ Nuevo Ticket",
+  "allTickets": "Todos los Tickets",
+  "searchPlaceholder": "Buscar tickets...",
+  "priority": {
+    "critical": "Crítica",
+    "high": "Alta",
+    "medium": "Media",
+    "low": "Baja"
+  },
+  "status": {
+    "open": "Abierto",
+    "in_progress": "En Progreso",
+    "pending": "Pendiente",
+    "resolved": "Resuelto",
+    "closed": "Cerrado",
+    "pending_classification": "Clasificando"
+  },
+  "category": {
+    "it": "TI",
+    "hr": "RRHH",
+    "facilities": "Instalaciones",
+    "finance": "Finanzas",
+    "operations": "Operaciones",
+    "support": "Soporte",
+    "general": "General"
+  },
+  "sla": {
+    "met": "Cumplido",
+    "breached": "Incumplido",
+    "hoursLeft": "{{count}}h restantes",
+    "minutesLeft": "{{count}}m restantes"
+  },
+  "relative": {
+    "justNow": "recién",
+    "hoursAgo": "hace {{count}}h",
+    "daysAgo": "hace {{count}}d"
+  },
+  "patternAlert": {
+    "label": "Patrón Detectado",
+    "dismiss": "Descartar alerta de patrón"
+  },
+  "stats": {
+    "totalOpen": "Abiertos Total",
+    "inProgress": "En Progreso",
+    "slaBreached": "SLA Incumplido",
+    "resolvedToday": "Resueltos Hoy",
+    "avgResponse": "Respuesta Prom.",
+    "todayDelta": "+{{count}} hoy",
+    "lastWeekDelta": "↑ {{count}} vs semana pasada",
+    "criticalDelta": "{{count}} críticos",
+    "avgDelta": "+{{count}} vs prom.",
+    "avgMinutesDelta": "↓ {{count}} min vs prom."
+  },
+  "filters": {
+    "category": "Categoría",
+    "priority": "Prioridad"
+  },
+  "bulk": {
+    "selected": "{{count}} seleccionados",
+    "assignTo": "Asignar a...",
+    "resolve": "Resolver",
+    "priorityPlaceholder": "Prioridad..."
+  },
+  "table": {
+    "id": "ID",
+    "title": "TÍTULO",
+    "category": "CATEGORÍA",
+    "department": "DEPARTAMENTO",
+    "status": "ESTADO",
+    "priority": "PRIORIDAD",
+    "assignee": "ASIGNADO",
+    "sla": "SLA",
+    "updated": "ACTUALIZADO",
+    "unassigned": "Sin asignar",
+    "selectAll": "Seleccionar todos los tickets de esta página",
+    "selectTicket": "Seleccionar ticket {{ticketNumber}}"
+  },
+  "empty": {
+    "title": "No se encontraron tickets",
+    "description": "Probá ajustar tus filtros o creá un nuevo ticket.",
+    "action": "Nuevo Ticket"
+  },
+  "pagination": {
+    "showing": "Mostrando {{from}}–{{to}} de {{total}} tickets"
+  }
+}

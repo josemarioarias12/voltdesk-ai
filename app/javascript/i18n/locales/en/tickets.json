@@ -1,0 +1,90 @@
+{
+  "title": "Tickets",
+  "subtitle": "Manage and track support, IT, HR, and operations requests",
+  "export": "Export",
+  "newTicket": "+ New Ticket",
+  "allTickets": "All Tickets",
+  "searchPlaceholder": "Search tickets...",
+  "priority": {
+    "critical": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low"
+  },
+  "status": {
+    "open": "Open",
+    "in_progress": "In Progress",
+    "pending": "Pending",
+    "resolved": "Resolved",
+    "closed": "Closed",
+    "pending_classification": "Classifying"
+  },
+  "category": {
+    "it": "IT",
+    "hr": "HR",
+    "facilities": "Facilities",
+    "finance": "Finance",
+    "operations": "Operations",
+    "support": "Support",
+    "general": "General"
+  },
+  "sla": {
+    "met": "Met",
+    "breached": "Breached",
+    "hoursLeft": "{{count}}h left",
+    "minutesLeft": "{{count}}m left"
+  },
+  "relative": {
+    "justNow": "just now",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}}d ago"
+  },
+  "patternAlert": {
+    "label": "Pattern Detected",
+    "dismiss": "Dismiss pattern alert"
+  },
+  "stats": {
+    "totalOpen": "Total Open",
+    "inProgress": "In Progress",
+    "slaBreached": "SLA Breached",
+    "resolvedToday": "Resolved Today",
+    "avgResponse": "Avg Response",
+    "todayDelta": "+{{count}} today",
+    "lastWeekDelta": "↑ {{count}} vs last week",
+    "criticalDelta": "{{count}} critical",
+    "avgDelta": "+{{count}} vs avg",
+    "avgMinutesDelta": "↓ {{count}} min vs avg"
+  },
+  "filters": {
+    "category": "Category",
+    "priority": "Priority"
+  },
+  "bulk": {
+    "selected": "{{count}} selected",
+    "assignTo": "Assign to...",
+    "resolve": "Resolve",
+    "priorityPlaceholder": "Priority..."
+  },
+  "table": {
+    "id": "ID",
+    "title": "TITLE",
+    "category": "CATEGORY",
+    "department": "DEPARTMENT",
+    "status": "STATUS",
+    "priority": "PRIORITY",
+    "assignee": "ASSIGNEE",
+    "sla": "SLA",
+    "updated": "UPDATED",
+    "unassigned": "Unassigned",
+    "selectAll": "Select all tickets on this page",
+    "selectTicket": "Select ticket {{ticketNumber}}"
+  },
+  "empty": {
+    "title": "No tickets found",
+    "description": "Try adjusting your filters or create a new ticket.",
+    "action": "New Ticket"
+  },
+  "pagination": {
+    "showing": "Showing {{from}}–{{to}} of {{total}} tickets"
+  }
+}

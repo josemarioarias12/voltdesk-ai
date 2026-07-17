@@ -3,6 +3,7 @@ import type { CSSProperties, ReactElement } from 'react'
 import { router, usePage } from '@inertiajs/react'
 import type { SharedProps } from '@/types'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import type {
   TicketPriority, TicketStatus, TicketCategory, SlaStatus,
   TicketsIndexProps, TicketsFilters, TicketSortColumn, SortDirection,
@@ -12,6 +13,7 @@ import AppLayout from '@/components/AppLayout'
 import EmptyState from '@/components/EmptyState'
 import ErrorBoundary from '@/components/ErrorBoundary'
 
+type Translate = (key: string, options?: Record<string, unknown>) => string
 
 function useWindowWidth() {
   const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
@@ -25,54 +27,49 @@ function useWindowWidth() {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function formatSlaTime(seconds: number | null, slaStatus: SlaStatus) {
-  if (slaStatus === 'met') return <span style={{ color: '#16A34A', fontWeight: 500, fontSize: 13 }}>Met</span>
+function formatSlaTime(seconds: number | null, slaStatus: SlaStatus, t: Translate): ReactElement | null {
+  if (slaStatus === 'met') return <span style={{ color: '#16A34A', fontWeight: 500, fontSize: 13 }}>{t('sla.met')}</span>
   if (slaStatus === 'breached') return (
-    <span style={{ background: '#EF4444', color: '#fff', fontSize: 12, fontWeight: 600, padding: '2px 8px', borderRadius: 6 }}>Breached</span>
+    <span style={{ background: '#EF4444', color: '#fff', fontSize: 12, fontWeight: 600, padding: '2px 8px', borderRadius: 6 }}>{t('sla.breached')}</span>
   )
   if (!seconds || seconds <= 0) return null
   const h = Math.floor(seconds / 3600)
   const m = Math.floor((seconds % 3600) / 60)
-  const label = h > 0 ? `${h}h left` : `${m}m left`
+  const label = h > 0 ? t('sla.hoursLeft', { count: h }) : t('sla.minutesLeft', { count: m })
   const color = slaStatus === 'at_risk' ? '#F97316' : '#16A34A'
   return <span style={{ color, fontWeight: 500, fontSize: 13 }}>{label}</span>
 }
 
-function formatRelative(iso: string): string {
+function formatRelative(iso: string, t: Translate): string {
   const diff = Date.now() - new Date(iso).getTime()
   const h = Math.floor(diff / 3600000)
   const d = Math.floor(diff / 86400000)
-  if (h < 1) return 'just now'
-  if (h < 24) return `${h}h ago`
-  return `${d}d ago`
+  if (h < 1) return t('relative.justNow')
+  if (h < 24) return t('relative.hoursAgo', { count: h })
+  return t('relative.daysAgo', { count: d })
 }
 
-// Fallback label for any status the enum gains later but STATUS_CFG hasn't been updated for yet.
+// Fallback label for any status the enum gains later but translations haven't been added for yet.
 function humanizeStatus(status: string): string {
   return status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 }
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
-const PRIORITY_CFG: Record<TicketPriority, { label: string; color: string }> = {
-  critical: { label: 'Critical', color: '#EF4444' },
-  high: { label: 'High', color: '#F97316' },
-  medium: { label: 'Medium', color: '#EAB308' },
-  low: { label: 'Low', color: '#6B7280' },
+const PRIORITY_CFG: Record<TicketPriority, { color: string }> = {
+  critical: { color: '#EF4444' },
+  high: { color: '#F97316' },
+  medium: { color: '#EAB308' },
+  low: { color: '#6B7280' },
 }
 
-const STATUS_CFG: Record<TicketStatus, { label: string; bg: string; text: string }> = {
-  open: { label: 'Open', bg: '#DCFCE7', text: '#16A34A' },
-  in_progress: { label: 'In Progress', bg: '#DBEAFE', text: '#2563EB' },
-  pending: { label: 'Pending', bg: '#FEF9C3', text: '#CA8A04' },
-  resolved: { label: 'Resolved', bg: '#DCFCE7', text: '#16A34A' },
-  closed: { label: 'Closed', bg: '#F1F5F9', text: '#64748B' },
-  pending_classification: { label: 'Classifying', bg: '#F3E8FF', text: '#9333EA' },
-}
-
-const CATEGORY_LABELS: Record<TicketCategory, string> = {
-  it: 'IT', hr: 'HR', facilities: 'Facilities', finance: 'Finance',
-  operations: 'Operations', support: 'Support', general: 'General',
+const STATUS_CFG: Record<TicketStatus, { bg: string; text: string }> = {
+  open: { bg: '#DCFCE7', text: '#16A34A' },
+  in_progress: { bg: '#DBEAFE', text: '#2563EB' },
+  pending: { bg: '#FEF9C3', text: '#CA8A04' },
+  resolved: { bg: '#DCFCE7', text: '#16A34A' },
+  closed: { bg: '#F1F5F9', text: '#64748B' },
+  pending_classification: { bg: '#F3E8FF', text: '#9333EA' },
 }
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
@@ -167,10 +164,12 @@ function StatCard({ label, value, sub, subColor }: { label: string; value: strin
 }
 
 function StatusBadge({ status }: { status: TicketStatus }) {
+  const { t } = useTranslation('tickets')
   const cfg = STATUS_CFG[status] ?? STATUS_CFG.open
+  const label = t(`status.${status}`, { defaultValue: humanizeStatus(status) })
   return (
     <span style={{ background: cfg.bg, color: cfg.text, fontSize: 12, fontWeight: 600, padding: '3px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>
-      {cfg.label}
+      {label}
     </span>
   )
 }
@@ -241,6 +240,7 @@ interface PatternAlertPayload {
 }
 
 function PatternAlertBanner({ alert, onDismiss }: { alert: PatternAlertPayload; onDismiss: () => void }) {
+  const { t } = useTranslation('tickets')
   return (
     <motion.div
       initial={{ opacity: 0, y: -12 }}
@@ -257,7 +257,6 @@ function PatternAlertBanner({ alert, onDismiss }: { alert: PatternAlertPayload; 
         boxShadow: '0 1px 3px rgba(0,0,0,0.1), 0 4px 16px rgba(239,68,68,0.1)',
       }}
     >
-      {/* Pulsing dot */}
       <div style={{ paddingTop: 2, flexShrink: 0 }}>
         <div style={{ position: 'relative', width: 10, height: 10 }}>
           <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#EF4444' }} />
@@ -269,11 +268,10 @@ function PatternAlertBanner({ alert, onDismiss }: { alert: PatternAlertPayload; 
         </div>
       </div>
 
-      {/* Content */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
           <span style={{ fontSize: 12, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-            Pattern Detected
+            {t('patternAlert.label')}
           </span>
           <span style={{ fontSize: 11, padding: '1px 8px', borderRadius: 20, background: 'rgba(239,68,68,0.15)', color: '#FCA5A5', fontWeight: 600 }}>
             {alert.severity.toUpperCase()}
@@ -283,12 +281,11 @@ function PatternAlertBanner({ alert, onDismiss }: { alert: PatternAlertPayload; 
         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>{alert.description}</p>
       </div>
 
-      {/* Actions */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
         <button
           onClick={onDismiss}
           style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: 18, lineHeight: 1, padding: '0 4px' }}
-          aria-label="Dismiss pattern alert"
+          aria-label={t('patternAlert.dismiss')}
         >
           ×
         </button>
@@ -302,6 +299,7 @@ function PatternAlertBanner({ alert, onDismiss }: { alert: PatternAlertPayload; 
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 export default function TicketsIndex({ tickets, departments, assignable_agents, stats, filters, pagination }: TicketsIndexProps) {
+  const { t } = useTranslation('tickets')
   const [activeTab, setActiveTab] = useState(filters.status ?? '')
   const [searchQuery, setSearchQuery] = useState(filters.q ?? '')
   const [selectedPriority, setPriority] = useState(filters.priority ?? '')
@@ -321,7 +319,6 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
   useActionCable({ channel: 'WorkspaceChannel' }, useCallback((data: Record<string, unknown>) => {
     if (data.type !== 'pattern_alert') return
     const alert = data as unknown as PatternAlertPayload
-    // Deduplicate — same alert_id must not flash twice in the same session
     if (alertShownIds.current.has(alert.alert_id)) return
     alertShownIds.current.add(alert.alert_id)
     setPatternAlert(alert)
@@ -377,37 +374,35 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
   }
 
   const tabs = [
-    { key: '', label: 'All Tickets', count: pagination.total_count },
+    { key: '', label: t('allTickets'), count: pagination.total_count },
     ...(Object.entries(stats.by_status) as Array<[TicketStatus, number]>).map(([status, count]) => ({
       key: status,
-      label: STATUS_CFG[status]?.label ?? humanizeStatus(status),
+      label: t(`status.${status}`, { defaultValue: humanizeStatus(status) }),
       count,
     })),
   ]
 
   return (
-    <AppLayout title="Tickets">
+    <AppLayout title={t('title')}>
       <ErrorBoundary section="Tickets">
-        {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
           <div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A' }}>Tickets</h1>
-            <p style={{ fontSize: 13, color: '#475569', marginTop: 2 }}>Manage and track support, IT, HR, and operations requests</p>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A' }}>{t('title')}</h1>
+            <p style={{ fontSize: 13, color: '#475569', marginTop: 2 }}>{t('subtitle')}</p>
           </div>
           <div style={{ display: 'flex', gap: 12 }}>
             <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', border: '1px solid rgba(15,23,42,0.12)', borderRadius: 8, fontSize: 13, color: '#475569', background: '#fff', cursor: 'pointer' }}>
-              Export
+              {t('export')}
             </button>
             <button
               onClick={() => router.get('/tickets/new')}
               style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: '#028090', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer' }}
             >
-              + New Ticket
+              {t('newTicket')}
             </button>
           </div>
         </div>
 
-        {/* Pattern Alert Banner */}
         <AnimatePresence>
           {patternAlert && (
             <PatternAlertBanner
@@ -417,18 +412,15 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
           )}
         </AnimatePresence>
 
-        {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 24 }}>
-          <StatCard label="Total Open" value={stats.total_open} sub={`+${stats.delta.total_open_today} today`} />
-          <StatCard label="In Progress" value={stats.in_progress} sub={`↑ ${stats.delta.in_progress_vs_last_week} vs last week`} />
-          <StatCard label="SLA Breached" value={stats.sla_breached} sub={`${stats.delta.sla_breached_critical} critical`} subColor="#EF4444" />
-          <StatCard label="Resolved Today" value={stats.resolved_today} sub={`+${stats.delta.resolved_today_vs_avg} vs avg`} />
-          <StatCard label="Avg Response" value={`${stats.avg_response_hours}h`} sub={`↓ ${Math.abs(stats.delta.avg_response_vs_avg_minutes)} min vs avg`} />
+          <StatCard label={t('stats.totalOpen')} value={stats.total_open} sub={t('stats.todayDelta', { count: stats.delta.total_open_today })} />
+          <StatCard label={t('stats.inProgress')} value={stats.in_progress} sub={t('stats.lastWeekDelta', { count: stats.delta.in_progress_vs_last_week })} />
+          <StatCard label={t('stats.slaBreached')} value={stats.sla_breached} sub={t('stats.criticalDelta', { count: stats.delta.sla_breached_critical })} subColor="#EF4444" />
+          <StatCard label={t('stats.resolvedToday')} value={stats.resolved_today} sub={t('stats.avgDelta', { count: stats.delta.resolved_today_vs_avg })} />
+          <StatCard label={t('stats.avgResponse')} value={`${stats.avg_response_hours}h`} sub={t('stats.avgMinutesDelta', { count: Math.abs(stats.delta.avg_response_vs_avg_minutes) })} />
         </div>
 
-        {/* Main card */}
         <div style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(15,23,42,0.08)', boxShadow: '0 1px 3px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
-          {/* Tabs */}
           <div style={{ display: 'flex', borderBottom: '1px solid rgba(15,23,42,0.06)', padding: '0 24px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
             {tabs.map(tab => {
               const isActive = activeTab === tab.key
@@ -447,30 +439,28 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
             })}
           </div>
 
-          {/* Filters */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 24px', borderBottom: '1px solid rgba(15,23,42,0.06)', flexWrap: 'wrap' }}>
             <input
               type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && applyFilters()}
-              placeholder="Search tickets..."
+              placeholder={t('searchPlaceholder')}
               style={{ padding: '7px 14px', border: '1px solid rgba(15,23,42,0.12)', borderRadius: 8, fontSize: 13, color: '#0F172A', width: 220, outline: 'none' }}
             />
             <select value={selectedDept} onChange={e => { setDept(e.target.value); applyFilters({ department_id: e.target.value }) }}
               style={{ padding: '7px 12px', border: '1px solid rgba(15,23,42,0.12)', borderRadius: 8, fontSize: 13, color: '#475569', background: '#fff' }}>
-              <option value="">Category</option>
+              <option value="">{t('filters.category')}</option>
               {departments.map(d => <option key={d.id} value={String(d.id)}>{d.name}</option>)}
             </select>
             <select value={selectedPriority} onChange={e => { setPriority(e.target.value); applyFilters({ priority: e.target.value }) }}
               style={{ padding: '7px 12px', border: '1px solid rgba(15,23,42,0.12)', borderRadius: 8, fontSize: 13, color: '#475569', background: '#fff' }}>
-              <option value="">Priority</option>
-              <option value="critical">Critical</option>
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
+              <option value="">{t('filters.priority')}</option>
+              <option value="critical">{t('priority.critical')}</option>
+              <option value="high">{t('priority.high')}</option>
+              <option value="medium">{t('priority.medium')}</option>
+              <option value="low">{t('priority.low')}</option>
             </select>
           </div>
 
-          {/* Bulk actions toolbar */}
           <AnimatePresence>
             {selectedIds.size > 0 && (
               <motion.div
@@ -481,7 +471,7 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
                 style={{ overflow: 'hidden' }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#0D1B2A', padding: '10px 16px' }}>
-                  <span style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>{selectedIds.size} selected</span>
+                  <span style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>{t('bulk.selected', { count: selectedIds.size })}</span>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <select
                       value=""
@@ -489,11 +479,11 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
                       onChange={e => { if (e.target.value) runBulkAction('assign', Number(e.target.value)) }}
                       style={toolbarControlStyle}
                     >
-                      <option value="" disabled>Assign to...</option>
+                      <option value="" disabled>{t('bulk.assignTo')}</option>
                       {assignable_agents.map(a => <option key={a.id} value={a.id}>{a.full_name}</option>)}
                     </select>
                     <button onClick={() => runBulkAction('resolve')} disabled={isSubmitting} style={toolbarControlStyle}>
-                      Resolve
+                      {t('bulk.resolve')}
                     </button>
                     <select
                       value=""
@@ -501,11 +491,11 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
                       onChange={e => { if (e.target.value) runBulkAction('priority', e.target.value) }}
                       style={toolbarControlStyle}
                     >
-                      <option value="" disabled>Priority...</option>
-                      <option value="critical">Critical</option>
-                      <option value="high">High</option>
-                      <option value="medium">Medium</option>
-                      <option value="low">Low</option>
+                      <option value="" disabled>{t('bulk.priorityPlaceholder')}</option>
+                      <option value="critical">{t('priority.critical')}</option>
+                      <option value="high">{t('priority.high')}</option>
+                      <option value="medium">{t('priority.medium')}</option>
+                      <option value="low">{t('priority.low')}</option>
                     </select>
                   </div>
                 </div>
@@ -513,7 +503,6 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
             )}
           </AnimatePresence>
 
-          {/* Table */}
           <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
             <table style={{ width: '100%', minWidth: '680px', borderCollapse: 'collapse' }}>
               <thead>
@@ -523,18 +512,18 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
                       <Checkbox
                         checked={tickets.length > 0 && selectedIds.size === tickets.length}
                         onClick={toggleSelectAll}
-                        ariaLabel="Select all tickets on this page"
+                        ariaLabel={t('table.selectAll')}
                       />
                     </th>
                   )}
-                  {['ID', 'TITLE', 'CATEGORY', 'DEPARTMENT', 'STATUS'].map(h => (
-                    <th key={h} style={TH_STYLE}>{h}</th>
+                  {(['id', 'title', 'category', 'department', 'status'] as const).map(key => (
+                    <th key={key} style={TH_STYLE}>{t(`table.${key}`)}</th>
                   ))}
-                  <SortableTh label="PRIORITY" column="priority" filters={filters} onSort={handleSort} />
-                  {['ASSIGNEE', 'SLA'].map(h => (
-                    <th key={h} style={TH_STYLE}>{h}</th>
+                  <SortableTh label={t('table.priority')} column="priority" filters={filters} onSort={handleSort} />
+                  {(['assignee', 'sla'] as const).map(key => (
+                    <th key={key} style={TH_STYLE}>{t(`table.${key}`)}</th>
                   ))}
-                  <SortableTh label="UPDATED" column="updated_at" filters={filters} onSort={handleSort} />
+                  <SortableTh label={t('table.updated')} column="updated_at" filters={filters} onSort={handleSort} />
                 </tr>
               </thead>
               <tbody>
@@ -551,7 +540,7 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
                         >
                           {canManageTickets && (
                             <td style={{ padding: '14px 12px' }} onClick={e => e.stopPropagation()}>
-                              <Checkbox checked={selectedIds.has(ticket.id)} onClick={() => toggleRow(ticket.id)} ariaLabel={`Select ticket ${ticket.ticket_number}`} />
+                              <Checkbox checked={selectedIds.has(ticket.id)} onClick={() => toggleRow(ticket.id)} ariaLabel={t('table.selectTicket', { ticketNumber: ticket.ticket_number })} />
                             </td>
                           )}
                           <td style={{ padding: '14px 12px' }}>
@@ -564,7 +553,7 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
                           <td style={{ padding: '14px 12px' }}>
                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#475569' }}>
                               <CategoryIcon />
-                              {CATEGORY_LABELS[ticket.category]}
+                              {t(`category.${ticket.category}`)}
                             </span>
                           </td>
                           <td style={{ padding: '14px 12px' }}>
@@ -576,7 +565,7 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
                           <td style={{ padding: '14px 12px' }}><StatusBadge status={ticket.status} /></td>
                           <td style={{ padding: '14px 12px' }}>
                             <span style={{ fontSize: 13, fontWeight: 500, color: PRIORITY_CFG[ticket.priority]?.color }}>
-                              {PRIORITY_CFG[ticket.priority]?.label}
+                              {t(`priority.${ticket.priority}`)}
                             </span>
                           </td>
                           <td style={{ padding: '14px 12px' }}>
@@ -585,11 +574,11 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
                                 <Avatar name={ticket.assigned_to.full_name} />
                                 <span style={{ fontSize: 13, color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 80 }}>{ticket.assigned_to.full_name}</span>
                               </div>
-                            ) : <span style={{ fontSize: 13, color: '#A3ACBA', fontStyle: 'italic' }}>Unassigned</span>}
+                            ) : <span style={{ fontSize: 13, color: '#A3ACBA', fontStyle: 'italic' }}>{t('table.unassigned')}</span>}
                           </td>
-                          <td style={{ padding: '14px 12px' }}>{formatSlaTime(ticket.sla_remaining_seconds, ticket.sla_status)}</td>
+                          <td style={{ padding: '14px 12px' }}>{formatSlaTime(ticket.sla_remaining_seconds, ticket.sla_status, t)}</td>
                           <td style={{ padding: '14px 12px' }}>
-                            <span style={{ fontSize: 13, color: '#A3ACBA' }}>{formatRelative(ticket.updated_at)}</span>
+                            <span style={{ fontSize: 13, color: '#A3ACBA' }}>{formatRelative(ticket.updated_at, t)}</span>
                           </td>
                         </motion.tr>
                       )
@@ -600,13 +589,16 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
             </table>
           </div>
           {tickets.length === 0 && (
-            <EmptyState icon={<IconEmptyTicket />} title="No tickets found" description="Try adjusting your filters or create a new ticket." action={{ label: 'New Ticket', onClick: () => router.get('/tickets/new') }} />
+            <EmptyState icon={<IconEmptyTicket />} title={t('empty.title')} description={t('empty.description')} action={{ label: t('empty.action'), onClick: () => router.get('/tickets/new') }} />
           )}
-          {/* Pagination */}
           {pagination.total_pages > 1 && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 24px', borderTop: '1px solid rgba(15,23,42,0.06)' }}>
               <p style={{ fontSize: 13, color: '#475569' }}>
-                Showing {((pagination.current_page - 1) * 10) + 1}–{Math.min(pagination.current_page * 10, pagination.total_count)} of {pagination.total_count} tickets
+                {t('pagination.showing', {
+                  from: ((pagination.current_page - 1) * 10) + 1,
+                  to: Math.min(pagination.current_page * 10, pagination.total_count),
+                  total: pagination.total_count,
+                })}
               </p>
               <div style={{ display: 'flex', gap: 4 }}>
                 {Array.from({ length: Math.min(pagination.total_pages, 10) }, (_, i) => i + 1).map(page => (
