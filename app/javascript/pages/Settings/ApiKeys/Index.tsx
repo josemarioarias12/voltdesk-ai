@@ -124,7 +124,7 @@ export default function ApiKeysIndex({ api_keys, new_token }: Props) {
         </div>
 
         {/* Keys table */}
-        <div className="rounded-2xl border overflow-hidden" style={{ background: '#fff', borderColor: BORDER, boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+        <div className="rounded-2xl border overflow-hidden" style={{ background: '#fff', borderColor: BORDER, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
           <table className="w-full text-sm">
             <thead>
               <tr style={{ background: LIGHT, borderBottom: `1px solid ${BORDER}` }}>

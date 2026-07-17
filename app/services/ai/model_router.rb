@@ -10,8 +10,8 @@ module Ai
 
     PROVIDER_MODELS = {
       'openai' => %w[gpt-4o gpt-4o-mini gpt-4.1 gpt-4.1-mini],
-      'anthropic' => %w[claude-sonnet-4-5 claude-haiku-4-5-20251001],
-      'gemini' => %w[gemini-2.0-flash gemini-1.5-pro]
+  'anthropic' => %w[claude-sonnet-5 claude-haiku-4-5-20251001],
+  'gemini' => %w[gemini-2.0-flash gemini-1.5-pro]
     }.freeze
 
     PROVIDER_COST_PER_1K = {
@@ -19,7 +19,7 @@ module Ai
       'openai/gpt-4o-mini' => 0.00030,
       'openai/gpt-4.1' => 0.0075,
       'openai/gpt-4.1-mini' => 0.00030,
-      'anthropic/claude-sonnet-4-5' => 0.0045,
+      'anthropic/claude-sonnet-5' => 0.0076,
       'anthropic/claude-haiku-4-5-20251001' => 0.00040,
       'gemini/gemini-2.0-flash' => 0.00010,
       'gemini/gemini-1.5-pro' => 0.00175

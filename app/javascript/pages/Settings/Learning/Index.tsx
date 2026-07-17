@@ -37,9 +37,12 @@ interface Props {
 
 function KpiCard({ label, value }: { label: string; value: number | string }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-5">
-      <p className="text-xs text-slate-500 uppercase tracking-wide">{label}</p>
-      <p className="text-3xl font-bold text-slate-800 mt-1">{value}</p>
+    <div
+      className="p-5"
+      style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}
+    >
+      <p className="text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>{label}</p>
+      <p className="text-3xl font-bold mt-1" style={{ color: '#0F172A' }}>{value}</p>
     </div>
   )
 }
@@ -89,7 +92,8 @@ export default function LearningIndex({
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="fixed top-4 right-4 z-50 bg-teal-600 text-white px-4 py-3 rounded-lg shadow-lg text-sm"
+            className="fixed top-4 right-4 z-50 px-4 py-3 text-sm"
+            style={{ background: '#028090', color: '#fff', borderRadius: '8px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}
           >
             New AI learning suggestion is ready!
           </motion.div>
@@ -100,8 +104,8 @@ export default function LearningIndex({
         <SettingsTabs active="learning" />
 
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">AI Self-Learning</h1>
-          <p className="text-slate-500 mt-1">
+          <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>AI Self-Learning</h1>
+          <p className="mt-1 text-sm" style={{ color: '#475569' }}>
             The system learns from agent corrections to improve classification accuracy.
           </p>
         </div>
@@ -114,25 +118,31 @@ export default function LearningIndex({
         </div>
 
         {total_corrections < threshold && (
-          <div className="bg-white rounded-xl border border-slate-200 p-5">
-            <div className="flex justify-between text-sm text-slate-600 mb-2">
+          <div
+            className="p-5"
+            style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}
+          >
+            <div className="flex justify-between text-sm mb-2" style={{ color: '#475569' }}>
               <span>Progress toward AI learning</span>
               <span>{total_corrections}/{threshold} corrections</span>
             </div>
-            <div className="w-full bg-slate-100 rounded-full h-3">
+            <div className="w-full rounded-full h-3" style={{ background: '#F1F5F9' }}>
               <div
-                className="bg-teal-500 h-3 rounded-full transition-all duration-500"
-                style={{ width: `${progress}%` }}
+                className="h-3 rounded-full transition-all duration-500"
+                style={{ width: `${progress}%`, background: '#028090' }}
               />
             </div>
-            <p className="text-xs text-slate-400 mt-2">
+            <p className="text-xs mt-2" style={{ color: '#94A3B8' }}>
               Keep agents correcting classifications to unlock AI learning
             </p>
           </div>
         )}
 
-        <div className="bg-white rounded-xl border border-slate-200 p-5">
-          <h2 className="font-semibold text-slate-700 mb-4">Correction Trend (Last 4 Weeks)</h2>
+        <div
+          className="p-5"
+          style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}
+        >
+          <h2 className="font-semibold mb-4" style={{ color: '#0F172A' }}>Correction Trend (Last 4 Weeks)</h2>
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={correction_rate_trend}>
               <XAxis dataKey="week" tick={{ fontSize: 12 }} />
@@ -144,26 +154,29 @@ export default function LearningIndex({
         </div>
 
         {top_patterns.length > 0 && (
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-            <div className="px-5 py-4 border-b border-slate-100">
-              <h2 className="font-semibold text-slate-700">Top Correction Patterns</h2>
+          <div
+            className="overflow-hidden"
+            style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}
+          >
+            <div className="px-5 py-4" style={{ borderBottom: '1px solid #F1F5F9' }}>
+              <h2 className="font-semibold" style={{ color: '#0F172A' }}>Top Correction Patterns</h2>
             </div>
             <table className="w-full text-sm">
-              <thead className="bg-slate-50">
+              <thead style={{ background: '#F8FAFC' }}>
                 <tr>
-                  <th className="text-left px-4 py-3 text-slate-600 font-medium">From</th>
-                  <th className="text-left px-4 py-3 text-slate-600 font-medium"></th>
-                  <th className="text-left px-4 py-3 text-slate-600 font-medium">To</th>
-                  <th className="text-left px-4 py-3 text-slate-600 font-medium">Count</th>
+                  <th className="text-left px-4 py-3 font-medium" style={{ color: '#475569' }}>From</th>
+                  <th className="text-left px-4 py-3 font-medium" style={{ color: '#475569' }}></th>
+                  <th className="text-left px-4 py-3 font-medium" style={{ color: '#475569' }}>To</th>
+                  <th className="text-left px-4 py-3 font-medium" style={{ color: '#475569' }}>Count</th>
                 </tr>
               </thead>
               <tbody>
                 {top_patterns.map((pattern, idx) => (
-                  <tr key={idx} className="border-t border-slate-100 hover:bg-slate-50">
-                    <td className="px-4 py-3 text-slate-700">{pattern.from}</td>
-                    <td className="px-4 py-3 text-slate-400">→</td>
-                    <td className="px-4 py-3 text-teal-700 font-medium">{pattern.to}</td>
-                    <td className="px-4 py-3 text-slate-600">{pattern.count}</td>
+                  <tr key={idx} style={{ borderTop: '1px solid #F1F5F9' }}>
+                    <td className="px-4 py-3" style={{ color: '#0F172A' }}>{pattern.from}</td>
+                    <td className="px-4 py-3" style={{ color: '#94A3B8' }}>→</td>
+                    <td className="px-4 py-3 font-medium" style={{ color: '#028090' }}>{pattern.to}</td>
+                    <td className="px-4 py-3" style={{ color: '#475569' }}>{pattern.count}</td>
                   </tr>
                 ))}
               </tbody>
@@ -172,34 +185,42 @@ export default function LearningIndex({
         )}
 
         {suggestion ? (
-          <div className="bg-white rounded-xl border border-teal-200 p-5 space-y-4">
+          <div
+            className="p-5 space-y-4"
+            style={{ background: '#fff', border: '1px solid #99F6E4', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}
+          >
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-slate-800">AI Suggestion</h2>
-              <span className="text-xs bg-teal-50 text-teal-700 border border-teal-200 px-2 py-1 rounded">
+              <h2 className="font-semibold" style={{ color: '#0F172A' }}>AI Suggestion</h2>
+              <span
+                className="text-xs px-2 py-1 rounded"
+                style={{ background: '#F0FDFA', color: '#028090', border: '1px solid #99F6E4' }}
+              >
                 Generated {new Date(suggestion.generated_at).toLocaleDateString()}
               </span>
             </div>
-            <p className="text-slate-600 text-sm">{suggestion.summary}</p>
-            <div className="bg-slate-900 rounded-lg p-4">
-              <pre className="text-green-400 text-xs whitespace-pre-wrap font-mono">
+            <p className="text-sm" style={{ color: '#475569' }}>{suggestion.summary}</p>
+            <div className="p-4 rounded-lg" style={{ background: '#0D1B2A' }}>
+              <pre className="text-xs whitespace-pre-wrap font-mono" style={{ color: '#02C39A' }}>
                 {suggestion.suggested_prompt_addition}
               </pre>
             </div>
             {suggestion.applied_at ? (
-              <p className="text-sm text-green-600 font-medium">
+              <p className="text-sm font-medium" style={{ color: '#16A34A' }}>
                 ✓ Applied on {new Date(suggestion.applied_at).toLocaleDateString()}
               </p>
             ) : (
               <div className="flex gap-3">
                 <button
                   onClick={handleApply}
-                  className="px-4 py-2 bg-teal-600 text-white text-sm rounded-lg hover:bg-teal-700 transition-colors"
+                  className="px-4 py-2 text-sm rounded-lg transition-opacity"
+                  style={{ background: '#028090', color: '#fff' }}
                 >
                   Apply Suggestion
                 </button>
                 <button
                   onClick={handleDismiss}
-                  className="px-4 py-2 bg-slate-100 text-slate-700 text-sm rounded-lg hover:bg-slate-200 transition-colors"
+                  className="px-4 py-2 text-sm rounded-lg transition-opacity"
+                  style={{ background: '#F8FAFC', color: '#475569' }}
                 >
                   Dismiss
                 </button>
@@ -207,8 +228,11 @@ export default function LearningIndex({
             )}
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-slate-200 p-10 text-center">
-            <p className="text-slate-400 text-sm">
+          <div
+            className="p-10 text-center"
+            style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}
+          >
+            <p className="text-sm" style={{ color: '#94A3B8' }}>
               No AI suggestion yet. Reach {threshold} corrections to unlock learning insights.
             </p>
           </div>

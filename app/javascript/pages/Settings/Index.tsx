@@ -48,7 +48,7 @@ const MODEL_LABELS: Record<string, string> = {
   'gpt-4o-mini':               'GPT-4o Mini — Fastest & cheapest',
   'gpt-4.1':                   'GPT-4.1 — Latest generation',
   'gpt-4.1-mini':              'GPT-4.1 Mini — Latest, fast',
-  'claude-sonnet-4-5':         'Claude Sonnet 4.5 — Balanced',
+  'claude-sonnet-5':           'Claude Sonnet 5 — Balanced',
   'claude-haiku-4-5-20251001': 'Claude Haiku 4.5 — Ultra fast',
   'gemini-2.0-flash':          'Gemini 2.0 Flash — Fastest',
   'gemini-1.5-pro':            'Gemini 1.5 Pro — Most capable',

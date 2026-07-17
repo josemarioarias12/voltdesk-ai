@@ -21,7 +21,7 @@ interface Props {
 }
 
 const TEAL   = '#028090'
-const SLATE  = '#1E293B'
+const SLATE  = '#0F172A'
 const GRAY   = '#475569'
 const LIGHT  = '#F8FAFC'
 const BORDER = '#E2E8F0'
@@ -137,7 +137,7 @@ export default function WebhooksIndex({ webhooks, supported_events, new_secret }
         )}
 
         {/* Webhooks table */}
-        <div className="rounded-2xl border overflow-hidden" style={{ background: '#fff', borderColor: BORDER, boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+        <div className="rounded-2xl border overflow-hidden" style={{ background: '#fff', borderColor: BORDER, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
           <table className="w-full text-sm">
             <thead>
               <tr style={{ background: LIGHT, borderBottom: `1px solid ${BORDER}` }}>

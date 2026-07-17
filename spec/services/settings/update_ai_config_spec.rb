@@ -22,7 +22,7 @@ RSpec.describe Settings::UpdateAiConfig do
   end
 
   context 'with valid Anthropic config' do
-    let(:params) { { ai_provider: 'anthropic', ai_model: 'claude-sonnet-4-5', ai_fallback_provider: 'openai', ai_selection_mode: 'manual' } }
+    let(:params) { { ai_provider: 'anthropic', ai_model: 'claude-sonnet-5', ai_fallback_provider: 'openai', ai_selection_mode: 'manual' } }
 
     it { expect(result).to be_success }
   end
