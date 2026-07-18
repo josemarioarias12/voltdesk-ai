@@ -4,6 +4,7 @@ import { SharedProps } from '@/types'
 import { IconBolt } from '@/components/Icons'
 import NotificationBell from '@/components/NotificationBell'
 import Avatar from '@/components/Avatar'
+import { useLocale } from '@/hooks/useLocale'
 import { SkeletonDashboard } from './Skeleton'
 import { Toaster, toast } from 'sonner'
 
@@ -27,6 +28,7 @@ export default function AppLayout({ children, title }: Props) {
   const currentPath = window.location.pathname
   const [navigating, setNavigating] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { locale, setLocale } = useLocale()
   useEffect(() => {
     const onStart = () => setNavigating(true)
     const onFinish = () => setNavigating(false)
@@ -138,8 +140,8 @@ export default function AppLayout({ children, title }: Props) {
                   </svg>
                 </button>
               </form>
-          </div>
         </div>
+      </div>
       </aside>
       {/* ── Main ── */}
       <div className="flex-1 flex flex-col lg:ml-44 min-w-0">
@@ -176,6 +178,27 @@ export default function AppLayout({ children, title }: Props) {
               <SearchIcon />
               <span>Search...</span>
               <span className="text-xs px-1 rounded" style={{ background: '#E2E8F0' }}>K</span>
+            </div>
+            <div
+              className="flex items-center rounded-lg p-0.5"
+              style={{ background: '#F8FAFC', border: '1px solid #E2E8F0' }}
+              role="group"
+              aria-label="Language"
+            >
+              <button
+                onClick={() => setLocale('en')}
+                className="px-2 py-1 rounded-md text-xs font-semibold transition-colors"
+                style={{ background: locale === 'en' ? '#028090' : 'transparent', color: locale === 'en' ? '#fff' : '#94A3B8', border: 'none', cursor: 'pointer' }}
+              >
+                EN
+              </button>
+              <button
+                onClick={() => setLocale('es')}
+                className="px-2 py-1 rounded-md text-xs font-semibold transition-colors"
+                style={{ background: locale === 'es' ? '#028090' : 'transparent', color: locale === 'es' ? '#fff' : '#94A3B8', border: 'none', cursor: 'pointer' }}
+              >
+                ES
+              </button>
             </div>
             {auth.user && (
               <NotificationBell
