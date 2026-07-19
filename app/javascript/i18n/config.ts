@@ -6,6 +6,8 @@ import commonEn from './locales/en/common.json'
 import commonEs from './locales/es/common.json'
 import ticketsEn from './locales/en/tickets.json'
 import ticketsEs from './locales/es/tickets.json'
+import departmentsEn from './locales/en/departments.json'
+import departmentsEs from './locales/es/departments.json'
 
 export const STORAGE_KEY = 'voltdesk_locale'
 export const defaultNS = 'common'
@@ -14,10 +16,12 @@ export const resources = {
   en: {
     common: commonEn,
     tickets: ticketsEn,
+    departments: departmentsEn,
   },
   es: {
     common: commonEs,
     tickets: ticketsEs,
+    departments: departmentsEs,
   },
 } as const
 

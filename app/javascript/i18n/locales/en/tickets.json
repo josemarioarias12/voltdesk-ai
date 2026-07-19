@@ -86,5 +86,82 @@
   },
   "pagination": {
     "showing": "Showing {{from}}–{{to}} of {{total}} tickets"
+  },
+  "new": {
+    "header": {
+      "eyebrow": "New Ticket",
+      "title": "What do you need help with?",
+      "subtitle": "AI will classify, prioritize and route this automatically."
+    },
+    "voice": {
+      "listening": "Listening… click to stop",
+      "prompt": "Click to describe your issue by voice",
+      "privacy": "Audio stays on your device · Web Speech API",
+      "unsupported": "Requires Chrome or Edge",
+      "placeholder": "Your transcript will appear here…"
+    },
+    "divider": "or type below",
+    "templates": {
+      "label": "Quick Templates",
+      "items": {
+        "vpnIssue": { "label": "VPN Issue", "title": "Cannot connect to VPN from home network" },
+        "hardwareRequest": { "label": "Hardware Request", "title": "Request for new hardware equipment" },
+        "accessRequest": { "label": "Access Request", "title": "Need access to internal system or application" },
+        "printerIssue": { "label": "Printer Issue", "title": "Printer not working in the office" },
+        "softwareLicense": { "label": "Software License", "title": "Request for software license renewal" }
+      }
+    },
+    "form": {
+      "titleLabel": "Title",
+      "titlePlaceholder": "e.g. \"Cannot connect to VPN from home network\"",
+      "generateTitle": "Generate title from description",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe the issue in more detail…",
+      "departmentLabel": "Department",
+      "departmentPlaceholder": "Select department…",
+      "priorityLabel": "Priority",
+      "priorityPlaceholder": "Select priority…",
+      "priorityHelper": "AI will adjust after classification",
+      "attachmentsLabel": "Attachments",
+      "dropzone": "Drop files or ",
+      "dropzoneAction": "click to add attachments",
+      "dropzoneHint": "PNG, JPG, PDF, DOC up to 10MB",
+      "submit": "Create Ticket — AI classifies immediately",
+      "submitting": "Creating…",
+      "cancel": "Cancel"
+    },
+    "attachmentModal": {
+      "eyebrow": "Add Attachment",
+      "title": "How would you like to add a file?",
+      "takePhoto": { "title": "Take a Photo", "description": "Use your camera to capture the issue" },
+      "chooseGallery": { "title": "Choose from Gallery", "description": "Select images from your device" },
+      "uploadFileMobile": { "title": "Upload a File", "description": "PDF, DOC, TXT up to 10MB" },
+      "uploadFiles": { "title": "Upload Files", "description": "Images, PDF, DOC up to 10MB" },
+      "uploadImage": { "title": "Upload Image", "description": "PNG, JPG, GIF, WebP up to 10MB" }
+    },
+    "aiPreview": {
+      "eyebrow": "AI Preview",
+      "category": "Category",
+      "priority": "Priority",
+      "estSla": "Est. SLA",
+      "urgency": "Urgency",
+      "hour_one": "{{count}} hour",
+      "hour_other": "{{count}} hours",
+      "day_one": "{{count}} day",
+      "day_other": "{{count}} days",
+      "hint": "Predictions update as you type",
+      "empty": "Start typing a title to see AI predictions…"
+    },
+    "aiWillDetect": {
+      "label": "AI Will Detect",
+      "items": {
+        "categoryRouting": "Category routing",
+        "urgencyScore": "Urgency 0–100",
+        "similarTickets": "Similar resolved tickets",
+        "suggestedResponse": "Suggested response for agents",
+        "slaDeadline": "SLA deadline based on priority"
+      }
+    },
+    "recentTickets": "Your Recent Tickets"
   }
 }

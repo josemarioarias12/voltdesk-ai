@@ -86,5 +86,82 @@
   },
   "pagination": {
     "showing": "Mostrando {{from}}–{{to}} de {{total}} tickets"
+  },
+  "new": {
+    "header": {
+      "eyebrow": "Nuevo Ticket",
+      "title": "¿Con qué necesitás ayuda?",
+      "subtitle": "La IA va a clasificar, priorizar y enrutar esto automáticamente."
+    },
+    "voice": {
+      "listening": "Escuchando… tocá para detener",
+      "prompt": "Tocá para describir tu problema por voz",
+      "privacy": "El audio se queda en tu dispositivo · Web Speech API",
+      "unsupported": "Requiere Chrome o Edge",
+      "placeholder": "Tu transcripción va a aparecer acá…"
+    },
+    "divider": "o escribí abajo",
+    "templates": {
+      "label": "Plantillas Rápidas",
+      "items": {
+        "vpnIssue": { "label": "Problema de VPN", "title": "No puedo conectarme a la VPN desde mi casa" },
+        "hardwareRequest": { "label": "Solicitud de Hardware", "title": "Solicitud de nuevo equipo" },
+        "accessRequest": { "label": "Solicitud de Acceso", "title": "Necesito acceso a un sistema o aplicación interna" },
+        "printerIssue": { "label": "Problema de Impresora", "title": "La impresora no funciona en la oficina" },
+        "softwareLicense": { "label": "Licencia de Software", "title": "Solicitud de renovación de licencia de software" }
+      }
+    },
+    "form": {
+      "titleLabel": "Título",
+      "titlePlaceholder": "ej. \"No puedo conectarme a la VPN desde mi casa\"",
+      "generateTitle": "Generar título a partir de la descripción",
+      "descriptionLabel": "Descripción",
+      "descriptionPlaceholder": "Describí el problema con más detalle…",
+      "departmentLabel": "Departamento",
+      "departmentPlaceholder": "Seleccioná departamento…",
+      "priorityLabel": "Prioridad",
+      "priorityPlaceholder": "Seleccioná prioridad…",
+      "priorityHelper": "La IA la va a ajustar después de la clasificación",
+      "attachmentsLabel": "Adjuntos",
+      "dropzone": "Soltá archivos o ",
+      "dropzoneAction": "tocá para agregar adjuntos",
+      "dropzoneHint": "PNG, JPG, PDF, DOC hasta 10MB",
+      "submit": "Crear Ticket — La IA clasifica al instante",
+      "submitting": "Creando…",
+      "cancel": "Cancelar"
+    },
+    "attachmentModal": {
+      "eyebrow": "Agregar Adjunto",
+      "title": "¿Cómo querés agregar un archivo?",
+      "takePhoto": { "title": "Tomar una Foto", "description": "Usá tu cámara para capturar el problema" },
+      "chooseGallery": { "title": "Elegir de la Galería", "description": "Seleccioná imágenes de tu dispositivo" },
+      "uploadFileMobile": { "title": "Subir un Archivo", "description": "PDF, DOC, TXT hasta 10MB" },
+      "uploadFiles": { "title": "Subir Archivos", "description": "Imágenes, PDF, DOC hasta 10MB" },
+      "uploadImage": { "title": "Subir Imagen", "description": "PNG, JPG, GIF, WebP hasta 10MB" }
+    },
+    "aiPreview": {
+      "eyebrow": "Vista Previa de IA",
+      "category": "Categoría",
+      "priority": "Prioridad",
+      "estSla": "SLA Estimado",
+      "urgency": "Urgencia",
+      "hour_one": "{{count}} hora",
+      "hour_other": "{{count}} horas",
+      "day_one": "{{count}} día",
+      "day_other": "{{count}} días",
+      "hint": "Las predicciones se actualizan mientras escribís",
+      "empty": "Empezá a escribir un título para ver las predicciones de IA…"
+    },
+    "aiWillDetect": {
+      "label": "La IA Va a Detectar",
+      "items": {
+        "categoryRouting": "Enrutamiento por categoría",
+        "urgencyScore": "Urgencia 0–100",
+        "similarTickets": "Tickets similares ya resueltos",
+        "suggestedResponse": "Respuesta sugerida para agentes",
+        "slaDeadline": "Plazo de SLA según prioridad"
+      }
+    },
+    "recentTickets": "Tus Tickets Recientes"
   }
 }

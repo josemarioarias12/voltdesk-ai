@@ -4,6 +4,7 @@ import { router, usePage } from '@inertiajs/react'
 import type { SharedProps } from '@/types'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import { useDepartmentName } from '@/hooks/useDepartmentName'
 import type {
   TicketPriority, TicketStatus, TicketCategory, SlaStatus,
   TicketsIndexProps, TicketsFilters, TicketSortColumn, SortDirection,
@@ -300,6 +301,7 @@ function PatternAlertBanner({ alert, onDismiss }: { alert: PatternAlertPayload; 
 
 export default function TicketsIndex({ tickets, departments, assignable_agents, stats, filters, pagination }: TicketsIndexProps) {
   const { t } = useTranslation('tickets')
+  const departmentName = useDepartmentName()
   const [activeTab, setActiveTab] = useState(filters.status ?? '')
   const [searchQuery, setSearchQuery] = useState(filters.q ?? '')
   const [selectedPriority, setPriority] = useState(filters.priority ?? '')
@@ -449,7 +451,7 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
             <select value={selectedDept} onChange={e => { setDept(e.target.value); applyFilters({ department_id: e.target.value }) }}
               style={{ padding: '7px 12px', border: '1px solid rgba(15,23,42,0.12)', borderRadius: 8, fontSize: 13, color: '#475569', background: '#fff' }}>
               <option value="">{t('filters.category')}</option>
-              {departments.map(d => <option key={d.id} value={String(d.id)}>{d.name}</option>)}
+              {departments.map(d => <option key={d.id} value={String(d.id)}>{departmentName(d.name)}</option>)}
             </select>
             <select value={selectedPriority} onChange={e => { setPriority(e.target.value); applyFilters({ priority: e.target.value }) }}
               style={{ padding: '7px 12px', border: '1px solid rgba(15,23,42,0.12)', borderRadius: 8, fontSize: 13, color: '#475569', background: '#fff' }}>
@@ -559,7 +561,7 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
                           <td style={{ padding: '14px 12px' }}>
                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13, color: '#475569' }}>
                               <span style={{ width: 8, height: 8, borderRadius: '50%', background: ticket.department.color, flexShrink: 0 }} />
-                              {ticket.department.name}
+                              {departmentName(ticket.department.name)}
                             </span>
                           </td>
                           <td style={{ padding: '14px 12px' }}><StatusBadge status={ticket.status} /></td>

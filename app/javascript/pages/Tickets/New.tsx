@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import type { TicketsNewProps, TicketPriority } from '@/types/tickets'
 import { useVoiceTicket } from '@/hooks/useVoiceTicket'
 import { useLocale } from '@/hooks/useLocale'
+import { useTranslation } from 'react-i18next'
+import { useDepartmentName } from '@/hooks/useDepartmentName'
 import AppLayout from '@/components/AppLayout'
 
 // ── Responsive hook ───────────────────────────────────────────────────────────
@@ -54,18 +56,18 @@ const LABEL: React.CSSProperties = {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const QUICK_TEMPLATES = [
-  { label: 'VPN Issue', title: 'Cannot connect to VPN from home network', department: 'IT' },
-  { label: 'Hardware Request', title: 'Request for new hardware equipment', department: 'IT' },
-  { label: 'Access Request', title: 'Need access to internal system or application', department: 'IT' },
-  { label: 'Printer Issue', title: 'Printer not working in the office', department: 'IT' },
-  { label: 'Software License', title: 'Request for software license renewal', department: 'IT' },
-]
+  { id: 'vpnIssue', department: 'IT' },
+  { id: 'hardwareRequest', department: 'IT' },
+  { id: 'accessRequest', department: 'IT' },
+  { id: 'printerIssue', department: 'IT' },
+  { id: 'softwareLicense', department: 'IT' },
+] as const
 
-const PRIORITY_OPTIONS: Array<{ value: TicketPriority; label: string; color: string; bg: string }> = [
-  { value: 'low', label: 'Low', color: '#6B7280', bg: '#F1F5F9' },
-  { value: 'medium', label: 'Medium', color: '#CA8A04', bg: '#FEF9C3' },
-  { value: 'high', label: 'High', color: '#EA580C', bg: '#FFF7ED' },
-  { value: 'critical', label: 'Critical', color: '#DC2626', bg: '#FEF2F2' },
+const PRIORITY_OPTIONS: Array<{ value: TicketPriority; color: string; bg: string }> = [
+  { value: 'low', color: '#6B7280', bg: '#F1F5F9' },
+  { value: 'medium', color: '#CA8A04', bg: '#FEF9C3' },
+  { value: 'high', color: '#EA580C', bg: '#FFF7ED' },
+  { value: 'critical', color: '#DC2626', bg: '#FEF2F2' },
 ]
 
 const STATUS_COLORS: Record<string, string> = {
@@ -126,6 +128,8 @@ interface AiPreviewData {
 // ── Main Component ─────────────────────────────────────────────────────────────
 export default function TicketsNew({ departments, recent_tickets }: TicketsNewProps) {
   const { locale, speechLang, toggleLocale } = useLocale()
+  const { t } = useTranslation('tickets')
+  const departmentName = useDepartmentName()
   const { transcript, interimTranscript, voiceState, isSupported, startListening, stopListening, resetTranscript, errorMessage } = useVoiceTicket(speechLang)
 
   const { data, setData, post, processing, errors } = useForm({
@@ -178,7 +182,7 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
   }
 
   function handleTemplate(tmpl: typeof QUICK_TEMPLATES[number]) {
-    setData('title', tmpl.title)
+    setData('title', t(`new.templates.items.${tmpl.id}.title`))
     const found = departments.find(d => d.name.toLowerCase() === tmpl.department.toLowerCase())
     if (found) { setData('department_id', String(found.id)); setSelectedDept(found.name) }
   }
@@ -240,16 +244,16 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
   const priorityColor = (val: string) => PRIORITY_OPTIONS.find(p => p.value === val)?.color ?? '#64748B'
 
   return (
-    <AppLayout title="New Ticket">
+    <AppLayout title={t('new.header.eyebrow')}>
 
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
-        <p style={LABEL}>New Ticket</p>
+        <p style={LABEL}>{t('new.header.eyebrow')}</p>
         <h1 style={{ fontSize: 22, fontWeight: 700, color: NAVY, letterSpacing: '-0.02em', marginBottom: 4 }}>
-          What do you need help with?
+          {t('new.header.title')}
         </h1>
         <p style={{ fontSize: 13, color: '#64748B', lineHeight: 1.75 }}>
-          AI will classify, prioritize and route this automatically.
+          {t('new.header.subtitle')}
         </p>
       </div>
 
@@ -276,14 +280,14 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                     <MicIcon size={24} color="rgba(255,255,255,0.95)" />
                   </button>
                   <p style={{ fontSize: 13, fontWeight: 600, color: '#fff', marginBottom: 4 }}>
-                    {isListening ? 'Listening… click to stop' : 'Click to describe your issue by voice'}
+                    {isListening ? t('new.voice.listening') : t('new.voice.prompt')}
                   </p>
                   <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>
-                    Audio stays on your device · Web Speech API
+                    {t('new.voice.privacy')}
                   </p>
                   {!isSupported && (
                     <p style={{ fontSize: 12, color: '#EA580C', marginTop: 8, background: '#FFF7ED', padding: '4px 12px', borderRadius: 20, display: 'inline-block' }}>
-                      Requires Chrome or Edge
+                      {t('new.voice.unsupported')}
                     </p>
                   )}
 
@@ -291,7 +295,7 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                   <div style={{ marginTop: 16, background: 'rgba(255,255,255,0.12)', borderRadius: 8, padding: '10px 14px', minHeight: 40, textAlign: 'left' }}>
                     {data.title || interimTranscript
                       ? <p style={{ fontSize: 13, color: '#fff' }}>{data.title || interimTranscript}</p>
-                      : <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', fontStyle: 'italic' }}>Your transcript will appear here…</p>
+                      : <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', fontStyle: 'italic' }}>{t('new.voice.placeholder')}</p>
                     }
                   </div>
                 </div>
@@ -306,16 +310,16 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
           {/* Divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
             <div style={{ flex: 1, height: 1, background: 'rgba(15,23,42,0.06)' }} />
-            <span style={{ fontSize: 11, color: '#94A3B8', letterSpacing: '0.06em' }}>or type below</span>
+            <span style={{ fontSize: 11, color: '#94A3B8', letterSpacing: '0.06em' }}>{t('new.divider')}</span>
             <div style={{ flex: 1, height: 1, background: 'rgba(15,23,42,0.06)' }} />
           </div>
 
           {/* Quick templates */}
           <div style={{ marginBottom: 24 }}>
-            <p style={LABEL}>Quick Templates</p>
+            <p style={LABEL}>{t('new.templates.label')}</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {QUICK_TEMPLATES.map((tmpl, i) => (
-                <motion.button key={tmpl.label} type="button" onClick={() => handleTemplate(tmpl)}
+                <motion.button key={t(`new.templates.items.${tmpl.id}.label`)} type="button" onClick={() => handleTemplate(tmpl)}
                   initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
                   style={{
@@ -325,7 +329,7 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                   }}
                   onMouseEnter={e => { const b = e.currentTarget; b.style.borderColor = TEAL; b.style.color = TEAL; b.style.background = 'rgba(2,128,144,0.04)' }}
                   onMouseLeave={e => { const b = e.currentTarget; b.style.borderColor = 'rgba(15,23,42,0.12)'; b.style.color = '#475569'; b.style.background = '#fff' }}>
-                  {tmpl.label}
+                  {t(`new.templates.items.${tmpl.id}.label`)}
                 </motion.button>
               ))}
             </div>
@@ -336,12 +340,12 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
 
             {/* Title */}
 <div>
-  <label style={LABEL}>Title <span style={{ color: '#EF4444' }}>*</span></label>
+  <label style={LABEL}>{t('new.form.titleLabel')} <span style={{ color: '#EF4444' }}>*</span></label>
   <div style={{ position: 'relative' }}>
     <input type="text" value={data.title}
       onChange={e => setData('title', e.target.value)}
-      placeholder='e.g. "Cannot connect to VPN from home network"'
-      required style={{ ...INPUT, paddingRight: aiPreview?.suggested_title && !data.title ? 44 : undefined }}
+      placeholder={t('new.form.titlePlaceholder')}
+      required style={{ ...INPUT, paddingRight: aiPreview?.suggested_title && !data.title ? 52 : undefined, textOverflow: 'ellipsis', overflow: 'hidden' }}
       onFocus={e => { e.target.style.borderColor = TEAL }}
       onBlur={e => { e.target.style.borderColor = 'rgba(15,23,42,0.12)' }}
     />
@@ -349,7 +353,7 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
       <button
         type="button"
         onClick={() => setData('title', aiPreview.suggested_title!)}
-        title="Generate title from description"
+        title={t('new.form.generateTitle')}
         style={{
           position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
           width: 28, height: 28, borderRadius: 6, border: '1px solid rgba(2,128,144,0.25)',
@@ -368,10 +372,10 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
 
             {/* Description */}
             <div>
-              <label style={LABEL}>Description</label>
+              <label style={LABEL}>{t('new.form.descriptionLabel')}</label>
               <textarea value={data.description}
                 onChange={e => setData('description', e.target.value)}
-                placeholder="Describe the issue in more detail…"
+                placeholder={t('new.form.descriptionPlaceholder')}
                 rows={4}
                 style={{ ...INPUT, resize: 'none', lineHeight: 1.75 }}
                 onFocus={e => { e.target.style.borderColor = TEAL }}
@@ -384,14 +388,14 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
 
               {/* Department */}
               <div>
-                <label style={LABEL}>Department <span style={{ color: '#EF4444' }}>*</span></label>
+                <label style={LABEL}>{t('new.form.departmentLabel')} <span style={{ color: '#EF4444' }}>*</span></label>
                 <select value={data.department_id}
                   onChange={e => setData('department_id', e.target.value)}
                   required style={INPUT}
                   onFocus={e => { e.target.style.borderColor = TEAL }}
                   onBlur={e => { e.target.style.borderColor = 'rgba(15,23,42,0.12)' }}>
-                  <option value="">Select department…</option>
-                  {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                  <option value="">{t('new.form.departmentPlaceholder')}</option>
+                  {departments.map(d => <option key={d.id} value={d.id}>{departmentName(d.name)}</option>)}
                 </select>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 8 }}>
                   {departments.slice(0, 5).map(d => (
@@ -403,7 +407,7 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                         color: selectedDept === d.name ? '#fff' : '#64748B',
                         transition: 'all 120ms ease',
                       }}>
-                      {d.name}
+                      {departmentName(d.name)}
                     </button>
                   ))}
                 </div>
@@ -411,14 +415,14 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
 
               {/* Priority */}
               <div>
-                <label style={LABEL}>Priority</label>
+                <label style={LABEL}>{t('new.form.priorityLabel')}</label>
                 <select value={data.priority}
                   onChange={e => setData('priority', e.target.value as TicketPriority)}
                   style={INPUT}
                   onFocus={e => { e.target.style.borderColor = TEAL }}
                   onBlur={e => { e.target.style.borderColor = 'rgba(15,23,42,0.12)' }}>
-                  <option value="">Select priority…</option>
-                  {PRIORITY_OPTIONS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+                  <option value="">{t('new.form.priorityPlaceholder')}</option>
+                  {PRIORITY_OPTIONS.map(p => <option key={p.value} value={p.value}>{t(`priority.${p.value}`)}</option>)}
                 </select>
                 <div style={{ display: 'flex', gap: 5, marginTop: 8, flexWrap: 'wrap' }}>
                   {PRIORITY_OPTIONS.map(p => (
@@ -430,17 +434,17 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                         color: data.priority === p.value ? p.color : '#64748B',
                         transition: 'all 120ms ease',
                       }}>
-                      {p.label}
+                      {t(`priority.${p.value}`)}
                     </button>
                   ))}
                 </div>
-                <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 6 }}>AI will adjust after classification</p>
+                <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 6 }}>{t('new.form.priorityHelper')}</p>
               </div>
             </div>
 
           {/* Attachments */}
             <div onPaste={handlePaste}>
-              <label style={LABEL}>Attachments</label>
+              <label style={LABEL}>{t('new.form.attachmentsLabel')}</label>
 
               {/* Hidden inputs */}
               <input ref={fileInputRef} type="file" multiple accept="image/*,.pdf,.doc,.docx,.txt"
@@ -470,9 +474,9 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
                 <p style={{ fontSize: 13, color: '#64748B', marginBottom: 2 }}>
-                  Drop files or <span style={{ color: TEAL, fontWeight: 600 }}>click to add attachments</span>
+                  {t('new.form.dropzone')}<span style={{ color: TEAL, fontWeight: 600 }}>{t('new.form.dropzoneAction')}</span>
                 </p>
-                <p style={{ fontSize: 11, color: '#CBD5E1' }}>PNG, JPG, PDF, DOC up to 10MB</p>
+                <p style={{ fontSize: 11, color: '#CBD5E1' }}>{t('new.form.dropzoneHint')}</p>
               </div>
 
               {/* Previews */}
@@ -529,8 +533,8 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                     <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
-                          <p style={{ fontSize: 10.5, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 2 }}>Add Attachment</p>
-                          <p style={{ fontSize: 16, fontWeight: 700, color: NAVY, letterSpacing: '-0.02em' }}>How would you like to add a file?</p>
+                          <p style={{ fontSize: 10.5, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 2 }}>{t('new.attachmentModal.eyebrow')}</p>
+                          <p style={{ fontSize: 16, fontWeight: 700, color: NAVY, letterSpacing: '-0.02em' }}>{t('new.attachmentModal.title')}</p>
                         </div>
                         <button type="button" onClick={() => setShowAttachmentModal(false)}
                           style={{ width: 32, height: 32, borderRadius: '50%', border: 'none', background: '#F1F5F9', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -558,8 +562,8 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                               </svg>
                             </div>
                             <div>
-                              <p style={{ fontSize: 14, fontWeight: 600, color: NAVY, marginBottom: 2 }}>Take a Photo</p>
-                              <p style={{ fontSize: 12, color: '#94A3B8' }}>Use your camera to capture the issue</p>
+                              <p style={{ fontSize: 14, fontWeight: 600, color: NAVY, marginBottom: 2 }}>{t('new.attachmentModal.takePhoto.title')}</p>
+                              <p style={{ fontSize: 12, color: '#94A3B8' }}>{t('new.attachmentModal.takePhoto.description')}</p>
                             </div>
                           </button>
 
@@ -574,8 +578,8 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                               </svg>
                             </div>
                             <div>
-                              <p style={{ fontSize: 14, fontWeight: 600, color: NAVY, marginBottom: 2 }}>Choose from Gallery</p>
-                              <p style={{ fontSize: 12, color: '#94A3B8' }}>Select images from your device</p>
+                              <p style={{ fontSize: 14, fontWeight: 600, color: NAVY, marginBottom: 2 }}>{t('new.attachmentModal.chooseGallery.title')}</p>
+                              <p style={{ fontSize: 12, color: '#94A3B8' }}>{t('new.attachmentModal.chooseGallery.description')}</p>
                             </div>
                           </button>
 
@@ -590,8 +594,8 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                               </svg>
                             </div>
                             <div>
-                              <p style={{ fontSize: 14, fontWeight: 600, color: NAVY, marginBottom: 2 }}>Upload a File</p>
-                              <p style={{ fontSize: 12, color: '#94A3B8' }}>PDF, DOC, TXT up to 10MB</p>
+                              <p style={{ fontSize: 14, fontWeight: 600, color: NAVY, marginBottom: 2 }}>{t('new.attachmentModal.uploadFileMobile.title')}</p>
+                              <p style={{ fontSize: 12, color: '#94A3B8' }}>{t('new.attachmentModal.uploadFileMobile.description')}</p>
                             </div>
                           </button>
                         </>
@@ -608,8 +612,8 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                               </svg>
                             </div>
                             <div>
-                              <p style={{ fontSize: 14, fontWeight: 600, color: NAVY, marginBottom: 2 }}>Upload Files</p>
-                              <p style={{ fontSize: 12, color: '#94A3B8' }}>Images, PDF, DOC up to 10MB</p>
+                              <p style={{ fontSize: 14, fontWeight: 600, color: NAVY, marginBottom: 2 }}>{t('new.attachmentModal.uploadFiles.title')}</p>
+                              <p style={{ fontSize: 12, color: '#94A3B8' }}>{t('new.attachmentModal.uploadFiles.description')}</p>
                             </div>
                           </button>
 
@@ -624,8 +628,8 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                               </svg>
                             </div>
                             <div>
-                              <p style={{ fontSize: 14, fontWeight: 600, color: NAVY, marginBottom: 2 }}>Upload Image</p>
-                              <p style={{ fontSize: 12, color: '#94A3B8' }}>PNG, JPG, GIF, WebP up to 10MB</p>
+                              <p style={{ fontSize: 14, fontWeight: 600, color: NAVY, marginBottom: 2 }}>{t('new.attachmentModal.uploadImage.title')}</p>
+                              <p style={{ fontSize: 12, color: '#94A3B8' }}>{t('new.attachmentModal.uploadImage.description')}</p>
                             </div>
                           </button>
 
@@ -659,13 +663,13 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                 letterSpacing: canSubmit ? '-0.01em' : '0',
               }}>
               <BoltIcon size={15} color={canSubmit ? '#fff' : '#B8C4CE'} />
-              {processing ? 'Creating…' : 'Create Ticket — AI classifies immediately'}
+              {processing ? t('new.form.submitting') : t('new.form.submit')}
             </motion.button>
 
             <div style={{ textAlign: 'center' }}>
               <button type="button" onClick={() => router.get('/tickets')}
                 style={{ background: 'none', border: 'none', fontSize: 13, color: '#94A3B8', cursor: 'pointer' }}>
-                Cancel
+                {t('new.form.cancel')}
               </button>
             </div>
           </form>
@@ -684,7 +688,7 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                 )}
               </div>
               <p style={{ fontSize: 10.5, fontWeight: 700, color: TEAL, textTransform: 'uppercase', letterSpacing: '0.09em' }}>
-                AI Preview
+                {t('new.aiPreview.eyebrow')}
               </p>
             </div>
 
@@ -696,7 +700,7 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
 
                   {/* Category */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                    <span style={{ fontSize: 12, color: '#64748B' }}>Category</span>
+                    <span style={{ fontSize: 12, color: '#64748B' }}>{t('new.aiPreview.category')}</span>
                     <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 20, background: 'rgba(2,128,144,0.10)', color: TEAL }}>
                       {aiPreview.category} · {aiPreview.category_conf}%
                     </span>
@@ -704,30 +708,30 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
 
                   {/* Priority */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                    <span style={{ fontSize: 12, color: '#64748B' }}>Priority</span>
+                    <span style={{ fontSize: 12, color: '#64748B' }}>{t('new.aiPreview.priority')}</span>
                     <span style={{
                       fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 20,
                       background: PRIORITY_OPTIONS.find(p => p.value === aiPreview.priority)?.bg ?? '#F1F5F9',
                       color: priorityColor(aiPreview.priority)
                     }}>
-                      {aiPreview.priority.charAt(0).toUpperCase() + aiPreview.priority.slice(1)} · {aiPreview.priority_conf}%
+                      {t(`priority.${aiPreview.priority}`)} · {aiPreview.priority_conf}%
                     </span>
                   </div>
 
                   {/* Est. SLA */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                    <span style={{ fontSize: 12, color: '#64748B' }}>Est. SLA</span>
+                    <span style={{ fontSize: 12, color: '#64748B' }}>{t('new.aiPreview.estSla')}</span>
                     <span style={{ fontSize: 12, fontWeight: 600, color: NAVY }}>
                       {aiPreview.est_sla_hours < 24
-  ? `${aiPreview.est_sla_hours} ${aiPreview.est_sla_hours === 1 ? 'hour' : 'hours'}`
-  : `${aiPreview.est_sla_hours / 24} ${aiPreview.est_sla_hours / 24 === 1 ? 'day' : 'days'}`}
+  ? t('new.aiPreview.hour', { count: aiPreview.est_sla_hours })
+  : t('new.aiPreview.day', { count: aiPreview.est_sla_hours / 24 })}
                     </span>
                   </div>
 
                   {/* Urgency bar */}
                   <div style={{ marginBottom: 4 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                      <span style={{ fontSize: 12, color: '#64748B' }}>Urgency</span>
+                      <span style={{ fontSize: 12, color: '#64748B' }}>{t('new.aiPreview.urgency')}</span>
                       <span style={{ fontSize: 12, fontWeight: 700, color: aiPreview.urgency_score >= 70 ? '#DC2626' : TEAL }}>
                         {aiPreview.urgency_score}
                       </span>
@@ -741,12 +745,12 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                     </div>
                   </div>
 
-                  <p style={{ fontSize: 11, color: '#CBD5E1', marginTop: 10 }}>Predictions update as you type</p>
+                  <p style={{ fontSize: 11, color: '#CBD5E1', marginTop: 10 }}>{t('new.aiPreview.hint')}</p>
                 </motion.div>
               ) : (
                 <motion.div key="preview-empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <p style={{ fontSize: 12, color: '#94A3B8', lineHeight: 1.6 }}>
-                    Start typing a title to see AI predictions…
+                    {t('new.aiPreview.empty')}
                   </p>
                 </motion.div>
               )}
@@ -755,13 +759,13 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
 
           {/* AI WILL DETECT */}
           <div style={{ padding: '14px 18px', borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
-            <p style={{ ...LABEL, marginBottom: 10 }}>AI Will Detect</p>
+            <p style={{ ...LABEL, marginBottom: 10 }}>{t('new.aiWillDetect.label')}</p>
             {[
-              'Category routing',
-              'Urgency 0–100',
-              'Similar resolved tickets',
-              'Suggested response for agents',
-              'SLA deadline based on priority',
+              t('new.aiWillDetect.items.categoryRouting'),
+              t('new.aiWillDetect.items.urgencyScore'),
+              t('new.aiWillDetect.items.similarTickets'),
+              t('new.aiWillDetect.items.suggestedResponse'),
+              t('new.aiWillDetect.items.slaDeadline'),
             ].map(item => (
               <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
                 <CheckCircleIcon color={TEAL} />
@@ -773,18 +777,18 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
           {/* YOUR RECENT TICKETS */}
           {recent_tickets.length > 0 && (
             <div style={{ padding: '14px 18px' }}>
-              <p style={{ ...LABEL, marginBottom: 10 }}>Your Recent Tickets</p>
-              {recent_tickets.map(t => (
-                <button key={t.id} type="button" onClick={() => router.get(`/tickets/${t.id}`)}
+              <p style={{ ...LABEL, marginBottom: 10 }}>{t('new.recentTickets')}</p>
+              {recent_tickets.map(ticket => (
+                <button key={ticket.id} type="button" onClick={() => router.get(`/tickets/${ticket.id}`)}
                   style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '7px 6px', borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer', marginBottom: 2, transition: 'background 120ms ease', textAlign: 'left' }}
                   onMouseEnter={e => { (e.currentTarget).style.background = 'rgba(15,23,42,0.04)' }}
                   onMouseLeave={e => { (e.currentTarget).style.background = 'none' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: 11, fontWeight: 600, color: TEAL, fontFamily: 'monospace', marginBottom: 2 }}>{t.ticket_number}</p>
-                    <p style={{ fontSize: 11, color: '#64748B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.title}</p>
+                    <p style={{ fontSize: 11, fontWeight: 600, color: TEAL, fontFamily: 'monospace', marginBottom: 2 }}>{ticket.ticket_number}</p>
+                    <p style={{ fontSize: 11, color: '#64748B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ticket.title}</p>
                   </div>
-                  <span style={{ fontSize: 10, fontWeight: 600, color: STATUS_COLORS[t.status] ?? '#94A3B8', textTransform: 'capitalize', flexShrink: 0, marginLeft: 6, marginTop: 1 }}>
-                    {t.status.replace(/_/g, ' ')}
+                  <span style={{ fontSize: 10, fontWeight: 600, color: STATUS_COLORS[ticket.status] ?? '#94A3B8', textTransform: 'capitalize', flexShrink: 0, marginLeft: 6, marginTop: 1 }}>
+                    {t(`status.${ticket.status}`, { defaultValue: ticket.status.replace(/_/g, ' ') })}
                   </span>
                 </button>
               ))}
