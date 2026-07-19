@@ -23,12 +23,19 @@ RSpec.describe Tickets::AiPreview do
       expect(title).to eq('')
     end
 
-    it 'strips filler phrases and capitalizes the first letter' do
+    it 'capitalizes the first letter without altering the original wording' do
       title = described_class.suggest_title(
-        description: 'está fallando la impresora no sirve por favor venir al piso 1'
+        description: 'necesito ayuda con la impresora por favor vengan al piso 1'
       )
-      expect(title).not_to include('por favor')
-      expect(title[0]).to eq(title[0].upcase)
+      expect(title).to eq('Necesito ayuda con la impresora por favor vengan al piso 1')
+    end
+
+    it 'does not mangle words that merely contain a filler phrase as a substring' do
+      title = described_class.suggest_title(
+        description: 'necesito ayuda con la impresora por favor vengan al piso 1'
+      )
+      expect(title).to include('piso 1')
+      expect(title).not_to include('pi1')
     end
 
     it 'takes only the first meaningful clause when description has multiple sentences' do

@@ -25,22 +25,6 @@ module Tickets
       'low'      => %w[minor cosmetic typo suggestion improvement nice feature]
     }.freeze
 
-    FILLER_PHRASES = [
-      # Spanish fillers
-      'por favor', 'necesito ayuda', 'ayuda', 'venir al', 'vengan', 've ',
-      'gracias', 'urgente por favor', 'cuanto antes', 'en este momento',
-      'estoy en una reunion', 'estoy en una reunión', 'por favor ayuda',
-      'hola ', 'buenos dias', 'buenas tardes', 'buenas noches',
-      'disculpe', 'disculpa', 'oye ', 'oiga ', 'mira ', 'mire ',
-      'ok ', 'okay ', 'este ', 'este,', 'eh ', 'ah ',
-      # English fillers
-      'please', 'need help', 'i need help', 'help me', 'come to',
-      'thank you', 'thanks', 'as soon as possible', 'asap',
-      'right now', 'in a meeting', 'hey ', 'hi ', 'hello ',
-      'excuse me', 'look ', 'so ', 'um ', 'uh ', 'like ',
-      'you know', 'basically', 'actually', 'literally'
-    ].freeze
-
     MAX_TITLE_LENGTH = 60
 
     def self.call(title:, description: '')
@@ -77,20 +61,13 @@ module Tickets
     def suggest_title
       return '' if @raw_description.blank?
 
-      cleaned = strip_fillers(@raw_description)
-      clause  = first_meaningful_clause(cleaned)
-      title   = clause.presence || cleaned
+      clause = first_meaningful_clause(@raw_description)
+      title  = clause.presence || @raw_description
 
       truncate_title(capitalize_sentence(title))
     end
 
     private
-
-    def strip_fillers(text)
-      result = text.dup
-      FILLER_PHRASES.each { |phrase| result = result.gsub(/#{Regexp.escape(phrase)}/i, '') }
-      result.squeeze(' ').strip
-    end
 
     def first_meaningful_clause(text)
       text.split(/[.!?]|,\s+(?:y|and|but|pero)\s+/i).first.to_s.strip
