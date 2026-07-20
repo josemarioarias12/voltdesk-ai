@@ -65,6 +65,16 @@ RSpec.describe Tickets::CreateTicket do
         r2 = described_class.call(workspace: workspace, user: user, params: valid_params)
         expect(r1.data.ticket_number).not_to eq(r2.data.ticket_number)
       end
+
+      it 'stays in sync when tickets were inserted directly without using the sequence' do
+        create(:ticket, workspace: workspace, department: department, created_by: user,
+                        ticket_number: 'TK-00050')
+
+        result = described_class.call(workspace: workspace, user: user, params: valid_params)
+
+        expect(result).to be_success
+        expect(result.data.ticket_number).to eq('TK-00051')
+      end
     end
 
     context 'with invalid params' do

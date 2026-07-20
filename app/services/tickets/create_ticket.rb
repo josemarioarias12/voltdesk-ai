@@ -51,6 +51,7 @@ module Tickets
     def generate_ticket_number
       seq_name = "workspace_#{@workspace.id}_ticket_seq"
       ensure_sequence_exists(seq_name)
+      sync_sequence_with_existing_data(seq_name)
       seq_value = Ticket.connection.select_value(
         Ticket.sanitize_sql(['SELECT nextval(?)', seq_name])
       )
@@ -60,6 +61,17 @@ module Tickets
     def ensure_sequence_exists(seq_name)
       Ticket.connection.execute(
         "CREATE SEQUENCE IF NOT EXISTS #{seq_name} START 1"
+      )
+    end
+
+    def sync_sequence_with_existing_data(seq_name)
+      max_existing = @workspace.tickets
+                               .where("ticket_number ~ '^TK-[0-9]+$'")
+                               .maximum(Arel.sql('substring(ticket_number from 4)::bigint'))
+      return if max_existing.nil?
+
+      Ticket.connection.execute(
+        "SELECT setval('#{seq_name}', GREATEST((SELECT last_value FROM #{seq_name}), #{max_existing.to_i}), true)"
       )
     end
 
