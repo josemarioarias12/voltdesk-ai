@@ -37,7 +37,8 @@
   "relative": {
     "justNow": "recién",
     "hoursAgo": "hace {{count}}h",
-    "daysAgo": "hace {{count}}d"
+    "daysAgo": "hace {{count}}d",
+    "minutesAgo": "hace {{count}}m"
   },
   "patternAlert": {
     "label": "Patrón Detectado",
@@ -104,11 +105,26 @@
     "templates": {
       "label": "Plantillas Rápidas",
       "items": {
-        "vpnIssue": { "label": "Problema de VPN", "title": "No puedo conectarme a la VPN desde mi casa" },
-        "hardwareRequest": { "label": "Solicitud de Hardware", "title": "Solicitud de nuevo equipo" },
-        "accessRequest": { "label": "Solicitud de Acceso", "title": "Necesito acceso a un sistema o aplicación interna" },
-        "printerIssue": { "label": "Problema de Impresora", "title": "La impresora no funciona en la oficina" },
-        "softwareLicense": { "label": "Licencia de Software", "title": "Solicitud de renovación de licencia de software" }
+        "vpnIssue": {
+          "label": "Problema de VPN",
+          "title": "No puedo conectarme a la VPN desde mi casa"
+        },
+        "hardwareRequest": {
+          "label": "Solicitud de Hardware",
+          "title": "Solicitud de nuevo equipo"
+        },
+        "accessRequest": {
+          "label": "Solicitud de Acceso",
+          "title": "Necesito acceso a un sistema o aplicación interna"
+        },
+        "printerIssue": {
+          "label": "Problema de Impresora",
+          "title": "La impresora no funciona en la oficina"
+        },
+        "softwareLicense": {
+          "label": "Licencia de Software",
+          "title": "Solicitud de renovación de licencia de software"
+        }
       }
     },
     "form": {
@@ -133,11 +149,26 @@
     "attachmentModal": {
       "eyebrow": "Agregar Adjunto",
       "title": "¿Cómo querés agregar un archivo?",
-      "takePhoto": { "title": "Tomar una Foto", "description": "Usá tu cámara para capturar el problema" },
-      "chooseGallery": { "title": "Elegir de la Galería", "description": "Seleccioná imágenes de tu dispositivo" },
-      "uploadFileMobile": { "title": "Subir un Archivo", "description": "PDF, DOC, TXT hasta 10MB" },
-      "uploadFiles": { "title": "Subir Archivos", "description": "Imágenes, PDF, DOC hasta 10MB" },
-      "uploadImage": { "title": "Subir Imagen", "description": "PNG, JPG, GIF, WebP hasta 10MB" }
+      "takePhoto": {
+        "title": "Tomar una Foto",
+        "description": "Usá tu cámara para capturar el problema"
+      },
+      "chooseGallery": {
+        "title": "Elegir de la Galería",
+        "description": "Seleccioná imágenes de tu dispositivo"
+      },
+      "uploadFileMobile": {
+        "title": "Subir un Archivo",
+        "description": "PDF, DOC, TXT hasta 10MB"
+      },
+      "uploadFiles": {
+        "title": "Subir Archivos",
+        "description": "Imágenes, PDF, DOC hasta 10MB"
+      },
+      "uploadImage": {
+        "title": "Subir Imagen",
+        "description": "PNG, JPG, GIF, WebP hasta 10MB"
+      }
     },
     "aiPreview": {
       "eyebrow": "Vista Previa de IA",
@@ -163,5 +194,128 @@
       }
     },
     "recentTickets": "Tus Tickets Recientes"
+  },
+  "show": {
+    "breadcrumb": "Tickets",
+    "resolveTicket": "Resolver Ticket",
+    "description": "Descripción",
+    "noDescription": "No se proporcionó descripción.",
+    "attachments": "Adjuntos",
+    "pipeline": {
+      "title": "Pipeline de Clasificación de IA",
+      "steps": {
+        "analyzing": {
+          "label": "Analizando texto del ticket",
+          "detail": "Extrayendo palabras clave e intención"
+        },
+        "searching": {
+          "label": "Buscando tickets similares",
+          "detail": "Escaneando embeddings de tickets resueltos"
+        },
+        "priority": {
+          "label": "Determinando prioridad",
+          "detail": "Calculando urgencia 0–100"
+        },
+        "generating": {
+          "label": "Generando respuesta sugerida",
+          "detail": "Pipeline RAG con los 3 precedentes principales"
+        },
+        "finalizing": {
+          "label": "Finalizando clasificación",
+          "detail": "Escribiendo en el registro del ticket"
+        }
+      }
+    },
+    "xai": {
+      "title": "Razonamiento de Clasificación de IA",
+      "confidenceSuffix": "confianza",
+      "confBadge": "Conf. {{value}}",
+      "categorySignals": "Señales de categoría",
+      "prioritySignals": "Señales de prioridad",
+      "similarTickets": "Tickets similares",
+      "similarIssueResolved": "Problema similar — resuelto",
+      "resolved": "Resuelto",
+      "confidence": "Confianza",
+      "highConfidence": "Confianza Alta",
+      "lowConfidence": "Confianza Baja",
+      "autoRouting": "Enrutamiento automático activado",
+      "reviewRecommended": "Se recomienda revisión",
+      "manualReview": "Se recomienda revisión manual",
+      "correctedRate": "Categoría {{category}} corregida {{count}}×",
+      "highRate": "Tasa alta"
+    },
+    "vision": {
+      "title": "Análisis de Visión IA"
+    },
+    "ragSuggestion": {
+      "title": "Respuesta Sugerida por IA",
+      "similarityStats": "{{pct}}% de similitud · {{count}} tickets resueltos",
+      "accept": "Aceptar Respuesta",
+      "editBeforeSending": "Editar Antes de Enviar"
+    },
+    "agentApproval": {
+      "title": "Agente de IA Esperando Aprobación",
+      "humanInTheLoop": "Humano en el proceso · {{time}}",
+      "confidencePct": "{{pct}}% de confianza",
+      "proposedActions": "Acciones propuestas",
+      "actions": {
+        "autoResolve": "Auto-resolver ticket usando respuesta RAG",
+        "postResponse": "Publicar respuesta sugerida como comentario público",
+        "notifyRequester": "Notificar al solicitante sobre la resolución"
+      },
+      "basedOn": "Basado en",
+      "approveExecute": "Aprobar y Ejecutar",
+      "reject": "Rechazar"
+    },
+    "activity": {
+      "created": "Ticket creado",
+      "statusChanged": "Estado → {{status}}",
+      "assigned": "Asignado a {{name}}",
+      "escalated": "Escalado — SLA incumplido",
+      "slaBreached": "SLA incumplido",
+      "slaWarning": "Aviso de SLA — plazo próximo a vencer",
+      "aiClassified": "IA clasificó el ticket"
+    },
+    "tabs": {
+      "all": "Toda la Actividad",
+      "internal": "Notas Internas",
+      "external": "Externo"
+    },
+    "comment_one": "{{count}} comentario",
+    "comment_other": "{{count}} comentarios",
+    "noActivity": "Sin actividad todavía",
+    "noTabComments": "Sin comentarios {{tab}} todavía",
+    "replyPlaceholder": "Escribí una respuesta...",
+    "internalNotePlaceholder": "Escribí una nota interna...",
+    "internalNoteLabel": "Nota interna",
+    "internalBadge": "Interno",
+    "send": "Enviar",
+    "sla": {
+      "title": "Estado de SLA",
+      "breached": "Incumplido",
+      "opened": "Abierto {{time}}",
+      "notConfigured": "SLA no configurado"
+    },
+    "urgency": {
+      "title": "Urgencia",
+      "critical": "Crítico — atención inmediata",
+      "elevated": "Elevado — monitorear de cerca",
+      "normal": "Rango normal"
+    },
+    "people": {
+      "title": "Personas",
+      "assignedTo": "Asignado a",
+      "requestedBy": "Solicitado por",
+      "unassigned": "Sin asignar"
+    },
+    "properties": {
+      "title": "Propiedades",
+      "department": "Departamento",
+      "category": "Categoría",
+      "priority": "Prioridad",
+      "status": "Estado",
+      "created": "Creado"
+    },
+    "aiTags": "Etiquetas de IA"
   }
 }

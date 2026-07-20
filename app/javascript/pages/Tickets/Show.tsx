@@ -7,6 +7,10 @@ import type {
 } from '@/types/tickets'
 import { useActionCable } from '@/hooks/useActionCable'
 import AppLayout from '@/components/AppLayout'
+import { useTranslation } from 'react-i18next'
+import { useDepartmentName } from '@/hooks/useDepartmentName'
+
+type Translate = (key: string, options?: Record<string, unknown>) => string
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const CARD: React.CSSProperties = {
@@ -32,13 +36,13 @@ const PRIORITY_BG: Record<TicketPriority, string> = {
   critical: '#FEF2F2', high: '#FFF7ED', medium: '#FFFBEB', low: '#F8FAFC',
 }
 
-const STATUS_CFG: Record<TicketStatus, { label: string; bg: string; text: string; dot: string }> = {
-  open:                   { label: 'Open',        bg: '#F0FDF4', text: '#15803D', dot: '#22C55E' },
-  in_progress:            { label: 'In Progress', bg: '#EFF6FF', text: '#1D4ED8', dot: '#3B82F6' },
-  pending:                { label: 'Pending',     bg: '#FEFCE8', text: '#A16207', dot: '#EAB308' },
-  resolved:               { label: 'Resolved',    bg: '#F0FDF4', text: '#15803D', dot: '#22C55E' },
-  closed:                 { label: 'Closed',      bg: '#F8FAFC', text: '#475569', dot: '#94A3B8' },
-  pending_classification: { label: 'Classifying', bg: 'rgba(2,128,144,0.04)', text: '#028090', dot: '#02C39A' },
+const STATUS_CFG: Record<TicketStatus, { bg: string; text: string; dot: string }> = {
+  open:                   { bg: '#F0FDF4', text: '#15803D', dot: '#22C55E' },
+  in_progress:            { bg: '#EFF6FF', text: '#1D4ED8', dot: '#3B82F6' },
+  pending:                { bg: '#FEFCE8', text: '#A16207', dot: '#EAB308' },
+  resolved:               { bg: '#F0FDF4', text: '#15803D', dot: '#22C55E' },
+  closed:                 { bg: '#F8FAFC', text: '#475569', dot: '#94A3B8' },
+  pending_classification: { bg: 'rgba(2,128,144,0.04)', text: '#028090', dot: '#02C39A' },
 }
 
 // ── Framer variants ───────────────────────────────────────────────────────────
@@ -62,38 +66,33 @@ const slideRight = {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function formatRelative(iso: string): string {
+function formatRelative(iso: string, t: Translate): string {
   const diff = Date.now() - new Date(iso).getTime()
   const m = Math.floor(diff / 60000)
   const h = Math.floor(diff / 3600000)
   const d = Math.floor(diff / 86400000)
-  if (m < 1) return 'just now'
-  if (m < 60) return `${m}m ago`
-  if (h < 24) return `${h}h ago`
-  return `${d}d ago`
+  if (m < 1) return t('relative.justNow')
+  if (m < 60) return t('relative.minutesAgo', { count: m })
+  if (h < 24) return t('relative.hoursAgo', { count: h })
+  return t('relative.daysAgo', { count: d })
 }
 
 // ── AI Pipeline Card ──────────────────────────────────────────────────────────
-const PIPELINE_STEPS = [
-  { label: 'Analyzing ticket text',          detail: 'Extracting keywords and intent' },
-  { label: 'Searching similar tickets',       detail: 'Scanning resolved ticket embeddings' },
-  { label: 'Determining priority',            detail: 'Scoring urgency 0–100' },
-  { label: 'Generating suggested response',   detail: 'RAG pipeline with top 3 precedents' },
-  { label: 'Finalizing classification',       detail: 'Writing to ticket record' },
-]
+const PIPELINE_STEP_IDS = ['analyzing', 'searching', 'priority', 'generating', 'finalizing'] as const
 
 function AiPipelineCard() {
+  const { t } = useTranslation('tickets')
   const [activeStep, setActiveStep] = useState(0)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
-      setActiveStep(prev => prev < PIPELINE_STEPS.length - 1 ? prev + 1 : prev)
+      setActiveStep(prev => prev < PIPELINE_STEP_IDS.length - 1 ? prev + 1 : prev)
     }, 2200)
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
   }, [])
 
-  const progress = Math.round(((activeStep + 1) / PIPELINE_STEPS.length) * 100)
+  const progress = Math.round(((activeStep + 1) / PIPELINE_STEP_IDS.length) * 100)
 
   return (
     <motion.div variants={fadeUp} style={{ ...CARD, marginBottom: 10, borderLeft: '3px solid #028090', overflow: 'hidden' }}>
@@ -103,10 +102,10 @@ function AiPipelineCard() {
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#028090' }} />
             <div style={{ position: 'absolute', inset: -3, borderRadius: '50%', border: '2px solid rgba(2,128,144,0.25)', animation: 'ping 1.8s ease-in-out infinite' }} />
           </div>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#028090' }}>AI Classification Pipeline</span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#028090' }}>{t('show.pipeline.title')}</span>
           <span style={{ fontSize: 10.5, padding: '2px 8px', borderRadius: 20, background: 'rgba(2,128,144,0.04)', color: '#028090', border: '1px solid rgba(2,128,144,0.15)', fontWeight: 600 }}>GPT-4o</span>
         </div>
-        <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 600, fontFamily: 'monospace' }}>{activeStep + 1} / {PIPELINE_STEPS.length}</span>
+        <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 600, fontFamily: 'monospace' }}>{activeStep + 1} / {PIPELINE_STEP_IDS.length}</span>
       </div>
 
       <div style={{ height: 2, background: 'rgba(2,128,144,0.08)', margin: '0 20px' }}>
@@ -118,12 +117,16 @@ function AiPipelineCard() {
       </div>
 
       <div style={{ padding: '10px 20px 16px', display: 'flex', flexDirection: 'column', gap: 3 }}>
-        {PIPELINE_STEPS.map((step, idx) => {
+        {PIPELINE_STEP_IDS.map((stepId, idx) => {
+          const step = {
+            label: t(`show.pipeline.steps.${stepId}.label`),
+            detail: t(`show.pipeline.steps.${stepId}.detail`),
+          }
           const done    = idx < activeStep
           const current = idx === activeStep
           return (
             <motion.div
-              key={step.label}
+              key={stepId}
               animate={{
                 background: current ? '#028090' : done ? 'rgba(2,128,144,0.04)' : 'transparent',
               }}
@@ -192,6 +195,7 @@ function AiPipelineCard() {
 
 // ── XAI Panel ─────────────────────────────────────────────────────────────────
 function XaiPanel({ ticket }: { ticket: Ticket }) {
+  const { t } = useTranslation('tickets')
   const [collapsed, setCollapsed] = useState(false)
   const meta = ticket.ai_metadata
   if (!meta?.reasoning) return null
@@ -214,13 +218,13 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
             </svg>
           </div>
           <div style={{ textAlign: 'left' }}>
-            <p style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>AI Classification Reasoning</p>
-            <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>GPT-4o · {confidencePct}% confidence</p>
+            <p style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>{t('show.xai.title')}</p>
+            <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>GPT-4o · {confidencePct}% {t('show.xai.confidenceSuffix')}</p>
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: isHigh ? '#F0FDF4' : '#FEF2F2', color: isHigh ? '#15803D' : '#DC2626', border: `1px solid ${isHigh ? 'rgba(21,128,61,0.15)' : 'rgba(220,38,38,0.15)'}` }}>
-            Conf. {confidence.toFixed(2)}
+            {t('show.xai.confBadge', { value: confidence.toFixed(2) })}
           </span>
           <motion.div animate={{ rotate: collapsed ? 0 : 180 }} transition={{ duration: 0.2 }}>
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -245,7 +249,7 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
               {/* Left — signals */}
               <div style={{ padding: '16px 20px', borderRight: '1px solid rgba(15,23,42,0.05)' }}>
                 <div style={{ marginBottom: 16 }}>
-                  <p style={{ ...LABEL, marginBottom: 8 }}>Category signals</p>
+                  <p style={{ ...LABEL, marginBottom: 8 }}>{t('show.xai.categorySignals')}</p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
                     {category_signals.map((s, i) => (
                       <motion.span
@@ -262,7 +266,7 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
                 </div>
 
                 <div style={{ marginBottom: 16 }}>
-                  <p style={{ ...LABEL, marginBottom: 8 }}>Priority signals</p>
+                  <p style={{ ...LABEL, marginBottom: 8 }}>{t('show.xai.prioritySignals')}</p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
                     {priority_signals.map((s, i) => (
                       <motion.span
@@ -281,7 +285,7 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
                 {/* Similar tickets list */}
                 {similar_ticket && (
                   <div>
-                    <p style={{ ...LABEL, marginBottom: 8 }}>Similar tickets</p>
+                    <p style={{ ...LABEL, marginBottom: 8 }}>{t('show.xai.similarTickets')}</p>
                     <motion.div
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -291,9 +295,9 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
                     >
                       <div style={{ minWidth: 0 }}>
                         <span style={{ fontSize: 11, fontWeight: 700, color: '#028090', fontFamily: 'monospace' }}>{similar_ticket}</span>
-                        <p style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>Similar issue — resolved</p>
+                        <p style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{t('show.xai.similarIssueResolved')}</p>
                       </div>
-                      <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#F0FDF4', color: '#15803D', border: '1px solid rgba(21,128,61,0.15)', flexShrink: 0, marginLeft: 8 }}>Resolved</span>
+                      <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#F0FDF4', color: '#15803D', border: '1px solid rgba(21,128,61,0.15)', flexShrink: 0, marginLeft: 8 }}>{t('show.xai.resolved')}</span>
                     </motion.div>
                   </div>
                 )}
@@ -302,10 +306,10 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
                   <div style={{ marginTop: 14, padding: '9px 12px', borderRadius: 8, background: ticket.correction_rate.times_corrected > 5 ? '#FFFBEB' : '#F8FAFC', border: `1px solid ${ticket.correction_rate.times_corrected > 5 ? 'rgba(217,119,6,0.2)' : 'rgba(15,23,42,0.06)'}` }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <span style={{ fontSize: 11, color: '#475569' }}>
-                        Category <strong style={{ color: '#028090' }}>{ticket.correction_rate.category}</strong> corrected <strong>{ticket.correction_rate.times_corrected}×</strong>
+                        {t('show.xai.correctedRate', { category: ticket.correction_rate.category, count: ticket.correction_rate.times_corrected })}
                       </span>
                       {ticket.correction_rate.times_corrected > 5 && (
-                        <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: '#FEF3C7', color: '#D97706', flexShrink: 0, marginLeft: 8 }}>High rate</span>
+                        <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: '#FEF3C7', color: '#D97706', flexShrink: 0, marginLeft: 8 }}>{t('show.xai.highRate')}</span>
                       )}
                     </div>
                   </div>
@@ -314,7 +318,7 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
 
               {/* Right — confidence box (Banani style) */}
               <div style={{ padding: '16px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: isHigh ? 'rgba(21,128,61,0.02)' : 'rgba(220,38,38,0.02)' }}>
-                <p style={{ ...LABEL, marginBottom: 12, textAlign: 'center' }}>Confidence</p>
+                <p style={{ ...LABEL, marginBottom: 12, textAlign: 'center' }}>{t('show.xai.confidence')}</p>
 
                 {/* Big number */}
                 <motion.div
@@ -327,7 +331,7 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
                     {confidence.toFixed(2)}
                   </p>
                   <p style={{ fontSize: 11, fontWeight: 600, color: isHigh ? '#15803D' : '#DC2626', marginTop: 4 }}>
-                    {isHigh ? 'High Confidence' : 'Low Confidence'}
+                    {isHigh ? t('show.xai.highConfidence') : t('show.xai.lowConfidence')}
                   </p>
                 </motion.div>
 
@@ -342,7 +346,7 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
                 </div>
 
                 <p style={{ fontSize: 10.5, color: '#94A3B8', textAlign: 'center' }}>
-                  {confidencePct}% · {isHigh ? 'Auto-routing enabled' : 'Review recommended'}
+                  {confidencePct}% · {isHigh ? t('show.xai.autoRouting') : t('show.xai.reviewRecommended')}
                 </p>
 
                 {!isHigh && (
@@ -350,7 +354,7 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
                     style={{ marginTop: 10, padding: '7px 10px', borderRadius: 7, background: '#FEF2F2', border: '1px solid rgba(220,38,38,0.15)', textAlign: 'center' }}
                   >
-                    <p style={{ fontSize: 10.5, color: '#DC2626', fontWeight: 500 }}>Manual review recommended</p>
+                    <p style={{ fontSize: 10.5, color: '#DC2626', fontWeight: 500 }}>{t('show.xai.manualReview')}</p>
                   </motion.div>
                 )}
               </div>
@@ -364,6 +368,7 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
 
 // ── Vision AI Card ────────────────────────────────────────────────────────────
 function VisionAiCard({ ticket }: { ticket: Ticket }) {
+  const { t } = useTranslation('tickets')
   const analysis = ticket.ai_metadata?.image_analysis
   if (!analysis) return null
 
@@ -378,7 +383,7 @@ function VisionAiCard({ ticket }: { ticket: Ticket }) {
             </svg>
           </div>
           <div>
-            <p style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>Vision AI Analysis</p>
+            <p style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>{t('show.vision.title')}</p>
             <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>GPT-4o Vision</p>
           </div>
         </div>
@@ -395,6 +400,7 @@ function VisionAiCard({ ticket }: { ticket: Ticket }) {
 
 // ── RAG Suggestion Card ───────────────────────────────────────────────────────
 function RagSuggestionCard({ agentAction, onAccept }: { agentAction: AgentActionPending; onAccept: (text: string) => void }) {
+  const { t } = useTranslation('tickets')
   const [dismissed, setDismissed] = useState(false)
   if (dismissed || !agentAction.ai_reasoning) return null
 
@@ -408,8 +414,8 @@ function RagSuggestionCard({ agentAction, onAccept }: { agentAction: AgentAction
             </svg>
           </div>
           <div>
-            <p style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>AI Suggested Response</p>
-            <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>{Math.round(agentAction.top_similarity * 100)}% similarity · {agentAction.similar_tickets.length} resolved tickets</p>
+            <p style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>{t('show.ragSuggestion.title')}</p>
+            <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>{t('show.ragSuggestion.similarityStats', { pct: Math.round(agentAction.top_similarity * 100), count: agentAction.similar_tickets.length })}</p>
           </div>
         </div>
         <button onClick={() => setDismissed(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', fontSize: 18, lineHeight: 1, padding: '2px 6px', borderRadius: 4 }}>×</button>
@@ -423,14 +429,14 @@ function RagSuggestionCard({ agentAction, onAccept }: { agentAction: AgentAction
           onClick={() => onAccept(agentAction.ai_reasoning)}
           style={{ padding: '7px 16px', background: '#028090', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#fff', cursor: 'pointer' }}
         >
-          Accept Response
+          {t('show.ragSuggestion.accept')}
         </motion.button>
         <motion.button
           whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
           onClick={() => onAccept(agentAction.ai_reasoning)}
           style={{ padding: '7px 16px', background: '#fff', border: '1px solid rgba(15,23,42,0.1)', borderRadius: 8, fontSize: 12, fontWeight: 500, color: '#475569', cursor: 'pointer' }}
         >
-          Edit Before Sending
+          {t('show.ragSuggestion.editBeforeSending')}
         </motion.button>
       </div>
     </motion.div>
@@ -439,6 +445,7 @@ function RagSuggestionCard({ agentAction, onAccept }: { agentAction: AgentAction
 
 // ── Agent Approval Card ───────────────────────────────────────────────────────
 function AgentApprovalCard({ agentAction }: { agentAction: AgentActionPending }) {
+  const { t } = useTranslation('tickets')
   const confidencePct = Math.round(agentAction.confidence * 100)
 
   return (
@@ -452,22 +459,22 @@ function AgentApprovalCard({ agentAction }: { agentAction: AgentActionPending })
             </svg>
           </div>
           <div>
-            <p style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>AI Agent Awaiting Approval</p>
-            <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>Human-in-the-loop · {formatRelative(agentAction.created_at)}</p>
+            <p style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>{t('show.agentApproval.title')}</p>
+            <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>{t('show.agentApproval.humanInTheLoop', { time: formatRelative(agentAction.created_at, t) })}</p>
           </div>
         </div>
         <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: '#FFFBEB', color: '#D97706', border: '1px solid rgba(217,119,6,0.2)' }}>
-          {confidencePct}% confidence
+          {t('show.agentApproval.confidencePct', { pct: confidencePct })}
         </span>
       </div>
 
       <div style={{ padding: '14px 20px' }}>
-        <p style={{ ...LABEL, marginBottom: 10 }}>Proposed actions</p>
+        <p style={{ ...LABEL, marginBottom: 10 }}>{t('show.agentApproval.proposedActions')}</p>
         <motion.div variants={stagger} initial="hidden" animate="show" style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
           {[
-            { label: 'Auto-resolve ticket using RAG response', icon: <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="#6B7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg> },
-            { label: 'Post suggested response as public comment', icon: <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 3h9M2 6.5h9M2 10h6" stroke="#6B7280" strokeWidth="1.4" strokeLinecap="round" /></svg> },
-            { label: 'Notify requester of resolution', icon: <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1a5 5 0 100 10 5 5 0 000-10zM6.5 4v3l2 1" stroke="#6B7280" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /></svg> },
+            { label: t('show.agentApproval.actions.autoResolve'), icon: <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="#6B7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg> },
+            { label: t('show.agentApproval.actions.postResponse'), icon: <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 3h9M2 6.5h9M2 10h6" stroke="#6B7280" strokeWidth="1.4" strokeLinecap="round" /></svg> },
+            { label: t('show.agentApproval.actions.notifyRequester'), icon: <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1a5 5 0 100 10 5 5 0 000-10zM6.5 4v3l2 1" stroke="#6B7280" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /></svg> },
           ].map((item, idx) => (
             <motion.div key={idx} variants={fadeIn} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 8, background: '#F8FAFC', border: '1px solid rgba(15,23,42,0.05)' }}>
               <span style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>{item.icon}</span>
@@ -478,7 +485,7 @@ function AgentApprovalCard({ agentAction }: { agentAction: AgentActionPending })
 
         {agentAction.similar_tickets.length > 0 && (
           <div style={{ marginBottom: 16 }}>
-            <p style={{ ...LABEL, marginBottom: 8 }}>Based on</p>
+            <p style={{ ...LABEL, marginBottom: 8 }}>{t('show.agentApproval.basedOn')}</p>
             {agentAction.similar_tickets.map(t => (
               <div key={t.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid rgba(15,23,42,0.04)' }}>
                 <span style={{ fontSize: 12, color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '75%' }}>{t.title}</span>
@@ -494,14 +501,14 @@ function AgentApprovalCard({ agentAction }: { agentAction: AgentActionPending })
             onClick={() => router.patch(`/agent_actions/${agentAction.id}/ticket_approve`)}
             style={{ flex: 1, padding: '10px 0', background: '#028090', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer' }}
           >
-            Approve & Execute
+            {t('show.agentApproval.approveExecute')}
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
             onClick={() => router.patch(`/agent_actions/${agentAction.id}/ticket_reject`)}
             style={{ flex: 1, padding: '10px 0', background: '#fff', border: '1px solid rgba(220,38,38,0.25)', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#DC2626', cursor: 'pointer' }}
           >
-            Reject
+            {t('show.agentApproval.reject')}
           </motion.button>
         </div>
       </div>
@@ -511,6 +518,7 @@ function AgentApprovalCard({ agentAction }: { agentAction: AgentActionPending })
 
 // ── Comment ───────────────────────────────────────────────────────────────────
 function CommentItem({ comment, index }: { comment: TicketComment; index: number }) {
+  const { t } = useTranslation('tickets')
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -526,9 +534,9 @@ function CommentItem({ comment, index }: { comment: TicketComment; index: number
           <span style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>{comment.user.full_name}</span>
           <span style={{ fontSize: 11, color: '#94A3B8', textTransform: 'capitalize' }}>{comment.user.role.replace(/_/g, ' ')}</span>
           {comment.internal && (
-            <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: '#FEF3C7', color: '#D97706', border: '1px solid rgba(217,119,6,0.2)' }}>Internal</span>
+            <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 7px', borderRadius: 20, background: '#FEF3C7', color: '#D97706', border: '1px solid rgba(217,119,6,0.2)' }}>{t('show.internalBadge')}</span>
           )}
-          <span style={{ marginLeft: 'auto', fontSize: 11, color: '#94A3B8' }}>{formatRelative(comment.created_at)}</span>
+          <span style={{ marginLeft: 'auto', fontSize: 11, color: '#94A3B8' }}>{formatRelative(comment.created_at, t)}</span>
         </div>
         <p style={{ fontSize: 13, color: '#374151', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{comment.body}</p>
       </div>
@@ -539,14 +547,15 @@ function CommentItem({ comment, index }: { comment: TicketComment; index: number
 // ── Activity ──────────────────────────────────────────────────────────────────
 function ActivityItem({ activity }: { activity: TicketActivity }) {
   const meta = activity.metadata as Record<string, string>
+  const { t } = useTranslation('tickets')
   const labels: Record<string, string> = {
-    created:        'Ticket created',
-    status_changed: `Status → ${meta.to ?? ''}`,
-    assigned:       `Assigned to ${meta.to_user_name ?? 'agent'}`,
-    escalated:      'Escalated — SLA breached',
-    sla_breached:   'SLA breached',
-    sla_warning:    'SLA warning — deadline approaching',
-    ai_classified:  'AI classified ticket',
+    created:        t('show.activity.created'),
+    status_changed: t('show.activity.statusChanged', { status: meta.to ?? '' }),
+    assigned:       t('show.activity.assigned', { name: meta.to_user_name ?? 'agent' }),
+    escalated:      t('show.activity.escalated'),
+    sla_breached:   t('show.activity.slaBreached'),
+    sla_warning:    t('show.activity.slaWarning'),
+    ai_classified:  t('show.activity.aiClassified'),
   }
 
   return (
@@ -559,7 +568,7 @@ function ActivityItem({ activity }: { activity: TicketActivity }) {
       </div>
       <div>
         <p style={{ fontSize: 12, color: '#475569' }}>{labels[activity.action] ?? activity.action.replace(/_/g, ' ')}</p>
-        <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>{formatRelative(activity.created_at)}</p>
+        <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>{formatRelative(activity.created_at, t)}</p>
       </div>
     </div>
   )
@@ -569,6 +578,8 @@ function ActivityItem({ activity }: { activity: TicketActivity }) {
 export default function TicketsShow({
   ticket, can_resolve, can_assign: _can_assign, can_internal, agent_action,
 }: TicketsShowProps) {
+  const { t } = useTranslation('tickets')
+  const departmentName = useDepartmentName()
   const [commentBody, setCommentBody] = useState('')
   const [isInternal, setIsInternal]   = useState(false)
   const [activeTab, setActiveTab]     = useState<'all' | 'internal' | 'external'>('all')
@@ -614,7 +625,7 @@ export default function TicketsShow({
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path d="M9 11L5 7l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            Tickets
+            {t('show.breadcrumb')}
           </button>
           <span style={{ color: '#E2E8F0' }}>/</span>
           <span style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', fontFamily: 'monospace', letterSpacing: '0.04em' }}>{ticket.ticket_number}</span>
@@ -628,7 +639,7 @@ export default function TicketsShow({
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
               <path d="M2 6.5l3 3 6-6" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            Resolve Ticket
+            {t('show.resolveTicket')}
           </motion.button>
         )}
       </motion.div>
@@ -653,28 +664,28 @@ export default function TicketsShow({
                   transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                   style={{ width: 5, height: 5, borderRadius: '50%', background: statusCfg.dot, display: 'inline-block', flexShrink: 0 }}
                 />
-                {statusCfg.label}
+                {t(`status.${ticket.status}`)}
               </span>
               <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20, background: priorityBg, color: priorityColor, textTransform: 'capitalize' }}>
-                {ticket.priority}
+                {t(`priority.${ticket.priority}`)}
               </span>
               <span style={{ marginLeft: 'auto', fontSize: 11, color: '#94A3B8', fontWeight: 500 }}>
-                {ticket.department.name}{ticket.category && ticket.category.toUpperCase() !== ticket.department.name.toUpperCase() ? ` · ${ticket.category.toUpperCase()}` : ''}
+                {departmentName(ticket.department.name)}{ticket.category && ticket.category.toUpperCase() !== ticket.department.name.toUpperCase() ? ` · ${t(`category.${ticket.category}`)}` : ''}
               </span>
             </div>
             <h1 style={{ fontSize: 24, fontWeight: 700, color: '#0F172A', lineHeight: 1.25, letterSpacing: '-0.02em', marginBottom: 20 }}>
               {ticket.title}
             </h1>
             <div style={{ height: 1, background: 'rgba(15,23,42,0.05)', marginBottom: 16 }} />
-            <p style={{ ...LABEL, marginBottom: 8 }}>Description</p>
+            <p style={{ ...LABEL, marginBottom: 8 }}>{t('show.description')}</p>
             <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.8, whiteSpace: 'pre-line' }}>
-              {ticket.description ?? 'No description provided.'}
+              {ticket.description ?? t('show.noDescription')}
             </p>
 
             {/* Attachments */}
             {ticket.attachments?.length > 0 && (
               <div style={{ marginTop: 20 }}>
-                <p style={{ ...LABEL, marginBottom: 10 }}>Attachments</p>
+                <p style={{ ...LABEL, marginBottom: 10 }}>{t('show.attachments')}</p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
                   {ticket.attachments.map(att => (
                     <a key={att.id} href={att.url} target="_blank" rel="noreferrer"
@@ -720,7 +731,7 @@ export default function TicketsShow({
           <motion.div variants={fadeUp} style={{ background: '#fff', flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid rgba(15,23,42,0.05)', padding: '0 28px' }}>
               {(['all', 'internal', 'external'] as const).map(tab => {
-                const tabLabels = { all: 'All Activity', internal: 'Internal Notes', external: 'External' }
+                const tabLabels = { all: t('show.tabs.all'), internal: t('show.tabs.internal'), external: t('show.tabs.external') }
                 const isActive  = activeTab === tab
                 return (
                   <button key={tab} onClick={() => setActiveTab(tab)}
@@ -730,7 +741,7 @@ export default function TicketsShow({
                 )
               })}
               <span style={{ marginLeft: 'auto', fontSize: 11, color: '#94A3B8' }}>
-                {visibleComments.length} comment{visibleComments.length !== 1 ? 's' : ''}
+                {t('show.comment', { count: visibleComments.length })}
               </span>
             </div>
 
@@ -741,7 +752,7 @@ export default function TicketsShow({
                     <path d="M14 8c0 3.314-2.686 6-6 6a5.97 5.97 0 01-3.5-1.127L2 14l1.127-2.5A5.97 5.97 0 012 8c0-3.314 2.686-6 6-6s6 2.686 6 6z" stroke="#CBD5E1" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
-                <p style={{ fontSize: 13, color: '#94A3B8' }}>{activeTab === 'all' ? 'No activity yet' : `No ${activeTab} comments yet`}</p>
+                <p style={{ fontSize: 13, color: '#94A3B8' }}>{activeTab === 'all' ? t('show.noActivity') : t('show.noTabComments', { tab: activeTab })}</p>
               </div>
             )}
 
@@ -761,7 +772,7 @@ export default function TicketsShow({
                 <textarea
                   value={commentBody}
                   onChange={e => setCommentBody(e.target.value)}
-                  placeholder={isInternal ? 'Write an internal note...' : 'Write a reply...'}
+                  placeholder={isInternal ? t('show.internalNotePlaceholder') : t('show.replyPlaceholder')}
                   rows={3}
                   style={{ width: '100%', padding: '10px 14px', border: `1px solid ${isInternal ? 'rgba(217,119,6,0.3)' : 'rgba(15,23,42,0.1)'}`, borderRadius: 8, fontSize: 13, resize: 'none', outline: 'none', color: '#0F172A', boxSizing: 'border-box', lineHeight: 1.65, background: isInternal ? '#FFFBEB' : '#fff', transition: 'border-color 120ms ease, background 120ms ease', fontFamily: 'inherit' }}
                 />
@@ -769,7 +780,7 @@ export default function TicketsShow({
                   {can_internal && (
                     <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#64748B', cursor: 'pointer', userSelect: 'none' }}>
                       <input type="checkbox" checked={isInternal} onChange={e => setIsInternal(e.target.checked)} style={{ accentColor: '#F59E0B' }} />
-                      Internal note
+                      {t('show.internalNoteLabel')}
                     </label>
                   )}
                   <motion.button
@@ -777,7 +788,7 @@ export default function TicketsShow({
                     type="submit" disabled={!commentBody.trim()}
                     style={{ marginLeft: 'auto', padding: '7px 20px', background: '#028090', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#fff', cursor: commentBody.trim() ? 'pointer' : 'default', opacity: commentBody.trim() ? 1 : 0.4, transition: 'opacity 120ms ease' }}
                   >
-                    Send
+                    {t('show.send')}
                   </motion.button>
                 </div>
               </form>
@@ -792,7 +803,7 @@ export default function TicketsShow({
         >
           {/* SLA */}
           <div style={{ padding: '18px 20px', borderBottom: '1px solid rgba(15,23,42,0.05)' }}>
-            <p style={{ ...LABEL, marginBottom: 10 }}>SLA Status</p>
+            <p style={{ ...LABEL, marginBottom: 10 }}>{t('show.sla.title')}</p>
             {ticket.sla_status === 'breached' ? (
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -801,14 +812,14 @@ export default function TicketsShow({
                     transition={{ duration: 2, repeat: Infinity }}
                     style={{ width: 8, height: 8, borderRadius: '50%', background: '#DC2626', boxShadow: '0 0 0 3px rgba(220,38,38,0.15)', flexShrink: 0 }}
                   />
-                  <span style={{ fontSize: 16, fontWeight: 700, color: '#DC2626', letterSpacing: '-0.01em' }}>Breached</span>
+                  <span style={{ fontSize: 16, fontWeight: 700, color: '#DC2626', letterSpacing: '-0.01em' }}>{t('show.sla.breached')}</span>
                 </div>
-                <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 4 }}>Opened {formatRelative(ticket.created_at)}</p>
+                <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 4 }}>{t('show.sla.opened', { time: formatRelative(ticket.created_at, t) })}</p>
               </div>
             ) : ticket.due_at ? (
               <p style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>{new Date(ticket.due_at).toLocaleString()}</p>
             ) : (
-              <p style={{ fontSize: 12, color: '#94A3B8' }}>No SLA configured</p>
+              <p style={{ fontSize: 12, color: '#94A3B8' }}>{t('show.sla.notConfigured')}</p>
             )}
           </div>
 
@@ -816,7 +827,7 @@ export default function TicketsShow({
           {ticket.urgency_score > 0 && (
             <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(15,23,42,0.05)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                <p style={LABEL}>Urgency</p>
+                <p style={LABEL}>{t('show.urgency.title')}</p>
                 <motion.span
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -835,18 +846,18 @@ export default function TicketsShow({
                 />
               </div>
               <p style={{ fontSize: 10.5, color: ticket.urgency_score >= 80 ? '#DC2626' : '#94A3B8', marginTop: 5, fontWeight: ticket.urgency_score >= 80 ? 500 : 400 }}>
-                {ticket.urgency_score >= 80 ? 'Critical — immediate attention' : ticket.urgency_score >= 60 ? 'Elevated — monitor closely' : 'Normal range'}
+                {ticket.urgency_score >= 80 ? t('show.urgency.critical') : ticket.urgency_score >= 60 ? t('show.urgency.elevated') : t('show.urgency.normal')}
               </p>
             </div>
           )}
 
           {/* People */}
           <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(15,23,42,0.05)' }}>
-            <p style={{ ...LABEL, marginBottom: 12 }}>People</p>
+            <p style={{ ...LABEL, marginBottom: 12 }}>{t('show.people.title')}</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
-                { label: 'Assigned to', user: ticket.assigned_to },
-                { label: 'Requested by', user: ticket.created_by },
+                { label: t('show.people.assignedTo'), user: ticket.assigned_to },
+                { label: t('show.people.requestedBy'), user: ticket.created_by },
               ].map(({ label, user }) => (
                 <div key={label}>
                   <p style={{ fontSize: 10.5, color: '#94A3B8', marginBottom: 6 }}>{label}</p>
@@ -861,7 +872,7 @@ export default function TicketsShow({
                       </div>
                     </div>
                   ) : (
-                    <span style={{ fontSize: 12, color: '#94A3B8', fontStyle: 'italic' }}>Unassigned</span>
+                    <span style={{ fontSize: 12, color: '#94A3B8', fontStyle: 'italic' }}>{t('show.people.unassigned')}</span>
                   )}
                 </div>
               ))}
@@ -870,17 +881,17 @@ export default function TicketsShow({
 
           {/* Properties */}
           <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(15,23,42,0.05)' }}>
-            <p style={{ ...LABEL, marginBottom: 12 }}>Properties</p>
+            <p style={{ ...LABEL, marginBottom: 12 }}>{t('show.properties.title')}</p>
             {[
-              { label: 'Department', value: ticket.department.name, color: undefined },
-              { label: 'Category',   value: ticket.category.toUpperCase(), color: undefined },
-              { label: 'Priority',   value: ticket.priority,       color: priorityColor, capitalize: true },
-              { label: 'Status',     value: statusCfg.label,       color: statusCfg.text },
-              { label: 'Created',    value: new Date(ticket.created_at).toLocaleDateString(), color: '#94A3B8' },
-            ].map(({ label, value, color, capitalize }) => (
+              { label: t('show.properties.department'), value: departmentName(ticket.department.name), color: undefined },
+              { label: t('show.properties.category'),   value: t(`category.${ticket.category}`), color: undefined },
+              { label: t('show.properties.priority'),   value: t(`priority.${ticket.priority}`), color: priorityColor },
+              { label: t('show.properties.status'),     value: t(`status.${ticket.status}`),    color: statusCfg.text },
+              { label: t('show.properties.created'),    value: new Date(ticket.created_at).toLocaleDateString(), color: '#94A3B8' },
+            ].map(({ label, value, color }) => (
               <div key={label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid rgba(15,23,42,0.04)' }}>
                 <span style={{ fontSize: 11, color: '#94A3B8' }}>{label}</span>
-                <span style={{ fontSize: 12, fontWeight: 500, color: color ?? '#0F172A', textTransform: capitalize ? 'capitalize' : 'none' }}>{value}</span>
+                <span style={{ fontSize: 12, fontWeight: 500, color: color ?? '#0F172A' }}>{value}</span>
               </div>
             ))}
           </div>
@@ -888,7 +899,7 @@ export default function TicketsShow({
           {/* AI Tags */}
           {ticket.ai_metadata?.tags && ticket.ai_metadata.tags.length > 0 && (
             <div style={{ padding: '16px 20px' }}>
-              <p style={{ ...LABEL, marginBottom: 10 }}>AI tags</p>
+              <p style={{ ...LABEL, marginBottom: 10 }}>{t('show.aiTags')}</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
                 {ticket.ai_metadata.tags.map((tag, i) => (
                   <motion.span

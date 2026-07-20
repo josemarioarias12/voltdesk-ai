@@ -37,7 +37,8 @@
   "relative": {
     "justNow": "just now",
     "hoursAgo": "{{count}}h ago",
-    "daysAgo": "{{count}}d ago"
+    "daysAgo": "{{count}}d ago",
+    "minutesAgo": "{{count}}m ago"
   },
   "patternAlert": {
     "label": "Pattern Detected",
@@ -104,11 +105,26 @@
     "templates": {
       "label": "Quick Templates",
       "items": {
-        "vpnIssue": { "label": "VPN Issue", "title": "Cannot connect to VPN from home network" },
-        "hardwareRequest": { "label": "Hardware Request", "title": "Request for new hardware equipment" },
-        "accessRequest": { "label": "Access Request", "title": "Need access to internal system or application" },
-        "printerIssue": { "label": "Printer Issue", "title": "Printer not working in the office" },
-        "softwareLicense": { "label": "Software License", "title": "Request for software license renewal" }
+        "vpnIssue": {
+          "label": "VPN Issue",
+          "title": "Cannot connect to VPN from home network"
+        },
+        "hardwareRequest": {
+          "label": "Hardware Request",
+          "title": "Request for new hardware equipment"
+        },
+        "accessRequest": {
+          "label": "Access Request",
+          "title": "Need access to internal system or application"
+        },
+        "printerIssue": {
+          "label": "Printer Issue",
+          "title": "Printer not working in the office"
+        },
+        "softwareLicense": {
+          "label": "Software License",
+          "title": "Request for software license renewal"
+        }
       }
     },
     "form": {
@@ -133,11 +149,26 @@
     "attachmentModal": {
       "eyebrow": "Add Attachment",
       "title": "How would you like to add a file?",
-      "takePhoto": { "title": "Take a Photo", "description": "Use your camera to capture the issue" },
-      "chooseGallery": { "title": "Choose from Gallery", "description": "Select images from your device" },
-      "uploadFileMobile": { "title": "Upload a File", "description": "PDF, DOC, TXT up to 10MB" },
-      "uploadFiles": { "title": "Upload Files", "description": "Images, PDF, DOC up to 10MB" },
-      "uploadImage": { "title": "Upload Image", "description": "PNG, JPG, GIF, WebP up to 10MB" }
+      "takePhoto": {
+        "title": "Take a Photo",
+        "description": "Use your camera to capture the issue"
+      },
+      "chooseGallery": {
+        "title": "Choose from Gallery",
+        "description": "Select images from your device"
+      },
+      "uploadFileMobile": {
+        "title": "Upload a File",
+        "description": "PDF, DOC, TXT up to 10MB"
+      },
+      "uploadFiles": {
+        "title": "Upload Files",
+        "description": "Images, PDF, DOC up to 10MB"
+      },
+      "uploadImage": {
+        "title": "Upload Image",
+        "description": "PNG, JPG, GIF, WebP up to 10MB"
+      }
     },
     "aiPreview": {
       "eyebrow": "AI Preview",
@@ -163,5 +194,128 @@
       }
     },
     "recentTickets": "Your Recent Tickets"
+  },
+  "show": {
+    "breadcrumb": "Tickets",
+    "resolveTicket": "Resolve Ticket",
+    "description": "Description",
+    "noDescription": "No description provided.",
+    "attachments": "Attachments",
+    "pipeline": {
+      "title": "AI Classification Pipeline",
+      "steps": {
+        "analyzing": {
+          "label": "Analyzing ticket text",
+          "detail": "Extracting keywords and intent"
+        },
+        "searching": {
+          "label": "Searching similar tickets",
+          "detail": "Scanning resolved ticket embeddings"
+        },
+        "priority": {
+          "label": "Determining priority",
+          "detail": "Scoring urgency 0–100"
+        },
+        "generating": {
+          "label": "Generating suggested response",
+          "detail": "RAG pipeline with top 3 precedents"
+        },
+        "finalizing": {
+          "label": "Finalizing classification",
+          "detail": "Writing to ticket record"
+        }
+      }
+    },
+    "xai": {
+      "title": "AI Classification Reasoning",
+      "confidenceSuffix": "confidence",
+      "confBadge": "Conf. {{value}}",
+      "categorySignals": "Category signals",
+      "prioritySignals": "Priority signals",
+      "similarTickets": "Similar tickets",
+      "similarIssueResolved": "Similar issue — resolved",
+      "resolved": "Resolved",
+      "confidence": "Confidence",
+      "highConfidence": "High Confidence",
+      "lowConfidence": "Low Confidence",
+      "autoRouting": "Auto-routing enabled",
+      "reviewRecommended": "Review recommended",
+      "manualReview": "Manual review recommended",
+      "correctedRate": "Category {{category}} corrected {{count}}×",
+      "highRate": "High rate"
+    },
+    "vision": {
+      "title": "Vision AI Analysis"
+    },
+    "ragSuggestion": {
+      "title": "AI Suggested Response",
+      "similarityStats": "{{pct}}% similarity · {{count}} resolved tickets",
+      "accept": "Accept Response",
+      "editBeforeSending": "Edit Before Sending"
+    },
+    "agentApproval": {
+      "title": "AI Agent Awaiting Approval",
+      "humanInTheLoop": "Human-in-the-loop · {{time}}",
+      "confidencePct": "{{pct}}% confidence",
+      "proposedActions": "Proposed actions",
+      "actions": {
+        "autoResolve": "Auto-resolve ticket using RAG response",
+        "postResponse": "Post suggested response as public comment",
+        "notifyRequester": "Notify requester of resolution"
+      },
+      "basedOn": "Based on",
+      "approveExecute": "Approve & Execute",
+      "reject": "Reject"
+    },
+    "activity": {
+      "created": "Ticket created",
+      "statusChanged": "Status → {{status}}",
+      "assigned": "Assigned to {{name}}",
+      "escalated": "Escalated — SLA breached",
+      "slaBreached": "SLA breached",
+      "slaWarning": "SLA warning — deadline approaching",
+      "aiClassified": "AI classified ticket"
+    },
+    "tabs": {
+      "all": "All Activity",
+      "internal": "Internal Notes",
+      "external": "External"
+    },
+    "comment_one": "{{count}} comment",
+    "comment_other": "{{count}} comments",
+    "noActivity": "No activity yet",
+    "noTabComments": "No {{tab}} comments yet",
+    "replyPlaceholder": "Write a reply...",
+    "internalNotePlaceholder": "Write an internal note...",
+    "internalNoteLabel": "Internal note",
+    "internalBadge": "Internal",
+    "send": "Send",
+    "sla": {
+      "title": "SLA Status",
+      "breached": "Breached",
+      "opened": "Opened {{time}}",
+      "notConfigured": "No SLA configured"
+    },
+    "urgency": {
+      "title": "Urgency",
+      "critical": "Critical — immediate attention",
+      "elevated": "Elevated — monitor closely",
+      "normal": "Normal range"
+    },
+    "people": {
+      "title": "People",
+      "assignedTo": "Assigned to",
+      "requestedBy": "Requested by",
+      "unassigned": "Unassigned"
+    },
+    "properties": {
+      "title": "Properties",
+      "department": "Department",
+      "category": "Category",
+      "priority": "Priority",
+      "status": "Status",
+      "created": "Created"
+    },
+    "aiTags": "AI tags"
   }
 }
