@@ -33,7 +33,7 @@ Workspace.find_each do |ws|
   USERS_BLUEPRINT.each do |data|
     User.create!(
       workspace:             ws,
-      email:                 "#{data[:email_prefix]}@#{ws.slug}.pulsedesk.ai",
+      email:                 "#{data[:email_prefix]}@#{ws.slug}.voltdesk.ai",
       first_name:            data[:first_name],
       last_name:             data[:last_name],
       role:                  data[:role],

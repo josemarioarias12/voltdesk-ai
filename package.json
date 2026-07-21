@@ -1,4 +1,5 @@
 {
+  "name": "voltdesk-ai",
   "private": true,
   "type": "module",
   "devDependencies": {

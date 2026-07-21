@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: pulsedesk_ai_development
+      POSTGRES_DB: voltdesk_ai_development
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -39,7 +39,7 @@ services:
       - "3100:3100"
       - "3036:3036"
     environment:
-      DATABASE_URL: postgres://postgres:postgres@db:5432/pulsedesk_ai_development
+      DATABASE_URL: postgres://postgres:postgres@db:5432/voltdesk_ai_development
       REDIS_URL: redis://redis:6379/0
       RAILS_ENV: development
     env_file:
@@ -61,7 +61,7 @@ services:
       - .:/rails
       - /rails/node_modules
     environment:
-      DATABASE_URL: postgres://postgres:postgres@db:5432/pulsedesk_ai_development
+      DATABASE_URL: postgres://postgres:postgres@db:5432/voltdesk_ai_development
       REDIS_URL: redis://redis:6379/0
       RAILS_ENV: development
     env_file:

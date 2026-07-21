@@ -1,4 +1,4 @@
-# PulseDesk AI — Performance Report (Sprint 20)
+# VoltDesk AI — Performance Report (Sprint 20)
 
 ## Query Performance (EXPLAIN ANALYZE)
 

@@ -1,8 +1,8 @@
-# PulseDesk AI
+# VoltDesk AI
 
 > Enterprise Operational Intelligence Platform — Multi-tenant SaaS with native AI.
 
-PulseDesk AI eliminates operational overhead for medium and large enterprises. It unifies support ticketing, HR operations, IT asset management, and workplace analytics under a single system that doesn't just record — it classifies, prioritizes, and converts information into actionable decisions automatically using GPT-4o.
+VoltDesk AI eliminates operational overhead for medium and large enterprises. It unifies support ticketing, HR operations, IT asset management, and workplace analytics under a single system that doesn't just record — it classifies, prioritizes, and converts information into actionable decisions automatically using GPT-4o.
 
 Built as a production-grade Rails 8 monorepo targeting the [Office Space Software](https://www.officespacesoftware.com) engineering evaluation.
 
@@ -10,7 +10,7 @@ Built as a production-grade Rails 8 monorepo targeting the [Office Space Softwar
 
 ## Impact
 
-| Metric | Without PulseDesk AI | With PulseDesk AI |
+| Metric | Without VoltDesk AI | With VoltDesk AI |
 |--------|---------------------|-------------------|
 | Ticket classification | 5–15 min manual | < 3 seconds (GPT-4o) |
 | SLA breaches without warning | Frequent | 0% — alert 30 min before |
@@ -21,17 +21,17 @@ Built as a production-grade Rails 8 monorepo targeting the [Office Space Softwar
 
 ## Live Demo
 
-**Production:** https://pulsedesk-ai-production.up.railway.app
+**Production:** https://voltdesk.app
 
 | Role | Email | Password |
 |------|-------|----------|
-| Workspace Admin | admin@pulsedesk.ai | Password123x |
-| Agent | agent@pulsedesk.ai | Password123x |
-| HR Manager | hr@pulsedesk.ai | Password123x |
-| IT Manager | it@pulsedesk.ai | Password123x |
-| Employee | employee@pulsedesk.ai | Password123x |
+| Workspace Admin | admin@voltdesk.ai | Password123x |
+| Agent | agent@voltdesk.ai | Password123x |
+| HR Manager | hr@voltdesk.ai | Password123x |
+| IT Manager | it@voltdesk.ai | Password123x |
+| Employee | employee@voltdesk.ai | Password123x |
 
-> **QR Demo Mode:** Sign in as `admin@pulsedesk.ai` → Admin → Activate Demo Mode → scan the QR code from any mobile device to create tickets live.
+> **QR Demo Mode:** Sign in as `admin@voltdesk.ai` → Admin → Activate Demo Mode → scan the QR code from any mobile device to create tickets live.
 
 > The `guest` role is activated exclusively via QR Demo Mode — no persistent account required.
 
@@ -40,7 +40,7 @@ Built as a production-grade Rails 8 monorepo targeting the [Office Space Softwar
 ## Architecture
 
 ┌─────────────────────────────────────────────────────────────┐
-│                     MONOREPO: pulsedesk-ai                  │
+│                     MONOREPO: voltdesk-ai                  │
 │                                                             │
 │  ┌─────────────────┐        ┌─────────────────────────────┐ │
 │  │   Rails 8       │        │   React 19 + TypeScript     │ │
@@ -69,8 +69,8 @@ Built as a production-grade Rails 8 monorepo targeting the [Office Space Softwar
 ## Local Setup
 
 ```bash
-git clone https://github.com/josemarioarias12/pulsedesk-ai.git
-cd pulsedesk-ai
+git clone https://github.com/josemarioarias12/voltdesk-ai.git
+cd voltdesk-ai
 cp .env.example .env       # Add OPENAI_API_KEY and GOOGLE_CLIENT_ID
 docker-compose up          # Starts Rails + PostgreSQL + Redis + Sidekiq
 ```
@@ -183,12 +183,12 @@ All passwords: `Password123x` — DEMO workspace: `DemoPass2024!`
 
 | Workspace | Scenario | Admin Email |
 |-----------|----------|-------------|
-| TechCorp Inc | DB outage crisis — SLA breach in 25min | admin@techcorp.pulsedesk.ai |
-| HealthCo Medical | Medical equipment offline + sentiment drop | admin@healthco.pulsedesk.ai |
-| RetailPlus | POS spike — 8 stores down + anomaly Z-score 3.8 | admin@retailplus.pulsedesk.ai |
-| StartupAI | AI confidence < 0.70 on 30% of tickets | admin@startupai.pulsedesk.ai |
-| ConsultingPro | SOC 2 audit + GDPR purge logs | admin@consultingpro.pulsedesk.ai |
-| PulseDesk Demo | All modules in 5 min — QR Demo Mode | demo_admin@pulsedesk.ai |
+| TechCorp Inc | DB outage crisis — SLA breach in 25min | admin@techcorp.voltdesk.ai |
+| HealthCo Medical | Medical equipment offline + sentiment drop | admin@healthco.voltdesk.ai |
+| RetailPlus | POS spike — 8 stores down + anomaly Z-score 3.8 | admin@retailplus.voltdesk.ai |
+| StartupAI | AI confidence < 0.70 on 30% of tickets | admin@startupai.voltdesk.ai |
+| ConsultingPro | SOC 2 audit + GDPR purge logs | admin@consultingpro.voltdesk.ai |
+| VoltDesk Demo | All modules in 5 min — QR Demo Mode | demo_admin@voltdesk.ai |
 
 ### Demo Verification
 
@@ -207,4 +207,4 @@ rails demo:generate_embeddings  # pgvector HNSW embeddings (real or synthetic)
 
 ---
 
-*PulseDesk AI · [github.com/josemarioarias12/pulsedesk-ai](https://github.com/josemarioarias12/pulsedesk-ai)*
+*VoltDesk AI · [github.com/josemarioarias12/voltdesk-ai](https://github.com/josemarioarias12/voltdesk-ai)*

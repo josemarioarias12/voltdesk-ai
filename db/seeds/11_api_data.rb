@@ -17,7 +17,7 @@ ENDPOINTS = %w[
 ].freeze
 
 Workspace.find_each do |ws|
-  admin = User.find_by(workspace: ws, email: "admin@#{ws.slug}.pulsedesk.ai")
+  admin = User.find_by(workspace: ws, email: "admin@#{ws.slug}.voltdesk.ai")
 
   # ApiKey — one active per workspace
   raw_token = SecureRandom.hex(32)
@@ -35,7 +35,7 @@ Workspace.find_each do |ws|
   Webhook.create!(
     workspace:        ws,
     name:             "#{ws.name} Main Webhook",
-    url:              "https://hooks.#{ws.slug}.example.com/pulsedesk",
+    url:              "https://hooks.#{ws.slug}.example.com/voltdesk",
     secret_digest:    Digest::SHA256.hexdigest(SecureRandom.hex(16)),
     events:           WEBHOOK_EVENTS,
     active:           true,

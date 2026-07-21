@@ -31,7 +31,7 @@ def confidence_for(operation)
 end
 
 Workspace.find_each do |ws|
-  admin = User.find_by(workspace: ws, email: "admin@#{ws.slug}.pulsedesk.ai")
+  admin = User.find_by(workspace: ws, email: "admin@#{ws.slug}.voltdesk.ai")
   count = 200
 
   count.times do |idx|
@@ -62,7 +62,7 @@ Workspace.find_each do |ws|
   Rails.logger.debug { "  AiAuditLog created for #{ws.name}: #{AiAuditLog.where(workspace: ws).count} entries" }
 
   tickets    = Ticket.where(workspace: ws).limit(60)
-  agent      = User.find_by(workspace: ws, email: "agent1@#{ws.slug}.pulsedesk.ai")
+  agent      = User.find_by(workspace: ws, email: "agent1@#{ws.slug}.voltdesk.ai")
   categories = %w[it hr facilities finance operations general]
 
   tickets.each_with_index do |ticket, idx|

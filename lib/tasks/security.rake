@@ -5,7 +5,7 @@ namespace :security do
   task audit: :environment do
     passed = true
 
-    puts "\n== PulseDesk AI Security Audit =="
+    puts "\n== VoltDesk AI Security Audit =="
 
     puts "\n[1/3] Running Brakeman static analysis..."
     system('bundle exec brakeman --no-pager -q -i .brakeman.ignore')

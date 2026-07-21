@@ -1,11 +1,11 @@
-# PulseDesk AI — Security Policy
+# VoltDesk AI — Security Policy
 
 ## Reporting Vulnerabilities
 
 If you discover a security vulnerability, please report it privately to the maintainers.
 Do NOT open a public GitHub issue for security vulnerabilities.
 
-**Contact:** security@pulsedesk.ai
+**Contact:** security@voltdesk.ai
 **Response SLA:** 48 hours for acknowledgment, 7 days for remediation plan.
 
 ---
