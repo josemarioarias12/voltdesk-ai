@@ -7,7 +7,8 @@ class TicketsController < ApplicationController
     authorize :ticket, :index?
 
     tickets = policy_scope(Ticket)
-              .includes(:department, :assigned_to, :created_by, :activities)
+              .includes(:department, :assigned_to, :created_by)
+              .with_attached_attachments
               .recent
               .then { |scope| apply_filters(scope) }
               .then { |scope| apply_sort(scope) }
@@ -22,6 +23,15 @@ class TicketsController < ApplicationController
       filters: filter_params.to_h,
       pagination: pagination_meta(tickets)
     }
+  end
+
+  def export
+    authorize :ticket, :index?
+
+    scope = policy_scope(Ticket).filtered_by(filter_params)
+    result = Tickets::ExportCsv.call(scope: scope)
+
+    send_data result.data, filename: "tickets-#{Date.current.iso8601}.csv", type: 'text/csv'
   end
 
   def show
@@ -94,21 +104,8 @@ class TicketsController < ApplicationController
     end
   end
 
-  def ai_preview
-    authorize :ticket, :create?
-    title       = params[:title].to_s.strip
-    description = params[:description].to_s.strip
-    if title.blank? && description.length < 10
-      return render json: { error: 'insufficient_input' },
-                    status: :unprocessable_content
-    end
-
-    result = Tickets::AiPreview.call(title: title, description: description)
-    render json: result.data
-  end
-
   def bulk_update
-    authorize :ticket, :index?
+    authorize :ticket, :bulk_update?
 
     result = Tickets::BulkUpdate.call(
       workspace:  current_workspace,
@@ -131,8 +128,7 @@ class TicketsController < ApplicationController
   private
 
   def set_ticket
-    @ticket = policy_scope(Ticket).includes(:department, :assigned_to, :created_by, :activities, comments: :user,
-activities: :user).find(params.expect(:id))
+    @ticket = policy_scope(Ticket).includes(:department, :assigned_to, :created_by).find(params.expect(:id))
   end
 
   def ticket_params
@@ -160,11 +156,7 @@ activities: :user).find(params.expect(:id))
   end
 
   def apply_filters(scope)
-    scope = scope.where(status: params[:status])               if params[:status].present?
-    scope = scope.where(priority: params[:priority])           if params[:priority].present?
-    scope = scope.where(department_id: params[:department_id]) if params[:department_id].present?
-    scope = scope.where('title ILIKE ?', "%#{params[:q]}%")    if params[:q].present?
-    scope
+    scope.filtered_by(filter_params)
   end
 
   def apply_sort(scope)
@@ -237,7 +229,7 @@ activities: :user).find(params.expect(:id))
         { id: com.id, body: com.body, internal: com.internal, created_at: com.created_at.iso8601,
 user: user_stub(com.user) }
       end,
-      activities: tkt.activities.chronological.map do |act|
+      activities: tkt.activities.includes(:user).chronological.map do |act|
         { id: act.id, action: act.action, metadata: act.metadata, created_at: act.created_at.iso8601,
           user: act.user ? user_stub(act.user) : nil }
       end,

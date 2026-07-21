@@ -108,4 +108,50 @@ RSpec.describe 'Rack::Attack throttling', type: :request do
       expect(response.status).to eq(429)
     end
   end
+
+  describe 'throttle demo/join/ip' do
+    let(:request_ip) { unique_ip }
+
+    def join_demo(times)
+      freeze_time do
+        times.times do
+          get '/demo/nonexistent-token', headers: { 'REMOTE_ADDR' => request_ip }
+        end
+      end
+    end
+
+    it 'allows requests under the limit' do
+      join_demo(10)
+      expect(response.status).not_to eq(429)
+    end
+
+    it 'blocks after 10 requests from same IP' do
+      join_demo(11)
+      expect(response.status).to eq(429)
+    end
+  end
+
+  describe 'throttle demo/ticket/ip' do
+    let(:request_ip) { unique_ip }
+
+    def create_demo_ticket(times)
+      freeze_time do
+        times.times do
+          post '/demo/ticket',
+               params: { ticket: { title: 'Test', description: 'Test desc' } },
+               headers: { 'REMOTE_ADDR' => request_ip }
+        end
+      end
+    end
+
+    it 'allows requests under the limit' do
+      create_demo_ticket(5)
+      expect(response.status).not_to eq(429)
+    end
+
+    it 'blocks after 5 requests from same IP' do
+      create_demo_ticket(6)
+      expect(response.status).to eq(429)
+    end
+  end
 end

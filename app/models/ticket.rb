@@ -82,6 +82,14 @@ class Ticket < ApplicationRecord
   scope :for_department,    ->(dept_id) { where(department_id: dept_id) }
   scope :assigned_to_agent, ->(user_id) { where(assigned_to_id: user_id) }
   scope :recent,            -> { order(created_at: :desc) }
+    scope :filtered_by, lambda { |filters|
+      scope = all
+      scope = scope.where(status: filters[:status])               if filters[:status].present?
+      scope = scope.where(priority: filters[:priority])            if filters[:priority].present?
+      scope = scope.where(department_id: filters[:department_id]) if filters[:department_id].present?
+      scope = scope.where('title ILIKE ?', "%#{filters[:q]}%")     if filters[:q].present?
+      scope
+    }
 
   # ── State machine ─────────────────────────────────────────────────────────────
   VALID_TRANSITIONS = {

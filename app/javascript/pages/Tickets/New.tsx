@@ -127,7 +127,7 @@ interface AiPreviewData {
 
 // ── Main Component ─────────────────────────────────────────────────────────────
 export default function TicketsNew({ departments, recent_tickets }: TicketsNewProps) {
-  const { locale, speechLang, toggleLocale } = useLocale()
+  const { speechLang } = useLocale()
   const { t } = useTranslation('tickets')
   const departmentName = useDepartmentName()
   const { transcript, interimTranscript, voiceState, isSupported, startListening, stopListening, resetTranscript, errorMessage } = useVoiceTicket(speechLang)
@@ -236,7 +236,6 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
 
   const isListening = voiceState === 'listening'
   const canSubmit = !processing && !!data.title && !!data.department_id
-  const priorityMeta = PRIORITY_OPTIONS.find(p => p.value === data.priority)
   const windowWidth  = useWindowWidth()
   const isMobile     = windowWidth < 768
   const isTablet     = windowWidth < 1024

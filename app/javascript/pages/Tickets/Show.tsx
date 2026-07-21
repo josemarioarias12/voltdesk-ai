@@ -9,6 +9,7 @@ import { useActionCable } from '@/hooks/useActionCable'
 import AppLayout from '@/components/AppLayout'
 import { useTranslation } from 'react-i18next'
 import { useDepartmentName } from '@/hooks/useDepartmentName'
+import { useWindowWidth } from '@/hooks/useWindowWidth'
 
 type Translate = (key: string, options?: Record<string, unknown>) => string
 
@@ -197,6 +198,7 @@ function AiPipelineCard() {
 function XaiPanel({ ticket }: { ticket: Ticket }) {
   const { t } = useTranslation('tickets')
   const [collapsed, setCollapsed] = useState(false)
+  const isMobile = useWindowWidth() < 640
   const meta = ticket.ai_metadata
   if (!meta?.reasoning) return null
 
@@ -244,10 +246,10 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
             style={{ overflow: 'hidden' }}
           >
             {/* Two-column layout: signals left, confidence right */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px', gap: 0 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 200px', gap: 0 }}>
 
               {/* Left — signals */}
-              <div style={{ padding: '16px 20px', borderRight: '1px solid rgba(15,23,42,0.05)' }}>
+              <div style={{ padding: '16px 20px', borderRight: isMobile ? 'none' : '1px solid rgba(15,23,42,0.05)', borderBottom: isMobile ? '1px solid rgba(15,23,42,0.05)' : 'none' }}>
                 <div style={{ marginBottom: 16 }}>
                   <p style={{ ...LABEL, marginBottom: 8 }}>{t('show.xai.categorySignals')}</p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
@@ -580,6 +582,7 @@ export default function TicketsShow({
 }: TicketsShowProps) {
   const { t } = useTranslation('tickets')
   const departmentName = useDepartmentName()
+  const isMobile = useWindowWidth() < 1024
   const [commentBody, setCommentBody] = useState('')
   const [isInternal, setIsInternal]   = useState(false)
   const [activeTab, setActiveTab]     = useState<'all' | 'internal' | 'external'>('all')
@@ -644,7 +647,7 @@ export default function TicketsShow({
         )}
       </motion.div>
 
-      <div style={{ display: 'flex', gap: 0, alignItems: 'flex-start', border: '1px solid rgba(15,23,42,0.06)', borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.04)' }}>
+      <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 0, alignItems: 'stretch', border: '1px solid rgba(15,23,42,0.06)', borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.04)' }}>
 
         {/* Left column */}
         <motion.div
@@ -799,7 +802,7 @@ export default function TicketsShow({
         {/* Right sidebar — single surface, Linear style */}
         <motion.div
           variants={slideRight} initial="hidden" animate="show"
-          style={{ width: 256, flexShrink: 0, borderLeft: '1px solid rgba(15,23,42,0.06)', background: '#FAFAFA', display: 'flex', flexDirection: 'column', minHeight: '100%' }}
+          style={{ width: isMobile ? '100%' : 256, flexShrink: 0, borderLeft: isMobile ? 'none' : '1px solid rgba(15,23,42,0.06)', borderTop: isMobile ? '1px solid rgba(15,23,42,0.06)' : 'none', background: '#FAFAFA', display: 'flex', flexDirection: 'column', minHeight: isMobile ? 'auto' : '100%' }}
         >
           {/* SLA */}
           <div style={{ padding: '18px 20px', borderBottom: '1px solid rgba(15,23,42,0.05)' }}>

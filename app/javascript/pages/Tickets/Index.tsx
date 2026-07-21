@@ -5,6 +5,7 @@ import type { SharedProps } from '@/types'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useDepartmentName } from '@/hooks/useDepartmentName'
+import { useWindowWidth } from '@/hooks/useWindowWidth'
 import type {
   TicketPriority, TicketStatus, TicketCategory, SlaStatus,
   TicketsIndexProps, TicketsFilters, TicketSortColumn, SortDirection,
@@ -16,15 +17,6 @@ import ErrorBoundary from '@/components/ErrorBoundary'
 
 type Translate = (key: string, options?: Record<string, unknown>) => string
 
-function useWindowWidth() {
-  const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
-  useEffect(() => {
-    const handler = () => setWidth(window.innerWidth)
-    window.addEventListener('resize', handler)
-    return () => window.removeEventListener('resize', handler)
-  }, [])
-  return width
-}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -341,6 +333,14 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
     }, { preserveScroll: true, replace: true })
   }
 
+  function handleExport() {
+    const params = new URLSearchParams()
+    if (activeTab) params.set('status', activeTab)
+    if (selectedPriority) params.set('priority', selectedPriority)
+    if (selectedDept) params.set('department_id', selectedDept)
+    if (searchQuery) params.set('q', searchQuery)
+    window.location.href = `/tickets/export?${params.toString()}`
+  }
   function handleTabChange(key: string) {
     setActiveTab(key)
     applyFilters({ status: key })
@@ -393,7 +393,10 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
             <p style={{ fontSize: 13, color: '#475569', marginTop: 2 }}>{t('subtitle')}</p>
           </div>
           <div style={{ display: 'flex', gap: 12 }}>
-            <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', border: '1px solid rgba(15,23,42,0.12)', borderRadius: 8, fontSize: 13, color: '#475569', background: '#fff', cursor: 'pointer' }}>
+            <button
+              onClick={handleExport}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', border: '1px solid rgba(15,23,42,0.12)', borderRadius: 8, fontSize: 13, color: '#475569', background: '#fff', cursor: 'pointer' }}
+            >
               {t('export')}
             </button>
             <button
@@ -594,7 +597,7 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
             <EmptyState icon={<IconEmptyTicket />} title={t('empty.title')} description={t('empty.description')} action={{ label: t('empty.action'), onClick: () => router.get('/tickets/new') }} />
           )}
           {pagination.total_pages > 1 && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 24px', borderTop: '1px solid rgba(15,23,42,0.06)' }}>
+            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', justifyContent: 'space-between', gap: isMobile ? 10 : 0, padding: '14px 24px', borderTop: '1px solid rgba(15,23,42,0.06)' }}>
               <p style={{ fontSize: 13, color: '#475569' }}>
                 {t('pagination.showing', {
                   from: ((pagination.current_page - 1) * 10) + 1,
@@ -602,14 +605,36 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
                   total: pagination.total_count,
                 })}
               </p>
-              <div style={{ display: 'flex', gap: 4 }}>
-                {Array.from({ length: Math.min(pagination.total_pages, 10) }, (_, i) => i + 1).map(page => (
-                  <button key={page} onClick={() => router.get('/tickets', { ...filters, page })}
-                    style={{ width: 32, height: 32, borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: page === pagination.current_page ? 600 : 400, background: page === pagination.current_page ? '#028090' : 'transparent', color: page === pagination.current_page ? '#fff' : '#475569' }}>
-                    {page}
+              {isMobile ? (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                  <button
+                    onClick={() => router.get('/tickets', { ...filters, page: pagination.current_page - 1 })}
+                    disabled={pagination.current_page <= 1}
+                    style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid rgba(15,23,42,0.1)', cursor: pagination.current_page <= 1 ? 'default' : 'pointer', fontSize: 13, fontWeight: 500, background: '#fff', color: pagination.current_page <= 1 ? '#CBD5E1' : '#475569' }}
+                  >
+                    {t('pagination.previous')}
                   </button>
-                ))}
-              </div>
+                  <span style={{ fontSize: 13, color: '#475569', fontWeight: 500 }}>
+                    {t('pagination.pageOf', { current: pagination.current_page, total: pagination.total_pages })}
+                  </span>
+                  <button
+                    onClick={() => router.get('/tickets', { ...filters, page: pagination.current_page + 1 })}
+                    disabled={pagination.current_page >= pagination.total_pages}
+                    style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid rgba(15,23,42,0.1)', cursor: pagination.current_page >= pagination.total_pages ? 'default' : 'pointer', fontSize: 13, fontWeight: 500, background: '#fff', color: pagination.current_page >= pagination.total_pages ? '#CBD5E1' : '#475569' }}
+                  >
+                    {t('pagination.next')}
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', gap: 4 }}>
+                  {Array.from({ length: Math.min(pagination.total_pages, 10) }, (_, i) => i + 1).map(page => (
+                    <button key={page} onClick={() => router.get('/tickets', { ...filters, page })}
+                      style={{ width: 32, height: 32, borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: page === pagination.current_page ? 600 : 400, background: page === pagination.current_page ? '#028090' : 'transparent', color: page === pagination.current_page ? '#fff' : '#475569' }}>
+                      {page}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

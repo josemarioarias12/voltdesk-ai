@@ -33,6 +33,16 @@ class Rack::Attack
     end
   end
 
+  # Throttle demo join by IP: 10 per minute (guest account creation)
+  throttle('demo/join/ip', limit: 10, period: 1.minute) do |req|
+    req.ip if req.path.start_with?('/demo/') && req.get? && req.path != '/demo/ticket'
+  end
+
+  # Throttle demo ticket creation by IP: 5 per minute (real AI classification cost per ticket)
+  throttle('demo/ticket/ip', limit: 5, period: 1.minute) do |req|
+    req.ip if req.path == '/demo/ticket' && req.post?
+  end
+
   # Return 429 JSON — differentiate API vs web responses
   self.throttled_responder = lambda do |req|
     match_data  = req.env['rack.attack.match_data']

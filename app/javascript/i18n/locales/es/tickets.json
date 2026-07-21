@@ -86,7 +86,10 @@
     "action": "Nuevo Ticket"
   },
   "pagination": {
-    "showing": "Mostrando {{from}}–{{to}} de {{total}} tickets"
+    "showing": "Mostrando {{from}}–{{to}} de {{total}} tickets",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "pageOf": "Página {{current}} de {{total}}"
   },
   "new": {
     "header": {

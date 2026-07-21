@@ -1,13 +1,18 @@
 # frozen_string_literal: true
 
 class TicketPolicy < ApplicationPolicy
+  ADMIN_MANAGER_ROLES = %i[
+    super_admin workspace_admin hr_manager it_manager
+    facilities_manager operations_manager
+  ].freeze
+
+  NON_EDITABLE_STATUSES = %i[resolved closed].freeze
+
   # ── Scope ─────────────────────────────────────────────────────────────────────
   class Scope < ApplicationPolicy::Scope
     def resolve
       case user.role.to_sym
-      when :super_admin, :workspace_admin,
-           :hr_manager, :it_manager, :facilities_manager,
-           :operations_manager
+      when *ADMIN_MANAGER_ROLES
         scope.all
 
       when :department_manager
@@ -36,17 +41,19 @@ class TicketPolicy < ApplicationPolicy
   def show?
     return false if guest?
 
-    admin_or_manager? || agent_can_see? || employee_owns?
+    admin_or_manager? || agent_can_see? || employee_owns? || department_manager_owns?
   end
 
+  # Anyone (any role, including guest via the QR self-service flow) can create
+  # a ticket. Intentional product decision — do not restrict by role here.
   def create?
-    registered_user? || guest?
+    true
   end
 
   def update?
     return false if guest?
 
-    admin_or_manager? || assigned_agent? || department_manager_owns?
+    admin_or_manager? || assigned_agent? || department_manager_owns? || employee_can_edit?
   end
 
   def resolve_ticket?
@@ -55,12 +62,13 @@ class TicketPolicy < ApplicationPolicy
     admin_or_manager? || assigned_agent? || department_manager_owns?
   end
 
-  def close?
-    admin_or_manager?
-  end
-
   def assign?
     admin_or_manager? || department_manager_owns?
+  end
+
+  # Real per-ticket checks happen inside Tickets::BulkUpdate via find_each.
+  def bulk_update?
+    !guest?
   end
 
   def view_internal_comments?
@@ -71,23 +79,14 @@ class TicketPolicy < ApplicationPolicy
     !employee? && !guest?
   end
 
-  def destroy?
-    super_admin? || workspace_admin?
-  end
-
   private
 
   def guest?           = user.role.to_sym == :guest
   def employee?        = user.role.to_sym == :employee
-  def super_admin?     = user.role.to_sym == :super_admin
-  def workspace_admin? = user.role.to_sym == :workspace_admin
   def registered_user? = !guest?
 
   def admin_or_manager?
-    user.role.to_sym.in?(%i[
-                           super_admin workspace_admin hr_manager it_manager
-                           facilities_manager operations_manager
-                         ])
+    user.role.to_sym.in?(ADMIN_MANAGER_ROLES)
   end
 
   def agent_can_see?
@@ -108,5 +107,9 @@ class TicketPolicy < ApplicationPolicy
 
   def employee_owns?
     user.role.to_sym == :employee && record.created_by_id == user.id
+  end
+
+  def employee_can_edit?
+    employee_owns? && !record.status.to_sym.in?(NON_EDITABLE_STATUSES)
   end
 end

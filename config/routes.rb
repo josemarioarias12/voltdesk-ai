@@ -33,18 +33,20 @@ Rails.application.routes.draw do
   get '/dashboard', to: 'dashboards#show', as: :dashboard
 
   #  Ticket Engine ──────────────────────────────────────────────────────
-  resources :tickets, except: %i[edit] do
+  resources :tickets, except: %i[edit destroy] do
     member do
       post :resolve
     end
     collection do
+      get   :export
       patch :bulk_update
-      get :ai_preview
     end
     resources :comments, only: %i[create],
                          controller: 'ticket_comments',
                          as: :ticket_comments
   end
+
+  get '/tickets/ai_preview', to: 'ticket_ai_previews#show'
 
   resources :sla_policies, only: %i[index create update destroy]
 

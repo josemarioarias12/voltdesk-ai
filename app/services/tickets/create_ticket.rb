@@ -49,7 +49,7 @@ module Tickets
     end
 
     def generate_ticket_number
-      seq_name = "workspace_#{@workspace.id}_ticket_seq"
+      seq_name = "workspace_#{Integer(@workspace.id)}_ticket_seq"
       ensure_sequence_exists(seq_name)
       sync_sequence_with_existing_data(seq_name)
       seq_value = Ticket.connection.select_value(
