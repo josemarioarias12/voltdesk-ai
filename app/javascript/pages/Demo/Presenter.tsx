@@ -102,6 +102,14 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
     })
   }
 
+  useEffect(() => {
+    const visibleIds = new Set(tickets.map(t => t.id))
+    setExpandedIds(prev => {
+      const pruned = new Set([...prev].filter(id => visibleIds.has(id)))
+      return pruned.size === prev.size ? prev : pruned
+    })
+  }, [tickets])
+
   const demoUrl = `${window.location.origin}/demo/${token}`
 
   useEffect(() => {
@@ -288,7 +296,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
             />
             <p style={{ fontSize: 11, color: '#334155', marginTop: 8, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>Tickets submitted</p>
             {topDept && (
-              <p style={{ fontSize: 12, color: getDeptColor(topDept[0]) ?? '#94A3B8', marginTop: 4, fontWeight: 600 }}>
+              <p style={{ fontSize: 12, color: getDeptColor(topDept[0]), marginTop: 4, fontWeight: 600 }}>
                 Top: {topDept[0]}
               </p>
             )}

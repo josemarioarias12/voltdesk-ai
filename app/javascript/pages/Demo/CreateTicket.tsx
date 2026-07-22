@@ -26,6 +26,8 @@ const PRIORITY_META: Record<Priority, { color: string; bg: string; border: strin
 
 interface DeptStyle { color: string; icon: React.ReactNode }
 
+const MAX_ATTACHMENTS = 5
+
 const QUICK_CHIPS: Array<{ label: string; description: string; department: string }> = [
   { label: 'Printer issue',    description: 'Printer on my floor is not working',         department: 'IT' },
   { label: 'VPN / access',     description: 'Cannot connect to VPN or internal system',    department: 'IT' },
@@ -184,6 +186,7 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
   const [selectedDept, setSelectedDept] = useState<number | null>(null)
   const [priority,     setPriority]     = useState<Priority | null>(null)
   const [submitting,   setSubmitting]   = useState(false)
+  const [submitError,  setSubmitError]  = useState<string | null>(null)
   const [secondsLeft,  setSecondsLeft]  = useState(expires_in)
 
   const [aiPreview, setAiPreview] = useState<AiPreviewData | null>(null)
@@ -192,6 +195,7 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
 
   const [attachments, setAttachments] = useState<File[]>([])
   const [previews,    setPreviews]    = useState<AttachmentPreview[]>([])
+  const [attachmentNotice, setAttachmentNotice] = useState<string | null>(null)
   const [showAttachmentModal, setShowAttachmentModal] = useState(false)
   const cameraInputRef  = useRef<HTMLInputElement>(null)
   const galleryInputRef = useRef<HTMLInputElement>(null)
@@ -249,8 +253,18 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
   function handleFiles(files: FileList | File[]) {
     const arr = Array.from(files).filter(f => f.size <= 10 * 1024 * 1024)
     if (!arr.length) return
-    setAttachments(prev => [...prev, ...arr])
-    arr.forEach(file => {
+
+    const remainingSlots = MAX_ATTACHMENTS - attachments.length
+    const accepted = arr.slice(0, remainingSlots)
+
+    setAttachmentNotice(
+      arr.length > accepted.length ? `Only ${MAX_ATTACHMENTS} attachments allowed per ticket` : null
+    )
+
+    if (!accepted.length) return
+
+    setAttachments(prev => [...prev, ...accepted])
+    accepted.forEach(file => {
       const url = URL.createObjectURL(file)
       setPreviews(prev => [...prev, { name: file.name, url, type: file.type }])
     })
@@ -264,6 +278,7 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
   function handleSubmit() {
     if (!description.trim() || !selectedDept || !priority) return
     setSubmitting(true)
+    setSubmitError(null)
     router.post('/demo/ticket', {
       ticket: {
         title:         description.trim().slice(0, 120),
@@ -275,7 +290,10 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
     }, {
       forceFormData: true,
       headers: { 'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? '' },
-      onError: () => setSubmitting(false),
+      onError: () => {
+        setSubmitting(false)
+        setSubmitError('Something went wrong sending your ticket. Please try again.')
+      },
     })
   }
 
@@ -387,6 +405,7 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
                 type="button"
                 onClick={() => setShowAttachmentModal(true)}
                 title="Add attachment"
+                aria-label="Add attachment"
                 style={{ width: 26, height: 26, borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}
               >
                 <IconPaperclip />
@@ -397,6 +416,7 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
                 onClick={handleVoiceToggle}
                 whileTap={{ scale: 0.92 }}
                 title={isSupported ? 'Voice input' : 'Requires Chrome or Edge'}
+                aria-label={isSupported ? 'Voice input' : 'Requires Chrome or Edge'}
                 style={{
                   width: 26, height: 26, borderRadius: 8, border: 'none',
                   background: isListening ? '#DC2626' : 'linear-gradient(135deg,#028090,#02C39A)',
@@ -436,6 +456,10 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
           <p style={{ fontSize: 11, color: '#1E293B', margin: '6px 0 0', textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' }}>
             {description.length}/300
           </p>
+
+          {attachmentNotice && (
+            <p style={{ fontSize: 11, color: '#EF4444', margin: '6px 0 0' }}>{attachmentNotice}</p>
+          )}
 
           {/* Attachment thumbnails */}
           {previews.length > 0 && (
@@ -610,6 +634,19 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
             </>
           )}
         </motion.button>
+
+        <AnimatePresence>
+          {submitError && (
+            <motion.p
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              style={{ textAlign: 'center' as const, fontSize: 13, color: '#EF4444', margin: 0 }}
+            >
+              {submitError}
+            </motion.p>
+          )}
+        </AnimatePresence>
 
         <p style={{ textAlign: 'center' as const, fontSize: 11, color: '#1E293B', margin: 0, letterSpacing: '0.02em' }}>
           Read-only demo · No account required
