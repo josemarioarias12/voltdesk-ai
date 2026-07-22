@@ -211,7 +211,7 @@ export default function DemoTicketCreated({ ticket_number }: Props) {
         </motion.div>
 
         {/* Footer */}
-        <p style={{ fontSize: 11, color: '#1E293B', margin: 0, textAlign: 'center' as const }}>
+        <p style={{ fontSize: 11, color: '#64748B', margin: 0, textAlign: 'center' as const }}>
           VoltDesk AI · Read-only demo
         </p>
       </div>

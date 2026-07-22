@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useVoiceTicket } from '@/hooks/useVoiceTicket'
 import { useLocale } from '@/hooks/useLocale'
 import { getDeptCategory, getDeptColor, type DeptCategory } from '@/utils/departmentStyle'
+import { useWindowWidth } from '@/hooks/useWindowWidth'
 
 interface Department { id: number; name: string }
 
@@ -202,6 +203,8 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
   const fileInputRef    = useRef<HTMLInputElement>(null)
 
   const isListening = voiceState === 'listening'
+  const windowWidth  = useWindowWidth()
+  const isMobile     = windowWidth < 768
 
   // Voice transcript flows straight into description
   useEffect(() => {
@@ -321,7 +324,15 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
     (PRIORITY_META[(val.charAt(0).toUpperCase() + val.slice(1)) as Priority] ?? PRIORITY_META.Low).color
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0D1B2A', fontFamily: 'Inter, system-ui, sans-serif', display: 'flex', flexDirection: 'column' }}>
+    <div style={{
+      minHeight: '100vh',
+      background: '#0D1B2A',
+      fontFamily: 'Inter, system-ui, sans-serif',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+    }}>
+    <div style={{ width: '100%', padding: isMobile ? 0 : '0 48px', display: 'flex', flexDirection: 'column', flex: 1, boxSizing: 'border-box' as const }}>
 
       <div style={{ height: 2, background: 'linear-gradient(90deg,#028090,#02C39A)', flexShrink: 0 }} />
 
@@ -356,7 +367,10 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
       </div>
 
       {/* Form body */}
-      <div style={{ flex: 1, padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ flex: 1, padding: isMobile ? '24px 20px' : '32px 40px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 20 : 32 }}>
+
+        {/* Left column */}
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 20 }}>
 
         {/* Quick chips — discreet, no section header, sit right above the input they feed */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -479,6 +493,8 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
           )}
         </div>
 
+        {isMobile && (
+        <>
         {/* AI Preview — compact horizontal card, reacts directly to the input above */}
         <AnimatePresence>
           {(aiPreview || aiLoading) && (
@@ -515,6 +531,8 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
             </motion.div>
           )}
         </AnimatePresence>
+        </>
+        )}
 
         {/* Department */}
         <div>
@@ -535,7 +553,7 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
                     padding: '13px 14px', borderRadius: 10,
                     border: `1.5px solid ${active ? dColor : 'rgba(255,255,255,0.07)'}`,
                     background: active ? `${dColor}18` : 'rgba(255,255,255,0.03)',
-                    color: active ? dColor : '#475569', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                    color: active ? dColor : '#94A3B8', fontSize: 13, fontWeight: 600, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'Inter, system-ui, sans-serif',
                     transition: 'all 0.15s', textAlign: 'left' as const,
                   }}
@@ -555,7 +573,7 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
             <label style={{ fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase' as const, letterSpacing: '0.1em' }}>
               Priority
             </label>
-            <span style={{ fontSize: 10, color: '#334155', fontWeight: 500 }}>AI will verify</span>
+            <span style={{ fontSize: 10, color: '#64748B', fontWeight: 500 }}>AI will verify</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
             {PRIORITIES.map(prio => {
@@ -571,7 +589,7 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
                     padding: '12px 6px', borderRadius: 10,
                     border: `1.5px solid ${active ? meta.border : 'rgba(255,255,255,0.07)'}`,
                     background: active ? meta.bg : 'rgba(255,255,255,0.03)',
-                    color: active ? meta.color : '#334155', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                    color: active ? meta.color : '#94A3B8', fontSize: 12, fontWeight: 700, cursor: 'pointer',
                     display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 6,
                     fontFamily: 'Inter, system-ui, sans-serif', transition: 'all 0.15s',
                   }}
@@ -614,7 +632,7 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
             width: '100%', padding: '17px',
             background: canSubmit ? 'linear-gradient(135deg,#028090,#02C39A)' : 'rgba(255,255,255,0.04)',
             border: `1px solid ${canSubmit ? 'transparent' : 'rgba(255,255,255,0.06)'}`,
-            borderRadius: 12, fontSize: 15, fontWeight: 700, color: canSubmit ? '#fff' : '#1E293B',
+            borderRadius: 12, fontSize: 15, fontWeight: 700, color: canSubmit ? '#fff' : '#64748B',
             cursor: canSubmit ? 'pointer' : 'not-allowed', fontFamily: 'Inter, system-ui, sans-serif',
             boxShadow: canSubmit ? '0 8px 24px rgba(2,128,144,0.3)' : 'none', transition: 'all 0.2s',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
@@ -648,9 +666,50 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
           )}
         </AnimatePresence>
 
-        <p style={{ textAlign: 'center' as const, fontSize: 11, color: '#1E293B', margin: 0, letterSpacing: '0.02em' }}>
+        <p style={{ textAlign: 'center' as const, fontSize: 11, color: '#64748B', margin: 0, letterSpacing: '0.02em' }}>
           Read-only demo · No account required
         </p>
+        </div>
+
+        {!isMobile && (
+          <div style={{ width: 280, flexShrink: 0 }}>
+            <div style={{
+              position: 'sticky', top: 32,
+              background: 'rgba(2,195,154,0.06)', border: '1px solid rgba(2,195,154,0.18)',
+              borderRadius: 14, padding: '20px 18px',
+              display: 'flex', flexDirection: 'column', gap: 16,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <PulseDot color="#02C39A" />
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#02C39A', textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>
+                  AI Preview
+                </span>
+              </div>
+              {aiPreview ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div>
+                    <p style={{ fontSize: 9.5, color: '#475569', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>Category</p>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: '#fff', margin: '2px 0 0' }}>{aiPreview.category}</p>
+                  </div>
+                  <div>
+                    <p style={{ fontSize: 9.5, color: '#475569', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>Priority</p>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: priorityColor(aiPreview.priority), margin: '2px 0 0', textTransform: 'capitalize' as const }}>{aiPreview.priority}</p>
+                  </div>
+                  <div>
+                    <p style={{ fontSize: 9.5, color: '#475569', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>Urgency</p>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: aiPreview.urgency_score >= 70 ? '#EF4444' : '#02C39A', margin: '2px 0 0' }}>{aiPreview.urgency_score}</p>
+                  </div>
+                </div>
+              ) : aiLoading ? (
+                <p style={{ fontSize: 12, color: '#475569', margin: 0 }}>Analyzing…</p>
+              ) : (
+                <p style={{ fontSize: 12, color: '#475569', lineHeight: 1.6, margin: 0 }}>
+                  Start describing the issue to see the AI's live classification here.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Hidden file inputs */}
@@ -704,6 +763,7 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
           </>
         )}
       </AnimatePresence>
+    </div>
     </div>
   )
 }

@@ -6,6 +6,7 @@ import { useActionCable } from '@/hooks/useActionCable'
 import type { AiMetadata } from '@/types/tickets'
 import XaiPanel from '@/components/XaiPanel'
 import { getDeptColor } from '@/utils/departmentStyle'
+import { useWindowWidth } from '@/hooks/useWindowWidth'
 
 interface LiveTicket {
   id: number
@@ -86,6 +87,8 @@ function AnimatedNumber({ value, style }: { value: number; style?: React.CSSProp
 
 export default function DemoPresenter({ token, workspace_name }: Props) {
   const [secondsLeft, setSecondsLeft] = useState(1800)
+  const windowWidth = useWindowWidth()
+  const isMobile     = windowWidth < 768
   const [guestCount, setGuestCount] = useState(0)
   const [tickets, setTickets] = useState<LiveTicket[]>([])
   const [qrDataUrl, setQrDataUrl] = useState('')
@@ -216,7 +219,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
       <div style={{ height: 3, background: 'linear-gradient(90deg,#028090,#02C39A,#028090)', flexShrink: 0, position: 'relative', zIndex: 1 }} />
 
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 32px', borderBottom: '1px solid rgba(255,255,255,0.05)', position: 'relative', zIndex: 1, flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: isMobile ? '12px 16px' : '14px 32px', borderBottom: '1px solid rgba(255,255,255,0.05)', position: 'relative', zIndex: 1, flexShrink: 0, flexWrap: 'wrap', gap: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 16, fontWeight: 800, background: 'linear-gradient(135deg,#028090,#02C39A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
             VoltDesk AI
@@ -238,10 +241,10 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
       </div>
 
       {/* Main — centered layout */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '32px 40px 24px', position: 'relative', zIndex: 1, gap: 32 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: isMobile ? '20px 16px' : '32px 40px 24px', position: 'relative', zIndex: 1, gap: isMobile ? 20 : 32 }}>
 
         {/* Top stats row */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 48, justifyContent: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: 'center', gap: isMobile ? 20 : 48, justifyContent: 'center' }}>
 
           {/* Timer */}
           <div style={{ textAlign: 'center' }}>
@@ -249,7 +252,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
               animate={isLowTime ? { scale: [1, 1.03, 1] } : {}}
               transition={{ duration: 1, repeat: Infinity }}
               style={{
-                fontSize: 72,
+                fontSize: isMobile ? 40 : 72,
                 fontWeight: 800,
                 color: isLowTime ? '#EF4444' : '#02C39A',
                 fontVariantNumeric: 'tabular-nums',
@@ -264,14 +267,14 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
           </div>
 
           {/* Divider */}
-          <div style={{ width: 1, height: 64, background: 'rgba(255,255,255,0.06)' }} />
+          {!isMobile && <div style={{ width: 1, height: 64, background: 'rgba(255,255,255,0.06)' }} />}
 
           {/* Guests */}
           <div style={{ textAlign: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, justifyContent: 'center' }}>
               <AnimatedNumber
                 value={guestCount}
-                style={{ fontSize: 72, fontWeight: 800, color: '#fff', lineHeight: 1, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums' }}
+                style={{ fontSize: isMobile ? 40 : 72, fontWeight: 800, color: '#fff', lineHeight: 1, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums' }}
               />
               <span style={{ fontSize: 28, color: '#475569', fontWeight: 400 }}>/50</span>
             </div>
@@ -286,13 +289,13 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
           </div>
 
           {/* Divider */}
-          <div style={{ width: 1, height: 64, background: 'rgba(255,255,255,0.06)' }} />
+          {!isMobile && <div style={{ width: 1, height: 64, background: 'rgba(255,255,255,0.06)' }} />}
 
           {/* Tickets */}
           <div style={{ textAlign: 'center' }}>
             <AnimatedNumber
               value={totalCount}
-              style={{ fontSize: 72, fontWeight: 800, color: '#028090', lineHeight: 1, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums' }}
+              style={{ fontSize: isMobile ? 40 : 72, fontWeight: 800, color: '#028090', lineHeight: 1, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums' }}
             />
             <p style={{ fontSize: 11, color: '#334155', marginTop: 8, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>Tickets submitted</p>
             {topDept && (
@@ -304,7 +307,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
         </div>
 
         {/* QR + feed row */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 48, width: '100%', maxWidth: 1100, justifyContent: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'center' : 'flex-start', gap: isMobile ? 24 : 48, width: '100%', maxWidth: 1100, justifyContent: 'center' }}>
 
           {/* QR Code */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, flexShrink: 0 }}>
@@ -314,8 +317,8 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
               style={{ background: '#fff', borderRadius: 24, padding: 18, boxShadow: '0 32px 64px rgba(0,0,0,0.5)' }}
             >
               {qrDataUrl
-                ? <img src={qrDataUrl} alt="QR Code" style={{ width: 300, height: 300, display: 'block' }} />
-                : <div style={{ width: 300, height: 300, background: '#F1F5F9', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                ? <img src={qrDataUrl} alt="QR Code" style={{ width: isMobile ? 200 : 300, height: isMobile ? 200 : 300, display: 'block' }} />
+                : <div style={{ width: isMobile ? 200 : 300, height: isMobile ? 200 : 300, background: '#F1F5F9', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <span style={{ color: '#94A3B8', fontSize: 13 }}>Generating…</span>
                 </div>
               }
@@ -383,7 +386,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
                         padding: '14px 20px',
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', rowGap: 8 }}>
                         <div style={{ flexShrink: 0 }}>
                           {isNew
                             ? <PulseDot color="#02C39A" size={8} />

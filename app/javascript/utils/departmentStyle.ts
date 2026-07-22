@@ -31,7 +31,7 @@ const CATEGORY_COLORS: Record<DeptCategory, string> = {
   finance:    '#16A34A',
   operations: '#2563EB',
   compliance: '#DC2626',
-  general:    '#6B7280',
+  general:    '#CBD5E1',
 }
 
 export function getDeptCategory(name: string): DeptCategory {

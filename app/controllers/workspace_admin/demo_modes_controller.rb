@@ -47,6 +47,7 @@ module WorkspaceAdmin
           title:         tkt.title,
           department:    tkt.department&.name || 'General',
           priority:      tkt.priority,
+          ai_metadata:   tkt.ai_metadata,
           created_at:    tkt.created_at.iso8601
         }
       end

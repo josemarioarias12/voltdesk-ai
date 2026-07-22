@@ -41,7 +41,7 @@ export default function XaiPanel({ aiMetadata, ticketNumber }: XaiPanelProps) {
     <div className="border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-sm">
       <button
         onClick={() => setIsExpanded((v) => !v)}
-        className="w-full bg-[#028090] px-4 py-3 flex items-center justify-between hover:bg-[#026E7A] transition-colors"
+        className="w-full bg-[#028090] px-4 py-3 flex flex-wrap items-center justify-between gap-2 hover:bg-[#026E7A] transition-colors"
       >
         <div className="flex items-center gap-2">
           <SparkleIcon />
