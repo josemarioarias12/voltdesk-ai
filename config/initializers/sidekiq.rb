@@ -8,7 +8,10 @@ if defined?(Sidekiq)
     config.redis = { url: ENV.fetch('REDIS_URL', 'redis://localhost:6379/0') }
 
     config.on(:startup) do
-      Sidekiq::Cron::Job.load_from_array([
+      # Bang version purges Redis entries whose name is no longer in this
+      # array — plain load_from_array only upserts, leaving renamed/removed
+      # jobs running forever on their old schedule.
+      Sidekiq::Cron::Job.load_from_array!([
                                            {
                                              'name'  => 'Daily Digest — 9am',
                                              'cron'  => '0 9 * * *',
