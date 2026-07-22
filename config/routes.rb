@@ -177,4 +177,6 @@ Rails.application.routes.draw do
     post 'authentication/options', to: 'sessions#options'
     post 'authentication/verify',  to: 'sessions#verify'
   end
+
+  resources :webauthn_credentials, only: %i[index destroy], path: 'settings/passkeys'
 end

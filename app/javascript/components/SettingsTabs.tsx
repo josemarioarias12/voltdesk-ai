@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react'
 
-export type SettingsTabKey = 'ai_provider' | 'ai_automation' | 'api_keys' | 'webhooks' | 'learning' | 'profile'
+export type SettingsTabKey = 'ai_provider' | 'ai_automation' | 'api_keys' | 'webhooks' | 'learning' | 'profile' | 'passkeys'
 
 interface TabDef {
   key: SettingsTabKey
@@ -19,6 +19,7 @@ const TABS: TabDef[] = [
   { key: 'api_keys', label: 'API Keys', path: '/settings/api_keys' },
   { key: 'webhooks', label: 'Webhooks', path: '/settings/webhooks' },
   { key: 'learning', label: 'Learning', path: '/settings/learning' },
+  { key: 'passkeys', label: 'Passkeys', path: '/settings/passkeys' },
   { key: 'profile', label: 'Profile', path: '/settings/profile' },
 ]
 

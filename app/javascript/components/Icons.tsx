@@ -104,3 +104,18 @@ export function TrashIcon({ className = '' }: { className?: string }) {
     </svg>
   )
 }
+
+export function IconFaceId({ size = 18, color = 'currentColor' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 8V6a2 2 0 0 1 2-2h2" />
+      <path d="M4 16v2a2 2 0 0 0 2 2h2" />
+      <path d="M20 8V6a2 2 0 0 0-2-2h-2" />
+      <path d="M20 16v2a2 2 0 0 1-2 2h-2" />
+      <path d="M9 9v1" />
+      <path d="M15 9v1" />
+      <path d="M9 15c.7.7 1.7 1 3 1s2.3-.3 3-1" />
+      <path d="M12 9v3h-.5" />
+    </svg>
+  )
+}

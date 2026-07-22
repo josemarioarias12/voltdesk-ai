@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { usePage } from '@inertiajs/react'
 import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
+import { useWebAuthn } from '@/hooks/useWebAuthn'
 import {
   IconBrandGoogle,
   IconShieldCheck,
@@ -12,6 +13,7 @@ import {
   IconEyeOff,
   IconLock,
   IconBolt,
+  IconFaceId,
 } from '@/components/Icons'
 
 interface LoginForm {
@@ -23,11 +25,14 @@ interface LoginForm {
 export default function AuthLogin() {
   const { flash } = usePage<SharedProps>().props
   const [showPassword, setShowPassword] = useState(false)
-  const { register, handleSubmit } = useForm<LoginForm>()
+  const { register } = useForm<LoginForm>()
   const emailRef    = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
   const [emailFocus, setEmailFocus]       = useState(false)
   const [passwordFocus, setPasswordFocus] = useState(false)
+  const [faceIdHint, setFaceIdHint] = useState<string | null>(null)
+
+  const { isSupported, status, errorMessage, authenticateWithPasskey } = useWebAuthn()
 
   const getCsrfToken = () =>
     document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? ''
@@ -66,6 +71,23 @@ export default function AuthLogin() {
     })
     document.body.appendChild(form)
     form.submit()
+  }
+
+  const handleFaceIdLogin = async () => {
+    const email = emailRef.current?.value ?? ''
+
+    if (!email) {
+      setFaceIdHint('Escribe tu email arriba primero')
+      emailRef.current?.focus()
+      return
+    }
+
+    setFaceIdHint(null)
+    const redirectTo = await authenticateWithPasskey(email)
+
+    if (redirectTo) {
+      window.location.href = redirectTo
+    }
   }
 
   return (
@@ -144,7 +166,7 @@ export default function AuthLogin() {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.1, type: 'spring', stiffness: 300 }}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 8 }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 8}}
           >
             <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#028090,#02C39A)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(2,195,154,0.3)' }}>
               <IconBolt size={18} color="#fff" />
@@ -203,7 +225,7 @@ export default function AuthLogin() {
             <IconBrandGoogle size={18} />
             Continue with Google
           </motion.button>
-          <p style={{ textAlign: 'center', fontSize: 11, color: '#334155', marginBottom: 20 }}>
+          <p style={{ textAlign: 'center', fontSize: 11, color: '#334155', marginBottom: 20}}>
             Use your corporate Google Workspace account
           </p>
 
@@ -217,7 +239,7 @@ export default function AuthLogin() {
           {/* Trust badges */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginBottom: 20 }}>
             {[
-              { icon: <IconShieldCheck size={16} color="#028090" />, label: 'SOC 2 Type II' },
+              { icon: <IconShieldCheck size={16} color="#028090" />, label: 'SOC 2 Type II'},
               { icon: <IconBuilding size={16} color="#028090" />, label: 'Multi-tenant Isolated' },
               { icon: <IconRobot size={16} color="#028090" />, label: 'AI Audit Log' },
             ].map((badge) => (
@@ -327,6 +349,37 @@ export default function AuthLogin() {
               Sign in
             </motion.button>
           </form>
+
+          {/* Face ID login */}
+          {isSupported && (
+            <div style={{ marginTop: 12 }}>
+              <motion.button
+                type="button"
+                onClick={handleFaceIdLogin}
+                disabled={status === 'in_progress'}
+                whileHover={{ scale: status === 'in_progress' ? 1 : 1.02 }}
+                whileTap={{ scale: status === 'in_progress' ? 1 : 0.98 }}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                  width: '100%', padding: '12px 16px', borderRadius: 12,
+                  background: 'rgba(2,195,154,0.06)',
+                  border: '1px solid rgba(2,195,154,0.2)',
+                  color: '#02C39A', fontSize: 14, fontWeight: 600,
+                  cursor: status === 'in_progress' ? 'default' : 'pointer',
+                  opacity: status === 'in_progress' ? 0.6 : 1,
+                  fontFamily: 'Inter, system-ui, sans-serif',
+                }}
+              >
+                <IconFaceId size={18} color="#02C39A" />
+                {status === 'in_progress' ? 'Verifying…' : 'Sign in with Face ID'}
+              </motion.button>
+              {(faceIdHint || errorMessage) && (
+                <p style={{ textAlign: 'center', fontSize: 11, color: '#F97316', marginTop: 8 }}>
+                  {faceIdHint ?? 'Could not verify — try again or use your password'}
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Footer */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 20, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
