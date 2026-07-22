@@ -174,5 +174,7 @@ Rails.application.routes.draw do
 
   namespace :webauthn do
     resource :registration, only: %i[new create], controller: 'registrations'
+    post 'authentication/options', to: 'sessions#options'
+    post 'authentication/verify',  to: 'sessions#verify'
   end
 end

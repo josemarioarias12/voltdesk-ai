@@ -7,10 +7,10 @@ module ComplianceLoggable
     # No callbacks here — explicit calls only to avoid noise
   end
 
-  def log_compliance_event(event_type:, resource:, metadata: {})
+  def log_compliance_event(event_type:, resource:, metadata: {}, actor: current_user, workspace: current_workspace)
     ComplianceLog.create!(
-      workspace:     current_workspace,
-      actor:         current_user,
+      workspace:     workspace,
+      actor:         actor,
       event_type:    event_type,
       resource_type: resource.class.name,
       resource_id:   resource.id,
