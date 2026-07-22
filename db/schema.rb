@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_30_034039) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_22_062225) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -464,13 +464,32 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_034039) do
     t.string "uid"
     t.string "unlock_token"
     t.datetime "updated_at", null: false
+    t.string "webauthn_id", null: false
     t.bigint "workspace_id"
     t.index ["department_id"], name: "index_users_on_department_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true, where: "(provider IS NOT NULL)"
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
+    t.index ["webauthn_id"], name: "index_users_on_webauthn_id", unique: true
     t.index ["workspace_id", "role"], name: "index_users_on_workspace_id_and_role"
     t.index ["workspace_id"], name: "index_users_on_workspace_id"
+  end
+
+  create_table "webauthn_credentials", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "credential_type", default: 0, null: false
+    t.string "external_id", null: false
+    t.datetime "last_used_at"
+    t.string "nickname"
+    t.string "public_key", null: false
+    t.integer "sign_count", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["external_id"], name: "index_webauthn_credentials_on_external_id", unique: true
+    t.index ["user_id"], name: "index_webauthn_credentials_on_user_id"
+    t.index ["workspace_id", "user_id"], name: "index_webauthn_credentials_on_workspace_id_and_user_id"
+    t.index ["workspace_id"], name: "index_webauthn_credentials_on_workspace_id"
   end
 
   create_table "webhooks", force: :cascade do |t|
@@ -592,6 +611,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_034039) do
   add_foreign_key "tickets", "workspaces"
   add_foreign_key "users", "departments"
   add_foreign_key "users", "workspaces"
+  add_foreign_key "webauthn_credentials", "users"
+  add_foreign_key "webauthn_credentials", "workspaces"
   add_foreign_key "webhooks", "workspaces"
   add_foreign_key "workflow_executions", "tickets"
   add_foreign_key "workflow_executions", "workflow_rules"

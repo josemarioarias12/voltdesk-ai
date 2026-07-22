@@ -29,7 +29,7 @@ class User < ApplicationRecord
 
   has_many :created_tickets,  class_name: 'Ticket', foreign_key: :created_by_id,  dependent: :nullify
   has_many :assigned_tickets, class_name: 'Ticket', foreign_key: :assigned_to_id, dependent: :nullify
-
+  has_many :webauthn_credentials, dependent: :destroy
   # ── Validations ───────────────────────────────────────────────────────────────
   scope :active, -> { where(active: true) }
 
@@ -81,4 +81,12 @@ class User < ApplicationRecord
   has_many :notifications,                dependent: :destroy
 
   private_class_method :create_from_omniauth
+
+  before_create :assign_webauthn_id
+
+  private
+
+  def assign_webauthn_id
+    self.webauthn_id ||= WebAuthn.generate_user_id
+  end
 end
