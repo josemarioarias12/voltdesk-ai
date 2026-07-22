@@ -5,6 +5,7 @@ module Ai
     include AiAuditable
 
     VALID_CATEGORIES = %w[general it hr facilities finance operations support].freeze
+    VALID_PRIORITIES = %w[low medium high critical].freeze
     IMAGE_TYPES      = %w[image/jpeg image/png image/gif image/webp].freeze
 
     SYSTEM_PROMPT = <<~PROMPT
@@ -81,9 +82,18 @@ module Ai
         category = parsed['category'].to_s.downcase.strip
         category = 'general' unless VALID_CATEGORIES.include?(category)
 
+        priority = parsed['priority'].to_s.downcase.strip
+        unless VALID_PRIORITIES.include?(priority)
+          Rails.logger.warn(
+            "[TicketClassifier] Invalid priority '#{parsed['priority']}' from AI " \
+            "for ticket #{@ticket.id} - defaulting to 'medium'"
+          )
+          priority = 'medium'
+        end
+
         @ticket.update!(
           category:     category,
-          priority:     parsed['priority'],
+          priority:     priority,
           urgency_score: parsed['urgency_score'].to_i,
           ai_metadata:  (@ticket.ai_metadata || {}).merge(build_ai_metadata(parsed, model, provider))
         )

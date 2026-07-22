@@ -25,7 +25,8 @@ module DemoModes
 
       ServiceResult.success({ workspace: workspace, guest_count: new_count, expires_in: ttl })
     rescue StandardError => e
-      ServiceResult.failure(e.message)
+      Rails.logger.error("[DemoModes::ValidateToken] Unexpected error for token #{@token}: #{e.message}")
+      ServiceResult.failure(:unexpected_error)
     end
 
     private

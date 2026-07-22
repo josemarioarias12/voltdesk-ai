@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class DemoController < ApplicationController
-  skip_before_action :authenticate_user!, only: %i[join create_ticket]
+  skip_before_action :authenticate_user!, only: %i[join create_ticket rate_limited]
 
   def join
     result = DemoModes::ValidateToken.call(token: params[:token])
@@ -71,6 +71,10 @@ class DemoController < ApplicationController
     authorize current_workspace, :manage_demo?, policy_class: WorkspacePolicy
 
     render inertia: 'Demo/Presenter', props: { token: params[:token], workspace_name: current_workspace.name }
+  end
+
+  def rate_limited
+    render inertia: 'Demo/Expired', props: { reason: 'rate_limited' }
   end
 
   private

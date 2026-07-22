@@ -112,46 +112,60 @@ RSpec.describe 'Rack::Attack throttling', type: :request do
   describe 'throttle demo/join/ip' do
     let(:request_ip) { unique_ip }
 
-    def join_demo(times)
+    def join_demo(times, headers: {})
       freeze_time do
         times.times do
-          get '/demo/nonexistent-token', headers: { 'REMOTE_ADDR' => request_ip }
+          get '/demo/nonexistent-token', headers: headers.merge('REMOTE_ADDR' => request_ip)
         end
       end
     end
 
     it 'allows requests under the limit' do
       join_demo(10)
-      expect(response.status).not_to eq(429)
+      expect(response.status).not_to eq(302)
     end
 
-    it 'blocks after 10 requests from same IP' do
+    it 'redirects to rate_limited page after 10 requests from same IP' do
       join_demo(11)
-      expect(response.status).to eq(429)
+      expect(response.status).to eq(302)
+      expect(response.headers['Location']).to include('/demo/rate_limited')
+    end
+
+    it 'returns Inertia-aware 409 with X-Inertia-Location for Inertia requests' do
+      join_demo(11, headers: { 'X-Inertia' => 'true' })
+      expect(response.status).to eq(409)
+      expect(response.headers['X-Inertia-Location']).to eq('/demo/rate_limited')
     end
   end
 
   describe 'throttle demo/ticket/ip' do
     let(:request_ip) { unique_ip }
 
-    def create_demo_ticket(times)
+    def create_demo_ticket(times, headers: {})
       freeze_time do
         times.times do
           post '/demo/ticket',
                params: { ticket: { title: 'Test', description: 'Test desc' } },
-               headers: { 'REMOTE_ADDR' => request_ip }
+               headers: headers.merge('REMOTE_ADDR' => request_ip)
         end
       end
     end
 
     it 'allows requests under the limit' do
       create_demo_ticket(5)
-      expect(response.status).not_to eq(429)
+      expect(response.headers['Location']).not_to include('/demo/rate_limited')
     end
 
-    it 'blocks after 5 requests from same IP' do
+    it 'redirects to rate_limited page after 5 requests from same IP' do
       create_demo_ticket(6)
-      expect(response.status).to eq(429)
+      expect(response.status).to eq(302)
+      expect(response.headers['Location']).to include('/demo/rate_limited')
+    end
+
+    it 'returns Inertia-aware 409 with X-Inertia-Location for Inertia requests' do
+      create_demo_ticket(6, headers: { 'X-Inertia' => 'true' })
+      expect(response.status).to eq(409)
+      expect(response.headers['X-Inertia-Location']).to eq('/demo/rate_limited')
     end
   end
 end

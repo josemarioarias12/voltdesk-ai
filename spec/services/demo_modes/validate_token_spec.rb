@@ -58,5 +58,15 @@ RSpec.describe DemoModes::ValidateToken do
       expect(result).to be_failure
       expect(result.error).to eq(:workspace_not_found)
     end
+
+    it 'returns failure :unexpected_error without leaking the raw exception message' do
+      seed_token
+      allow(REDIS).to receive(:incr).and_raise(Redis::TimeoutError, 'connection reset by peer')
+
+      result = described_class.call(token: token)
+
+      expect(result).to be_failure
+      expect(result.error).to eq(:unexpected_error)
+    end
   end
 end

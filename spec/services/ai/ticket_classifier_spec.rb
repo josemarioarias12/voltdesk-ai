@@ -72,6 +72,22 @@ RSpec.describe Ai::TicketClassifier, type: :service do
       end
     end
 
+    context 'when OpenAI returns an invalid priority value' do
+      before do
+        invalid_priority_response = AiStubs::CLASSIFY_RESPONSE.deep_dup
+        content = JSON.parse(invalid_priority_response[:choices][0][:message][:content])
+        content['priority'] = 'urgent'
+        invalid_priority_response[:choices][0][:message][:content] = content.to_json
+        stub_openai_classify(invalid_priority_response)
+      end
+
+      it 'defaults to medium instead of raising an enum error' do
+        result = described_class.call(ticket:)
+        expect(result).to be_success
+        expect(ticket.reload.priority).to eq('medium')
+      end
+    end
+
     context 'when OpenAI returns invalid JSON' do
       before do
         stub_request(:post, 'https://api.openai.com/v1/chat/completions')

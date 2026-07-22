@@ -33,9 +33,11 @@ class Rack::Attack
     end
   end
 
+  DEMO_EXCLUDED_PATHS = ['/demo/ticket', '/demo/rate_limited'].freeze
+
   # Throttle demo join by IP: 10 per minute (guest account creation)
   throttle('demo/join/ip', limit: 10, period: 1.minute) do |req|
-    req.ip if req.path.start_with?('/demo/') && req.get? && req.path != '/demo/ticket'
+    req.ip if req.path.start_with?('/demo/') && req.get? && DEMO_EXCLUDED_PATHS.exclude?(req.path)
   end
 
   # Throttle demo ticket creation by IP: 5 per minute (real AI classification cost per ticket)
@@ -43,23 +45,26 @@ class Rack::Attack
     req.ip if req.path == '/demo/ticket' && req.post?
   end
 
-  # Return 429 JSON — differentiate API vs web responses
+  # Return 429 JSON for API, Inertia-aware redirect for demo, plain JSON otherwise
   self.throttled_responder = lambda do |req|
     match_data  = req.env['rack.attack.match_data']
     now         = match_data[:epoch_time]
     retry_after = match_data[:period] - (now % match_data[:period])
+    headers     = { 'Retry-After' => retry_after.to_s }
 
-    body = if req.path.start_with?('/api/')
-             { error: 'Rate limit exceeded', code: 'rate_limited',
-                      status: 429, retry_after: retry_after }.to_json
-           else
-             { error: 'Too many requests. Please try again later.' }.to_json
-           end
-
-    [
-      429,
-      { 'Content-Type' => 'application/json', 'Retry-After' => retry_after.to_s },
-      [body]
-    ]
+    if req.path.start_with?('/api/')
+      body = { error: 'Rate limit exceeded', code: 'rate_limited',
+               status: 429, retry_after: retry_after }.to_json
+      [429, headers.merge('Content-Type' => 'application/json'), [body]]
+    elsif req.path.start_with?('/demo/')
+      if req.get_header('HTTP_X_INERTIA')
+        [409, headers.merge('X-Inertia-Location' => '/demo/rate_limited'), []]
+      else
+        [302, headers.merge('Location' => '/demo/rate_limited'), []]
+      end
+    else
+      body = { error: 'Too many requests. Please try again later.' }.to_json
+      [429, headers.merge('Content-Type' => 'application/json'), [body]]
+    end
   end
 end

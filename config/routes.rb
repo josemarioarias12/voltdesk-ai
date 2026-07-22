@@ -115,6 +115,7 @@ Rails.application.routes.draw do
   resources :workflow_rules, only: %i[index create update destroy]
 
   # QR Demo Mode
+  get  '/demo/rate_limited', to: 'demo#rate_limited', as: :demo_rate_limited
   get  '/demo/:token',        to: 'demo#join',          as: :demo_join
   post '/demo/ticket',        to: 'demo#create_ticket', as: :demo_create_ticket
   get  '/demo/:token/presenter', to: 'demo#presenter',  as: :demo_presenter
