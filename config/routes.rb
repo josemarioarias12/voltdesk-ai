@@ -171,4 +171,8 @@ Rails.application.routes.draw do
     get 'api_dashboard', to: 'api_dashboard#index', as: :api_dashboard
     get 'data_access_log', to: 'data_access_log#index', as: :data_access_log
   end
+
+  namespace :webauthn do
+    resource :registration, only: %i[new create], controller: 'registrations'
+  end
 end
