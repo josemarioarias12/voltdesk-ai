@@ -153,6 +153,15 @@ RSpec.describe Ai::SlaRiskScorer do
         expect(Ai::SlaNotifier).to have_received(:call)
           .with(ticket: ticket, probability: kind_of(Float), reasoning: kind_of(String))
       end
+
+      it 'includes a working ticket link in the Telegram notification' do
+        ticket = build_ticket(urgency_score: 90, due_at: 20.minutes.from_now)
+
+        described_class.call(ticket: ticket)
+
+        expect(TelegramNotifier).to have_received(:send_prediction)
+          .with(hash_including(link: "https://voltdesk.app/tickets/#{ticket.id}", link_label: 'View ticket'))
+      end
     end
 
     context 'when the AI adapter fails while generating reasoning' do

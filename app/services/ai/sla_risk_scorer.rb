@@ -101,7 +101,9 @@ module Ai
       reasoning = generate_reasoning(probability: probability)
       TelegramNotifier.send_prediction(
         message: build_message(probability: probability, reasoning: reasoning),
-        level: new_level == :critical ? :critical : :warning
+        level: new_level == :critical ? :critical : :warning,
+        link: ticket_link,
+        link_label: 'View ticket'
       )
       Ai::SlaNotifier.call(ticket: @ticket, probability: probability, reasoning: reasoning)
     end
@@ -181,7 +183,8 @@ module Ai
     end
 
     def ticket_link
-      "#{Rails.application.routes.url_helpers.root_url.chomp('/')}/tickets/#{@ticket.id}"
+      host = ENV.fetch('APP_HOST', 'voltdesk.app')
+      "https://#{host}/tickets/#{@ticket.id}"
     end
   end
 end
