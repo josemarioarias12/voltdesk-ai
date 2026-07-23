@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useVoiceTicket } from '@/hooks/useVoiceTicket'
 import { useLocale } from '@/hooks/useLocale'
+import { useTranslation } from 'react-i18next'
 import { getDeptCategory, getDeptColor, type DeptCategory } from '@/utils/departmentStyle'
 import { useWindowWidth } from '@/hooks/useWindowWidth'
 
@@ -178,9 +179,10 @@ interface AttachmentPreview { name: string; url: string; type: string }
 
 export default function DemoCreateTicket({ workspace_name, expires_in, guest_count, departments }: Props) {
   const { locale, speechLang, toggleLocale } = useLocale()
+  const { t } = useTranslation(['tickets', 'common'])
   const {
     transcript, interimTranscript, voiceState, isSupported,
-    startListening, stopListening, resetTranscript, errorMessage,
+    startListening, stopListening, resetTranscript, errorCode,
   } = useVoiceTicket(speechLang)
 
   const [description,  setDescription]  = useState('')
@@ -463,8 +465,8 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
           {isListening && interimTranscript && (
             <p style={{ fontSize: 12, color: '#02C39A', margin: '6px 0 0', fontStyle: 'italic' }}>{interimTranscript}…</p>
           )}
-          {errorMessage && (
-            <p style={{ fontSize: 12, color: '#EF4444', margin: '6px 0 0' }}>{errorMessage}</p>
+          {errorCode && (
+            <p style={{ fontSize: 12, color: '#EF4444', margin: '6px 0 0' }}>{t(`voice.errors.${errorCode}`, { ns: 'common' })}</p>
           )}
 
           <p style={{ fontSize: 11, color: '#1E293B', margin: '6px 0 0', textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' }}>

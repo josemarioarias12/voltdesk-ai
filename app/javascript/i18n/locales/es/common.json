@@ -2,5 +2,16 @@
   "actions": {
     "save": "Guardar",
     "cancel": "Cancelar"
+  },
+  "voice": {
+    "errors": {
+      "unsupported": "La entrada de voz requiere Chrome o Edge",
+      "not_allowed": "Acceso al micrófono denegado.",
+      "no_speech": "No se detectó voz. Intentá de nuevo.",
+      "network": "Error de red durante el reconocimiento.",
+      "aborted": "Grabación cancelada.",
+      "service_not_allowed": "La entrada de voz no está disponible ahora — podés escribir tu problema abajo.",
+      "unknown": "Error de reconocimiento. Intentá de nuevo."
+    }
   }
 }

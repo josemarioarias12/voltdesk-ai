@@ -128,9 +128,9 @@ interface AiPreviewData {
 // ── Main Component ─────────────────────────────────────────────────────────────
 export default function TicketsNew({ departments, recent_tickets }: TicketsNewProps) {
   const { speechLang } = useLocale()
-  const { t } = useTranslation('tickets')
+  const { t } = useTranslation(['tickets', 'common'])
   const departmentName = useDepartmentName()
-  const { transcript, interimTranscript, voiceState, isSupported, startListening, stopListening, resetTranscript, errorMessage } = useVoiceTicket(speechLang)
+  const { transcript, interimTranscript, voiceState, isSupported, startListening, stopListening, resetTranscript, errorCode } = useVoiceTicket(speechLang)
 
   const { data, setData, post, processing, errors } = useForm({
     title:         '',
@@ -299,9 +299,9 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                   </div>
                 </div>
 
-                {errorMessage && (
+                {errorCode && (
                   <div style={{ marginBottom: 12, padding: '9px 14px', background: '#FEF2F2', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: 13, color: '#DC2626' }}>
-                    {errorMessage}
+                    {t(`voice.errors.${errorCode}`, { ns: 'common' })}
                   </div>
                 )}
               </motion.div>

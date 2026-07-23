@@ -1,6 +1,14 @@
 import { useState, useRef, useCallback } from 'react'
 
 export type VoiceState = 'idle' | 'listening' | 'processing' | 'error'
+export type VoiceErrorCode =
+  | 'unsupported'
+  | 'not_allowed'
+  | 'no_speech'
+  | 'network'
+  | 'aborted'
+  | 'service_not_allowed'
+  | 'unknown'
 
 export interface VoiceTicketHookResult {
   voiceState:       VoiceState
@@ -10,7 +18,7 @@ export interface VoiceTicketHookResult {
   startListening:   () => void
   stopListening:    () => void
   resetTranscript:  () => void
-  errorMessage:     string | null
+  errorCode:        VoiceErrorCode | null
 }
 
 declare global {
@@ -20,12 +28,17 @@ declare global {
   }
 }
 
-// iOS Safari's WebKit implementation frequently gets stuck in the 'listening'
-// state indefinitely — no onresult, onerror, or onend ever fires. This is a
-// long-documented platform bug, not something fixable from application code.
-// The watchdog below resets on every event (interim or final result) so it
-// only fires when Safari has gone genuinely silent/stuck, never during normal use.
+// iOS Safari can get stuck in 'listening' indefinitely with no event ever firing.
+// This watchdog resets on every event and only fires when truly stuck.
 const SILENCE_WATCHDOG_MS = 8000
+
+const ERROR_CODE_MAP: Record<string, VoiceErrorCode> = {
+  'not-allowed':         'not_allowed',
+  'no-speech':           'no_speech',
+  'network':             'network',
+  'aborted':             'aborted',
+  'service-not-allowed': 'service_not_allowed',
+}
 
 function isSpeechRecognitionSupported(): boolean {
   return typeof window !== 'undefined' &&
@@ -36,7 +49,7 @@ export function useVoiceTicket(lang: string = typeof navigator !== 'undefined' ?
   const [voiceState,        setVoiceState]        = useState<VoiceState>('idle')
   const [transcript,        setTranscript]        = useState('')
   const [interimTranscript, setInterimTranscript] = useState('')
-  const [errorMessage,      setErrorMessage]      = useState<string | null>(null)
+  const [errorCode,         setErrorCode]         = useState<VoiceErrorCode | null>(null)
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const watchdogRef    = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isSupported    = isSpeechRecognitionSupported()
@@ -52,7 +65,7 @@ export function useVoiceTicket(lang: string = typeof navigator !== 'undefined' ?
     disarmWatchdog()
     watchdogRef.current = setTimeout(() => {
       if (recognitionRef.current) {
-        try { recognitionRef.current.stop() } catch { /* best-effort only */ }
+        try { recognitionRef.current.stop() } catch { /* ignore */ }
         recognitionRef.current = null
       }
       setInterimTranscript('')
@@ -62,7 +75,7 @@ export function useVoiceTicket(lang: string = typeof navigator !== 'undefined' ?
 
   const startListening = useCallback(() => {
     if (!isSupported) {
-      setErrorMessage('Voice input requires Chrome or Edge')
+      setErrorCode('unsupported')
       setVoiceState('error')
       return
     }
@@ -77,7 +90,7 @@ export function useVoiceTicket(lang: string = typeof navigator !== 'undefined' ?
 
     recognition.onstart = () => {
       setVoiceState('listening')
-      setErrorMessage(null)
+      setErrorCode(null)
       armWatchdog()
     }
 
@@ -106,14 +119,7 @@ export function useVoiceTicket(lang: string = typeof navigator !== 'undefined' ?
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       disarmWatchdog()
-      const messages: Record<string, string> = {
-        'not-allowed':         'Microphone access denied.',
-        'no-speech':           'No speech detected. Please try again.',
-        'network':             'Network error during recognition.',
-        'aborted':             'Recording was cancelled.',
-        'service-not-allowed': 'Voice input isn\'t available right now — you can type your issue below instead.',
-      }
-      setErrorMessage(messages[event.error] ?? `Recognition error: ${event.error}`)
+      setErrorCode(ERROR_CODE_MAP[event.error] ?? 'unknown')
       setVoiceState('error')
     }
 
@@ -145,7 +151,7 @@ export function useVoiceTicket(lang: string = typeof navigator !== 'undefined' ?
     setVoiceState('idle')
     setTranscript('')
     setInterimTranscript('')
-    setErrorMessage(null)
+    setErrorCode(null)
   }, [disarmWatchdog])
 
   return {
@@ -156,6 +162,6 @@ export function useVoiceTicket(lang: string = typeof navigator !== 'undefined' ?
     startListening,
     stopListening,
     resetTranscript,
-    errorMessage,
+    errorCode,
   }
 }

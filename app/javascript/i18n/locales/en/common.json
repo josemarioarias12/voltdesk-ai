@@ -2,5 +2,16 @@
   "actions": {
     "save": "Save",
     "cancel": "Cancel"
+  },
+  "voice": {
+    "errors": {
+      "unsupported": "Voice input requires Chrome or Edge",
+      "not_allowed": "Microphone access denied.",
+      "no_speech": "No speech detected. Please try again.",
+      "network": "Network error during recognition.",
+      "aborted": "Recording was cancelled.",
+      "service_not_allowed": "Voice input isn't available right now — you can type your issue below instead.",
+      "unknown": "Recognition error. Please try again."
+    }
   }
 }
