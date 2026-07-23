@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   mount ActionCable.server => '/cable'
 
   require 'sidekiq/web'
+  require 'sidekiq/cron/web'
   authenticate :user, ->(u) { u.role_super_admin? || u.role_workspace_admin? } do
     mount Sidekiq::Web => '/sidekiq'
   end
