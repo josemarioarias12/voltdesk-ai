@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react'
 import { router, usePage, Link } from '@inertiajs/react'
+import FaceIdPrompt from '@/components/FaceIdPrompt'
 import { SharedProps } from '@/types'
 import { IconBolt } from '@/components/Icons'
 import NotificationBell from '@/components/NotificationBell'
@@ -24,7 +25,7 @@ const NAV_ITEMS = [
 ]
 
 export default function AppLayout({ children, title }: Props) {
-  const { auth, workspace, notifications, unread_notifications_count, active_tickets_count, flash } = usePage<SharedProps>().props
+ const { auth, workspace, notifications, unread_notifications_count, active_tickets_count, flash, show_face_id_prompt } = usePage<SharedProps>().props
   const currentPath = window.location.pathname
   const [navigating, setNavigating] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -212,6 +213,7 @@ export default function AppLayout({ children, title }: Props) {
         </header>
 
         <main className="flex-1 p-6 overflow-auto">
+          {!navigating && <FaceIdPrompt show={show_face_id_prompt} />}
           {navigating ? <SkeletonDashboard /> : children}
         </main>
       </div>

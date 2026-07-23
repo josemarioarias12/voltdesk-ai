@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { startAuthentication, startRegistration } from '@simplewebauthn/browser'
 import type {
   AuthenticationResponseJSON,
@@ -52,10 +52,30 @@ async function getJson<T>(url: string): Promise<T> {
   return data as T
 }
 
+async function checkPlatformAuthenticatorAvailable(): Promise<boolean> {
+  if (typeof window === 'undefined' || !window.PublicKeyCredential) return false
+
+  try {
+    return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
+  } catch {
+    return false
+  }
+}
+
 export function useWebAuthn(): UseWebAuthnResult {
   const [status,       setStatus]       = useState<WebauthnStatus>('idle')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const isSupported = typeof window !== 'undefined' && !!window.PublicKeyCredential
+  const [isSupported,  setIsSupported]  = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+
+    checkPlatformAuthenticatorAvailable().then((available) => {
+      if (!cancelled) setIsSupported(available)
+    })
+
+    return () => { cancelled = true }
+  }, [])
 
   const registerPasskey = useCallback(async (nickname?: string): Promise<boolean> => {
     setStatus('in_progress')

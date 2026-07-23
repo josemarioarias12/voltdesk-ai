@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Users::SessionsController, type: :request do
   let(:workspace) { create(:workspace) }
-  let(:user)      { create(:user, workspace: workspace, role: :employee, password: 'Password123!') }
+  let(:user) { create(:user, workspace: workspace, role: :employee, password: 'Password123!') }
 
   describe 'GET /users/login' do
     it 'returns 200' do
@@ -34,6 +34,34 @@ RSpec.describe Users::SessionsController, type: :request do
       it 'redirects to login' do
         post user_session_path, params: { user: { email: 'nobody@example.com', password: 'Password123!' } }
         expect(response).to have_http_status(:redirect)
+      end
+    end
+
+    context 'when the user has no passkeys registered' do
+      it 'flags the next request to prompt for Face ID activation' do
+        post user_session_path, params: { user: { email: user.email, password: 'Password123!' } }
+        get webauthn_credentials_path, headers: inertia_headers
+
+        expect(response.parsed_body['props']['show_face_id_prompt']).to be true
+      end
+
+      it 'does not repeat the prompt on a second page view in the same session' do
+        post user_session_path, params: { user: { email: user.email, password: 'Password123!' } }
+        get webauthn_credentials_path, headers: inertia_headers
+        get webauthn_credentials_path, headers: inertia_headers
+
+        expect(response.parsed_body['props']['show_face_id_prompt']).to be false
+      end
+    end
+
+    context 'when the user already has a passkey registered' do
+      let!(:credential) { create(:webauthn_credential, user: user, workspace: workspace) }
+
+      it 'does not flag the prompt' do
+        post user_session_path, params: { user: { email: user.email, password: 'Password123!' } }
+        get webauthn_credentials_path, headers: inertia_headers
+
+        expect(response.parsed_body['props']['show_face_id_prompt']).to be false
       end
     end
   end

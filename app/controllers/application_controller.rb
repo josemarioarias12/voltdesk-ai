@@ -23,7 +23,8 @@ class ApplicationController < ActionController::Base
       notifications: current_user ? serialize_notifications(current_user) : [],
       unread_notifications_count: current_user ? current_user.notifications.unread.count : 0,
       active_tickets_count: active_tickets_count_for_nav,
-      csp_nonce: content_security_policy_nonce
+      csp_nonce: content_security_policy_nonce,
+      show_face_id_prompt: session.delete(:show_face_id_prompt) == true
     }
   end
 
@@ -41,6 +42,12 @@ class ApplicationController < ActionController::Base
 
   def set_current_workspace
     Current.workspace = current_workspace
+  end
+
+  def after_sign_in_path_for(resource)
+    session[:show_face_id_prompt] =
+      resource.respond_to?(:webauthn_credentials) && !resource.webauthn_credentials.exists?
+    super
   end
 
   def set_current_user

@@ -46,6 +46,7 @@ export interface SharedProps {
   notifications: Notification[]
   unread_notifications_count: number
   active_tickets_count: number
+  show_face_id_prompt: boolean
   [key: string]: unknown
 }
 
