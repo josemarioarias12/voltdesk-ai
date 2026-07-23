@@ -5,6 +5,7 @@ class Notification < ApplicationRecord
 
   belongs_to :workspace
   belongs_to :user
+  belongs_to :resource, polymorphic: true, optional: true
 
   enum :notification_type, {
     leave_request_submitted: 0,

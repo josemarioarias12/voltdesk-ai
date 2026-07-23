@@ -31,10 +31,10 @@ module Ai
 
     def find_manager
       @workspace.users
-                .where(role: %i[workspace_admin manager])
+                .role_department_manager
                 .where(department_id: @ticket.department_id)
                 .first ||
-        @workspace.users.where(role: :workspace_admin).first
+        @workspace.users.role_workspace_admin.first
     end
 
     def notification_sent_recently?
