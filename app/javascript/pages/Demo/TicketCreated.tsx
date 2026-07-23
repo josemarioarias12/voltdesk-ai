@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 
 interface Props { ticket_number: string }
 
@@ -28,19 +29,21 @@ function IconArrowUp() {
   )
 }
 
-const STEPS = [
-  { label: 'Ticket received',       delay: 0.1 },
-  { label: 'AI classification',     delay: 0.6 },
-  { label: 'Priority assigned',     delay: 1.1 },
-  { label: 'Agent routing',         delay: 1.6 },
-]
+const STEP_KEYS = ['received', 'classification', 'priority', 'routing'] as const
+const STEP_DELAYS: Record<typeof STEP_KEYS[number], number> = {
+  received:       0.1,
+  classification: 0.6,
+  priority:       1.1,
+  routing:        1.6,
+}
 
 export default function DemoTicketCreated({ ticket_number }: Props) {
+  const { t } = useTranslation('demo')
   const [visibleSteps, setVisibleSteps] = useState(0)
 
   useEffect(() => {
-    const timers = STEPS.map((step, idx) =>
-      setTimeout(() => setVisibleSteps(idx + 1), step.delay * 1000 + 400)
+    const timers = STEP_KEYS.map((key, idx) =>
+      setTimeout(() => setVisibleSteps(idx + 1), STEP_DELAYS[key] * 1000 + 400)
     )
     return () => timers.forEach(clearTimeout)
   }, [])
@@ -105,10 +108,10 @@ export default function DemoTicketCreated({ ticket_number }: Props) {
           style={{ textAlign: 'center' }}
         >
           <p style={{ fontSize: 22, fontWeight: 800, color: '#fff', margin: '0 0 8px', letterSpacing: '-0.02em' }}>
-            Ticket submitted
+            {t('ticketCreated.headline.title')}
           </p>
           <p style={{ fontSize: 13, color: '#475569', margin: 0, lineHeight: 1.6 }}>
-            Your ticket is being processed by AI right now
+            {t('ticketCreated.headline.subtitle')}
           </p>
         </motion.div>
 
@@ -126,8 +129,8 @@ export default function DemoTicketCreated({ ticket_number }: Props) {
             width: '100%',
           }}
         >
-          <p style={{ fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase' as const, letterSpacing: '0.1em', margin: '0 0 6px' }}>
-            Ticket number
+          <p style={{ fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase' as const,letterSpacing: '0.1em', margin: '0 0 6px' }}>
+            {t('ticketCreated.ticketNumber')}
           </p>
           <p style={{ fontSize: 28, fontWeight: 800, color: '#028090', fontFamily: 'monospace', margin: 0, letterSpacing: '0.04em' }}>
             {ticket_number}
@@ -141,18 +144,18 @@ export default function DemoTicketCreated({ ticket_number }: Props) {
           transition={{ delay: 0.4 }}
           style={{ width: '100%', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '20px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}
         >
-          <p style={{ fontSize: 11, fontWeight: 700, color: '#334155', textTransform: 'uppercase' as const, letterSpacing: '0.1em', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: '#334155', textTransform: 'uppercase' as const,letterSpacing: '0.1em', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ color: '#028090' }}><IconSparkle /></span>
-            AI Pipeline
+            {t('ticketCreated.pipeline.title')}
           </p>
 
-          {STEPS.map((step, idx) => {
+          {STEP_KEYS.map((key, idx) => {
             const done    = visibleSteps > idx
             const active  = visibleSteps === idx
 
             return (
               <motion.div
-                key={step.label}
+                key={key}
                 initial={{ opacity: 0, x: -8 }}
                 animate={done || active ? { opacity: 1, x: 0 } : {}}
                 transition={{ duration: 0.3 }}
@@ -174,7 +177,7 @@ export default function DemoTicketCreated({ ticket_number }: Props) {
                   )}
                 </div>
                 <span style={{ fontSize: 13, fontWeight: done ? 600 : 400, color: done ? '#E2E8F0' : '#334155', transition: 'all 0.3s' }}>
-                  {step.label}
+                  {t(`ticketCreated.pipeline.steps.${key}`)}
                 </span>
                 {done && (
                   <motion.span
@@ -182,7 +185,7 @@ export default function DemoTicketCreated({ ticket_number }: Props) {
                     animate={{ opacity: 1 }}
                     style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, color: '#02C39A', background: 'rgba(2,195,154,0.08)', padding: '2px 8px', borderRadius: 4 }}
                   >
-                    Done
+                    {t('ticketCreated.pipeline.done')}
                   </motion.span>
                 )}
               </motion.div>
@@ -205,14 +208,14 @@ export default function DemoTicketCreated({ ticket_number }: Props) {
             <IconArrowUp />
           </motion.div>
           <p style={{ fontSize: 13, color: '#475569', textAlign: 'center' as const, margin: 0, lineHeight: 1.6 }}>
-            Look at the screen —<br />
-            <span style={{ color: '#94A3B8', fontWeight: 600 }}>your ticket just appeared</span>
+            {t('ticketCreated.lookUp.line1')}<br />
+            <span style={{ color: '#94A3B8', fontWeight: 600 }}>{t('ticketCreated.lookUp.line2')}</span>
           </p>
         </motion.div>
 
         {/* Footer */}
         <p style={{ fontSize: 11, color: '#64748B', margin: 0, textAlign: 'center' as const }}>
-          VoltDesk AI · Read-only demo
+          {t('ticketCreated.footer')}
         </p>
       </div>
     </div>

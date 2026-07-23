@@ -103,5 +103,27 @@
       "hours_one": "hace {{count}}h",
       "hours_other": "hace {{count}}h"
     }
+  },
+  "ticketCreated": {
+    "headline": {
+      "title": "Ticket enviado",
+      "subtitle": "Tu ticket está siendo procesado por la IA en este momento"
+    },
+    "ticketNumber": "Número de ticket",
+    "pipeline": {
+      "title": "Pipeline de IA",
+      "steps": {
+        "received": "Ticket recibido",
+        "classification": "Clasificación de IA",
+        "priority": "Prioridad asignada",
+        "routing": "Enrutamiento de agente"
+      },
+      "done": "Listo"
+    },
+    "lookUp": {
+      "line1": "Mirá la pantalla —",
+      "line2": "tu ticket acaba de aparecer"
+    },
+    "footer": "VoltDesk AI · Demo de solo lectura"
   }
 }
