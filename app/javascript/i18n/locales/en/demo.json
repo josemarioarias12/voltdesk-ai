@@ -1,0 +1,54 @@
+{
+  "createTicket": {
+    "quickChips": {
+      "printerIssue": { "label": "Printer issue", "description": "Printer on my floor is not working" },
+      "vpnAccess": { "label": "VPN / access", "description": "Cannot connect to VPN or internal system" },
+      "brokenEquipment": { "label": "Broken equipment", "description": "Office equipment or furniture is broken" },
+      "hrQuestion": { "label": "HR question", "description": "I have a question about a company HR policy" }
+    },
+    "timer": {
+      "remaining": "remaining"
+    },
+    "banner": {
+      "participants_one": "{{count}} participant online",
+      "participants_other": "{{count}} participants online",
+      "liveSession": "Live demo session",
+      "subtitle": "Submit a ticket — watch AI classify it on screen in real time"
+    },
+    "form": {
+      "descriptionLabel": "Issue description",
+      "descriptionPlaceholder": "Describe any workplace issue you're experiencing… or tap the mic",
+      "switchLanguage": "Switch voice recognition language",
+      "addAttachment": "Add attachment",
+      "voiceInput": "Voice input",
+      "voiceUnsupported": "Requires Chrome or Edge",
+      "attachmentLimit": "Only {{count}} attachments allowed per ticket",
+      "departmentLabel": "Department",
+      "priorityLabel": "Priority",
+      "aiWillVerify": "AI will verify",
+      "readyToSubmit": "Ready to submit",
+      "submit": "Submit Ticket",
+      "submitting": "Sending to AI…",
+      "submitError": "Something went wrong sending your ticket. Please try again.",
+      "footer": "Read-only demo · No account required"
+    },
+    "aiPreview": {
+      "label": "AI Preview",
+      "category": "Category",
+      "priority": "Priority",
+      "urgency": "Urgency",
+      "analyzing": "Analyzing…",
+      "empty": "Start describing the issue to see the AI's live classification here."
+    },
+    "attachmentModal": {
+      "title": "Add attachment",
+      "takePhoto": { "title": "Take a Photo", "description": "Use your camera" },
+      "chooseGallery": { "title": "Choose from Gallery", "description": "Select an existing image" },
+      "uploadFile": { "title": "Upload a File", "description": "PDF, DOC, TXT up to 10MB" }
+    },
+    "session": {
+      "expiredTitle": "Session expired",
+      "expiredBody": "This demo session has ended. Ask the presenter to start a new one."
+    }
+  }
+}

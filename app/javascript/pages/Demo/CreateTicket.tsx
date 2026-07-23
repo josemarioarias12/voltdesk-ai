@@ -30,12 +30,13 @@ interface DeptStyle { color: string; icon: React.ReactNode }
 
 const MAX_ATTACHMENTS = 5
 
-const QUICK_CHIPS: Array<{ label: string; description: string; department: string }> = [
-  { label: 'Printer issue',    description: 'Printer on my floor is not working',         department: 'IT' },
-  { label: 'VPN / access',     description: 'Cannot connect to VPN or internal system',    department: 'IT' },
-  { label: 'Broken equipment', description: 'Office equipment or furniture is broken',     department: 'Facilities' },
-  { label: 'HR question',      description: 'I have a question about a company HR policy', department: 'HR' },
-]
+const QUICK_CHIP_KEYS = ['printerIssue', 'vpnAccess', 'brokenEquipment', 'hrQuestion'] as const
+const QUICK_CHIP_DEPARTMENTS: Record<typeof QUICK_CHIP_KEYS[number], string> = {
+  printerIssue:    'IT',
+  vpnAccess:       'IT',
+  brokenEquipment: 'Facilities',
+  hrQuestion:      'HR',
+}
 
 function IconMonitor() {
   return (
@@ -80,7 +81,7 @@ function IconSettings() {
 function IconFile() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 208" />
     </svg>
   )
 }
@@ -112,7 +113,7 @@ function IconSpinner() {
 function IconMic({ color = '#fff' }: { color?: string }) {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+      <path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 30 01-3 3z" />
     </svg>
   )
 }
@@ -179,7 +180,7 @@ interface AttachmentPreview { name: string; url: string; type: string }
 
 export default function DemoCreateTicket({ workspace_name, expires_in, guest_count, departments }: Props) {
   const { locale, speechLang, toggleLocale } = useLocale()
-  const { t } = useTranslation(['tickets', 'common'])
+  const { t } = useTranslation(['demo', 'common'])
   const {
     transcript, interimTranscript, voiceState, isSupported,
     startListening, stopListening, resetTranscript, errorCode,
@@ -208,12 +209,10 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
   const windowWidth  = useWindowWidth()
   const isMobile     = windowWidth < 768
 
-  // Voice transcript flows straight into description
   useEffect(() => {
     if (transcript) setDescription(prev => (prev ? `${prev} ${transcript}` : transcript))
   }, [transcript])
 
-  // AI Preview — same backend endpoint as Tickets/New, reused as-is
   const fetchAiPreview = useCallback(async (text: string) => {
     if (text.trim().length < 10) { setAiPreview(null); return }
     setAiLoading(true)
@@ -249,9 +248,9 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
     else { resetTranscript(); startListening() }
   }
 
-  function handleChip(chip: typeof QUICK_CHIPS[number]) {
-    setDescription(chip.description)
-    const found = findDepartmentByKeyword(departments, chip.department)
+  function handleChip(key: typeof QUICK_CHIP_KEYS[number]) {
+    setDescription(t(`createTicket.quickChips.${key}.description`))
+    const found = findDepartmentByKeyword(departments, QUICK_CHIP_DEPARTMENTS[key])
     if (found) setSelectedDept(found.id)
   }
 
@@ -263,7 +262,7 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
     const accepted = arr.slice(0, remainingSlots)
 
     setAttachmentNotice(
-      arr.length > accepted.length ? `Only ${MAX_ATTACHMENTS} attachments allowed per ticket` : null
+      arr.length > accepted.length ? t('createTicket.form.attachmentLimit', { count: MAX_ATTACHMENTS }) : null
     )
 
     if (!accepted.length) return
@@ -297,7 +296,7 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
       headers: { 'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? '' },
       onError: () => {
         setSubmitting(false)
-        setSubmitError('Something went wrong sending your ticket. Please try again.')
+        setSubmitError(t('createTicket.form.submitError'))
       },
     })
   }
@@ -311,8 +310,8 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
               <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
           </div>
-          <p style={{ fontSize: 18, fontWeight: 700, color: '#fff', marginBottom: 8 }}>Session expired</p>
-          <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6 }}>This demo session has ended. Ask the presenter to start a new one.</p>
+          <p style={{ fontSize: 18, fontWeight: 700, color: '#fff', marginBottom: 8 }}>{t('createTicket.session.expiredTitle')}</p>
+          <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6 }}>{t('createTicket.session.expiredBody')}</p>
         </motion.div>
       </div>
     )
@@ -350,48 +349,48 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
           <p style={{ fontSize: 20, fontWeight: 800, color: timerColor, margin: 0, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>
             {formatTime(secondsLeft)}
           </p>
-          <p style={{ fontSize: 10, color: '#334155', margin: '2px 0 0', textTransform: 'uppercase' as const, letterSpacing: '0.08em', fontWeight: 600 }}>remaining</p>
+          <p style={{ fontSize: 10, color: '#334155', margin: '2px 0 0', textTransform: 'uppercase' as const, letterSpacing: '0.08em', fontWeight: 600 }}>{t('createTicket.timer.remaining')}</p>
         </div>
       </div>
 
       {/* Status banner */}
-      <div style={{ background: 'linear-gradient(135deg,rgba(2,128,144,0.9),rgba(2,110,122,0.9))', padding: '16px 20px', borderBottom: '1px solid rgba(2,195,154,0.2)', flexShrink: 0 }}>
+      <div style={{ background: 'linear-gradient(135deg,rgba(2,128,144,0.9),rgba(2,110,122,0.9))', padding:'16px 20px', borderBottom: '1px solid rgba(2,195,154,0.2)', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
           <PulseDot color="#02C39A" />
           <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase' as const, letterSpacing: '0.1em' }}>
-            {guest_count} {guest_count === 1 ? 'participant' : 'participants'} online
+            {t('createTicket.banner.participants', { count: guest_count })}
           </span>
         </div>
-        <p style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: '0 0 2px' }}>Live demo session</p>
+        <p style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: '0 0 2px' }}>{t('createTicket.banner.liveSession')}</p>
         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', margin: 0, lineHeight: 1.5 }}>
-          Submit a ticket — watch AI classify it on screen in real time
+          {t('createTicket.banner.subtitle')}
         </p>
       </div>
 
       {/* Form body */}
-      <div style={{ flex: 1, padding: isMobile ? '24px 20px' : '32px 40px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 20 : 32 }}>
+      <div style={{ flex: 1, padding: isMobile ? '24px 20px' : '32px 40px', display: 'flex', flexDirection:isMobile ? 'column' : 'row', gap: isMobile ? 20 : 32 }}>
 
         {/* Left column */}
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 20 }}>
 
         {/* Quick chips — discreet, no section header, sit right above the input they feed */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-          {QUICK_CHIPS.map((chip, i) => (
+          {QUICK_CHIP_KEYS.map((key, i) => (
             <motion.button
-              key={chip.label}
+              key={key}
               type="button"
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.04 }}
               whileTap={{ scale: 0.96 }}
-              onClick={() => handleChip(chip)}
+              onClick={() => handleChip(key)}
               style={{
                 padding: '5px 12px', borderRadius: 20, border: '1px solid rgba(255,255,255,0.1)',
                 fontSize: 11.5, fontWeight: 500, cursor: 'pointer', background: 'rgba(255,255,255,0.03)', color: '#94A3B8',
                 fontFamily: 'Inter, system-ui, sans-serif', transition: 'all 0.15s',
               }}
             >
-              {chip.label}
+              {t(`createTicket.quickChips.${key}.label`)}
             </motion.button>
           ))}
         </div>
@@ -400,14 +399,14 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
             <label style={{ fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase' as const, letterSpacing: '0.1em' }}>
-              Issue description
+              {t('createTicket.form.descriptionLabel')}
             </label>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
 
             <button
                 type="button"
                 onClick={toggleLocale}
-                title="Switch voice recognition language"
+                title={t('createTicket.form.switchLanguage')}
                 style={{
                   height: 26, padding: '0 8px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)',
                   background: 'rgba(255,255,255,0.03)', color: '#94A3B8', fontSize: 10, fontWeight: 700,
@@ -420,8 +419,8 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
               <button
                 type="button"
                 onClick={() => setShowAttachmentModal(true)}
-                title="Add attachment"
-                aria-label="Add attachment"
+                title={t('createTicket.form.addAttachment')}
+                aria-label={t('createTicket.form.addAttachment')}
                 style={{ width: 26, height: 26, borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}
               >
                 <IconPaperclip />
@@ -431,8 +430,8 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
                 disabled={!isSupported}
                 onClick={handleVoiceToggle}
                 whileTap={{ scale: 0.92 }}
-                title={isSupported ? 'Voice input' : 'Requires Chrome or Edge'}
-                aria-label={isSupported ? 'Voice input' : 'Requires Chrome or Edge'}
+                title={isSupported ? t('createTicket.form.voiceInput') : t('createTicket.form.voiceUnsupported')}
+                aria-label={isSupported ? t('createTicket.form.voiceInput') : t('createTicket.form.voiceUnsupported')}
                 style={{
                   width: 26, height: 26, borderRadius: 8, border: 'none',
                   background: isListening ? '#DC2626' : 'linear-gradient(135deg,#028090,#02C39A)',
@@ -452,7 +451,7 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
             onChange={evt => setDescription(evt.target.value)}
             maxLength={300}
             rows={4}
-            placeholder="Describe any workplace issue you're experiencing… or tap the mic"
+            placeholder={t('createTicket.form.descriptionPlaceholder')}
             style={{
               width: '100%', padding: '14px 16px',
               border: `1.5px solid ${description.trim().length > 0 ? '#028090' : 'rgba(255,255,255,0.08)'}`,
@@ -510,21 +509,21 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: aiPreview ? 8 : 0 }}>
                   <PulseDot color="#02C39A" />
                   <span style={{ fontSize: 10, fontWeight: 700, color: '#02C39A', textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>
-                    AI Preview
+                    {t('createTicket.aiPreview.label')}
                   </span>
                 </div>
                 {aiPreview && (
                   <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                     <div>
-                      <p style={{ fontSize: 9.5, color: '#475569', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>Category</p>
+                      <p style={{ fontSize: 9.5, color: '#475569', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>{t('createTicket.aiPreview.category')}</p>
                       <p style={{ fontSize: 12.5, fontWeight: 600, color: '#fff', margin: '2px 0 0' }}>{aiPreview.category}</p>
                     </div>
                     <div>
-                      <p style={{ fontSize: 9.5, color: '#475569', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>Priority</p>
+                      <p style={{ fontSize: 9.5, color: '#475569', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>{t('createTicket.aiPreview.priority')}</p>
                       <p style={{ fontSize: 12.5, fontWeight: 600, color: priorityColor(aiPreview.priority), margin: '2px 0 0', textTransform: 'capitalize' as const }}>{aiPreview.priority}</p>
                     </div>
                     <div>
-                      <p style={{ fontSize: 9.5, color: '#475569', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>Urgency</p>
+                      <p style={{ fontSize: 9.5, color: '#475569', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>{t('createTicket.aiPreview.urgency')}</p>
                       <p style={{ fontSize: 12.5, fontWeight: 700, color: aiPreview.urgency_score >= 70 ? '#EF4444' : '#02C39A', margin: '2px 0 0' }}>{aiPreview.urgency_score}</p>
                     </div>
                   </div>
@@ -539,7 +538,7 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
         {/* Department */}
         <div>
           <label style={{ fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase' as const, letterSpacing: '0.1em', display: 'block', marginBottom: 10 }}>
-            Department
+            {t('createTicket.form.departmentLabel')}
           </label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
             {departments.map(dept => {
@@ -573,9 +572,9 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
             <label style={{ fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase' as const, letterSpacing: '0.1em' }}>
-              Priority
+              {t('createTicket.form.priorityLabel')}
             </label>
-            <span style={{ fontSize: 10, color: '#64748B', fontWeight: 500 }}>AI will verify</span>
+            <span style={{ fontSize: 10, color: '#64748B', fontWeight: 500 }}>{t('createTicket.form.aiWillVerify')}</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
             {PRIORITIES.map(prio => {
@@ -617,8 +616,8 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
               <p style={{ fontSize: 13, color: '#94A3B8', margin: 0 }}>
                 <span style={{ color: '#fff', fontWeight: 600 }}>{selectedDeptName}</span>
                 {' · '}
-                <span style={{ color: priority ? PRIORITY_META[priority].color : '#94A3B8', fontWeight: 600 }}>{priority}</span>
-                {' · Ready to submit'}
+                <span style={{ color: priority ? PRIORITY_META[priority].color : '#94A3B8', fontWeight: 600}}>{priority}</span>
+                {' · '}{t('createTicket.form.readyToSubmit')}
               </p>
             </motion.div>
           )}
@@ -645,11 +644,11 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
               <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} style={{ display: 'flex' }}>
                 <IconSpinner />
               </motion.span>
-              Sending to AI…
+              {t('createTicket.form.submitting')}
             </>
           ) : (
             <>
-              Submit Ticket
+              {t('createTicket.form.submit')}
               <IconArrow />
             </>
           )}
@@ -668,8 +667,8 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
           )}
         </AnimatePresence>
 
-        <p style={{ textAlign: 'center' as const, fontSize: 11, color: '#64748B', margin: 0, letterSpacing: '0.02em' }}>
-          Read-only demo · No account required
+        <p style={{ textAlign: 'center' as const, fontSize: 11, color: '#64748B', margin: 0, letterSpacing:'0.02em' }}>
+          {t('createTicket.form.footer')}
         </p>
         </div>
 
@@ -684,29 +683,29 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <PulseDot color="#02C39A" />
                 <span style={{ fontSize: 11, fontWeight: 700, color: '#02C39A', textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>
-                  AI Preview
+                  {t('createTicket.aiPreview.label')}
                 </span>
               </div>
               {aiPreview ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   <div>
-                    <p style={{ fontSize: 9.5, color: '#475569', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>Category</p>
+                    <p style={{ fontSize: 9.5, color: '#475569', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>{t('createTicket.aiPreview.category')}</p>
                     <p style={{ fontSize: 14, fontWeight: 600, color: '#fff', margin: '2px 0 0' }}>{aiPreview.category}</p>
                   </div>
                   <div>
-                    <p style={{ fontSize: 9.5, color: '#475569', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>Priority</p>
+                    <p style={{ fontSize: 9.5, color: '#475569', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>{t('createTicket.aiPreview.priority')}</p>
                     <p style={{ fontSize: 14, fontWeight: 600, color: priorityColor(aiPreview.priority), margin: '2px 0 0', textTransform: 'capitalize' as const }}>{aiPreview.priority}</p>
                   </div>
                   <div>
-                    <p style={{ fontSize: 9.5, color: '#475569', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>Urgency</p>
+                    <p style={{ fontSize: 9.5, color: '#475569', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>{t('createTicket.aiPreview.urgency')}</p>
                     <p style={{ fontSize: 14, fontWeight: 700, color: aiPreview.urgency_score >= 70 ? '#EF4444' : '#02C39A', margin: '2px 0 0' }}>{aiPreview.urgency_score}</p>
                   </div>
                 </div>
               ) : aiLoading ? (
-                <p style={{ fontSize: 12, color: '#475569', margin: 0 }}>Analyzing…</p>
+                <p style={{ fontSize: 12, color: '#475569', margin: 0 }}>{t('createTicket.aiPreview.analyzing')}</p>
               ) : (
                 <p style={{ fontSize: 12, color: '#475569', lineHeight: 1.6, margin: 0 }}>
-                  Start describing the issue to see the AI's live classification here.
+                  {t('createTicket.aiPreview.empty')}
                 </p>
               )}
             </div>
@@ -716,11 +715,11 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
 
       {/* Hidden file inputs */}
       <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" style={{ display: 'none' }}
-        onChange={e => { if (e.target.files) { handleFiles(e.target.files); setShowAttachmentModal(false) } }} />
+        onChange={e => { if (e.target.files) { handleFiles(e.target.files); setShowAttachmentModal(false) }}} />
       <input ref={galleryInputRef} type="file" multiple accept="image/*" style={{ display: 'none' }}
-        onChange={e => { if (e.target.files) { handleFiles(e.target.files); setShowAttachmentModal(false) } }} />
+        onChange={e => { if (e.target.files) { handleFiles(e.target.files); setShowAttachmentModal(false) }}} />
       <input ref={fileInputRef} type="file" multiple accept="image/*,.pdf,.doc,.docx,.txt" style={{ display: 'none' }}
-        onChange={e => { if (e.target.files) { handleFiles(e.target.files); setShowAttachmentModal(false) } }} />
+        onChange={e => { if (e.target.files) { handleFiles(e.target.files); setShowAttachmentModal(false) }}} />
 
       {/* Attachment modal — mobile-only options, guest always enters via phone */}
       <AnimatePresence>
@@ -741,22 +740,22 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
               }}
             >
               <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', margin: '0 auto 18px' }} />
-              <p style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginBottom: 16 }}>Add attachment</p>
+              <p style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginBottom: 16 }}>{t('createTicket.attachmentModal.title')}</p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {[
-                  { label: 'Take a Photo', sub: 'Use your camera', onClick: () => cameraInputRef.current?.click(), gradient: 'linear-gradient(135deg,#028090,#02C39A)', icon: <IconMonitor /> },
-                  { label: 'Choose from Gallery', sub: 'Select an existing image', onClick: () => galleryInputRef.current?.click(), gradient: 'linear-gradient(135deg,#7C3AED,#A855F7)', icon: <IconFile /> },
-                  { label: 'Upload a File', sub: 'PDF, DOC, TXT up to 10MB', onClick: () => fileInputRef.current?.click(), gradient: 'linear-gradient(135deg,#EA580C,#F97316)', icon: <IconPaperclip color="#fff" /> },
+                  { key: 'takePhoto',     onClick: () => cameraInputRef.current?.click(),  gradient: 'linear-gradient(135deg,#028090,#02C39A)', icon: <IconMonitor /> },
+                  { key: 'chooseGallery', onClick: () => galleryInputRef.current?.click(), gradient: 'linear-gradient(135deg,#7C3AED,#A855F7)', icon: <IconFile /> },
+                  { key: 'uploadFile',    onClick: () => fileInputRef.current?.click(),    gradient: 'linear-gradient(135deg,#EA580C,#F97316)', icon: <IconPaperclip color="#fff" /> },
                 ].map(opt => (
-                  <button key={opt.label} type="button" onClick={opt.onClick}
+                  <button key={opt.key} type="button" onClick={opt.onClick}
                     style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 14px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', width: '100%', textAlign: 'left' as const }}>
                     <div style={{ width: 40, height: 40, borderRadius: 10, background: opt.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       {opt.icon}
                     </div>
                     <div>
-                      <p style={{ fontSize: 14, fontWeight: 600, color: '#fff', margin: 0 }}>{opt.label}</p>
-                      <p style={{ fontSize: 11.5, color: '#64748B', margin: '2px 0 0' }}>{opt.sub}</p>
+                      <p style={{ fontSize: 14, fontWeight: 600, color: '#fff', margin: 0 }}>{t(`createTicket.attachmentModal.${opt.key}.title`)}</p>
+                      <p style={{ fontSize: 11.5, color: '#64748B', margin: '2px 0 0' }}>{t(`createTicket.attachmentModal.${opt.key}.description`)}</p>
                     </div>
                   </button>
                 ))}

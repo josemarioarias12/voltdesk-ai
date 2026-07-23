@@ -1,0 +1,54 @@
+{
+  "createTicket": {
+    "quickChips": {
+      "printerIssue": { "label": "Problema de impresora", "description": "La impresora de mi piso no está funcionando" },
+      "vpnAccess": { "label": "VPN / acceso", "description": "No puedo conectarme a la VPN o a un sistema interno" },
+      "brokenEquipment": { "label": "Equipo roto", "description": "Un equipo o mueble de oficina está roto" },
+      "hrQuestion": { "label": "Pregunta de RRHH", "description": "Tengo una pregunta sobre una política de RRHH de la empresa" }
+    },
+    "timer": {
+      "remaining": "restante"
+    },
+    "banner": {
+      "participants_one": "{{count}} participante conectado",
+      "participants_other": "{{count}} participantes conectados",
+      "liveSession": "Sesión de demo en vivo",
+      "subtitle": "Enviá un ticket — mirá a la IA clasificarlo en pantalla en tiempo real"
+    },
+    "form": {
+      "descriptionLabel": "Descripción del problema",
+      "descriptionPlaceholder": "Describí cualquier problema laboral que estés teniendo… o tocá el micrófono",
+      "switchLanguage": "Cambiar idioma del reconocimiento de voz",
+      "addAttachment": "Agregar adjunto",
+      "voiceInput": "Entrada de voz",
+      "voiceUnsupported": "Requiere Chrome o Edge",
+      "attachmentLimit": "Solo se permiten {{count}} adjuntos por ticket",
+      "departmentLabel": "Departamento",
+      "priorityLabel": "Prioridad",
+      "aiWillVerify": "La IA lo va a verificar",
+      "readyToSubmit": "Listo para enviar",
+      "submit": "Crear Ticket",
+      "submitting": "Enviando a la IA…",
+      "submitError": "Algo salió mal al enviar tu ticket. Intentá de nuevo.",
+      "footer": "Demo de solo lectura · No requiere cuenta"
+    },
+    "aiPreview": {
+      "label": "Vista Previa de IA",
+      "category": "Categoría",
+      "priority": "Prioridad",
+      "urgency": "Urgencia",
+      "analyzing": "Analizando…",
+      "empty": "Empezá a describir el problema para ver la clasificación de la IA en vivo."
+    },
+    "attachmentModal": {
+      "title": "Agregar adjunto",
+      "takePhoto": { "title": "Tomar una Foto", "description": "Usá tu cámara" },
+      "chooseGallery": { "title": "Elegir de la Galería", "description": "Seleccioná una imagen existente" },
+      "uploadFile": { "title": "Subir un Archivo", "description": "PDF, DOC, TXT hasta 10MB" }
+    },
+    "session": {
+      "expiredTitle": "Sesión expirada",
+      "expiredBody": "Esta sesión de demo terminó. Pedile al presentador que inicie una nueva."
+    }
+  }
+}
