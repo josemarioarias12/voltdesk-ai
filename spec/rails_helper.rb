@@ -41,6 +41,7 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   config.include FactoryBot::Syntax::Methods
   config.include Pundit::Matchers
+  config.include ActiveSupport::Testing::TimeHelpers
 
   Shoulda::Matchers.configure do |shoulda_config|
     shoulda_config.integrate do |with|

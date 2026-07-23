@@ -2,15 +2,15 @@
 
 module Ai
   class SlaNotifier
-    def self.call(ticket:, probability:, contributing_factors:)
-      new(ticket: ticket, probability: probability, contributing_factors: contributing_factors).call
+    def self.call(ticket:, probability:, reasoning:)
+      new(ticket: ticket, probability: probability, reasoning: reasoning).call
     end
 
-    def initialize(ticket:, probability:, contributing_factors:)
-      @ticket              = ticket
-      @probability         = probability
-      @contributing_factors = contributing_factors
-      @workspace = ticket.workspace
+    def initialize(ticket:, probability:, reasoning:)
+      @ticket      = ticket
+      @probability = probability
+      @reasoning   = reasoning
+      @workspace   = ticket.workspace
     end
 
     def call
@@ -46,8 +46,7 @@ module Ai
     end
 
     def create_notification(manager)
-      pct     = (@probability * 100).round(1)
-      factors = @contributing_factors.join(', ')
+      pct = (@probability * 100).round(1)
 
       Notification.create!(
         workspace:         @workspace,
@@ -55,7 +54,7 @@ module Ai
         notification_type: :sla_breach_predicted,
         title:             "SLA Breach Risk: #{@ticket.ticket_number} (#{pct}%)",
         body:              "Ticket #{@ticket.ticket_number} has a #{pct}% probability of " \
-                           "breaching SLA. Key factors: #{factors}. " \
+                           "breaching SLA. #{@reasoning} " \
                            'Consider reassigning to reduce risk.',
         resource:          @ticket
       )
@@ -70,7 +69,7 @@ module Ai
           ticket_id:            @ticket.id,
           ticket_number:        @ticket.ticket_number,
           probability:          @probability,
-          contributing_factors: @contributing_factors,
+          reasoning:            @reasoning,
           action_url:           "/tickets/#{@ticket.id}"
         }
       )

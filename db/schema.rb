@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_22_062225) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_23_024227) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -419,6 +419,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_062225) do
     t.decimal "sla_breach_probability", precision: 5, scale: 4
     t.bigint "sla_policy_id"
     t.datetime "sla_predicted_at"
+    t.integer "sla_risk_level", default: 0, null: false
+    t.datetime "sla_risk_level_changed_at"
     t.integer "source", default: 0, null: false
     t.bigint "space_id"
     t.integer "status", default: 0, null: false
@@ -435,6 +437,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_062225) do
     t.index ["department_id"], name: "index_tickets_on_department_id"
     t.index ["sla_breach_probability"], name: "index_tickets_on_high_breach_probability", where: "(sla_breach_probability > 0.70)"
     t.index ["sla_policy_id"], name: "index_tickets_on_sla_policy_id"
+    t.index ["sla_risk_level"], name: "index_tickets_on_elevated_sla_risk", where: "(sla_risk_level >= 2)"
     t.index ["space_id"], name: "index_tickets_on_space_id"
     t.index ["workspace_id", "assigned_to_id", "status"], name: "index_tickets_on_workspace_assignee_status"
     t.index ["workspace_id", "due_at"], name: "index_tickets_on_workspace_due_at"

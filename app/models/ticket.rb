@@ -49,6 +49,12 @@ class Ticket < ApplicationRecord
     qr_demo: 2,
     email: 3
   }, prefix: :source
+  enum :sla_risk_level, {
+    none: 0,
+    watch: 1,
+    at_risk: 2,
+    critical: 3
+  }, prefix: :sla_risk
 
   # ── Validations ───────────────────────────────────────────────────────────────
   validates :title,         presence: true, length: { minimum: 3, maximum: 255 }
