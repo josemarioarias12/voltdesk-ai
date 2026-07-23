@@ -58,6 +58,12 @@ class Rack::Attack
     end
   end
 
+  # Throttle the manual AI intelligence test endpoint by user: 3 per minute
+  # (each hit calls Ai::OperationalIntelligenceService, a real GPT-4o call)
+  throttle('telegram_test/user', limit: 3, period: 1.minute) do |req|
+    req.env['warden']&.user&.id if req.path == '/admin/telegram-test' && req.get?
+  end
+
   DEMO_EXCLUDED_PATHS = ['/demo/ticket', '/demo/rate_limited'].freeze
 
   # Throttle demo join by IP: 10 per minute (guest account creation)

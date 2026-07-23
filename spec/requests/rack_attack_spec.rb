@@ -242,4 +242,30 @@ RSpec.describe 'Rack::Attack throttling', type: :request do
       expect(response.status).to eq(429)
     end
   end
+
+  describe 'throttle telegram_test/user' do
+    let!(:workspace) { create(:workspace) }
+    let!(:admin)     { create(:user, :workspace_admin, workspace: workspace) }
+    let(:request_ip) { unique_ip }
+
+    before { sign_in admin }
+
+    def get_telegram_test(times)
+      freeze_time do
+        times.times do
+          get '/admin/telegram-test', headers: { 'REMOTE_ADDR' => request_ip }
+        end
+      end
+    end
+
+    it 'allows requests under the limit' do
+      get_telegram_test(3)
+      expect(response.status).not_to eq(429)
+    end
+
+    it 'blocks after 3 requests from the same authenticated user' do
+      get_telegram_test(4)
+      expect(response.status).to eq(429)
+    end
+  end
 end
