@@ -19,6 +19,7 @@ module Compliance
         anonymize_user!
         nullify_ticket_assignments!
         anonymize_leave_requests!
+        destroy_webauthn_credentials!
         log_purge_event!
       end
 
@@ -69,6 +70,12 @@ module Compliance
       LeaveRequest.where(user: @user).update_all(reason: '[REDACTED]') # rubocop:disable Rails/SkipsModelValidations
     end
 
+    def destroy_webauthn_credentials!
+      # A purged user must not retain a working Face ID / passkey tied to their
+      # (now anonymized) identity — destroy, don't just orphan.
+      @purged_webauthn_count = @user.webauthn_credentials.destroy_all.size
+    end
+
     def log_purge_event!
       ComplianceLog.create!(
         workspace:     @workspace,
@@ -78,9 +85,10 @@ module Compliance
         resource_id:   @user.id,
         ip_address:    nil,
         metadata:      {
-          purged_at:    Time.current.iso8601,
-          requested_by: @requested_by.id,
-          reason:       'GDPR Right to Forget'
+          purged_at:                  Time.current.iso8601,
+          requested_by:               @requested_by.id,
+          reason:                     'GDPR Right to Forget',
+          webauthn_credentials_purged: @purged_webauthn_count || 0
         }
       )
     end

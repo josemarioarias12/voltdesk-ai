@@ -9,6 +9,31 @@ class Rack::Attack
   throttle('logins/ip', limit: 10, period: 1.minute) do |req|
     req.ip if req.path == '/login' && req.post?
   end
+  # Throttle WebAuthn authentication attempts by IP: 10 per minute
+  # Covers both the options and verify steps of the login ceremony.
+  throttle('webauthn/authentication/ip', limit: 10, period: 1.minute) do |req|
+    req.ip if req.path.start_with?('/webauthn/authentication') && req.post?
+  end
+
+  # Throttle WebAuthn authentication attempts by targeted email: 5 per minute.
+  # Catches credential-stuffing against a single account from rotating IPs,
+  # which the IP-based throttle above cannot detect on its own.
+  throttle('webauthn/authentication/email', limit: 5, period: 1.minute) do |req|
+    next unless req.path == '/webauthn/authentication/options' && req.post?
+
+    begin
+      body = JSON.parse(req.body.read)
+      req.body.rewind
+      body['email']&.downcase
+    rescue JSON::ParserError
+      nil
+    end
+  end
+
+  # Throttle WebAuthn registration ceremonies by authenticated user: 10 per minute
+  throttle('webauthn/registration/user', limit: 10, period: 1.minute) do |req|
+    req.env['warden']&.user&.id if req.path.start_with?('/webauthn/registration') && req.post?
+  end
 
   # Throttle authenticated requests: 60 requests per minute per user
   throttle('requests/user', limit: 60, period: 1.minute) do |req|

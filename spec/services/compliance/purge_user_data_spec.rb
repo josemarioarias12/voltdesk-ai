@@ -64,6 +64,31 @@ RSpec.describe Compliance::PurgeUserData do
       expect(log.metadata['reason']).to eq('GDPR Right to Forget')
     end
 
+    it 'destroys the user\'s webauthn credentials' do
+      create(:webauthn_credential, user: employee, workspace: workspace)
+      create(:webauthn_credential, user: employee, workspace: workspace)
+
+      expect { service.call }.to change(WebauthnCredential, :count).by(-2)
+    end
+
+    it 'does not affect another user\'s webauthn credentials' do
+      other_employee = create(:user, workspace: workspace, role: :employee)
+      create(:webauthn_credential, user: other_employee, workspace: workspace)
+
+      service.call
+
+      expect(WebauthnCredential.where(user: other_employee).count).to eq(1)
+    end
+
+    it 'records the count of purged passkeys in the compliance log metadata' do
+      create(:webauthn_credential, user: employee, workspace: workspace)
+      create(:webauthn_credential, user: employee, workspace: workspace)
+
+      service.call
+
+      expect(ComplianceLog.last.metadata['webauthn_credentials_purged']).to eq(2)
+    end
+
     context 'when user is super_admin' do
       let(:target) { create(:user, workspace: workspace, role: :super_admin) }
 

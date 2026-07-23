@@ -168,4 +168,78 @@ RSpec.describe 'Rack::Attack throttling', type: :request do
       expect(response.headers['X-Inertia-Location']).to eq('/demo/rate_limited')
     end
   end
+
+  describe 'throttle webauthn/authentication/ip' do
+    let(:request_ip) { unique_ip }
+
+    def request_options(times)
+      freeze_time do
+        times.times do |i|
+          post '/webauthn/authentication/options',
+               params: { email: "user#{i}@example.com" }.to_json,
+               headers: { 'REMOTE_ADDR' => request_ip, 'Content-Type' => 'application/json' }
+        end
+      end
+    end
+
+    it 'allows requests under the limit' do
+      request_options(10)
+      expect(response.status).not_to eq(429)
+    end
+
+    it 'blocks after 10 attempts from the same IP' do
+      request_options(11)
+      expect(response.status).to eq(429)
+    end
+  end
+
+  describe 'throttle webauthn/authentication/email' do
+    def request_options_for_target(times)
+      freeze_time do
+        times.times do
+          post '/webauthn/authentication/options',
+               params: { email: 'target@example.com' }.to_json,
+               headers: { 'REMOTE_ADDR' => unique_ip, 'Content-Type' => 'application/json' }
+        end
+      end
+    end
+
+    it 'allows requests under the limit' do
+      request_options_for_target(5)
+      expect(response.status).not_to eq(429)
+    end
+
+    it 'blocks after 5 attempts against the same email, even from rotating IPs' do
+      request_options_for_target(6)
+      expect(response.status).to eq(429)
+    end
+  end
+
+  describe 'throttle webauthn/registration/user' do
+    let!(:workspace) { create(:workspace) }
+    let!(:user)      { create(:user, workspace: workspace) }
+    let(:request_ip) { unique_ip }
+
+    before { sign_in user }
+
+    def post_registration(times)
+      freeze_time do
+        times.times do
+          post '/webauthn/registration',
+               params: { credential: { id: 'x', rawId: 'x', type: 'public-key' } }.to_json,
+               headers: { 'REMOTE_ADDR' => request_ip, 'Content-Type' => 'application/json' }
+        end
+      end
+    end
+
+    it 'allows requests under the limit' do
+      post_registration(10)
+      expect(response.status).not_to eq(429)
+    end
+
+    it 'blocks after 10 attempts from the same authenticated user' do
+      post_registration(11)
+      expect(response.status).to eq(429)
+    end
+  end
 end
