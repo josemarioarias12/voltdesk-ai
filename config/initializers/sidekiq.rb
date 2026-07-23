@@ -12,42 +12,42 @@ if defined?(Sidekiq)
       # array — plain load_from_array only upserts, leaving renamed/removed
       # jobs running forever on their old schedule.
       Sidekiq::Cron::Job.load_from_array!([
-                                           {
-                                             'name'  => 'Daily Digest — 9am',
-                                             'cron'  => '0 9 * * *',
-                                             'class' => 'DailyDigestJob'
-                                           },
-                                           {
-                                             'name'  => 'Warranty Alert — 8am daily',
-                                             'cron'  => '0 8 * * *',
-                                             'class' => 'WarrantyAlertJob'
-                                           },
-                                           {
-                                             'name'  => 'Pattern Detector — daily 8am',
-                                             'cron'  => '0 8 * * *',
-                                             'class' => 'PatternDetectorJob'
-                                           },
-                                           {
-                                             'name'  => 'Executive Report — Monday 7am',
-                                             'cron'  => '0 7 * * 1',
-                                             'class' => 'ExecutiveReportJob'
-                                           },
-                                           {
-                                             'name'  => 'SLA Predictor — daily 8:30am',
-                                             'cron'  => '30 8 * * *',
-                                             'class' => 'SlaPredictorJob'
-                                           },
-                                           {
-                                             'name'  => 'Anomaly Detector — daily 9am',
-                                             'cron'  => '0 9 * * *',
-                                             'class' => 'AnomalyDetectorJob'
-                                           },
-                                           {
-                                             'name'  => 'Data Retention Purge — 2am daily',
-                                             'cron'  => '0 2 * * *',
-                                             'class' => 'DataRetentionJob'
-                                           }
-                                         ])
+                                            {
+                                              'name'  => 'Daily Digest — 9am',
+                                              'cron'  => '0 9 * * *',
+                                              'class' => 'DailyDigestJob'
+                                            },
+                                            {
+                                              'name'  => 'Warranty Alert — 8am daily',
+                                              'cron'  => '0 8 * * *',
+                                              'class' => 'WarrantyAlertJob'
+                                            },
+                                            {
+                                              'name'  => 'Pattern Detector — daily 8am',
+                                              'cron'  => '0 8 * * *',
+                                              'class' => 'PatternDetectorJob'
+                                            },
+                                            {
+                                              'name'  => 'Executive Report — Monday 7am',
+                                              'cron'  => '0 7 * * 1',
+                                              'class' => 'ExecutiveReportJob'
+                                            },
+                                            {
+                                              'name'  => 'SLA Predictor — daily 8:30am',
+                                              'cron'  => '30 8 * * *',
+                                              'class' => 'SlaPredictorJob'
+                                            },
+                                            {
+                                              'name'  => 'Anomaly Detector — daily 9am',
+                                              'cron'  => '0 9 * * *',
+                                              'class' => 'AnomalyDetectorJob'
+                                            },
+                                            {
+                                              'name'  => 'Data Retention Purge — 2am daily',
+                                              'cron'  => '0 2 * * *',
+                                              'class' => 'DataRetentionJob'
+                                            }
+                                          ])
     end
   end
 
