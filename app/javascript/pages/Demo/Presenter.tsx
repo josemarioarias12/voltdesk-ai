@@ -2,8 +2,11 @@ import { useState, useEffect, useRef } from 'react'
 import { router } from '@inertiajs/react'
 import QRCode from 'qrcode'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { useActionCable } from '@/hooks/useActionCable'
+import { useDepartmentName } from '@/hooks/useDepartmentName'
 import type { AiMetadata } from '@/types/tickets'
+import type { TFunction } from 'i18next'
 import XaiPanel from '@/components/XaiPanel'
 import { getDeptColor } from '@/utils/departmentStyle'
 import { useWindowWidth } from '@/hooks/useWindowWidth'
@@ -38,12 +41,11 @@ const PRIORITY_BG: Record<string, string> = {
   low: 'rgba(56,189,248,0.12)',
 }
 
-
-function timeAgo(iso: string): string {
+function timeAgo(iso: string, t: TFunction): string {
   const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
-  if (diff < 60) return `${diff}s ago`
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
-  return `${Math.floor(diff / 3600)}h ago`
+  if (diff < 60) return t('presenter.timeAgo.seconds', { count: diff, ns: 'demo' })
+  if (diff < 3600) return t('presenter.timeAgo.minutes', { count: Math.floor(diff / 60), ns: 'demo' })
+  return t('presenter.timeAgo.hours', { count: Math.floor(diff / 3600), ns: 'demo' })
 }
 
 function formatTime(secs: number): string {
@@ -86,6 +88,8 @@ function AnimatedNumber({ value, style }: { value: number; style?: React.CSSProp
 }
 
 export default function DemoPresenter({ token, workspace_name }: Props) {
+  const { t } = useTranslation(['demo', 'tickets'])
+  const departmentName = useDepartmentName()
   const [secondsLeft, setSecondsLeft] = useState(1800)
   const windowWidth = useWindowWidth()
   const isMobile     = windowWidth < 768
@@ -155,12 +159,10 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
         setTickets(prev => {
           const existingIndex = prev.findIndex(t => t.id === incoming.id)
           if (existingIndex === -1) {
-            // Genuinely new ticket — original_priority locks in the guest's own choice
             const withOriginal: LiveTicket = { ...incoming, original_priority: incoming.priority }
             setTotalCount(c => c + 1)
             return [withOriginal, ...prev].slice(0, 12)
           }
-          // Same ticket reclassified by AI — preserve original_priority, move to front
           const existing = prev[existingIndex]
           const updated: LiveTicket = {
             ...incoming,
@@ -178,7 +180,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
   )
 
   function handleEndDemo() {
-    if (!confirm('End demo session? All guests will lose access immediately.')) return
+    if (!confirm(t('presenter.header.confirmEnd', { ns: 'demo' }))) return
     router.delete('/workspace_admin/demo/deactivate', { data: { token } })
   }
 
@@ -216,7 +218,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
       }} />
 
       {/* Top accent line */}
-      <div style={{ height: 3, background: 'linear-gradient(90deg,#028090,#02C39A,#028090)', flexShrink: 0, position: 'relative', zIndex: 1 }} />
+      <div style={{ height: 3, background: 'linear-gradient(90deg,#028090,#02C39A,#028090)', flexShrink: 0,position: 'relative', zIndex: 1 }} />
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: isMobile ? '12px 16px' : '14px 32px', borderBottom: '1px solid rgba(255,255,255,0.05)', position: 'relative', zIndex: 1, flexShrink: 0, flexWrap: 'wrap', gap: 10 }}>
@@ -229,14 +231,14 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(2,195,154,0.08)', border: '1px solid rgba(2,195,154,0.2)', borderRadius: 999, padding: '6px 16px' }}>
           <PulseDot color="#02C39A" size={8} />
-          <span style={{ fontSize: 12, fontWeight: 700, color: '#02C39A', letterSpacing: '0.06em' }}>QR DEMO MODE ACTIVE</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#02C39A', letterSpacing: '0.06em' }}>{t('presenter.header.badge', { ns: 'demo' })}</span>
         </div>
 
         <button
           onClick={handleEndDemo}
           style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 8, padding: '8px 18px', fontSize: 13, fontWeight: 600, color: '#EF4444', cursor: 'pointer', fontFamily: 'Inter, system-ui, sans-serif' }}
         >
-          End Session
+          {t('presenter.header.endSession', { ns: 'demo' })}
         </button>
       </div>
 
@@ -263,7 +265,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
             >
               {formatTime(secondsLeft)}
             </motion.p>
-            <p style={{ fontSize: 11, color: '#334155', marginTop: 8, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>Session expires in</p>
+            <p style={{ fontSize: 11, color: '#334155', marginTop: 8, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>{t('presenter.stats.expiresIn', { ns: 'demo' })}</p>
           </div>
 
           {/* Divider */}
@@ -278,7 +280,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
               />
               <span style={{ fontSize: 28, color: '#475569', fontWeight: 400 }}>/50</span>
             </div>
-            <p style={{ fontSize: 11, color: '#334155', marginTop: 8, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>Guests joined</p>
+            <p style={{ fontSize: 11, color: '#334155', marginTop: 8, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>{t('presenter.stats.guestsJoined', { ns: 'demo' })}</p>
             <div style={{ width: 140, height: 4, background: '#334155', borderRadius: 999, marginTop: 10, overflow: 'hidden', margin: '10px auto 0' }}>
               <motion.div
                 animate={{ width: `${guestPct}%` }}
@@ -297,10 +299,10 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
               value={totalCount}
               style={{ fontSize: isMobile ? 40 : 72, fontWeight: 800, color: '#028090', lineHeight: 1, letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums' }}
             />
-            <p style={{ fontSize: 11, color: '#334155', marginTop: 8, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>Tickets submitted</p>
+            <p style={{ fontSize: 11, color: '#334155', marginTop: 8, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>{t('presenter.stats.ticketsSubmitted', { ns: 'demo' })}</p>
             {topDept && (
               <p style={{ fontSize: 12, color: getDeptColor(topDept[0]), marginTop: 4, fontWeight: 600 }}>
-                Top: {topDept[0]}
+                {t('presenter.stats.top', { department: departmentName(topDept[0]), ns: 'demo' })}
               </p>
             )}
           </div>
@@ -317,15 +319,15 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
               style={{ background: '#fff', borderRadius: 24, padding: 18, boxShadow: '0 32px 64px rgba(0,0,0,0.5)' }}
             >
               {qrDataUrl
-                ? <img src={qrDataUrl} alt="QR Code" style={{ width: isMobile ? 200 : 300, height: isMobile ? 200 : 300, display: 'block' }} />
+                ? <img src={qrDataUrl} alt="QR Code" style={{ width: isMobile ? 200 : 300, height: isMobile? 200 : 300, display: 'block' }} />
                 : <div style={{ width: isMobile ? 200 : 300, height: isMobile ? 200 : 300, background: '#F1F5F9', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ color: '#94A3B8', fontSize: 13 }}>Generating…</span>
+                  <span style={{ color: '#94A3B8', fontSize: 13 }}>{t('presenter.qr.generating', { ns: 'demo' })}</span>
                 </div>
               }
             </motion.div>
 
             <div style={{ textAlign: 'center' }}>
-              <p style={{ fontSize: 15, fontWeight: 600, color: '#94A3B8', margin: '0 0 4px' }}>Scan with your phone</p>
+              <p style={{ fontSize: 15, fontWeight: 600, color: '#94A3B8', margin: '0 0 4px' }}>{t('presenter.qr.scanPrompt', { ns: 'demo' })}</p>
               <p style={{ fontSize: 11, color: '#475569', fontFamily: 'monospace' }}>
                 {demoUrl.replace(/^https?:\/\//, '')}
               </p>
@@ -337,9 +339,9 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <PulseDot color="#028090" size={8} />
-                <span style={{ fontSize: 11, fontWeight: 700, color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>Live Ticket Feed</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>{t('presenter.feed.title', { ns: 'demo' })}</span>
               </div>
-              <span style={{ fontSize: 11, color: '#475569' }}>AI classifies each ticket in &lt; 3s</span>
+              <span style={{ fontSize: 11, color: '#475569' }}>{t('presenter.feed.aiSpeed', { ns: 'demo' })}</span>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -359,8 +361,8 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
                     <div style={{ width: 40, height: 40, borderRadius: '50%', border: '1px dashed rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
                       <PulseDot color="#1E293B" size={8} />
                     </div>
-                    <p style={{ fontSize: 14, color: '#475569', margin: '0 0 4px' }}>Waiting for guests to submit tickets…</p>
-                    <p style={{ fontSize: 12, color: '#334155' }}>Scan the QR code with your phone to get started</p>
+                    <p style={{ fontSize: 14, color: '#475569', margin: '0 0 4px' }}>{t('presenter.feed.emptyTitle', { ns: 'demo' })}</p>
+                    <p style={{ fontSize: 12, color: '#334155' }}>{t('presenter.feed.emptySubtitle', { ns: 'demo' })}</p>
                   </motion.div>
                 )}
 
@@ -406,11 +408,11 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
                             transition={{ delay: 0.3 }}
                             style={{ fontSize: 10, fontWeight: 700, color: '#02C39A', background: 'rgba(2,195,154,0.08)', border: '1px solid rgba(2,195,154,0.2)', padding: '3px 10px', borderRadius: 6, flexShrink: 0, letterSpacing: '0.06em' }}
                           >
-                            ✦ AI CLASSIFIED
+                            ✦ {t('presenter.feed.aiClassified', { ns: 'demo' })}
                           </motion.span>
                         )}
                         <span style={{ fontSize: 12, fontWeight: 600, color: dColor, background: `${dColor}15`, padding: '3px 10px', borderRadius: 6, flexShrink: 0 }}>
-                          {ticket.department}
+                          {departmentName(ticket.department)}
                         </span>
                         {wasReclassified ? (
                           <span style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }}>
@@ -419,22 +421,22 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
                               background: 'rgba(255,255,255,0.04)', padding: '3px 8px', borderRadius: 6,
                               textDecoration: 'line-through', textDecorationColor: 'rgba(100,116,139,0.5)',
                             }}>
-                              {ticket.original_priority!.charAt(0).toUpperCase() + ticket.original_priority!.slice(1)}
+                              {t(`priority.${ticket.original_priority}`, { ns: 'tickets' })}
                             </span>
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth={2.5}>
                               <path d="M5 12h14m-6-6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                             <span style={{ fontSize: 12, fontWeight: 700, color: pColor, background: pBg, padding: '3px 10px', borderRadius: 6 }}>
-                              {ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1)}
+                              {t(`priority.${ticket.priority}`, { ns: 'tickets' })}
                             </span>
                           </span>
                         ) : (
                           <span style={{ fontSize: 12, fontWeight: 700, color: pColor, background: pBg, padding: '3px 10px', borderRadius: 6, flexShrink: 0 }}>
-                            {ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1)}
+                            {t(`priority.${ticket.priority}`, { ns: 'tickets' })}
                           </span>
                         )}
                         <span style={{ fontSize: 11, color: '#334155', minWidth: 52, textAlign: 'right' as const, flexShrink: 0 }}>
-                          {timeAgo(ticket.created_at)}
+                          {timeAgo(ticket.created_at, t)}
                         </span>
                         <button
                           type="button"

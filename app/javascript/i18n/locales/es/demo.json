@@ -1,10 +1,22 @@
 {
   "createTicket": {
     "quickChips": {
-      "printerIssue": { "label": "Problema de impresora", "description": "La impresora de mi piso no está funcionando" },
-      "vpnAccess": { "label": "VPN / acceso", "description": "No puedo conectarme a la VPN o a un sistema interno" },
-      "brokenEquipment": { "label": "Equipo roto", "description": "Un equipo o mueble de oficina está roto" },
-      "hrQuestion": { "label": "Pregunta de RRHH", "description": "Tengo una pregunta sobre una política de RRHH de la empresa" }
+      "printerIssue": {
+        "label": "Problema de impresora",
+        "description": "La impresora de mi piso no está funcionando"
+      },
+      "vpnAccess": {
+        "label": "VPN / acceso",
+        "description": "No puedo conectarme a la VPN o a un sistema interno"
+      },
+      "brokenEquipment": {
+        "label": "Equipo roto",
+        "description": "Un equipo o mueble de oficina está roto"
+      },
+      "hrQuestion": {
+        "label": "Pregunta de RRHH",
+        "description": "Tengo una pregunta sobre una política de RRHH de la empresa"
+      }
     },
     "timer": {
       "remaining": "restante"
@@ -42,13 +54,54 @@
     },
     "attachmentModal": {
       "title": "Agregar adjunto",
-      "takePhoto": { "title": "Tomar una Foto", "description": "Usá tu cámara" },
-      "chooseGallery": { "title": "Elegir de la Galería", "description": "Seleccioná una imagen existente" },
-      "uploadFile": { "title": "Subir un Archivo", "description": "PDF, DOC, TXT hasta 10MB" }
+      "takePhoto": {
+        "title": "Tomar una Foto",
+        "description": "Usá tu cámara"
+      },
+      "chooseGallery": {
+        "title": "Elegir de la Galería",
+        "description": "Seleccioná una imagen existente"
+      },
+      "uploadFile": {
+        "title": "Subir un Archivo",
+        "description": "PDF, DOC, TXT hasta 10MB"
+      }
     },
     "session": {
       "expiredTitle": "Sesión expirada",
       "expiredBody": "Esta sesión de demo terminó. Pedile al presentador que inicie una nueva."
+    }
+  },
+  "presenter": {
+    "header": {
+      "badge": "MODO DEMO QR ACTIVO",
+      "endSession": "Terminar Sesión",
+      "confirmEnd": "¿Terminar la sesión de demo? Todos los invitados van a perder acceso inmediatamente."
+    },
+    "stats": {
+      "expiresIn": "La sesión expira en",
+      "guestsJoined": "Invitados conectados",
+      "ticketsSubmitted": "Tickets enviados",
+      "top": "Principal: {{department}}"
+    },
+    "qr": {
+      "scanPrompt": "Escaneá con tu teléfono",
+      "generating": "Generando…"
+    },
+    "feed": {
+      "title": "Feed de Tickets en Vivo",
+      "aiSpeed": "La IA clasifica cada ticket en < 3s",
+      "aiClassified": "CLASIFICADO POR IA",
+      "emptyTitle": "Esperando que los invitados envíen tickets…",
+      "emptySubtitle": "Escaneá el código QR con tu teléfono para empezar"
+    },
+    "timeAgo": {
+      "seconds_one": "hace {{count}}s",
+      "seconds_other": "hace {{count}}s",
+      "minutes_one": "hace {{count}}m",
+      "minutes_other": "hace {{count}}m",
+      "hours_one": "hace {{count}}h",
+      "hours_other": "hace {{count}}h"
     }
   }
 }

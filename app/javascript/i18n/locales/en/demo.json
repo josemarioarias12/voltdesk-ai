@@ -1,10 +1,22 @@
 {
   "createTicket": {
     "quickChips": {
-      "printerIssue": { "label": "Printer issue", "description": "Printer on my floor is not working" },
-      "vpnAccess": { "label": "VPN / access", "description": "Cannot connect to VPN or internal system" },
-      "brokenEquipment": { "label": "Broken equipment", "description": "Office equipment or furniture is broken" },
-      "hrQuestion": { "label": "HR question", "description": "I have a question about a company HR policy" }
+      "printerIssue": {
+        "label": "Printer issue",
+        "description": "Printer on my floor is not working"
+      },
+      "vpnAccess": {
+        "label": "VPN / access",
+        "description": "Cannot connect to VPN or internal system"
+      },
+      "brokenEquipment": {
+        "label": "Broken equipment",
+        "description": "Office equipment or furniture is broken"
+      },
+      "hrQuestion": {
+        "label": "HR question",
+        "description": "I have a question about a company HR policy"
+      }
     },
     "timer": {
       "remaining": "remaining"
@@ -42,13 +54,54 @@
     },
     "attachmentModal": {
       "title": "Add attachment",
-      "takePhoto": { "title": "Take a Photo", "description": "Use your camera" },
-      "chooseGallery": { "title": "Choose from Gallery", "description": "Select an existing image" },
-      "uploadFile": { "title": "Upload a File", "description": "PDF, DOC, TXT up to 10MB" }
+      "takePhoto": {
+        "title": "Take a Photo",
+        "description": "Use your camera"
+      },
+      "chooseGallery": {
+        "title": "Choose from Gallery",
+        "description": "Select an existing image"
+      },
+      "uploadFile": {
+        "title": "Upload a File",
+        "description": "PDF, DOC, TXT up to 10MB"
+      }
     },
     "session": {
       "expiredTitle": "Session expired",
       "expiredBody": "This demo session has ended. Ask the presenter to start a new one."
+    }
+  },
+  "presenter": {
+    "header": {
+      "badge": "QR DEMO MODE ACTIVE",
+      "endSession": "End Session",
+      "confirmEnd": "End demo session? All guests will lose access immediately."
+    },
+    "stats": {
+      "expiresIn": "Session expires in",
+      "guestsJoined": "Guests joined",
+      "ticketsSubmitted": "Tickets submitted",
+      "top": "Top: {{department}}"
+    },
+    "qr": {
+      "scanPrompt": "Scan with your phone",
+      "generating": "Generating…"
+    },
+    "feed": {
+      "title": "Live Ticket Feed",
+      "aiSpeed": "AI classifies each ticket in < 3s",
+      "aiClassified": "AI CLASSIFIED",
+      "emptyTitle": "Waiting for guests to submit tickets…",
+      "emptySubtitle": "Scan the QR code with your phone to get started"
+    },
+    "timeAgo": {
+      "seconds_one": "{{count}}s ago",
+      "seconds_other": "{{count}}s ago",
+      "minutes_one": "{{count}}m ago",
+      "minutes_other": "{{count}}m ago",
+      "hours_one": "{{count}}h ago",
+      "hours_other": "{{count}}h ago"
     }
   }
 }
