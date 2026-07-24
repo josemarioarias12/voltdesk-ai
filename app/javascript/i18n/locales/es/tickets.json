@@ -259,7 +259,8 @@
       "title": "Respuesta Sugerida por IA",
       "similarityStats": "{{pct}}% de similitud · {{count}} tickets resueltos",
       "accept": "Aceptar Respuesta",
-      "editBeforeSending": "Editar Antes de Enviar"
+      "editBeforeSending": "Editar Antes de Enviar",
+      "dismiss": "Descartar respuesta sugerida"
     },
     "agentApproval": {
       "title": "Agente de IA Esperando Aprobación",

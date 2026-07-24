@@ -222,6 +222,7 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
       {/* Header */}
       <button
         onClick={() => setCollapsed(!collapsed)}
+        aria-expanded={!collapsed}
         style={{ width: '100%', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'none', border: 'none', cursor: 'pointer', borderBottom: collapsed ? 'none' : '1px solid rgba(15,23,42,0.05)' }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -431,7 +432,11 @@ function RagSuggestionCard({ agentAction, onAccept }: { agentAction: AgentAction
             <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>{t('show.ragSuggestion.similarityStats', { pct: Math.round(agentAction.top_similarity * 100), count: agentAction.similar_tickets.length })}</p>
           </div>
         </div>
-        <button onClick={() => setDismissed(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', fontSize: 18, lineHeight: 1, padding: '2px 6px', borderRadius: 4 }}>×</button>
+        <button
+          onClick={() => setDismissed(true)}
+          aria-label={t('show.ragSuggestion.dismiss')}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', fontSize: 18, lineHeight: 1, padding: '2px 6px', borderRadius: 4 }}
+        >×</button>
       </div>
       <div style={{ padding: '14px 20px', fontSize: 13, color: '#374151', lineHeight: 1.8, whiteSpace: 'pre-line', background: 'rgba(2,195,154,0.015)' }}>
         {agentAction.ai_reasoning}
@@ -763,12 +768,12 @@ export default function TicketsShow({
 
           {/* Comments */}
           <motion.div variants={fadeUp} style={{ background: '#fff', flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid rgba(15,23,42,0.05)', padding: '0 28px' }}>
+            <div role="tablist" style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid rgba(15,23,42,0.05)', padding: '0 28px' }}>
               {(['all', 'internal', 'external'] as const).map(tab => {
                 const tabLabels = { all: t('show.tabs.all'), internal: t('show.tabs.internal'), external: t('show.tabs.external') }
                 const isActive  = activeTab === tab
                 return (
-                  <button key={tab} onClick={() => setActiveTab(tab)}
+                  <button key={tab} role="tab" aria-selected={isActive} onClick={() => setActiveTab(tab)}
                     style={{ padding: '14px 0', marginRight: 24, fontSize: 13, fontWeight: isActive ? 600 : 400, border: 'none', background: 'none', cursor: 'pointer', borderBottom: isActive ? '2px solid #028090' : '2px solid transparent', color: isActive ? '#028090' : '#64748B', transition: 'color 120ms ease' }}>
                     {tabLabels[tab]}
                   </button>

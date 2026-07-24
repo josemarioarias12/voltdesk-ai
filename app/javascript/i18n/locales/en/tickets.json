@@ -259,7 +259,8 @@
       "title": "AI Suggested Response",
       "similarityStats": "{{pct}}% similarity · {{count}} resolved tickets",
       "accept": "Accept Response",
-      "editBeforeSending": "Edit Before Sending"
+      "editBeforeSending": "Edit Before Sending",
+      "dismiss": "Dismiss suggested response"
     },
     "agentApproval": {
       "title": "AI Agent Awaiting Approval",
