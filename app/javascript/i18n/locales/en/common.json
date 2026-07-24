@@ -13,5 +13,17 @@
       "service_not_allowed": "Voice input isn't available right now — you can type your issue below instead.",
       "unknown": "Recognition error. Please try again."
     }
+  },
+  "errorPages": {
+    "notFound": {
+      "title": "Page not found",
+      "description": "The page you're looking for doesn't exist or may have been moved.",
+      "action": "Go to Dashboard"
+    },
+    "forbidden": {
+      "title": "Access denied",
+      "description": "You don't have permission to view this page.",
+      "action": "Go to Dashboard"
+    }
   }
 }

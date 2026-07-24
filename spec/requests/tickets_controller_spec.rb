@@ -97,6 +97,43 @@ RSpec.describe TicketsController, type: :request do
     end
   end
 
+  describe 'GET /tickets/:id when the record is out of scope' do
+    before { sign_in employee }
+
+    it 'renders the NotFound page with a 404 status for a ticket in another workspace' do
+      other_workspace  = create(:workspace)
+      other_department = create(:department, workspace: other_workspace)
+      foreign_ticket   = create(:ticket, workspace: other_workspace, department: other_department,
+                                         created_by: create(:user, workspace: other_workspace, role: :employee))
+
+      get ticket_path(foreign_ticket), headers: inertia_headers
+
+      expect(response).to have_http_status(:not_found)
+      expect(response.parsed_body['component']).to eq('errors/NotFound')
+    end
+  end
+
+  describe 'when authorization fails' do
+    it 'redirects with an alert for a guest hitting the index' do
+      guest = create(:user, workspace: workspace, role: :guest)
+      sign_in guest
+
+      get tickets_path, headers: inertia_headers
+
+      expect(response).to redirect_to(root_path)
+    end
+
+    it 'redirects with an alert when an agent tries to resolve a ticket not assigned to them' do
+      unassigned_ticket = create(:ticket, workspace: workspace, department: department, created_by: employee,
+                                          status: :in_progress)
+      sign_in agent
+
+      post resolve_ticket_path(unassigned_ticket)
+
+      expect(response).to redirect_to(root_path)
+    end
+  end
+
   describe 'POST /tickets' do
     before do
       sign_in employee

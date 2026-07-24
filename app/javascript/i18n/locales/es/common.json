@@ -13,5 +13,17 @@
       "service_not_allowed": "La entrada de voz no está disponible ahora — podés escribir tu problema abajo.",
       "unknown": "Error de reconocimiento. Intentá de nuevo."
     }
+  },
+  "errorPages": {
+    "notFound": {
+      "title": "Página no encontrada",
+      "description": "La página que buscás no existe o pudo haberse movido.",
+      "action": "Ir al Dashboard"
+    },
+    "forbidden": {
+      "title": "Acceso denegado",
+      "description": "No tenés permiso para ver esta página.",
+      "action": "Ir al Dashboard"
+    }
   }
 }
