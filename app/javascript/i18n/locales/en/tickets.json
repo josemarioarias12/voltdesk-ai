@@ -142,6 +142,7 @@
       "priorityPlaceholder": "Select priority…",
       "priorityHelper": "AI will adjust after classification",
       "attachmentsLabel": "Attachments",
+      "removeAttachment": "Remove attachment {{name}}",
       "dropzone": "Drop files or ",
       "dropzoneAction": "click to add attachments",
       "dropzoneHint": "PNG, JPG, PDF, DOC up to 10MB",
@@ -152,6 +153,7 @@
     "attachmentModal": {
       "eyebrow": "Add Attachment",
       "title": "How would you like to add a file?",
+      "close": "Close",
       "takePhoto": {
         "title": "Take a Photo",
         "description": "Use your camera to capture the issue"

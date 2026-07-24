@@ -146,6 +146,7 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
   const fileInputRef    = useRef<HTMLInputElement>(null)
   const cameraInputRef  = useRef<HTMLInputElement>(null)
   const galleryInputRef = useRef<HTMLInputElement>(null)
+  const attachmentModalRef = useRef<HTMLDivElement>(null)
   const [showAttachmentModal, setShowAttachmentModal] = useState(false)
   const [selectedDept, setSelectedDept] = useState<string | null>(null)
   const [aiPreview, setAiPreview] = useState<AiPreviewData | null>(null)
@@ -175,6 +176,37 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
     debounceRef.current = setTimeout(() => { void fetchAiPreview(data.title, data.description) }, 800)
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
   }, [data.title, data.description, fetchAiPreview])
+
+  useEffect(() => {
+    if (!showAttachmentModal) return
+
+    const focusable = attachmentModalRef.current?.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    focusable?.[0]?.focus()
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setShowAttachmentModal(false)
+        return
+      }
+      if (e.key !== 'Tab' || !focusable || focusable.length === 0) return
+
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [showAttachmentModal])
 
   function handleVoiceToggle() {
     if (voiceState === 'listening') stopListening()
@@ -268,6 +300,8 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
             transition={{ duration: 0.18 }}>
                 <div style={{ background: 'linear-gradient(135deg, #028090, #026E7A)', borderRadius: 12, marginBottom: 12, padding: isMobile ? '24px 16px' : '32px 24px', textAlign: 'center' }}>
                   <button onClick={handleVoiceToggle} disabled={!isSupported} type="button"
+                    aria-label={isListening ? t('new.voice.listening') : t('new.voice.prompt')}
+                    aria-pressed={isListening}
                     style={{
                       width: 56, height: 56, borderRadius: '50%', border: 'none',
                       background: isListening ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.2)',
@@ -494,6 +528,7 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                         </div>
                       )}
                       <button type="button" onClick={e => { e.stopPropagation(); removeAttachment(i) }}
+                        aria-label={t('new.form.removeAttachment', { name: p.name })}
                         style={{ position: 'absolute', top: 2, right: 2, width: 18, height: 18, borderRadius: '50%', background: 'rgba(15,23,42,0.6)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="#fff" strokeWidth="1.5">
                           <path d="M1 1l6 6M7 1L1 7" strokeLinecap="round" />
@@ -517,6 +552,10 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
 
                   {/* Modal */}
                   <motion.div
+                    ref={attachmentModalRef}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={t('new.attachmentModal.title')}
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -536,6 +575,7 @@ export default function TicketsNew({ departments, recent_tickets }: TicketsNewPr
                           <p style={{ fontSize: 16, fontWeight: 700, color: NAVY, letterSpacing: '-0.02em' }}>{t('new.attachmentModal.title')}</p>
                         </div>
                         <button type="button" onClick={() => setShowAttachmentModal(false)}
+                          aria-label={t('new.attachmentModal.close')}
                           style={{ width: 32, height: 32, borderRadius: '50%', border: 'none', background: '#F1F5F9', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#64748B" strokeWidth="2">
                             <path d="M1 1l10 10M11 1L1 11" strokeLinecap="round" />

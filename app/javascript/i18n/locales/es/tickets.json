@@ -142,6 +142,7 @@
       "priorityPlaceholder": "Seleccioná prioridad…",
       "priorityHelper": "La IA la va a ajustar después de la clasificación",
       "attachmentsLabel": "Adjuntos",
+      "removeAttachment": "Quitar adjunto {{name}}",
       "dropzone": "Soltá archivos o ",
       "dropzoneAction": "tocá para agregar adjuntos",
       "dropzoneHint": "PNG, JPG, PDF, DOC hasta 10MB",
@@ -152,6 +153,7 @@
     "attachmentModal": {
       "eyebrow": "Agregar Adjunto",
       "title": "¿Cómo querés agregar un archivo?",
+      "close": "Cerrar",
       "takePhoto": {
         "title": "Tomar una Foto",
         "description": "Usá tu cámara para capturar el problema"
