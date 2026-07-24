@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ticket Assigned</title>
+</head>
+<body style="margin:0;padding:0;background:#F8FAFC;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+
+  <!-- Preheader -->
+  <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#F8FAFC;">
+    Ticket <%= @ticket.ticket_number %> has been assigned to you — <%= @ticket.priority&.capitalize %> priority.
+  </div>
+
+  <!-- Wrapper -->
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+          <!-- Header -->
+          <tr>
+            <td style="padding-bottom:24px;" align="center">
+              <%= render 'ticket_mailer/header' %>
+            </td>
+          </tr>
+
+          <!-- Card -->
+          <tr>
+            <td style="background:#ffffff;border-radius:16px;border:1px solid rgba(15,23,42,0.08);box-shadow:0 1px 3px rgba(0,0,0,0.05),0 8px 24px rgba(0,0,0,0.04);overflow:hidden;">
+
+              <!-- Top bar -->
+              <tr>
+                <td bgcolor="#028090" style="background-color:#028090;background:linear-gradient(135deg,#028090,#026E7A);padding:28px 36px;">
+                  <p style="margin:0 0 6px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:0.09em;">
+                    New Assignment
+                  </p>
+                  <p style="margin:0;font-size:24px;font-weight:700;color:#ffffff;letter-spacing:-0.02em;">
+                    A ticket has been assigned to you
+                  </p>
+                  <p style="margin:8px 0 0;font-size:14px;color:rgba(255,255,255,0.75);">
+                    Hi <%= @agent.full_name %>, here's what's waiting for you
+                  </p>
+                </td>
+              </tr>
+
+              <!-- Ticket number badge -->
+              <tr>
+                <td style="padding:28px 36px 0;">
+                  <table cellpadding="0" cellspacing="0">
+                    <tr>
+                      <td style="background:#F0FDFA;border:1px solid rgba(2,128,144,0.20);border-radius:8px;padding:12px 20px;">
+                        <span style="font-size:13px;color:#64748B;font-weight:500;">Ticket Number</span>
+                        <br/>
+                        <span style="font-size:22px;font-weight:700;color:#028090;font-family:monospace;letter-spacing:0.04em;">
+                          <%= @ticket.ticket_number %>
+                        </span>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+
+              <!-- Ticket details -->
+              <tr>
+                <td style="padding:24px 36px 0;">
+                  <p style="margin:0 0 4px;font-size:11px;font-weight:600;color:#94A3B8;text-transform:uppercase;letter-spacing:0.09em;">Subject</p>
+                  <p style="margin:0 0 20px;font-size:16px;font-weight:600;color:#0F172A;line-height:1.4;">
+                    <%= @ticket.title %>
+                  </p>
+
+                  <% if @ticket.description.present? %>
+                  <p style="margin:0 0 4px;font-size:11px;font-weight:600;color:#94A3B8;text-transform:uppercase;letter-spacing:0.09em;">Description</p>
+                  <p style="margin:0 0 20px;font-size:14px;color:#475569;line-height:1.75;background:#F8FAFC;border-radius:8px;padding:12px 16px;border-left:3px solid #028090;">
+                    <%= @ticket.description %>
+                  </p>
+                  <% end %>
+                </td>
+              </tr>
+
+              <!-- AI Classification block -->
+              <tr>
+                <td style="padding:0 36px 24px;">
+                  <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid rgba(15,23,42,0.08);border-radius:10px;overflow:hidden;">
+                    <tr style="background:#F8FAFC;">
+                      <td style="padding:14px 18px;border-right:1px solid rgba(15,23,42,0.06);width:33%;">
+                        <p style="margin:0 0 2px;font-size:11px;color:#94A3B8;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;">Category</p>
+                        <p style="margin:0;font-size:14px;font-weight:600;color:#0F172A;"><%= @ticket.category&.capitalize %></p>
+                      </td>
+                      <td style="padding:14px 18px;border-right:1px solid rgba(15,23,42,0.06);width:33%;">
+                        <p style="margin:0 0 2px;font-size:11px;color:#94A3B8;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;">Priority</p>
+                        <p style="margin:0;font-size:14px;font-weight:600;color:<%= @ticket.priority == 'critical' ? '#DC2626' : @ticket.priority == 'high' ? '#EA580C' : @ticket.priority == 'medium' ? '#CA8A04' : '#6B7280' %>;">
+                          <%= @ticket.priority&.capitalize %>
+                        </p>
+                      </td>
+                      <td style="padding:14px 18px;width:34%;">
+                        <p style="margin:0 0 2px;font-size:11px;color:#94A3B8;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;">Urgency Score</p>
+                        <p style="margin:0;font-size:14px;font-weight:600;color:#0F172A;"><%= @ticket.urgency_score %>/100</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+
+              <% if @ticket.due_at.present? %>
+              <!-- SLA banner -->
+              <tr>
+                <td style="padding:0 36px 28px;">
+                  <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#FEF3C7" style="background-color:#FEF3C7;border:1px solid rgba(202,138,4,0.25);border-radius:10px;">
+                    <tr>
+                      <td style="padding:16px 20px;">
+                        <p style="margin:0 0 4px;font-size:13px;font-weight:700;color:#92400E;">
+                          SLA Due Date
+                        </p>
+                        <p style="margin:0;font-size:14px;color:#78350F;line-height:1.6;">
+                          This ticket is due by <%= @ticket.due_at.strftime('%b %d, %Y at %I:%M %p') %>.
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <% end %>
+
+              <!-- CTA -->
+              <tr>
+                <td style="padding:0 36px 32px;" align="center">
+                  <a href="<%= ENV.fetch('APP_HOST', 'https://voltdesk.app') %>/tickets/<%= @ticket.id %>"
+                     style="display:inline-block;background:linear-gradient(135deg,#028090,#026E7A);color:#ffffff;font-size:14px;font-weight:600;padding:13px 28px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;box-shadow:0 2px 8px rgba(2,128,144,0.30);">
+                    View Ticket →
+                  </a>
+                </td>
+              </tr>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:24px 0;" align="center">
+              <p style="margin:0;font-size:12px;color:#94A3B8;">
+                <%= @workspace.name %> · Powered by VoltDesk AI
+              </p>
+              <p style="margin:4px 0 0;font-size:11px;color:#CBD5E1;">
+                This is an automated notification. Please do not reply to this email.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

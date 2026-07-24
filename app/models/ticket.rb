@@ -79,11 +79,13 @@ class Ticket < ApplicationRecord
       Workflows::EvaluateRulesJob.perform_later(id, 'ticket_updated')
     end
     broadcast_twin_event('ticket_resolved') if saved_change_to_status? && status_resolved?
+    Tickets::SendAssignmentEmailJob.perform_later(id) if saved_change_to_assigned_to_id? && assigned_to_id.present?
+    Tickets::SendResolutionEmailJob.perform_later(id) if saved_change_to_status? && status_resolved?
   }
 
   # ── Scopes ────────────────────────────────────────────────────────────────────
   scope :open_tickets,      -> { where(status: %i[open in_progress pending]) }
-  scope :sla_at_risk,       -> { open_tickets.where(due_at: ..30.minutes.from_now) }
+  scope :sla_at_risk,       -> { open_tickets.where(due_at: Time.current..30.minutes.from_now) }
   scope :sla_breached,      -> { open_tickets.where(due_at: ...Time.current) }
   scope :for_department,    ->(dept_id) { where(department_id: dept_id) }
   scope :assigned_to_agent, ->(user_id) { where(assigned_to_id: user_id) }
