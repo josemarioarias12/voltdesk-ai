@@ -39,7 +39,6 @@ export interface AiMetadata {
   reasoning: {
     category_signals: string[]
     priority_signals: string[]
-    similar_ticket: string | null
     confidence: number
   }
   tags: string[]

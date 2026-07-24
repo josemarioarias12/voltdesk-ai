@@ -213,7 +213,7 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
   const meta = ticket.ai_metadata
   if (!meta?.reasoning) return null
 
-  const { category_signals, priority_signals, confidence, similar_ticket } = meta.reasoning
+  const { category_signals, priority_signals, confidence } = meta.reasoning
   const confidencePct = Math.round(confidence * 100)
   const isHigh = confidence >= 0.70
 
@@ -296,25 +296,6 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
                   </div>
                 </div>
 
-                {/* Similar tickets list */}
-                {similar_ticket && (
-                  <div>
-                    <p style={{ ...LABEL, marginBottom: 8 }}>{t('show.xai.similarTickets')}</p>
-                    <motion.div
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 }}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', borderRadius: 8, background: '#F8FAFC', border: '1px solid rgba(15,23,42,0.06)', cursor: 'pointer' }}
-                      onClick={() => router.get(`/tickets/${similar_ticket}`)}
-                    >
-                      <div style={{ minWidth: 0 }}>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: '#028090', fontFamily: 'monospace' }}>{similar_ticket}</span>
-                        <p style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{t('show.xai.similarIssueResolved')}</p>
-                      </div>
-                      <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#F0FDF4', color: '#15803D', border: '1px solid rgba(21,128,61,0.15)', flexShrink: 0, marginLeft: 8 }}>{t('show.xai.resolved')}</span>
-                    </motion.div>
-                  </div>
-                )}
 
                 {ticket.correction_rate && ticket.correction_rate.times_corrected > 0 && (
                   <div style={{ marginTop: 14, padding: '9px 12px', borderRadius: 8, background: ticket.correction_rate.times_corrected > 5 ? '#FFFBEB' : '#F8FAFC', border: `1px solid ${ticket.correction_rate.times_corrected > 5 ? 'rgba(217,119,6,0.2)' : 'rgba(15,23,42,0.06)'}` }}>

@@ -47,7 +47,6 @@ RSpec.describe Ai::TicketClassifier, type: :service do
         expect(metadata['category']).to eq('it')
         expect(metadata['reasoning']['category_signals']).to include('printer')
         expect(metadata['reasoning']['confidence']).to eq(0.94)
-        expect(metadata['reasoning']['similar_ticket']).to eq('TK-00189')
       end
 
       it 'creates an AiAuditLog entry' do

@@ -18,8 +18,7 @@ module AiStubs
             reasoning: {
               category_signals: ['printer', 'not working', 'paper jam'],
               priority_signals: ['month close', '2 hours', 'accounting'],
-              confidence: 0.94,
-              similar_ticket: 'TK-00189'
+              confidence: 0.94
             },
             tags: %w[hardware printer accounting],
             suggested_agent: 'it_manager'

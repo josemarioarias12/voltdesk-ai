@@ -20,8 +20,7 @@ module Ai
         "reasoning": {
           "category_signals": [string],
           "priority_signals": [string],
-          "confidence": float 0.0-1.0,
-          "similar_ticket": string | null
+          "confidence": float 0.0-1.0
         },
         "tags": [string],
         "suggested_agent": string | null,

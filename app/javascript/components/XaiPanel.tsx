@@ -136,29 +136,6 @@ export default function XaiPanel({ aiMetadata, ticketNumber }: XaiPanelProps) {
 
               <ConfidenceBadge confidence={confidence} showWarning={confidence < 0.7} />
 
-              {reasoning.similar_ticket && (
-                <div>
-                  <p className="text-xs font-semibold text-[#475569] uppercase tracking-wide mb-2">
-                    {t('show.xai.similarTickets')}
-                  </p>
-                  <div className="flex items-center justify-between bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl px-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-[#028090]">
-                        <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      <span className="text-sm font-semibold text-[#028090]">
-                        {reasoning.similar_ticket}
-                      </span>
-                      <span className="text-sm text-[#475569]">{t('show.xai.similarIssueSuffix')}</span>
-                    </div>
-                    <span className="px-2 py-0.5 bg-[#16A34A]/10 text-[#16A34A] text-xs font-semibold rounded-full">
-                      {t('show.xai.resolved')}
-                    </span>
-                  </div>
-                </div>
-              )}
-
               {tags && tags.length > 0 && (
                 <div>
                   <p className="text-xs font-semibold text-[#475569] uppercase tracking-wide mb-2">
