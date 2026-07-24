@@ -68,7 +68,19 @@ RSpec.describe TicketPolicy, type: :policy do
     let(:agent)  { make_user(:agent) }
     let(:ticket) { make_ticket(assigned_to: agent) }
 
-    it { is_expected.to permit_only_actions(%i[index create show update resolve_ticket view_internal_comments add_internal_comment bulk_update]) }
+    it { is_expected.to permit_only_actions(%i[index create show update resolve_ticket change_priority view_internal_comments add_internal_comment bulk_update]) }
+  end
+
+  describe 'agent — same department, not assigned' do
+    subject { described_class.new(agent, ticket) }
+
+    let(:agent)      { make_user(:agent) }
+    let(:other_user) { make_user(:employee) }
+    let(:ticket)     { make_ticket(created_by: other_user) }
+
+    it { is_expected.to permit_action(:show) }
+    it { is_expected.to permit_action(:bulk_update) }
+    it { is_expected.to forbid_actions(%i[update resolve_ticket assign]) }
   end
 
   describe 'agent — other department ticket' do
@@ -97,6 +109,58 @@ RSpec.describe TicketPolicy, type: :policy do
 
     it { is_expected.to forbid_actions(%i[show update assign]) }
     it { is_expected.to permit_action(:bulk_update) }
+  end
+
+  describe 'admin/manager tier — all six roles, cross-department' do
+    %i[super_admin workspace_admin hr_manager it_manager facilities_manager operations_manager].each do |role|
+      context "as #{role}" do
+        subject { described_class.new(user, ticket) }
+
+        let(:user)   { make_user(role) }
+        let(:ticket) { make_ticket(other_dept) }
+
+        it { is_expected.to permit_actions(%i[index show create update assign bulk_update resolve_ticket view_internal_comments add_internal_comment]) }
+      end
+    end
+  end
+
+  describe 'internal comments visibility' do
+    it 'department_manager can view and add internal comments' do
+      manager = make_user(:department_manager)
+      ticket  = make_ticket
+      policy  = described_class.new(manager, ticket)
+
+      expect(policy.view_internal_comments?).to be true
+      expect(policy.add_internal_comment?).to be true
+    end
+
+    it 'admin/manager tier can view and add internal comments' do
+      admin  = make_user(:workspace_admin)
+      ticket = make_ticket
+
+      policy = described_class.new(admin, ticket)
+
+      expect(policy.view_internal_comments?).to be true
+      expect(policy.add_internal_comment?).to be true
+    end
+
+    it 'employee cannot view or add internal comments' do
+      employee = make_user(:employee)
+      ticket   = make_ticket(created_by: employee)
+      policy   = described_class.new(employee, ticket)
+
+      expect(policy.view_internal_comments?).to be false
+      expect(policy.add_internal_comment?).to be false
+    end
+
+    it 'guest cannot view or add internal comments' do
+      guest  = make_user(:guest)
+      ticket = make_ticket
+      policy = described_class.new(guest, ticket)
+
+      expect(policy.view_internal_comments?).to be false
+      expect(policy.add_internal_comment?).to be false
+    end
   end
 
   describe 'workspace_admin' do
@@ -136,6 +200,14 @@ RSpec.describe TicketPolicy, type: :policy do
       scope = described_class::Scope.new(manager, Ticket.all).resolve
       expect(scope).to include(own_dept_ticket)
       expect(scope).not_to include(other_dept_ticket)
+    end
+
+    it 'guest sees no tickets' do
+      own_ticket
+      other_ticket
+      guest = make_user(:guest)
+      scope = described_class::Scope.new(guest, Ticket.all).resolve
+      expect(scope).to be_empty
     end
   end
 end

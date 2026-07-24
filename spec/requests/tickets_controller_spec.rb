@@ -149,10 +149,13 @@ RSpec.describe TicketsController, type: :request do
       end
 
       it 'does not allow an agent to assign tickets' do
+        another_agent = create(:user, workspace: workspace, role: :agent, department: department)
+        ticket_two.update!(assigned_to: another_agent)
         sign_in agent
+
         patch bulk_update_tickets_path, params: { bulk_action: 'assign', value: agent.id, ticket_ids: [ticket_two.id] }
 
-        expect(ticket_two.reload.assigned_to_id).to eq(agent.id)
+        expect(ticket_two.reload.assigned_to_id).to eq(another_agent.id)
       end
     end
 
@@ -226,6 +229,66 @@ RSpec.describe TicketsController, type: :request do
       filters = response.parsed_body['props']['filters']
 
       expect(filters).to include('sort' => 'updated_at', 'direction' => 'asc')
+    end
+  end
+
+  describe 'authorization edge cases — B5 findings' do
+    context 'B5-01: employee resolving own in_progress ticket via the generic update endpoint' do
+      let(:ticket) do
+        create(:ticket, workspace: workspace, department: department, created_by: employee, status: :in_progress)
+      end
+
+      before { sign_in employee }
+
+      it 'does not allow status to change to resolved outside the dedicated resolve action' do
+        patch ticket_path(ticket), params: { ticket: { status: 'resolved' } }
+
+        expect(ticket.reload.status).to eq('in_progress')
+      end
+    end
+
+    context 'B5-02: employee changing priority on own open ticket via the generic update endpoint' do
+      let(:ticket) do
+        create(:ticket, workspace: workspace, department: department, created_by: employee,
+                        status: :open, priority: :medium)
+      end
+
+      before { sign_in employee }
+
+      it 'does not allow priority to change' do
+        patch ticket_path(ticket), params: { ticket: { priority: 'critical' } }
+
+        expect(ticket.reload.priority).to eq('medium')
+      end
+    end
+
+    context 'B5-02: employee changing priority in bulk on own open ticket' do
+      let(:ticket) do
+        create(:ticket, workspace: workspace, department: department, created_by: employee,
+                        status: :open, priority: :medium)
+      end
+
+      before { sign_in employee }
+
+      it 'skips the ticket and does not change priority' do
+        patch bulk_update_tickets_path, params: { bulk_action: 'priority', value: 'critical', ticket_ids: [ticket.id] }
+
+        expect(ticket.reload.priority).to eq('medium')
+      end
+    end
+
+    context 'B5-03: deactivated account attempting to use the system' do
+      let(:inactive_employee) do
+        create(:user, workspace: workspace, role: :employee, active: false)
+      end
+
+      before { sign_in inactive_employee }
+
+      it 'is denied access instead of receiving a normal 200 response' do
+        get tickets_path, headers: inertia_headers
+
+        expect(response).not_to have_http_status(:ok)
+      end
     end
   end
 end
