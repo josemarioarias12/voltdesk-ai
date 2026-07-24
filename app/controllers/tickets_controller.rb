@@ -38,11 +38,13 @@ class TicketsController < ApplicationController
     authorize @ticket
 
     render inertia: 'Tickets/Show', props: {
-      ticket:       serialize_ticket_detail(@ticket),
-      can_resolve:  policy(@ticket).resolve_ticket?,
-      can_assign:   policy(@ticket).assign?,
-      can_internal: policy(@ticket).view_internal_comments?,
-      agent_action: serialize_pending_agent_action(@ticket)
+      ticket:              serialize_ticket_detail(@ticket),
+      can_resolve:         policy(@ticket).resolve_ticket?,
+      can_assign:          policy(@ticket).assign?,
+      can_change_priority: policy(@ticket).change_priority?,
+      can_internal:        policy(@ticket).view_internal_comments?,
+      assignable_agents:   assignable_agents_list,
+      agent_action:        serialize_pending_agent_action(@ticket)
     }
   end
 
@@ -119,9 +121,9 @@ class TicketsController < ApplicationController
       message = "#{result.data[:updated_count]} ticket(s) updated."
       skipped = result.data[:skipped_count]
       message += " #{skipped} skipped (invalid status or permission)." if skipped.positive?
-      redirect_to tickets_path, notice: message
+      redirect_back_or_to(tickets_path, notice: message)
     else
-      redirect_to tickets_path, alert: result.error
+      redirect_back_or_to(tickets_path, alert: result.error)
     end
   end
 

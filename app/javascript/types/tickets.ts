@@ -151,7 +151,9 @@ export interface TicketsShowProps {
   }
   can_resolve: boolean
   can_assign: boolean
+  can_change_priority: boolean
   can_internal: boolean
+  assignable_agents: Array<{ id: number; full_name: string }>
   agent_action: AgentActionPending | null
 }
 

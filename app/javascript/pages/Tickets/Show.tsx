@@ -29,6 +29,17 @@ const LABEL: React.CSSProperties = {
   letterSpacing: '0.09em',
 }
 
+const PANEL_SELECT_STYLE: React.CSSProperties = {
+  fontSize: 12,
+  fontWeight: 500,
+  padding: '4px 8px',
+  borderRadius: 6,
+  border: '1px solid rgba(15,23,42,0.12)',
+  color: '#0F172A',
+  background: '#fff',
+  cursor: 'pointer',
+}
+
 const PRIORITY_COLORS: Record<TicketPriority, string> = {
   critical: '#DC2626', high: '#EA580C', medium: '#D97706', low: '#6B7280',
 }
@@ -578,7 +589,7 @@ function ActivityItem({ activity }: { activity: TicketActivity }) {
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function TicketsShow({
-  ticket, can_resolve, can_assign: _can_assign, can_internal, agent_action,
+  ticket, can_resolve, can_assign, can_change_priority, can_internal, assignable_agents, agent_action,
 }: TicketsShowProps) {
   const { t } = useTranslation('tickets')
   const departmentName = useDepartmentName()
@@ -586,6 +597,26 @@ export default function TicketsShow({
   const [commentBody, setCommentBody] = useState('')
   const [isInternal, setIsInternal]   = useState(false)
   const [activeTab, setActiveTab]     = useState<'all' | 'internal' | 'external'>('all')
+  const [isReassigning, setIsReassigning]             = useState(false)
+  const [isChangingPriority, setIsChangingPriority]   = useState(false)
+
+  function reassignTicket(agentId: number) {
+    setIsReassigning(true)
+    router.patch('/tickets/bulk_update', {
+      bulk_action: 'assign',
+      value: agentId,
+      ticket_ids: [ticket.id],
+    }, { preserveScroll: true, onFinish: () => setIsReassigning(false) })
+  }
+
+  function changeTicketPriority(value: TicketPriority) {
+    setIsChangingPriority(true)
+    router.patch('/tickets/bulk_update', {
+      bulk_action: 'priority',
+      value,
+      ticket_ids: [ticket.id],
+    }, { preserveScroll: true, onFinish: () => setIsChangingPriority(false) })
+  }
 
   useActionCable(
     { channel: 'TicketsChannel', ticket_id: ticket.id },
@@ -859,12 +890,22 @@ export default function TicketsShow({
             <p style={{ ...LABEL, marginBottom: 12 }}>{t('show.people.title')}</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
-                { label: t('show.people.assignedTo'), user: ticket.assigned_to },
-                { label: t('show.people.requestedBy'), user: ticket.created_by },
-              ].map(({ label, user }) => (
-                <div key={label}>
+                { key: 'assignee', label: t('show.people.assignedTo'), user: ticket.assigned_to, reassignable: true },
+                { key: 'requester', label: t('show.people.requestedBy'), user: ticket.created_by, reassignable: false },
+              ].map(({ key, label, user, reassignable }) => (
+                <div key={key}>
                   <p style={{ fontSize: 10.5, color: '#94A3B8', marginBottom: 6 }}>{label}</p>
-                  {user ? (
+                  {reassignable && can_assign ? (
+                    <select
+                      value={ticket.assigned_to?.id ?? ''}
+                      disabled={isReassigning}
+                      onChange={e => reassignTicket(Number(e.target.value))}
+                      style={PANEL_SELECT_STYLE}
+                    >
+                      <option value="" disabled>{t('show.people.unassigned')}</option>
+                      {assignable_agents.map(a => <option key={a.id} value={a.id}>{a.full_name}</option>)}
+                    </select>
+                  ) : user ? (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#0D1B2A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <span style={{ color: '#fff', fontSize: 10, fontWeight: 700 }}>{user.full_name.charAt(0)}</span>
@@ -886,15 +927,28 @@ export default function TicketsShow({
           <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(15,23,42,0.05)' }}>
             <p style={{ ...LABEL, marginBottom: 12 }}>{t('show.properties.title')}</p>
             {[
-              { label: t('show.properties.department'), value: departmentName(ticket.department.name), color: undefined },
-              { label: t('show.properties.category'),   value: t(`category.${ticket.category}`), color: undefined },
-              { label: t('show.properties.priority'),   value: t(`priority.${ticket.priority}`), color: priorityColor },
-              { label: t('show.properties.status'),     value: t(`status.${ticket.status}`),    color: statusCfg.text },
-              { label: t('show.properties.created'),    value: new Date(ticket.created_at).toLocaleDateString(), color: '#94A3B8' },
-            ].map(({ label, value, color }) => (
-              <div key={label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid rgba(15,23,42,0.04)' }}>
+              { key: 'department', label: t('show.properties.department'), value: departmentName(ticket.department.name), color: undefined },
+              { key: 'category',   label: t('show.properties.category'),   value: t(`category.${ticket.category}`), color: undefined },
+              { key: 'priority',   label: t('show.properties.priority'),   value: t(`priority.${ticket.priority}`), color: priorityColor },
+              { key: 'status',     label: t('show.properties.status'),     value: t(`status.${ticket.status}`),    color: statusCfg.text },
+              { key: 'created',    label: t('show.properties.created'),    value: new Date(ticket.created_at).toLocaleDateString(), color: '#94A3B8' },
+            ].map(({ key, label, value, color }) => (
+              <div key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid rgba(15,23,42,0.04)' }}>
                 <span style={{ fontSize: 11, color: '#94A3B8' }}>{label}</span>
-                <span style={{ fontSize: 12, fontWeight: 500, color: color ?? '#0F172A' }}>{value}</span>
+                {key === 'priority' && can_change_priority ? (
+                  <select
+                    value={ticket.priority}
+                    disabled={isChangingPriority}
+                    onChange={e => changeTicketPriority(e.target.value as TicketPriority)}
+                    style={PANEL_SELECT_STYLE}
+                  >
+                    {(['critical', 'high', 'medium', 'low'] as const).map(p => (
+                      <option key={p} value={p}>{t(`priority.${p}`)}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <span style={{ fontSize: 12, fontWeight: 500, color: color ?? '#0F172A' }}>{value}</span>
+                )}
               </div>
             ))}
           </div>

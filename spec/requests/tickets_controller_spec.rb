@@ -57,6 +57,44 @@ RSpec.describe TicketsController, type: :request do
       json = response.parsed_body
       expect(json['props']).to include('ticket')
     end
+
+    it 'returns authorization and assignment props for the current role' do
+      get ticket_path(ticket), headers: inertia_headers
+      json = response.parsed_body
+      expect(json['props']).to include('can_resolve', 'can_assign', 'can_change_priority', 'assignable_agents')
+    end
+
+    it 'sets can_assign to false for an agent, who can never assign tickets regardless of assignment' do
+      get ticket_path(ticket), headers: inertia_headers
+      json = response.parsed_body
+      expect(json['props']['can_assign']).to be false
+    end
+
+    it 'sets can_change_priority to true for the agent assigned to this specific ticket' do
+      get ticket_path(ticket), headers: inertia_headers
+      json = response.parsed_body
+      expect(json['props']['can_change_priority']).to be true
+    end
+
+    it 'sets can_change_priority to false for an agent viewing a ticket assigned to someone else' do
+      other_agent = create(:user, workspace: workspace, role: :agent, department: department)
+      unassigned_ticket = create(:ticket, workspace: workspace, department: department, created_by: employee,
+                                          assigned_to: other_agent)
+
+      get ticket_path(unassigned_ticket), headers: inertia_headers
+      json = response.parsed_body
+      expect(json['props']['can_change_priority']).to be false
+    end
+
+    it 'sets can_assign and can_change_priority to true for a department manager on their own department' do
+      manager = create(:user, workspace: workspace, role: :department_manager, department: department)
+      sign_in manager
+
+      get ticket_path(ticket), headers: inertia_headers
+      json = response.parsed_body
+      expect(json['props']['can_assign']).to be true
+      expect(json['props']['can_change_priority']).to be true
+    end
   end
 
   describe 'POST /tickets' do
