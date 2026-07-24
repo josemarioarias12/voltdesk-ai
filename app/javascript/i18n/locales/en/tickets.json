@@ -245,7 +245,12 @@
       "reviewRecommended": "Review recommended",
       "manualReview": "Manual review recommended",
       "correctedRate": "Category {{category}} corrected {{count}}×",
-      "highRate": "High rate"
+      "highRate": "High rate",
+      "poweredBy": "Powered by GPT-4o",
+      "collapse": "Collapse",
+      "expand": "Expand",
+      "noSignalsDetected": "No signals detected",
+      "similarIssueSuffix": "— Similar issue, resolved in 2h"
     },
     "vision": {
       "title": "Vision AI Analysis"

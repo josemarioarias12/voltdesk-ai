@@ -245,7 +245,12 @@
       "reviewRecommended": "Se recomienda revisión",
       "manualReview": "Se recomienda revisión manual",
       "correctedRate": "Categoría {{category}} corregida {{count}}×",
-      "highRate": "Tasa alta"
+      "highRate": "Tasa alta",
+      "poweredBy": "Impulsado por GPT-4o",
+      "collapse": "Colapsar",
+      "expand": "Expandir",
+      "noSignalsDetected": "Sin señales detectadas",
+      "similarIssueSuffix": "— Problema similar, resuelto en 2h"
     },
     "vision": {
       "title": "Análisis de Visión IA"
