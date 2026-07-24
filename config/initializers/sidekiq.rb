@@ -46,6 +46,11 @@ if defined?(Sidekiq)
                                               'name'  => 'Data Retention Purge — 2am daily',
                                               'cron'  => '0 2 * * *',
                                               'class' => 'DataRetentionJob'
+                                            },
+                                            {
+                                              'name'  => 'Demo Guest Cleanup — 3am daily',
+                                              'cron'  => '0 3 * * *',
+                                              'class' => 'DemoGuestCleanupJob'
                                             }
                                           ])
     end
