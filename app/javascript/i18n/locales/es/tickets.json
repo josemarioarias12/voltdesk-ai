@@ -203,6 +203,7 @@
   "show": {
     "breadcrumb": "Tickets",
     "resolveTicket": "Resolver Ticket",
+    "startProgress": "Marcar En Progreso",
     "description": "Descripción",
     "noDescription": "No se proporcionó descripción.",
     "attachments": "Adjuntos",

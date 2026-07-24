@@ -109,7 +109,14 @@ class Ticket < ApplicationRecord
     'pending_classification' => %w[open in_progress]
   }.freeze
 
-  def can_transition_to?(new_status)
+  ADMIN_OVERRIDE_ROLES = %w[super_admin workspace_admin].freeze
+
+  def can_transition_to?(new_status, user: nil)
+    if user && ADMIN_OVERRIDE_ROLES.include?(user.role.to_s) &&
+       new_status.to_s == 'resolved' && !status_resolved? && !status_closed?
+      return true
+    end
+
     VALID_TRANSITIONS.fetch(status, []).include?(new_status.to_s)
   end
 

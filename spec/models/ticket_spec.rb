@@ -219,6 +219,36 @@ RSpec.describe Ticket, type: :model do
         end
       end
     end
+
+    describe 'admin override' do
+      %w[super_admin workspace_admin].each do |admin_role|
+        it "allows #{admin_role} to force any non-terminal status directly to resolved" do
+          admin = build(:user, workspace: workspace, role: admin_role)
+
+          # rubocop:disable Performance/CollectionLiteralInLoop
+          %w[open pending pending_classification].each do |from_status|
+            ticket = build(:ticket, workspace: workspace, department: department, created_by: creator, status: from_status)
+            expect(ticket.can_transition_to?('resolved', user: admin)).to be true
+          end
+          # rubocop:enable Performance/CollectionLiteralInLoop
+        end
+      end
+
+      it 'does not grant the override to a non-admin role' do
+        agent = build(:user, workspace: workspace, role: :agent)
+        ticket = build(:ticket, workspace: workspace, department: department, created_by: creator, status: 'open')
+
+        expect(ticket.can_transition_to?('resolved', user: agent)).to be false
+      end
+
+      it 'does not apply to statuses other than resolved' do
+        admin = build(:user, workspace: workspace, role: :workspace_admin)
+        ticket = build(:ticket, workspace: workspace, department: department, created_by: creator, status: 'open')
+
+        expect(ticket.can_transition_to?('closed', user: admin)).to be true
+        expect(ticket.can_transition_to?('pending', user: admin)).to be false
+      end
+    end
   end
 
   describe 'SLA helpers' do

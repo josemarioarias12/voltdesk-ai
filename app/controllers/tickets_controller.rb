@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class TicketsController < ApplicationController
-  before_action :set_ticket, only: %i[show update resolve]
+  before_action :set_ticket, only: %i[show update resolve start_progress]
   ALLOWED_SORT_COLUMNS = %w[priority updated_at].freeze
   def index
     authorize :ticket, :index?
@@ -39,7 +39,8 @@ class TicketsController < ApplicationController
 
     render inertia: 'Tickets/Show', props: {
       ticket:              serialize_ticket_detail(@ticket),
-      can_resolve:         policy(@ticket).resolve_ticket?,
+      can_resolve:         ticket_transition_allowed?('resolved'),
+      can_start_progress:  ticket_transition_allowed?('in_progress'),
       can_assign:          policy(@ticket).assign?,
       can_change_priority: policy(@ticket).change_priority?,
       can_internal:        policy(@ticket).view_internal_comments?,
@@ -106,6 +107,22 @@ class TicketsController < ApplicationController
     end
   end
 
+  def start_progress
+    authorize @ticket, :resolve_ticket?
+
+    result = Tickets::UpdateTicket.call(
+      ticket: @ticket,
+      user: current_user,
+      params: { status: :in_progress }
+    )
+
+    if result.success?
+      redirect_to ticket_path(@ticket), notice: "Ticket #{@ticket.ticket_number} marked in progress."
+    else
+      redirect_back_or_to(ticket_path(@ticket), alert: result.error)
+    end
+  end
+
   def bulk_update
     authorize :ticket, :bulk_update?
 
@@ -131,6 +148,10 @@ class TicketsController < ApplicationController
 
   def set_ticket
     @ticket = policy_scope(Ticket).includes(:department, :assigned_to, :created_by).find(params.expect(:id))
+  end
+
+  def ticket_transition_allowed?(status)
+    policy(@ticket).resolve_ticket? && @ticket.can_transition_to?(status, user: current_user)
   end
 
   def ticket_params

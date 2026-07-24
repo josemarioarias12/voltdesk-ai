@@ -149,6 +149,7 @@ export interface TicketsShowProps {
     activities: TicketActivity[]
   }
   can_resolve: boolean
+  can_start_progress: boolean
   can_assign: boolean
   can_change_priority: boolean
   can_internal: boolean

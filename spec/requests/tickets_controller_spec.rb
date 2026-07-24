@@ -61,7 +61,7 @@ RSpec.describe TicketsController, type: :request do
     it 'returns authorization and assignment props for the current role' do
       get ticket_path(ticket), headers: inertia_headers
       json = response.parsed_body
-      expect(json['props']).to include('can_resolve', 'can_assign', 'can_change_priority', 'assignable_agents')
+      expect(json['props']).to include('can_resolve', 'can_start_progress', 'can_assign', 'can_change_priority', 'assignable_agents')
     end
 
     it 'sets can_assign to false for an agent, who can never assign tickets regardless of assignment' do
@@ -176,6 +176,49 @@ RSpec.describe TicketsController, type: :request do
     it 'resolves the ticket and redirects' do
       post resolve_ticket_path(ticket)
       expect(ticket.reload.status).to eq('resolved')
+    end
+  end
+
+  describe 'POST /tickets/:id/start_progress' do
+    let(:ticket) { create(:ticket, workspace: workspace, department: department, created_by: employee, assigned_to: agent, status: :open) }
+
+    before { sign_in agent }
+
+    it 'marks the ticket in progress and redirects' do
+      post start_progress_ticket_path(ticket)
+      expect(ticket.reload.status).to eq('in_progress')
+    end
+  end
+
+  describe 'state machine gating on can_resolve / can_start_progress (GET /tickets/:id)' do
+    let(:ticket) { create(:ticket, workspace: workspace, department: department, created_by: employee, assigned_to: agent, status: :open) }
+
+    context 'as the assigned agent, with the ticket still open' do
+      before { sign_in agent }
+
+      it 'sets can_resolve to false because open cannot transition directly to resolved' do
+        get ticket_path(ticket), headers: inertia_headers
+        json = response.parsed_body
+        expect(json['props']['can_resolve']).to be false
+      end
+
+      it 'sets can_start_progress to true because open can transition to in_progress' do
+        get ticket_path(ticket), headers: inertia_headers
+        json = response.parsed_body
+        expect(json['props']['can_start_progress']).to be true
+      end
+    end
+
+    context 'as a workspace_admin, with the ticket still open' do
+      let(:admin) { create(:user, workspace: workspace, role: :workspace_admin) }
+
+      before { sign_in admin }
+
+      it 'sets can_resolve to true via the admin override' do
+        get ticket_path(ticket), headers: inertia_headers
+        json = response.parsed_body
+        expect(json['props']['can_resolve']).to be true
+      end
     end
   end
 

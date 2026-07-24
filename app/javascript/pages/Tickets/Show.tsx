@@ -575,7 +575,7 @@ function ActivityItem({ activity }: { activity: TicketActivity }) {
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function TicketsShow({
-  ticket, can_resolve, can_assign, can_change_priority, can_internal, assignable_agents, agent_action,
+  ticket, can_resolve, can_start_progress, can_assign, can_change_priority, can_internal, assignable_agents, agent_action,
 }: TicketsShowProps) {
   const { t } = useTranslation('tickets')
   const departmentName = useDepartmentName()
@@ -650,18 +650,33 @@ export default function TicketsShow({
           <span style={{ color: '#E2E8F0' }}>/</span>
           <span style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', fontFamily: 'monospace', letterSpacing: '0.04em' }}>{ticket.ticket_number}</span>
         </div>
-        {can_resolve && ticket.status !== 'resolved' && ticket.status !== 'closed' && (
-          <motion.button
-            whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-            onClick={() => router.post(`/tickets/${ticket.id}/resolve`)}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 20px', background: '#028090', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer', letterSpacing: '0.01em' }}
-          >
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-              <path d="M2 6.5l3 3 6-6" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            {t('show.resolveTicket')}
-          </motion.button>
-        )}
+        <div style={{ display: 'flex', gap: 8 }}>
+          {can_start_progress && (
+            <motion.button
+              whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+              onClick={() => router.post(`/tickets/${ticket.id}/start_progress`)}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 20px', background: '#fff', border: '1px solid rgba(15,23,42,0.1)', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#374151', cursor: 'pointer', letterSpacing: '0.01em' }}
+            >
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                <path d="M6.5 2v4.5l3 2" stroke="#374151" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                <circle cx="6.5" cy="6.5" r="5.2" stroke="#374151" strokeWidth="1.2" />
+              </svg>
+              {t('show.startProgress')}
+            </motion.button>
+          )}
+          {can_resolve && (
+            <motion.button
+              whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+              onClick={() => router.post(`/tickets/${ticket.id}/resolve`)}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 20px', background: '#028090', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer', letterSpacing: '0.01em' }}
+            >
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                <path d="M2 6.5l3 3 6-6" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              {t('show.resolveTicket')}
+            </motion.button>
+          )}
+        </div>
       </motion.div>
 
       <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 0, alignItems: 'stretch', border: '1px solid rgba(15,23,42,0.06)', borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.04)' }}>

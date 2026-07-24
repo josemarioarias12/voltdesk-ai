@@ -50,7 +50,7 @@ module Tickets
     def validate_status_transition
       new_status = @params[:status].to_s
 
-      unless @ticket.can_transition_to?(new_status)
+      unless @ticket.can_transition_to?(new_status, user: @user)
         return ServiceResult.failure(
           "Cannot transition from '#{@ticket.status}' to '#{new_status}'"
         )

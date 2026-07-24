@@ -37,6 +37,7 @@ Rails.application.routes.draw do
   resources :tickets, except: %i[edit destroy] do
     member do
       post :resolve
+      post :start_progress
     end
     collection do
       get   :export

@@ -2,6 +2,9 @@
 
 module Tickets
   class AssignTicket
+    MANAGER_ROLES = %w[department_manager it_manager hr_manager facilities_manager operations_manager].freeze
+    AGENT_ROLES   = %w[agent].freeze
+
     def self.call(**args) = new(**args).call
 
     def initialize(ticket:, user: nil)
@@ -42,10 +45,14 @@ module Tickets
     private
 
     def find_least_loaded_agent
+      find_least_loaded_by_roles(MANAGER_ROLES) || find_least_loaded_by_roles(AGENT_ROLES)
+    end
+
+    def find_least_loaded_by_roles(roles)
       User
         .where(workspace_id: @ticket.workspace_id,
                department_id: @ticket.department_id,
-               role: agent_roles,
+               role: roles,
                active: true)
         .left_joins(:assigned_tickets)
         .where(
@@ -56,10 +63,6 @@ module Tickets
         .order(Arel.sql('COUNT(tickets.id) ASC'))
         .limit(1)
         .first
-    end
-
-    def agent_roles
-      %w[agent department_manager it_manager hr_manager facilities_manager operations_manager]
     end
 
     def broadcast_update

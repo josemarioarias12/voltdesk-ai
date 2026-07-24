@@ -203,6 +203,7 @@
   "show": {
     "breadcrumb": "Tickets",
     "resolveTicket": "Resolve Ticket",
+    "startProgress": "Start Progress",
     "description": "Description",
     "noDescription": "No description provided.",
     "attachments": "Attachments",
