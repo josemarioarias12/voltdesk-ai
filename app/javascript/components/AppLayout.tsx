@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react'
 import { router, usePage, Link } from '@inertiajs/react'
+import type { GlobalEvent } from '@inertiajs/core'
 import FaceIdPrompt from '@/components/FaceIdPrompt'
 import { SharedProps } from '@/types'
 import { IconBolt } from '@/components/Icons'
@@ -31,7 +32,10 @@ export default function AppLayout({ children, title }: Props) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { locale, setLocale } = useLocale()
   useEffect(() => {
-    const onStart = () => setNavigating(true)
+    const onStart = (event: GlobalEvent<'start'>) => {
+      const visit = event.detail.visit
+      if (visit.method === 'get' && visit.only.length === 0) setNavigating(true)
+    }
     const onFinish = () => setNavigating(false)
     const onNetworkError = () => {
       toast.error('Network error — please check your connection and try again.')
