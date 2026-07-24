@@ -130,6 +130,7 @@
       "line1": "Look at the screen —",
       "line2": "your ticket just appeared"
     },
-    "footer": "VoltDesk AI · Read-only demo"
+    "footer": "VoltDesk AI · Read-only demo",
+    "newTicket": "Submit another ticket"
   }
 }

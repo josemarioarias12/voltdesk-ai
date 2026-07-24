@@ -117,6 +117,7 @@ Rails.application.routes.draw do
 
   # QR Demo Mode
   get  '/demo/rate_limited', to: 'demo#rate_limited', as: :demo_rate_limited
+  get  '/demo/new_ticket',    to: 'demo#new_ticket',    as: :demo_new_ticket
   get  '/demo/:token',        to: 'demo#join',          as: :demo_join
   post '/demo/ticket',        to: 'demo#create_ticket', as: :demo_create_ticket
   get  '/demo/:token/presenter', to: 'demo#presenter',  as: :demo_presenter

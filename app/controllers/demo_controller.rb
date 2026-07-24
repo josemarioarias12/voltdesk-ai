@@ -67,6 +67,18 @@ class DemoController < ApplicationController
     end
   end
 
+  def new_ticket
+    authorize session[:demo_token], policy_class: GuestPolicy
+
+    workspace = current_workspace
+    render inertia: 'Demo/CreateTicket', props: {
+      workspace_name: workspace.name,
+      expires_in:     REDIS.ttl("demo_token:#{session[:demo_token]}"),
+      guest_count:    REDIS.get("demo_count:#{session[:demo_token]}").to_i,
+      departments:    workspace.departments.map { |dep| { id: dep.id, name: dep.name } }
+    }
+  end
+
   def presenter
     authorize current_workspace, :manage_demo?, policy_class: WorkspacePolicy
 

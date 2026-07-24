@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
+import { router } from '@inertiajs/react'
 import { useTranslation } from 'react-i18next'
 
 interface Props { ticket_number: string }
@@ -212,6 +213,24 @@ export default function DemoTicketCreated({ ticket_number }: Props) {
             <span style={{ color: '#94A3B8', fontWeight: 600 }}>{t('ticketCreated.lookUp.line2')}</span>
           </p>
         </motion.div>
+
+        {/* Submit another ticket */}
+        <motion.button
+          type="button"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2.6 }}
+          whileTap={{ scale: 0.97 }}
+          onClick={() => router.get('/demo/new_ticket')}
+          style={{
+            width: '100%', padding: '13px', borderRadius: 10,
+            background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
+            color: '#94A3B8', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+            fontFamily: 'Inter, system-ui, sans-serif',
+          }}
+        >
+          {t('ticketCreated.newTicket')}
+        </motion.button>
 
         {/* Footer */}
         <p style={{ fontSize: 11, color: '#64748B', margin: 0, textAlign: 'center' as const }}>

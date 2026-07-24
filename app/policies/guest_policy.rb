@@ -5,6 +5,7 @@ class GuestPolicy < ApplicationPolicy
   def show?           = false
   def create?         = user.role_guest?
   def create_ticket?  = user.role_guest? && active_demo_token?
+  def new_ticket?     = user.role_guest? && active_demo_token?
   def update?         = false
   def destroy?        = false
 
