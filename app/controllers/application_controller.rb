@@ -6,6 +6,7 @@ class ApplicationController < ActionController::Base
   include SecureHeaders
 
   before_action :authenticate_user!
+  before_action :verify_active_account!
   before_action :set_current_workspace
   before_action :set_current_user
   before_action :set_secure_headers
@@ -52,6 +53,14 @@ class ApplicationController < ActionController::Base
 
   def set_current_user
     Current.user = current_user
+  end
+
+  def verify_active_account!
+    return unless current_user
+    return if current_user.active?
+
+    sign_out(current_user)
+    redirect_to login_page_path, alert: t('errors.account_deactivated')
   end
 
   def handle_unauthorized
