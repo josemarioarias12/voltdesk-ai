@@ -304,6 +304,7 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
   const alertShownIds = useRef<Set<number>>(new Set())
   const { auth } = usePage<SharedProps>().props
   const canManageTickets = auth.user?.role !== 'employee'
+  const canAssignInBulk  = canManageTickets && auth.user?.role !== 'agent'
   const isMobile = useWindowWidth() < 640
 
   useActionCable({ channel: 'TicketsChannel' }, useCallback(() => {
@@ -478,15 +479,17 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#0D1B2A', padding: '10px 16px' }}>
                   <span style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>{t('bulk.selected', { count: selectedIds.size })}</span>
                   <div style={{ display: 'flex', gap: 8 }}>
-                    <select
-                      value=""
-                      disabled={isSubmitting}
-                      onChange={e => { if (e.target.value) runBulkAction('assign', Number(e.target.value)) }}
-                      style={toolbarControlStyle}
-                    >
-                      <option value="" disabled>{t('bulk.assignTo')}</option>
-                      {assignable_agents.map(a => <option key={a.id} value={a.id}>{a.full_name}</option>)}
-                    </select>
+                    {canAssignInBulk && (
+                      <select
+                        value=""
+                        disabled={isSubmitting}
+                        onChange={e => { if (e.target.value) runBulkAction('assign', Number(e.target.value)) }}
+                        style={toolbarControlStyle}
+                      >
+                        <option value="" disabled>{t('bulk.assignTo')}</option>
+                        {assignable_agents.map(a => <option key={a.id} value={a.id}>{a.full_name}</option>)}
+                      </select>
+                    )}
                     <button onClick={() => runBulkAction('resolve')} disabled={isSubmitting} style={toolbarControlStyle}>
                       {t('bulk.resolve')}
                     </button>
