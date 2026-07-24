@@ -57,12 +57,12 @@ const PRIORITY_CFG: Record<TicketPriority, { color: string }> = {
 }
 
 const STATUS_CFG: Record<TicketStatus, { bg: string; text: string }> = {
-  open: { bg: '#DCFCE7', text: '#16A34A' },
-  in_progress: { bg: '#DBEAFE', text: '#2563EB' },
-  pending: { bg: '#FEF9C3', text: '#CA8A04' },
-  resolved: { bg: '#DCFCE7', text: '#16A34A' },
-  closed: { bg: '#F1F5F9', text: '#64748B' },
-  pending_classification: { bg: '#F3E8FF', text: '#9333EA' },
+  open: { bg: '#F0FDF4', text: '#15803D' },
+  in_progress: { bg: '#EFF6FF', text: '#1D4ED8' },
+  pending: { bg: '#FEFCE8', text: '#A16207' },
+  resolved: { bg: '#F0FDF4', text: '#15803D' },
+  closed: { bg: '#F8FAFC', text: '#475569' },
+  pending_classification: { bg: 'rgba(2,128,144,0.04)', text: '#028090' },
 }
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
