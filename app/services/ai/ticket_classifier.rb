@@ -91,12 +91,17 @@ module Ai
           priority = 'medium'
         end
 
+        previous_category = @ticket.category
+        previous_priority = @ticket.priority
+
         @ticket.update!(
           category:     category,
           priority:     priority,
           urgency_score: parsed['urgency_score'].to_i,
           ai_metadata:  (@ticket.ai_metadata || {}).merge(build_ai_metadata(parsed, model, provider))
         )
+
+        record_classification_activity(previous_category, previous_priority)
 
         ServiceResult.success(@ticket)
       end
@@ -111,6 +116,21 @@ module Ai
     end
 
     private
+
+    def record_classification_activity(previous_category, previous_priority)
+      return if previous_category == @ticket.category && previous_priority == @ticket.priority
+
+      @ticket.activities.create!(
+        user: nil,
+        action: TicketActivity::AI_CLASSIFIED,
+        metadata: {
+          category: { from: previous_category, to: @ticket.category },
+          priority: { from: previous_priority, to: @ticket.priority }
+        }
+      )
+    rescue StandardError => e
+      Rails.logger.error("[TicketClassifier] activity log failed for ticket #{@ticket.id}: #{e.message}")
+    end
 
     def resolve_adapter
       router = Ai::ModelRouter.for(workspace: @workspace, operation: :classification)

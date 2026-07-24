@@ -70,6 +70,38 @@ RSpec.describe Ai::TicketClassifier, type: :service do
         expect(log.completion_tokens).to eq(120)
         expect(log.total_tokens).to eq(400)
       end
+
+      it 'records an ai_classified activity with the from/to values' do
+        described_class.call(ticket:)
+        activity = ticket.reload.activities.find_by(action: TicketActivity::AI_CLASSIFIED)
+
+        expect(activity).not_to be_nil
+        expect(activity.user).to be_nil
+        expect(activity.metadata['category']).to eq('from' => 'general', 'to' => 'it')
+        expect(activity.metadata['priority']).to eq('from' => 'medium', 'to' => 'critical')
+      end
+    end
+
+    context 'when classification does not change category or priority' do
+      let(:ticket) do
+        create(:ticket,
+               workspace:,
+               department:,
+               created_by: user,
+               category: :it,
+               priority: :critical,
+               title: 'Printer not working in Accounting — month close in 2 hours',
+               description: 'HP LaserJet 4015 is completely stuck. Entire team blocked.')
+      end
+
+      before { stub_openai_classify }
+
+      it 'does not record an ai_classified activity' do
+        described_class.call(ticket:)
+        activity = ticket.reload.activities.find_by(action: TicketActivity::AI_CLASSIFIED)
+
+        expect(activity).to be_nil
+      end
     end
 
     context 'when OpenAI returns an invalid priority value' do
