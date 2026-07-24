@@ -99,6 +99,26 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
   const [totalCount, setTotalCount] = useState(0)
   const [, setTick] = useState(0)
 
+  const [justArrivedIds, setJustArrivedIds] = useState<Set<number>>(new Set())
+  const justArrivedTimersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map())
+
+  function markJustArrived(id: number) {
+    setJustArrivedIds(prev => new Set(prev).add(id))
+    const existing = justArrivedTimersRef.current.get(id)
+    if (existing) clearTimeout(existing)
+    const timer = setTimeout(() => {
+      setJustArrivedIds(prev => {
+        const next = new Set(prev)
+        next.delete(id)
+        return next
+      })
+      justArrivedTimersRef.current.delete(id)
+    }, 4000)
+    justArrivedTimersRef.current.set(id, timer)
+  }
+
+  useEffect(() => () => { justArrivedTimersRef.current.forEach(clearTimeout) }, [])
+
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set())
   function toggleExpand(id: number) {
     setExpandedIds(prev => {
@@ -161,6 +181,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
           if (existingIndex === -1) {
             const withOriginal: LiveTicket = { ...incoming, original_priority: incoming.priority }
             setTotalCount(c => c + 1)
+            markJustArrived(incoming.id)
             return [withOriginal, ...prev].slice(0, 12)
           }
           const existing = prev[existingIndex]
@@ -169,6 +190,7 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
             original_priority: existing.original_priority ?? existing.priority,
           }
           const rest = prev.filter((_, i) => i !== existingIndex)
+          markJustArrived(incoming.id)
           return [updated, ...rest].slice(0, 12)
         })
       }
@@ -373,17 +395,22 @@ export default function DemoPresenter({ token, workspace_name }: Props) {
                   const dColor = getDeptColor(ticket.department) ?? '#94A3B8'
                   const wasReclassified = !!(ticket.original_priority && ticket.original_priority !== ticket.priority)
                   const isExpanded = expandedIds.has(ticket.id)
+                  const justArrived = justArrivedIds.has(ticket.id)
                   return (
                     <motion.div
                       key={ticket.id}
                       layout
                       initial={{ opacity: 0, y: -20, scale: 0.97 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      animate={justArrived
+                        ? { opacity: 1, y: 0, scale: 1, boxShadow: ['0 0 0 0 rgba(2,195,154,0.5)', '0 0 0 8px rgba(2,195,154,0)', '0 0 0 0 rgba(2,195,154,0)'] }
+                        : { opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                      transition={justArrived
+                        ? { type: 'spring', stiffness: 400, damping: 30, boxShadow: { duration: 0.9, repeat: 2, ease: 'easeOut' } }
+                        : { type: 'spring', stiffness: 400, damping: 30 }}
                       style={{
                         background: isNew ? 'rgba(2,195,154,0.06)' : 'rgba(255,255,255,0.025)',
-                        border: `1px solid ${isNew ? 'rgba(2,195,154,0.25)' : 'rgba(255,255,255,0.05)'}`,
+                        border: `1.5px solid ${justArrived ? 'rgba(2,195,154,0.7)' : isNew ? 'rgba(2,195,154,0.25)' : 'rgba(255,255,255,0.05)'}`,
                         borderRadius: 12,
                         padding: '14px 20px',
                       }}
