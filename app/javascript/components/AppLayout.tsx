@@ -33,9 +33,17 @@ export default function AppLayout({ children, title }: Props) {
   useEffect(() => {
     const onStart = () => setNavigating(true)
     const onFinish = () => setNavigating(false)
+    const onNetworkError = () => {
+      toast.error('Network error — please check your connection and try again.')
+    }
+    const onHttpException = () => {
+      toast.error('Something went wrong on our end. Please try again.')
+    }
     const removeStart = router.on('start', onStart)
     const removeFinish = router.on('finish', onFinish)
-    return () => { removeStart(); removeFinish() }
+    const removeNetworkError = router.on('networkError', onNetworkError)
+    const removeHttpException = router.on('httpException', onHttpException)
+    return () => { removeStart(); removeFinish(); removeNetworkError(); removeHttpException() }
   }, [])
 
   useEffect(() => {
