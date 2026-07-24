@@ -179,7 +179,7 @@ interface AiPreviewData {
 interface AttachmentPreview { name: string; url: string; type: string }
 
 export default function DemoCreateTicket({ workspace_name, expires_in, guest_count, departments }: Props) {
-  const { locale, speechLang, toggleLocale } = useLocale()
+  const { locale, speechLang, setLocale } = useLocale()
   const { t } = useTranslation(['demo', 'common'])
   const {
     transcript, interimTranscript, voiceState, isSupported,
@@ -395,55 +395,89 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
           ))}
         </div>
 
-        {/* Voice + description */}
+        {/* Voice panel — prominent, mirrors Tickets/New.tsx pattern */}
+        <div style={{ background: 'linear-gradient(135deg,#028090,#026E7A)', borderRadius: 12, padding: '24px 20px', textAlign: 'center' as const, position: 'relative' }}>
+          <div style={{ position: 'absolute', top: 10, right: 10, display: 'flex', alignItems: 'center', borderRadius: 8, padding: 2, background: 'rgba(255,255,255,0.1)' }}>
+            <button
+              type="button"
+              onClick={() => setLocale('en')}
+              style={{
+                padding: '4px 9px', borderRadius: 6, border: 'none', fontSize: 10, fontWeight: 700,
+                background: locale === 'en' ? '#fff' : 'transparent', color: locale === 'en' ? '#028090' : 'rgba(255,255,255,0.7)',
+                cursor: 'pointer', letterSpacing: '0.04em',
+              }}
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              onClick={() => setLocale('es')}
+              style={{
+                padding: '4px 9px', borderRadius: 6, border: 'none', fontSize: 10, fontWeight: 700,
+                background: locale === 'es' ? '#fff' : 'transparent', color: locale === 'es' ? '#028090' : 'rgba(255,255,255,0.7)',
+                cursor: 'pointer', letterSpacing: '0.04em',
+              }}
+            >
+              ES
+            </button>
+          </div>
+
+          <motion.button
+            type="button"
+            disabled={!isSupported}
+            onClick={handleVoiceToggle}
+            whileTap={{ scale: 0.94 }}
+            style={{
+              width: 56, height: 56, borderRadius: '50%', border: 'none',
+              background: isListening ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.2)',
+              cursor: isSupported ? 'pointer' : 'not-allowed',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 14px', transition: 'all 200ms ease', opacity: isSupported ? 1 : 0.5,
+            }}
+          >
+            {isListening
+              ? <motion.span animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 0.8, repeat: Infinity }} style={{ display: 'flex' }}><IconMic /></motion.span>
+              : <IconMic />}
+          </motion.button>
+
+          <p style={{ fontSize: 13, fontWeight: 600, color: '#fff', marginBottom: 4 }}>
+            {isListening ? t('createTicket.voice.listening') : t('createTicket.voice.prompt')}
+          </p>
+          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>
+            {t('createTicket.voice.privacy')}
+          </p>
+          {!isSupported && (
+            <p style={{ fontSize: 12, color: '#FDBA74', marginTop: 8, background: 'rgba(0,0,0,0.15)', padding: '4px 12px', borderRadius: 20, display: 'inline-block' }}>
+              {t('createTicket.form.voiceUnsupported')}
+            </p>
+          )}
+          {errorCode && (
+            <p style={{ fontSize: 12, color: '#FCA5A5', marginTop: 8 }}>{t(`voice.errors.${errorCode}`, { ns: 'common' })}</p>
+          )}
+
+          <div style={{ marginTop: 16, background: 'rgba(255,255,255,0.12)', borderRadius: 8, padding: '10px 14px', minHeight: 40, textAlign: 'left' as const }}>
+            {description || interimTranscript
+              ? <p style={{ fontSize: 13, color: '#fff', margin: 0 }}>{description || interimTranscript}</p>
+              : <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', fontStyle: 'italic', margin: 0 }}>{t('createTicket.voice.placeholder')}</p>
+            }
+          </div>
+        </div>
+
+        {/* Description textarea */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
             <label style={{ fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase' as const, letterSpacing: '0.1em' }}>
               {t('createTicket.form.descriptionLabel')}
             </label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-
             <button
-                type="button"
-                onClick={toggleLocale}
-                title={t('createTicket.form.switchLanguage')}
-                style={{
-                  height: 26, padding: '0 8px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)',
-                  background: 'rgba(255,255,255,0.03)', color: '#94A3B8', fontSize: 10, fontWeight: 700,
-                  letterSpacing: '0.04em', cursor: 'pointer', display: 'flex', alignItems: 'center',
-                }}
-              >
-                {locale.toUpperCase()}
-              </button>
-              
-              <button
-                type="button"
-                onClick={() => setShowAttachmentModal(true)}
-                title={t('createTicket.form.addAttachment')}
-                aria-label={t('createTicket.form.addAttachment')}
-                style={{ width: 26, height: 26, borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}
-              >
-                <IconPaperclip />
-              </button>
-              <motion.button
-                type="button"
-                disabled={!isSupported}
-                onClick={handleVoiceToggle}
-                whileTap={{ scale: 0.92 }}
-                title={isSupported ? t('createTicket.form.voiceInput') : t('createTicket.form.voiceUnsupported')}
-                aria-label={isSupported ? t('createTicket.form.voiceInput') : t('createTicket.form.voiceUnsupported')}
-                style={{
-                  width: 26, height: 26, borderRadius: 8, border: 'none',
-                  background: isListening ? '#DC2626' : 'linear-gradient(135deg,#028090,#02C39A)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: isSupported ? 'pointer' : 'not-allowed', padding: 0, opacity: isSupported ? 1 : 0.4,
-                }}
-              >
-                {isListening
-                  ? <motion.span animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 0.8, repeat: Infinity }} style={{ display: 'flex' }}><IconMic /></motion.span>
-                  : <IconMic />}
-              </motion.button>
-            </div>
+              type="button"
+              onClick={() => setShowAttachmentModal(true)}
+              title={t('createTicket.form.addAttachment')}
+              aria-label={t('createTicket.form.addAttachment')}
+              style={{ width: 26, height: 26, borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}
+            >
+              <IconPaperclip />
+            </button>
           </div>
 
           <textarea
@@ -460,13 +494,6 @@ export default function DemoCreateTicket({ workspace_name, expires_in, guest_cou
               transition: 'border-color 0.2s',
             }}
           />
-
-          {isListening && interimTranscript && (
-            <p style={{ fontSize: 12, color: '#02C39A', margin: '6px 0 0', fontStyle: 'italic' }}>{interimTranscript}…</p>
-          )}
-          {errorCode && (
-            <p style={{ fontSize: 12, color: '#EF4444', margin: '6px 0 0' }}>{t(`voice.errors.${errorCode}`, { ns: 'common' })}</p>
-          )}
 
           <p style={{ fontSize: 11, color: '#1E293B', margin: '6px 0 0', textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' }}>
             {description.length}/300

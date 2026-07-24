@@ -70,6 +70,12 @@
     "session": {
       "expiredTitle": "Session expired",
       "expiredBody": "This demo session has ended. Ask the presenter to start a new one."
+    },
+    "voice": {
+      "listening": "Listening… tap to stop",
+      "prompt": "Tap to speak your issue",
+      "privacy": "Audio stays on your device · Web Speech API",
+      "placeholder": "Your transcript will appear here…"
     }
   },
   "presenter": {

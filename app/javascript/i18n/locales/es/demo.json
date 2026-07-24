@@ -70,6 +70,12 @@
     "session": {
       "expiredTitle": "Sesión expirada",
       "expiredBody": "Esta sesión de demo terminó. Pedile al presentador que inicie una nueva."
+    },
+    "voice": {
+      "listening": "Escuchando… tocá para detener",
+      "prompt": "Tocá para describir tu problema por voz",
+      "privacy": "El audio se queda en tu dispositivo · Web Speech API",
+      "placeholder": "Tu transcripción va a aparecer acá…"
     }
   },
   "presenter": {
