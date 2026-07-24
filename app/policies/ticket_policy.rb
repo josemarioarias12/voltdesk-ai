@@ -62,6 +62,12 @@ class TicketPolicy < ApplicationPolicy
     admin_or_manager? || assigned_agent? || department_manager_owns?
   end
 
+  def change_priority?
+    return false if guest? || employee?
+
+    admin_or_manager? || assigned_agent? || department_manager_owns?
+  end
+
   def assign?
     admin_or_manager? || department_manager_owns?
   end

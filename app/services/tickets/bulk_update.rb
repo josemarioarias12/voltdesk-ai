@@ -45,8 +45,9 @@ module Tickets
       policy = TicketPolicy.new(@user, ticket)
 
       case @action
-      when 'resolve' then policy.resolve_ticket?
-      when 'assign'  then policy.assign?
+      when 'resolve'  then policy.resolve_ticket?
+      when 'assign'   then policy.assign?
+      when 'priority' then policy.change_priority?
       else policy.update?
       end
     end

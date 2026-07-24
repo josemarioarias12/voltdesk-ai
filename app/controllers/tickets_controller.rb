@@ -78,7 +78,7 @@ class TicketsController < ApplicationController
     result = Tickets::UpdateTicket.call(
       ticket: @ticket,
       user: current_user,
-      params: ticket_update_params
+      params: filtered_update_params
     )
 
     if result.success?
@@ -144,7 +144,13 @@ class TicketsController < ApplicationController
   end
 
   def ticket_update_params
-    params.expect(ticket: %i[title description priority status department_id assigned_to_id space_id])
+    params.expect(ticket: %i[title description priority department_id assigned_to_id space_id])
+  end
+
+  def filtered_update_params
+    return ticket_update_params if policy(@ticket).change_priority?
+
+    ticket_update_params.except(:priority)
   end
 
   def bulk_params
