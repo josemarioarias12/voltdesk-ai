@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_23_024227) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_25_022213) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -219,9 +219,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_23_024227) do
     t.index ["workspace_id"], name: "index_departments_on_workspace_id"
   end
 
+  create_table "leave_policies", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.bigint "department_id"
+    t.integer "leave_type"
+    t.integer "max_concurrent"
+    t.integer "min_notice_days"
+    t.boolean "requires_second_approval", default: false, null: false
+    t.integer "second_approval_threshold_days"
+    t.datetime "updated_at", null: false
+    t.bigint "workspace_id", null: false
+    t.index "workspace_id, COALESCE(department_id, (0)::bigint), COALESCE(leave_type, '-1'::integer)", name: "index_leave_policies_on_scope", unique: true
+    t.index ["department_id"], name: "index_leave_policies_on_department_id"
+    t.index ["workspace_id"], name: "index_leave_policies_on_workspace_id"
+  end
+
   create_table "leave_requests", force: :cascade do |t|
     t.bigint "approved_by_id"
+    t.text "coverage_plan"
     t.datetime "created_at", null: false
+    t.bigint "department_id"
     t.string "doctor_certificate_url"
     t.date "end_date", null: false
     t.integer "leave_type", null: false
@@ -234,6 +252,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_23_024227) do
     t.bigint "user_id", null: false
     t.bigint "workspace_id", null: false
     t.index ["approved_by_id"], name: "index_leave_requests_on_approved_by_id"
+    t.index ["department_id"], name: "index_leave_requests_on_department_id"
     t.index ["user_id"], name: "index_leave_requests_on_user_id"
     t.index ["workspace_id", "status"], name: "index_leave_requests_on_workspace_id_and_status"
     t.index ["workspace_id", "user_id"], name: "index_leave_requests_on_workspace_id_and_user_id"
@@ -582,6 +601,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_23_024227) do
   add_foreign_key "compliance_logs", "workspaces"
   add_foreign_key "data_retention_policies", "workspaces"
   add_foreign_key "departments", "workspaces"
+  add_foreign_key "leave_policies", "departments"
+  add_foreign_key "leave_policies", "workspaces"
+  add_foreign_key "leave_requests", "departments"
   add_foreign_key "leave_requests", "users"
   add_foreign_key "leave_requests", "users", column: "approved_by_id"
   add_foreign_key "leave_requests", "workspaces"

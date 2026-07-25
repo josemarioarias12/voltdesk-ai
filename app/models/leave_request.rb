@@ -6,13 +6,15 @@ class LeaveRequest < ApplicationRecord
   belongs_to :workspace
   belongs_to :user
   belongs_to :approved_by, class_name: 'User', optional: true
+  belongs_to :department, optional: true
 
   enum :leave_type, {
     vacation: 0,
     sick_leave: 1,
     personal: 2,
     maternity: 3,
-    paternity: 4
+    paternity: 4,
+    other: 5
   }
 
   enum :status, {
@@ -25,6 +27,8 @@ class LeaveRequest < ApplicationRecord
   validates :start_date, presence: true
   validates :end_date,   presence: true
   validates :rejection_reason, presence: true, if: :rejected?
+
+  before_validation :assign_department_from_user
 
   validate :end_date_after_start_date
   validate :no_overlapping_approved_requests, on: :create
@@ -39,6 +43,10 @@ class LeaveRequest < ApplicationRecord
   end
 
   private
+
+  def assign_department_from_user
+    self.department_id ||= user&.department_id
+  end
 
   def end_date_after_start_date
     return unless start_date && end_date
