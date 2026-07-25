@@ -16,7 +16,8 @@ class Notification < ApplicationRecord
     onboarding_plan_ready: 5,
     daily_digest: 6,
     system_alert: 7,
-    sla_breach_predicted: 8
+    sla_breach_predicted: 8,
+    leave_request_pending_second_approval: 9
   }
 
   scope :unread,  -> { where(read: false) }

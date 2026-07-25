@@ -20,7 +20,8 @@ class LeaveRequest < ApplicationRecord
   enum :status, {
     pending: 0,
     approved: 1,
-    rejected: 2
+    rejected: 2,
+    pending_second_approval: 3
   }
 
   validates :leave_type, presence: true

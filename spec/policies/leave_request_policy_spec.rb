@@ -25,12 +25,33 @@ RSpec.describe LeaveRequestPolicy do
     it { is_expected.to be_approve }
     it { is_expected.to be_reject }
     it { is_expected.not_to be_destroy }
+
+    context 'when the request is pending_second_approval' do
+      let(:leave_request) do
+        create(:leave_request, user: owner, workspace: workspace, status: :pending_second_approval)
+      end
+
+      it { is_expected.not_to be_approve }
+      it { is_expected.not_to be_reject }
+      it { is_expected.not_to be_final_approve }
+    end
   end
 
   context 'when workspace_admin' do
     let(:user) { create(:user, workspace: workspace, role: :workspace_admin) }
 
     it { is_expected.to be_approve }
+    it { is_expected.to be_reject }
+
+    context 'when the request is pending_second_approval' do
+      let(:leave_request) do
+        create(:leave_request, user: owner, workspace: workspace, status: :pending_second_approval)
+      end
+
+      it { is_expected.not_to be_approve }
+      it { is_expected.to be_final_approve }
+      it { is_expected.to be_reject }
+    end
   end
 
   context 'when department_manager' do
@@ -54,6 +75,17 @@ RSpec.describe LeaveRequestPolicy do
 
         it { is_expected.not_to be_approve }
         it { is_expected.not_to be_reject }
+      end
+
+      context 'when the request is pending_second_approval' do
+        let(:leave_request) do
+          create(:leave_request, user: owner, workspace: workspace, department: department,
+                                  status: :pending_second_approval)
+        end
+
+        it { is_expected.not_to be_approve }
+        it { is_expected.not_to be_reject }
+        it { is_expected.not_to be_final_approve }
       end
     end
 

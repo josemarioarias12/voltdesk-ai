@@ -46,16 +46,24 @@ module Hr
     end
 
     def approve
-      authorize @leave_request, :approve?
+      if @leave_request.pending_second_approval?
+        authorize @leave_request, :final_approve?
+        action = :final_approve
+      else
+        authorize @leave_request, :approve?
+        action = :approve
+      end
+
       result = Hr::ProcessLeaveRequest.call(
         workspace: current_workspace,
         user: current_user,
-        action: :approve,
+        action: action,
         options: { leave_request: @leave_request, actor: current_user }
       )
+
       if result.success?
         log_leave_decision(:approved)
-        redirect_to hr_leave_requests_path, notice: t('hr.leave_requests.approved')
+        redirect_to hr_leave_requests_path, notice: approval_notice(@leave_request.reload)
       else
         redirect_back_or_to(hr_leave_request_path(@leave_request), alert: result.error)
       end
@@ -89,6 +97,14 @@ module Hr
 
     def leave_request_params
       params.expect(leave_request: %i[leave_type start_date end_date reason coverage_plan])
+    end
+
+    def approval_notice(leave_request)
+      if leave_request.pending_second_approval?
+        t('hr.leave_requests.pending_second_approval')
+      else
+        t('hr.leave_requests.approved')
+      end
     end
 
     def log_leave_decision(decision)

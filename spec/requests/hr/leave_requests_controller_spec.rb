@@ -3,9 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe Hr::LeaveRequestsController, type: :request do
-  let(:workspace)  { create(:workspace) }
-  let(:hr_manager) { create(:user, workspace: workspace, role: :hr_manager) }
-  let(:employee)   { create(:user, workspace: workspace, role: :employee) }
+  let(:workspace)      { create(:workspace) }
+  let(:hr_manager)     { create(:user, workspace: workspace, role: :hr_manager) }
+  let(:workspace_admin) { create(:user, workspace: workspace, role: :workspace_admin) }
+  let(:employee) { create(:user, workspace: workspace, role: :employee) }
 
   describe 'GET /hr/leave_requests' do
     before { sign_in hr_manager }
@@ -104,6 +105,41 @@ RSpec.describe Hr::LeaveRequestsController, type: :request do
         expect(ComplianceLog.last.metadata['had_medical_notes']).to be(true)
       end
     end
+
+    context 'when the applicable policy requires second approval and the duration meets the threshold' do
+      let(:leave_request) do
+        create(:leave_request, user: employee, workspace: workspace,
+                                start_date: 10.days.from_now, end_date: 20.days.from_now)
+      end
+
+      before { create(:leave_policy, :with_second_approval, workspace: workspace) }
+
+      it 'moves to pending_second_approval instead of approved' do
+        post approve_hr_leave_request_path(leave_request)
+        expect(leave_request.reload.status).to eq('pending_second_approval')
+      end
+
+      it 'does not allow hr_manager to approve it a second time' do
+        post approve_hr_leave_request_path(leave_request)
+        leave_request.reload
+
+        post approve_hr_leave_request_path(leave_request)
+
+        expect(response).to redirect_to(root_path)
+        expect(leave_request.reload.status).to eq('pending_second_approval')
+      end
+
+      it 'allows workspace_admin to give final approval on the same endpoint' do
+        post approve_hr_leave_request_path(leave_request)
+        leave_request.reload
+
+        sign_in workspace_admin
+        post approve_hr_leave_request_path(leave_request)
+
+        expect(leave_request.reload.status).to eq('approved')
+        expect(leave_request.approved_by).to eq(workspace_admin)
+      end
+    end
   end
 
   describe 'POST /hr/leave_requests/:id/reject' do
@@ -123,6 +159,26 @@ RSpec.describe Hr::LeaveRequestsController, type: :request do
       end.to change(ComplianceLog, :count).by(1)
 
       expect(ComplianceLog.last.metadata['decision']).to eq('rejected')
+    end
+
+    context 'when the request is pending_second_approval' do
+      let(:leave_request) do
+        create(:leave_request, user: employee, workspace: workspace, status: :pending_second_approval,
+                               approved_by: hr_manager)
+      end
+
+      it 'does not allow hr_manager to reject it' do
+        post reject_hr_leave_request_path(leave_request), params: { rejection_reason: 'Changed my mind' }
+
+        expect(response).to redirect_to(root_path)
+        expect(leave_request.reload.status).to eq('pending_second_approval')
+      end
+
+      it 'allows workspace_admin to reject it' do
+        sign_in workspace_admin
+        post reject_hr_leave_request_path(leave_request), params: { rejection_reason: 'Reconsidered' }
+        expect(leave_request.reload.status).to eq('rejected')
+      end
     end
   end
 end

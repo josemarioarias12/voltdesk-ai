@@ -26,21 +26,38 @@ class LeaveRequestPolicy < ApplicationPolicy
   end
 
   def approve?
-    return false if record.user == user
+    return false if owner?
+    return false unless record.pending?
     return true if admin_or_above? || user.role_hr_manager?
 
     department_manager_owns? && record.medical_notes.blank?
   end
 
+  def final_approve?
+    return false if owner?
+
+    record.pending_second_approval? && admin_or_above?
+  end
+
   def reject?
-    approve?
+    return false if owner?
+
+    if record.pending_second_approval?
+      admin_or_above?
+    else
+      record.pending? && (admin_or_above? || user.role_hr_manager? || (department_manager_owns? && record.medical_notes.blank?))
+    end
   end
 
   def destroy?
-    record.user == user && record.pending?
+    owner? && record.pending?
   end
 
   private
+
+  def owner?
+    record.user == user
+  end
 
   def department_manager_owns?
     user.role_department_manager? && record.department_id == user.department_id

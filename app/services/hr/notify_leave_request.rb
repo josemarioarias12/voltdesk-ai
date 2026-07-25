@@ -11,9 +11,10 @@ module Hr
 
     def call
       case @event
-      when :submitted then notify_hr_managers
-      when :approved  then notify_employee(:leave_request_approved)
-      when :rejected  then notify_employee(:leave_request_rejected)
+      when :submitted               then notify_hr_managers
+      when :pending_second_approval then notify_admins
+      when :approved                then notify_employee(:leave_request_approved)
+      when :rejected                then notify_employee(:leave_request_rejected)
       end
     rescue StandardError => e
       Rails.logger.error("Hr::NotifyLeaveRequest failed: #{e.message}")
@@ -34,6 +35,23 @@ module Hr
         )
 
         broadcast(notification, manager)
+      end
+    end
+
+    def notify_admins
+      admins.each do |admin|
+        notification = Notification.create!(
+          workspace: @leave_request.workspace,
+          user: admin,
+          title: 'Leave request needs final approval',
+          body: "#{@leave_request.user.full_name} — #{@leave_request.leave_type.humanize} " \
+                "(#{@leave_request.business_days} business days)",
+          notification_type: :leave_request_pending_second_approval,
+          resource_type: 'LeaveRequest',
+          resource_id: @leave_request.id
+        )
+
+        broadcast(notification, admin)
       end
     end
 
@@ -71,6 +89,13 @@ module Hr
       User.where(
         workspace: @leave_request.workspace,
         role: :hr_manager
+      )
+    end
+
+    def admins
+      User.where(
+        workspace: @leave_request.workspace,
+        role: %i[workspace_admin super_admin]
       )
     end
 
