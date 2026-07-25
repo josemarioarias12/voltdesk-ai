@@ -89,14 +89,19 @@
                   <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid rgba(15,23,42,0.08);border-radius:10px;overflow:hidden;">
                     <tr style="background:#F8FAFC;">
                       <td style="padding:14px 18px;border-right:1px solid rgba(15,23,42,0.06);width:50%;">
-                        <p style="margin:0 0 2px;font-size:11px;color:#94A3B8;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;">Department</p>
-                        <p style="margin:0;font-size:14px;font-weight:600;color:#0F172A;"><%= @ticket.department.name %></p>
+                        <p style="margin:0 0 6px;font-size:11px;color:#94A3B8;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;">Department</p>
+                        <table cellpadding="0" cellspacing="0"><tr>
+                          <td style="vertical-align:middle;padding-right:6px;">
+                            <table cellpadding="0" cellspacing="0"><tr><td width="8" height="8" style="width:8px;height:8px;border-radius:50%;background:<%= @ticket.department.color %>;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+                          </td>
+                          <td style="vertical-align:middle;font-size:14px;font-weight:600;color:#0F172A;"><%= @ticket.department.name %></td>
+                        </tr></table>
                       </td>
                       <td style="padding:14px 18px;width:50%;">
-                        <p style="margin:0 0 2px;font-size:11px;color:#94A3B8;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;">Priority</p>
-                        <p style="margin:0;font-size:14px;font-weight:600;color:<%= @ticket.priority == 'critical' ? '#DC2626' : @ticket.priority == 'high' ? '#EA580C' : @ticket.priority == 'medium' ? '#CA8A04' : '#6B7280' %>;">
+                        <p style="margin:0 0 6px;font-size:11px;color:#94A3B8;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;">Priority</p>
+                        <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:<%= @ticket.priority == 'critical' ? '#FEF2F2' : @ticket.priority == 'high' ? '#FFF7ED' : @ticket.priority == 'medium' ? '#FEFCE8' : '#F1F5F9' %>;color:<%= @ticket.priority == 'critical' ? '#DC2626' : @ticket.priority == 'high' ? '#EA580C' : @ticket.priority == 'medium' ? '#CA8A04' : '#6B7280' %>;">
                           <%= @ticket.priority&.capitalize || 'Pending AI' %>
-                        </p>
+                        </span>
                       </td>
                     </tr>
                     <tr style="border-top:1px solid rgba(15,23,42,0.06);">
@@ -166,10 +171,18 @@
 
               <!-- CTA -->
               <tr>
-                <td style="padding:0 36px 32px;" align="center">
+                <td style="padding:0 36px 12px;" align="center">
                   <a href="<%= ENV.fetch('APP_HOST', 'https://voltdesk.app') %>/tickets/<%= @ticket.id %>"
                      style="display:inline-block;background:linear-gradient(135deg,#028090,#026E7A);color:#ffffff;font-size:14px;font-weight:600;padding:13px 28px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;box-shadow:0 2px 8px rgba(2,128,144,0.30);">
                     View Ticket →
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:0 36px 32px;" align="center">
+                  <a href="<%= ENV.fetch('APP_HOST', 'https://voltdesk.app') %>/tickets"
+                     style="font-size:13px;color:#028090;text-decoration:none;font-weight:600;">
+                    View all your tickets →
                   </a>
                 </td>
               </tr>
