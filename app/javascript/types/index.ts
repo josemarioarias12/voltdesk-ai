@@ -55,8 +55,9 @@ export interface LeaveRequest {
   leave_type: string
   start_date: string
   end_date: string
-  status: 'pending' | 'approved' | 'rejected'
+  status: 'pending' | 'approved' | 'rejected' | 'pending_second_approval'
   reason: string | null
+  coverage_plan: string | null
   rejection_reason: string | null
   business_days: number
   created_at: string
@@ -71,6 +72,9 @@ export interface LeaveRequest {
     id: number
     full_name: string
   } | null
+  can_approve: boolean
+  can_reject: boolean
+  can_final_approve: boolean
 }
 
 export interface OnboardingTask {
