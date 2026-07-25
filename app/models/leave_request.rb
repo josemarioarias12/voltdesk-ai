@@ -32,6 +32,8 @@ class LeaveRequest < ApplicationRecord
 
   validate :end_date_after_start_date
   validate :no_overlapping_approved_requests, on: :create
+  validate :leave_cap_not_exceeded, on: :create
+  validate :respects_minimum_notice, on: :create
 
   scope :pending_approval, -> { where(status: :pending) }
   scope :recent, -> { order(created_at: :desc) }
@@ -62,5 +64,41 @@ class LeaveRequest < ApplicationRecord
               .exists?(['start_date <= ? AND end_date >= ?', end_date, start_date])
 
     errors.add(:base, 'overlaps with an existing approved request') if overlap
+  end
+
+  def leave_cap_not_exceeded
+    return unless applicable_leave_policy&.max_concurrent
+
+    concurrent_count = concurrent_requests_scope.count
+    return if concurrent_count < applicable_leave_policy.max_concurrent
+
+    cap = applicable_leave_policy.max_concurrent
+    errors.add(:base, "Department has reached its limit of #{cap} concurrent leave requests")
+  end
+
+  def respects_minimum_notice
+    return unless applicable_leave_policy&.min_notice_days && start_date
+
+    days_until_start = (start_date - Time.zone.today).to_i
+    return if days_until_start >= applicable_leave_policy.min_notice_days
+
+    errors.add(:start_date, "must be requested at least #{applicable_leave_policy.min_notice_days} days in advance")
+  end
+
+  def applicable_leave_policy
+    return nil unless department_id && leave_type
+
+    @applicable_leave_policy ||= LeavePolicy.resolve(
+      workspace: workspace,
+      department_id: department_id,
+      leave_type: leave_type
+    )
+  end
+
+  def concurrent_requests_scope
+    scope = LeaveRequest.where(workspace: workspace, status: %i[pending approved])
+    scope = scope.where(department_id: applicable_leave_policy.department_id) if applicable_leave_policy.department_id
+    scope = scope.where(leave_type: applicable_leave_policy.leave_type) if applicable_leave_policy.leave_type
+    scope
   end
 end

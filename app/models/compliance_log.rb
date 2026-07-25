@@ -18,7 +18,8 @@ class ComplianceLog < ApplicationRecord
    webauthn_credential_registered: 10,
    webauthn_credential_revoked: 11,
    webauthn_authentication_succeeded: 12,
-   webauthn_authentication_failed: 13
+   webauthn_authentication_failed: 13,
+   leave_request_decision: 14
   }, prefix: true
 
   validates :resource_type, presence: true

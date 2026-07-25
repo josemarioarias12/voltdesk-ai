@@ -5,6 +5,8 @@ class LeaveRequestPolicy < ApplicationPolicy
     def resolve
       if user.role_hr_manager? || user.role_workspace_admin? || user.role_super_admin?
         scope.where(workspace: user.workspace)
+      elsif user.role_department_manager?
+        scope.where(workspace: user.workspace, department_id: user.department_id)
       else
         scope.where(workspace: user.workspace, user: user)
       end
@@ -16,7 +18,7 @@ class LeaveRequestPolicy < ApplicationPolicy
   end
 
   def show?
-    record.user == user || admin_or_above? || user.role_hr_manager?
+    record.user == user || admin_or_above? || user.role_hr_manager? || department_manager_owns?
   end
 
   def create?
@@ -25,8 +27,9 @@ class LeaveRequestPolicy < ApplicationPolicy
 
   def approve?
     return false if record.user == user
+    return true if admin_or_above? || user.role_hr_manager?
 
-    user.role_hr_manager? || admin_or_above?
+    department_manager_owns? && record.medical_notes.blank?
   end
 
   def reject?
@@ -35,5 +38,11 @@ class LeaveRequestPolicy < ApplicationPolicy
 
   def destroy?
     record.user == user && record.pending?
+  end
+
+  private
+
+  def department_manager_owns?
+    user.role_department_manager? && record.department_id == user.department_id
   end
 end

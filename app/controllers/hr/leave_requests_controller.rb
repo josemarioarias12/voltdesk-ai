@@ -3,6 +3,7 @@
 module Hr
   class LeaveRequestsController < ApplicationController
     include MaskableSerializer
+    include ComplianceLoggable
 
     before_action :set_leave_request, only: %i[show approve reject]
 
@@ -53,6 +54,7 @@ module Hr
         options: { leave_request: @leave_request, actor: current_user }
       )
       if result.success?
+        log_leave_decision(:approved)
         redirect_to hr_leave_requests_path, notice: t('hr.leave_requests.approved')
       else
         redirect_back_or_to(hr_leave_request_path(@leave_request), alert: result.error)
@@ -72,6 +74,7 @@ module Hr
         }
       )
       if result.success?
+        log_leave_decision(:rejected)
         redirect_to hr_leave_requests_path, notice: t('hr.leave_requests.rejected')
       else
         redirect_back_or_to(hr_leave_request_path(@leave_request), alert: result.error)
@@ -85,7 +88,19 @@ module Hr
     end
 
     def leave_request_params
-      params.expect(leave_request: %i[leave_type start_date end_date reason])
+      params.expect(leave_request: %i[leave_type start_date end_date reason coverage_plan])
+    end
+
+    def log_leave_decision(decision)
+      log_compliance_event(
+        event_type: :leave_request_decision,
+        resource: @leave_request,
+        metadata: {
+          decision: decision.to_s,
+          leave_type: @leave_request.leave_type,
+          had_medical_notes: @leave_request.medical_notes.present?
+        }
+      )
     end
 
     def build_stats(requests)
@@ -105,6 +120,7 @@ module Hr
         end_date: leave_req.end_date,
         status: leave_req.status,
         reason: leave_req.reason,
+        coverage_plan: leave_req.coverage_plan,
         rejection_reason: leave_req.rejection_reason,
         business_days: leave_req.business_days,
         created_at: leave_req.created_at.iso8601,
