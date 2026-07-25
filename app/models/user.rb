@@ -53,9 +53,7 @@ class User < ApplicationRecord
   def self.update_from_omniauth(user, auth)
     user.update!(
       provider: auth.provider,
-      uid: auth.uid,
-      first_name: auth.info.first_name || user.first_name,
-      last_name: auth.info.last_name || user.last_name
+      uid: auth.uid
     )
     user
   end
