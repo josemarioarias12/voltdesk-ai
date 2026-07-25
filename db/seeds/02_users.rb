@@ -24,7 +24,9 @@ dept: 'General'    },
   { email_prefix: 'emp2',        first_name: 'Ana',      last_name: 'Gutierrez', role: :employee,
 dept: 'Finance & Treasury' },
   { email_prefix: 'emp3',        first_name: 'Pedro',    last_name: 'Vargas',    role: :employee,
-dept: 'Branch Operations' }
+dept: 'Branch Operations' },
+  { email_prefix: 'emp4',        first_name: 'Sofia',    last_name: 'Herrera',   role: :employee,
+dept: 'Customer Service' }
 ].freeze
 
 Workspace.find_each do |ws|
