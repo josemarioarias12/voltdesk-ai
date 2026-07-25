@@ -61,10 +61,14 @@ Rails.application.routes.draw do
   get '/hr', to: redirect('/hr/leave_requests'), as: :hr_root
 
   namespace :hr do
+    get '/leave_requests/policy_preview', to: 'leave_policy_previews#show', as: :leave_policy_preview
     resources :leave_requests, except: %i[edit update] do
       member do
         post :approve
         post :reject
+      end
+      collection do
+        get :policy_preview
       end
     end
     get '/sentiment-trending', to: 'sentiment_trending#index', as: :sentiment_trending

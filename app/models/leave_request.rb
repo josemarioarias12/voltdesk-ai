@@ -39,6 +39,13 @@ class LeaveRequest < ApplicationRecord
   scope :pending_approval, -> { where(status: :pending) }
   scope :recent, -> { order(created_at: :desc) }
 
+  def self.concurrent_count_for(workspace:, policy:)
+    scope = where(workspace: workspace, status: %i[pending approved])
+    scope = scope.where(department_id: policy.department_id) if policy.department_id
+    scope = scope.where(leave_type: policy.leave_type) if policy.leave_type
+    scope.count
+  end
+
   def business_days
     return 0 if start_date.nil? || end_date.nil?
 
@@ -70,7 +77,7 @@ class LeaveRequest < ApplicationRecord
   def leave_cap_not_exceeded
     return unless applicable_leave_policy&.max_concurrent
 
-    concurrent_count = concurrent_requests_scope.count
+    concurrent_count = self.class.concurrent_count_for(workspace: workspace, policy: applicable_leave_policy)
     return if concurrent_count < applicable_leave_policy.max_concurrent
 
     cap = applicable_leave_policy.max_concurrent
@@ -94,12 +101,5 @@ class LeaveRequest < ApplicationRecord
       department_id: department_id,
       leave_type: leave_type
     )
-  end
-
-  def concurrent_requests_scope
-    scope = LeaveRequest.where(workspace: workspace, status: %i[pending approved])
-    scope = scope.where(department_id: applicable_leave_policy.department_id) if applicable_leave_policy.department_id
-    scope = scope.where(leave_type: applicable_leave_policy.leave_type) if applicable_leave_policy.leave_type
-    scope
   end
 end

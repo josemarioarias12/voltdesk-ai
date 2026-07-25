@@ -6,7 +6,7 @@ RSpec.describe Hr::LeaveRequestsController, type: :request do
   let(:workspace)      { create(:workspace) }
   let(:hr_manager)     { create(:user, workspace: workspace, role: :hr_manager) }
   let(:workspace_admin) { create(:user, workspace: workspace, role: :workspace_admin) }
-  let(:employee) { create(:user, workspace: workspace, role: :employee) }
+  let(:employee)       { create(:user, workspace: workspace, role: :employee) }
 
   describe 'GET /hr/leave_requests' do
     before { sign_in hr_manager }
@@ -66,6 +66,35 @@ RSpec.describe Hr::LeaveRequestsController, type: :request do
     it 'returns 200' do
       get hr_leave_request_path(leave_request), headers: inertia_headers
       expect(response).to have_http_status(:ok)
+    end
+
+    it 'includes can_approve for hr_manager on a pending request' do
+      get hr_leave_request_path(leave_request), headers: inertia_headers
+      json = response.parsed_body
+      expect(json['props']['leave_request']['can_approve']).to be(true)
+      expect(json['props']['leave_request']['can_final_approve']).to be(false)
+    end
+
+    context 'when the request is pending_second_approval' do
+      let(:leave_request) do
+        create(:leave_request, user: employee, workspace: workspace, status: :pending_second_approval,
+                               approved_by: hr_manager)
+      end
+
+      it 'shows hr_manager as unable to act, but able to view' do
+        get hr_leave_request_path(leave_request), headers: inertia_headers
+        json = response.parsed_body
+        expect(json['props']['leave_request']['can_approve']).to be(false)
+        expect(json['props']['leave_request']['can_final_approve']).to be(false)
+      end
+
+      it 'shows workspace_admin as able to give final approval' do
+        sign_in workspace_admin
+        get hr_leave_request_path(leave_request), headers: inertia_headers
+        json = response.parsed_body
+        expect(json['props']['leave_request']['can_final_approve']).to be(true)
+        expect(json['props']['leave_request']['can_approve']).to be(false)
+      end
     end
   end
 

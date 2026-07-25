@@ -129,6 +129,8 @@ module Hr
     end
 
     def serialize_leave_request(leave_req)
+      leave_policy = policy(leave_req)
+
       base = {
         id: leave_req.id,
         leave_type: leave_req.leave_type,
@@ -141,7 +143,10 @@ module Hr
         business_days: leave_req.business_days,
         created_at: leave_req.created_at.iso8601,
         user: serialize_lr_user(leave_req.user),
-        approved_by: serialize_lr_approver(leave_req.approved_by)
+        approved_by: serialize_lr_approver(leave_req.approved_by),
+        can_approve: leave_policy.approve?,
+        can_reject: leave_policy.reject?,
+        can_final_approve: leave_policy.final_approve?
       }
 
       sensitive = mask(leave_req, {
