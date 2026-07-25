@@ -58,6 +58,8 @@ export interface LeaveRequest {
   status: 'pending' | 'approved' | 'rejected' | 'pending_second_approval'
   reason: string | null
   coverage_plan: string | null
+  medical_notes: string | null
+  doctor_certificate_url: string | null
   rejection_reason: string | null
   business_days: number
   created_at: string
