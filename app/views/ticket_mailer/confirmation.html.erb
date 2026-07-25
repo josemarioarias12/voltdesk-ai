@@ -31,14 +31,21 @@
 
               <!-- Teal top bar -->
               <tr>
-                <td bgcolor="#028090" style="background-color:#028090;background:linear-gradient(135deg,#028090,#026E7A);padding:28px 36px;">
-                  <p style="margin:0 0 6px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:0.09em;">
-                    Ticket Received
-                  </p>
-                  <p style="margin:0;font-size:24px;font-weight:700;color:#ffffff;letter-spacing:-0.02em;">
+                <td bgcolor="#028090" style="background-color:#028090;background:linear-gradient(135deg,#028090,#026E7A);padding:32px 36px;">
+                  <table cellpadding="0" cellspacing="0" style="margin-bottom:14px;">
+                    <tr>
+                      <td style="vertical-align:middle;padding-right:9px;">
+                        <table cellpadding="0" cellspacing="0"><tr><td width="20" height="20" style="width:20px;height:20px;background:rgba(255,255,255,0.16);border-radius:50%;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+                      </td>
+                      <td style="vertical-align:middle;">
+                        <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:0.12em;">Ticket Received</span>
+                      </td>
+                    </tr>
+                  </table>
+                  <p style="margin:0;font-size:26px;font-weight:800;color:#ffffff;letter-spacing:-0.03em;line-height:1.25;">
                     Your request is being processed
                   </p>
-                  <p style="margin:8px 0 0;font-size:14px;color:rgba(255,255,255,0.75);">
+                  <p style="margin:10px 0 0;font-size:14px;font-weight:400;color:rgba(255,255,255,0.7);line-height:1.5;">
                     AI classification has started automatically
                   </p>
                 </td>
@@ -106,6 +113,39 @@
                 </td>
               </tr>
 
+              <!-- Progress stepper -->
+              <tr>
+                <td style="padding:4px 36px 24px;">
+                  <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                      <td width="14%" align="center" style="padding:0;">
+                        <table cellpadding="0" cellspacing="0"><tr><td width="14" height="14" style="width:14px;height:14px;border-radius:50%;background:#028090;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+                      </td>
+                      <td width="15%" style="padding:0 0 0 0;"><div style="height:2px;background:#028090;font-size:0;line-height:0;">&nbsp;</div></td>
+                      <td width="14%" align="center" style="padding:0;">
+                        <table cellpadding="0" cellspacing="0"><tr><td width="14" height="14" style="width:14px;height:14px;border-radius:50%;background:#ffffff;border:2px solid #028090;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+                      </td>
+                      <td width="15%" style="padding:0;"><div style="height:2px;background:#E2E8F0;font-size:0;line-height:0;">&nbsp;</div></td>
+                      <td width="14%" align="center" style="padding:0;">
+                        <table cellpadding="0" cellspacing="0"><tr><td width="14" height="14" style="width:14px;height:14px;border-radius:50%;background:#ffffff;border:2px solid #E2E8F0;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+                      </td>
+                      <td width="15%" style="padding:0;"><div style="height:2px;background:#E2E8F0;font-size:0;line-height:0;">&nbsp;</div></td>
+                      <td width="13%" align="center" style="padding:0;">
+                        <table cellpadding="0" cellspacing="0"><tr><td width="14" height="14" style="width:14px;height:14px;border-radius:50%;background:#ffffff;border:2px solid #E2E8F0;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+                      </td>
+                    </tr>
+                  </table>
+                  <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
+                    <tr>
+                      <td width="25%" align="center" style="font-size:10px;font-weight:700;color:#028090;text-transform:uppercase;letter-spacing:0.06em;">Received</td>
+                      <td width="25%" align="center" style="font-size:10px;font-weight:600;color:#94A3B8;text-transform:uppercase;letter-spacing:0.06em;">Classifying</td>
+                      <td width="25%" align="center" style="font-size:10px;font-weight:600;color:#94A3B8;text-transform:uppercase;letter-spacing:0.06em;">Assigned</td>
+                      <td width="25%" align="center" style="font-size:10px;font-weight:600;color:#94A3B8;text-transform:uppercase;letter-spacing:0.06em;">Resolved</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+
               <!-- AI Processing banner -->
               <tr>
                 <td style="padding:0 36px 28px;">
@@ -139,12 +179,27 @@
 
           <!-- Footer -->
           <tr>
-            <td style="padding:24px 0;" align="center">
-              <p style="margin:0;font-size:12px;color:#94A3B8;">
-                <%= @workspace.name %> · Powered by VoltDesk AI
-              </p>
-              <p style="margin:4px 0 0;font-size:11px;color:#CBD5E1;">
-                This is an automated notification. Please do not reply to this email.
+            <td style="padding:28px 0 0;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr><td style="height:1px;background:rgba(15,23,42,0.07);font-size:0;line-height:0;">&nbsp;</td></tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 0;" align="center">
+              <table cellpadding="0" cellspacing="0" style="margin-bottom:8px;">
+                <tr>
+                  <td style="vertical-align:middle;padding-right:6px;">
+                    <img src="<%= ENV.fetch('APP_HOST', 'https://voltdesk.app') %>/voltdesk-teal.png" width="16" height="16" alt="" style="display:block;border:0;border-radius:4px;" />
+                  </td>
+                  <td style="vertical-align:middle;">
+                    <span style="font-size:12px;font-weight:600;color:#64748B;"><%= @workspace.name %></span>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:0;font-size:11px;color:#94A3B8;line-height:1.6;">
+                Powered by VoltDesk AI · This is an automated notification.<br/>
+                Please do not reply to this email.
               </p>
             </td>
           </tr>
