@@ -1,0 +1,7 @@
+es:
+  hr:
+    leave_requests:
+      created: "Solicitud de permiso enviada."
+      approved: "Solicitud de permiso aprobada."
+      rejected: "Solicitud de permiso rechazada."
+      pending_second_approval: "Aprobada — enviada para aprobación final de un administrador."

@@ -41,9 +41,12 @@ void i18n
       escapeValue: false,
     },
     detection: {
-      order: ['localStorage', 'navigator'],
+      order: ['localStorage', 'cookie', 'navigator'],
       lookupLocalStorage: STORAGE_KEY,
-      caches: ['localStorage'],
+      lookupCookie: STORAGE_KEY,
+      caches: ['localStorage', 'cookie'],
+      cookieMinutes: 60 * 24 * 365,
+      cookieOptions: { path: '/', sameSite: 'lax' },
     },
     react: {
       useSuspense: false,

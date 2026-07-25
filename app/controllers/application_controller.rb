@@ -9,6 +9,7 @@ class ApplicationController < ActionController::Base
   before_action :verify_active_account!
   before_action :set_current_workspace
   before_action :set_current_user
+  before_action :set_locale
   before_action :set_secure_headers
 
   inertia_share do
@@ -40,6 +41,10 @@ class ApplicationController < ActionController::Base
   helper_method :current_workspace
 
   private
+
+  def set_locale
+    I18n.locale = cookies[:voltdesk_locale].presence_in(I18n.available_locales.map(&:to_s)) || I18n.default_locale
+  end
 
   def set_current_workspace
     Current.workspace = current_workspace
