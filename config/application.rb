@@ -24,8 +24,9 @@ module VoltdeskAi
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
-    config.time_zone = "Central America"
+    config.time_zone = 'Central America'
     # config.eager_load_paths << Rails.root.join("extras")
     config.active_job.queue_adapter = :sidekiq
+    config.i18n.fallbacks = true
   end
 end
