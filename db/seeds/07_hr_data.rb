@@ -18,6 +18,16 @@ Workspace.find_each do |ws|
   hr_manager = users.find(&:role_hr_manager?)
   employees  = users.select { |u| u.role_employee? || u.role_agent? }
 
+  customer_service = Department.find_by(workspace: ws, name: 'Customer Service')
+  if customer_service
+    LeavePolicy.find_or_create_by!(workspace: ws, department: customer_service, leave_type: nil) do |policy|
+      policy.max_concurrent = 2
+      policy.min_notice_days = 7
+      policy.requires_second_approval = true
+      policy.second_approval_threshold_days = 5
+    end
+  end
+
   leave_scenarios = [
     { user_key: 0, type: :vacation,   start_offset: 10,  end_offset: 17,  status: :approved,
       medical_notes: nil },

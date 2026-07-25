@@ -51,7 +51,7 @@ end
 REAL_DEMO_USERS = [
   { email: 'jmariasm@ucenfotec.ac.cr',      first_name: 'Michael', last_name: 'Chen',    role: :workspace_admin, dept: 'IT & Digital Banking' },
   { email: 'josemarioarias12@gmail.com',    first_name: 'Laura',   last_name: 'Jimenez', role: :employee,        dept: 'Branch Operations' },
-  { email: 'josemarioarias123@gmail.com',   first_name: 'David',   last_name: 'Torres',  role: :agent,           dept: 'Customer Service' },
+  { email: 'josemarioarias123@gmail.com',   first_name: 'David',   last_name: 'Torres',  role: :department_manager, dept: 'Customer Service' },
   { email: 'josemarioarias96@gmail.com',    first_name: 'Rachel',  last_name: 'Kim',     role: :workspace_admin, dept: 'IT & Digital Banking' }
 ].freeze
 
