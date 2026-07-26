@@ -26,19 +26,6 @@ Workspace.find_each do |ws|
       policy.requires_second_approval = true
       policy.second_approval_threshold_days = 5
     end
-
-    cs_employee = User.find_by(workspace: ws, department: customer_service, role: :employee)
-    if cs_employee && !LeaveRequest.exists?(workspace: ws, user: cs_employee)
-      LeaveRequest.create!(
-        workspace:  ws,
-        user:       cs_employee,
-        leave_type: :vacation,
-        start_date: 10.days.from_now.to_date,
-        end_date:   17.days.from_now.to_date,
-        status:     :pending,
-        reason:     'Requesting vacation leave.'
-      )
-    end
   end
 
   leave_scenarios = [

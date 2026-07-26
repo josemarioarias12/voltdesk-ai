@@ -24,9 +24,7 @@ dept: 'General'    },
   { email_prefix: 'emp2',        first_name: 'Ana',      last_name: 'Gutierrez', role: :employee,
 dept: 'Finance & Treasury' },
   { email_prefix: 'emp3',        first_name: 'Pedro',    last_name: 'Vargas',    role: :employee,
-dept: 'Branch Operations' },
-  { email_prefix: 'emp4',        first_name: 'Sofia',    last_name: 'Herrera',   role: :employee,
-dept: 'Customer Service' }
+dept: 'Branch Operations' }
 ].freeze
 
 Workspace.find_each do |ws|
@@ -52,7 +50,7 @@ end
 
 REAL_DEMO_USERS = [
   { email: 'jmariasm@ucenfotec.ac.cr',      first_name: 'Michael', last_name: 'Chen',    role: :workspace_admin, dept: 'IT & Digital Banking' },
-  { email: 'josemarioarias12@gmail.com',    first_name: 'Laura',   last_name: 'Jimenez', role: :employee,        dept: 'Branch Operations' },
+  { email: 'josemarioarias12@gmail.com',    first_name: 'Laura',   last_name: 'Jimenez', role: :employee,        dept: 'Customer Service' },
   { email: 'josemarioarias123@gmail.com',   first_name: 'David',   last_name: 'Torres',  role: :department_manager, dept: 'Customer Service' },
   { email: 'josemarioarias96@gmail.com',    first_name: 'Rachel',  last_name: 'Kim',     role: :workspace_admin, dept: 'IT & Digital Banking' }
 ].freeze
