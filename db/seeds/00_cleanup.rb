@@ -8,6 +8,7 @@ Rails.logger.debug '  Cleaning existing data...'
   TicketSatisfactionSurvey, ComplianceLog, DataRetentionPolicy,
   TicketEmbedding, TicketActivity, TicketComment, AiAuditLog, Notification,
   LeaveRequest, LeavePolicy, OnboardingTask, OnboardingPlan,
+  ClimateSurveyResponse, ClimateSurvey,
   Asset, Ticket, User, Department, SlaPolicy, Workspace
 ].each do |model|
   count = model.delete_all

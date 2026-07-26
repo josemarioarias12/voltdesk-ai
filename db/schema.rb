@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_25_022213) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_26_160148) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -176,6 +176,37 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_25_022213) do
     t.index ["ticket_id"], name: "index_classification_corrections_on_ticket_id"
     t.index ["workspace_id", "created_at"], name: "idx_on_workspace_id_created_at_685388b11c"
     t.index ["workspace_id"], name: "index_classification_corrections_on_workspace_id"
+  end
+
+  create_table "climate_survey_responses", force: :cascade do |t|
+    t.bigint "climate_survey_id", null: false
+    t.datetime "created_at", null: false
+    t.text "feedback"
+    t.integer "rating", null: false
+    t.integer "recommend_score", null: false
+    t.decimal "sentiment_score", precision: 4, scale: 3
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["climate_survey_id", "user_id"], name: "index_climate_responses_on_survey_and_user", unique: true
+    t.index ["climate_survey_id"], name: "index_climate_survey_responses_on_climate_survey_id"
+    t.index ["user_id"], name: "index_climate_survey_responses_on_user_id"
+  end
+
+  create_table "climate_surveys", force: :cascade do |t|
+    t.jsonb "ai_themes", default: [], null: false
+    t.datetime "closes_at"
+    t.datetime "created_at", null: false
+    t.bigint "created_by_id", null: false
+    t.bigint "department_id"
+    t.text "description"
+    t.integer "status", default: 0, null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["created_by_id"], name: "index_climate_surveys_on_created_by_id"
+    t.index ["department_id"], name: "index_climate_surveys_on_department_id"
+    t.index ["workspace_id", "status"], name: "index_climate_surveys_on_workspace_id_and_status"
+    t.index ["workspace_id"], name: "index_climate_surveys_on_workspace_id"
   end
 
   create_table "compliance_logs", force: :cascade do |t|
@@ -597,6 +628,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_25_022213) do
   add_foreign_key "classification_corrections", "tickets"
   add_foreign_key "classification_corrections", "users", column: "agent_id"
   add_foreign_key "classification_corrections", "workspaces"
+  add_foreign_key "climate_survey_responses", "climate_surveys"
+  add_foreign_key "climate_survey_responses", "users"
+  add_foreign_key "climate_surveys", "departments"
+  add_foreign_key "climate_surveys", "users", column: "created_by_id"
+  add_foreign_key "climate_surveys", "workspaces"
   add_foreign_key "compliance_logs", "users", column: "actor_id"
   add_foreign_key "compliance_logs", "workspaces"
   add_foreign_key "data_retention_policies", "workspaces"
