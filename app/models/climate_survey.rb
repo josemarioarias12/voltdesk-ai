@@ -18,6 +18,13 @@ class ClimateSurvey < ApplicationRecord
 
   scope :recent, -> { order(created_at: :desc) }
 
+  def self.available_for(user)
+    responded_ids = ClimateSurveyResponse.where(user: user).select(:climate_survey_id)
+    active.where(workspace: user.workspace)
+          .where(department_id: [nil, user.department_id])
+          .where.not(id: responded_ids)
+  end
+
   def eligible_users
     scope = workspace.users.where.not(role: :guest)
     department_id ? scope.where(department_id: department_id) : scope
