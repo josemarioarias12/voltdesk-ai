@@ -71,6 +71,7 @@ Rails.application.routes.draw do
     get '/sentiment-trending', to: 'sentiment_trending#index', as: :sentiment_trending
     resources :climate_surveys, only: %i[index new create show] do
       member do
+        post :activate
         post :close
       end
     end

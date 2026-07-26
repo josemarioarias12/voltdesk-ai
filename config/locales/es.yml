@@ -7,6 +7,7 @@ es:
       pending_second_approval: "Aprobada — enviada para aprobación final de un administrador."
     climate_surveys:
       created: "Encuesta de clima creada."
+      activated: "Encuesta activada. Los empleados ya pueden responder."
       closed: "Encuesta cerrada. El análisis de temas estará listo pronto."
       none_available: "No hay encuestas disponibles para que respondas en este momento."
       response_submitted: "Gracias — tu respuesta fue enviada de forma anónima."

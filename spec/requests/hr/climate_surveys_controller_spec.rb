@@ -59,6 +59,32 @@ RSpec.describe Hr::ClimateSurveysController, type: :request do
     end
   end
 
+  describe 'POST /hr/climate_surveys/:id/activate' do
+    let(:survey) { create(:climate_survey, workspace: workspace, created_by: hr_manager) }
+
+    before { sign_in hr_manager }
+
+    it 'activates the survey' do
+      post activate_hr_climate_survey_path(survey)
+      expect(survey.reload.status).to eq('active')
+    end
+
+    it 'returns failure when the survey is not a draft' do
+      survey.update!(status: :closed)
+      post activate_hr_climate_survey_path(survey)
+      expect(survey.reload.status).to eq('closed')
+    end
+
+    context 'when the user is a regular employee' do
+      before { sign_in employee }
+
+      it 'is forbidden' do
+        post activate_hr_climate_survey_path(survey)
+        expect(response).to redirect_to(root_path)
+      end
+    end
+  end
+
   describe 'POST /hr/climate_surveys/:id/close' do
     let(:survey) { create(:climate_survey, :active, workspace: workspace, created_by: hr_manager) }
 

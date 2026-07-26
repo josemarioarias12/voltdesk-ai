@@ -2,7 +2,7 @@
 
 module Hr
   class ClimateSurveysController < ApplicationController
-    before_action :set_survey, only: %i[show close]
+    before_action :set_survey, only: %i[show activate close]
 
     def index
       authorize :climate_survey, :index?
@@ -34,6 +34,16 @@ module Hr
         redirect_to hr_climate_survey_path(result.data), notice: t('hr.climate_surveys.created')
       else
         redirect_back_or_to(new_hr_climate_survey_path, alert: result.error)
+      end
+    end
+
+    def activate
+      authorize @survey, :activate?
+      result = Hr::ActivateClimateSurvey.call(survey: @survey)
+      if result.success?
+        redirect_to hr_climate_survey_path(@survey), notice: t('hr.climate_surveys.activated')
+      else
+        redirect_back_or_to(hr_climate_survey_path(@survey), alert: result.error)
       end
     end
 
@@ -74,6 +84,7 @@ module Hr
     def serialize_survey_detail(survey)
       serialize_survey_summary(survey).merge(
         description: survey.description,
+        can_activate: policy(survey).activate?,
         can_close: policy(survey).close?,
         ai_themes: survey.ai_themes,
         average_rating: average_metric(survey, :rating),

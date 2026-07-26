@@ -19,6 +19,10 @@ class ClimateSurveyPolicy < ApplicationPolicy
     user.role_hr_manager? || admin_or_above?
   end
 
+  def activate?
+    create?
+  end
+
   def close?
     create?
   end

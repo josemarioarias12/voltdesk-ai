@@ -15,6 +15,7 @@ RSpec.describe ClimateSurveyPolicy do
     it { is_expected.to be_index }
     it { is_expected.to be_create }
     it { is_expected.to be_show }
+    it { is_expected.to be_activate }
     it { is_expected.to be_close }
   end
 
@@ -23,6 +24,7 @@ RSpec.describe ClimateSurveyPolicy do
 
     it { is_expected.to be_index }
     it { is_expected.to be_create }
+    it { is_expected.to be_activate }
   end
 
   context 'when department_manager' do
@@ -31,6 +33,7 @@ RSpec.describe ClimateSurveyPolicy do
     it { is_expected.not_to be_index }
     it { is_expected.not_to be_create }
     it { is_expected.not_to be_show }
+    it { is_expected.not_to be_activate }
   end
 
   describe 'respond?' do
