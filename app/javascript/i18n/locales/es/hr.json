@@ -180,6 +180,8 @@
       "back": "Encuestas de Clima",
       "companyWide": "Toda la empresa",
       "by": "por {{name}}",
+      "activateSurvey": "Activar Encuesta",
+      "activating": "Activando…",
       "closeSurvey": "Cerrar Encuesta",
       "closing": "Cerrando…",
       "participation": "Participación",

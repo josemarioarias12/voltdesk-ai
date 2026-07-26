@@ -86,6 +86,7 @@ function MetricCard({ icon, label, value, sub }: { icon: React.ReactNode; label:
 export default function ClimateSurveysShow({ survey }: Props) {
   const { t } = useTranslation(['hr', 'common'])
   const [closing, setClosing] = useState(false)
+  const [activating, setActivating] = useState(false)
   const windowWidth = useWindowWidth()
   const isMobile     = windowWidth < 768
 
@@ -111,6 +112,11 @@ export default function ClimateSurveysShow({ survey }: Props) {
     router.post(`/hr/climate_surveys/${survey.id}/close`, {}, { onFinish: () => setClosing(false) })
   }
 
+  function handleActivate() {
+    setActivating(true)
+    router.post(`/hr/climate_surveys/${survey.id}/activate`, {}, { onFinish: () => setActivating(false) })
+  }
+
   return (
     <AppLayout title={survey.title}>
       <div style={{ maxWidth: 900 }}>
@@ -129,6 +135,15 @@ export default function ClimateSurveysShow({ survey }: Props) {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, alignSelf: isMobile ? 'flex-start' : undefined }}>
             <span style={{ ...BADGE, fontSize: 13, padding: '6px 14px', color: status.color, background: status.bg }}>{status.label}</span>
+            {survey.can_activate && (
+              <button
+                onClick={handleActivate}
+                disabled={activating}
+                style={{ background: SUCCESS, color: '#fff', border: 'none', borderRadius: 10, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+              >
+                {activating ? t('hr:climateSurveys.show.activating') : t('hr:climateSurveys.show.activateSurvey')}
+              </button>
+            )}
             {survey.can_close && (
               <button
                 onClick={handleClose}

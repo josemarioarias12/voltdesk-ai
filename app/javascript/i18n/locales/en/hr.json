@@ -180,6 +180,8 @@
       "back": "Climate Surveys",
       "companyWide": "Company-wide",
       "by": "by {{name}}",
+      "activateSurvey": "Activate Survey",
+      "activating": "Activating…",
       "closeSurvey": "Close Survey",
       "closing": "Closing…",
       "participation": "Participation",

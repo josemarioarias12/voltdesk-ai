@@ -124,6 +124,7 @@ export interface ClimateSurveySummary {
 
 export interface ClimateSurveyDetail extends ClimateSurveySummary {
   description: string | null
+  can_activate: boolean
   can_close: boolean
   ai_themes: ClimateSurveyTheme[]
   average_rating: number | null
