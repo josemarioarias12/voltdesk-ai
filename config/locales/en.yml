@@ -23,3 +23,8 @@ en:
       approved: "Leave request approved."
       rejected: "Leave request rejected."
       pending_second_approval: "Approved — forwarded for final admin approval."
+    climate_surveys:
+      created: "Climate survey created."
+      closed: "Survey closed. Theme analysis will be ready shortly."
+      none_available: "There are no surveys available for you to respond to right now."
+      response_submitted: "Thank you — your response has been submitted anonymously."

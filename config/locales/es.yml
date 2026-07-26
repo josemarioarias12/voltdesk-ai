@@ -5,3 +5,8 @@ es:
       approved: "Solicitud de permiso aprobada."
       rejected: "Solicitud de permiso rechazada."
       pending_second_approval: "Aprobada — enviada para aprobación final de un administrador."
+    climate_surveys:
+      created: "Encuesta de clima creada."
+      closed: "Encuesta cerrada. El análisis de temas estará listo pronto."
+      none_available: "No hay encuestas disponibles para que respondas en este momento."
+      response_submitted: "Gracias — tu respuesta fue enviada de forma anónima."

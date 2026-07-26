@@ -67,11 +67,14 @@ Rails.application.routes.draw do
         post :approve
         post :reject
       end
-      collection do
-        get :policy_preview
-      end
     end
     get '/sentiment-trending', to: 'sentiment_trending#index', as: :sentiment_trending
+    resources :climate_surveys, only: %i[index new create show] do
+      member do
+        post :close
+      end
+    end
+    resources :climate_survey_responses, only: %i[new create]
     resources :onboarding_plans, only: %i[show] do
       member do
         patch :update_task
