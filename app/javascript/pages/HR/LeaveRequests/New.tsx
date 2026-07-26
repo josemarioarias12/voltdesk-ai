@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import AppLayout from '@/components/AppLayout'
 import DatePicker from '@/components/DatePicker'
 import { CARD, LABEL, INPUT, SLATE, NAVY, TEAL, DANGER } from '@/styles/tokens'
+import { Palmtree, Thermometer, User, Heart, Users, FileText } from 'lucide-react'
 
 interface Props {
   leave_types: string[]
@@ -18,56 +19,7 @@ interface PolicyPreview {
 
 const MEDICAL_DOCUMENTATION_TYPES = ['sick_leave', 'maternity', 'paternity']
 
-function PalmIcon({ color = 'currentColor' }: { color?: string }) {
-  return (
-    <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 22v-9M12 13c-3-4-8-4-10-1 3 2 7 1 10 1zm0 0c3-4 8-4 10-1-3 2-7 1-10 1zm0 0c-1-3 0-6 2-8m-2 8c1-3 0-6-2-8" />
-    </svg>
-  )
-}
 
-function ThermometerIcon({ color = 'currentColor' }: { color?: string }) {
-  return (
-    <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M14 4a2 2 0 10-4 0v10.5a4 4 0 104 0V4z" />
-    </svg>
-  )
-}
-
-function UserIcon({ color = 'currentColor' }: { color?: string }) {
-  return (
-    <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2}>
-      <circle cx="12" cy="8" r="4" strokeWidth={2} />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4 21c0-4 4-6 8-6s8 2 8 6" />
-    </svg>
-  )
-}
-
-function HeartIcon({ color = 'currentColor' }: { color?: string }) {
-  return (
-    <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 21s-7-4.5-9.5-9C.5 8 2 4 6 4c2.2 0 3.7 1.3 6 3.5C14.3 5.3 15.8 4 18 4c4 0 5.5 4 3.5 8-2.5 4.5-9.5 9-9.5 9z" />
-    </svg>
-  )
-}
-
-function UsersIcon({ color = 'currentColor' }: { color?: string }) {
-  return (
-    <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2}>
-      <circle cx="9" cy="8" r="3" strokeWidth={2} />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M2 20c0-3 3-5 7-5s7 2 7 5M16 8a3 3 0 110-6M17 15c3 .3 5 2 5 5" />
-    </svg>
-  )
-}
-
-function DocumentIcon({ color = 'currentColor' }: { color?: string }) {
-  return (
-    <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M14 2v6h6M9 13h6M9 17h6" />
-    </svg>
-  )
-}
 
 function CheckIcon({ size = 16, color = 'currentColor' }: { size?: number; color?: string }) {
   return (
@@ -140,13 +92,13 @@ function useWindowWidth() {
 export default function LeaveRequestsNew({ leave_types }: Props) {
   const { t } = useTranslation(['hr', 'common'])
 
-  const LEAVE_TYPE_CONFIG: Record<string, { label: string; color: string; border: string; Icon: (props: { color?: string }) => React.ReactElement }> = {
-    vacation:   { label: t('hr:leaveType.vacation'),   color: '#2563EB', border: '#BFDBFE', Icon: PalmIcon },
-    sick_leave: { label: t('hr:leaveType.sick_leave'), color: '#EA580C', border: '#FED7AA', Icon: ThermometerIcon },
-    personal:   { label: t('hr:leaveType.personal'),   color: '#7C3AED', border: '#DDD6FE', Icon: UserIcon },
-    maternity:  { label: t('hr:leaveType.maternity'),  color: '#DB2777', border: '#FBCFE8', Icon: HeartIcon },
-    paternity:  { label: t('hr:leaveType.paternity'),  color: '#16A34A', border: '#BBF7D0', Icon: UsersIcon },
-    other:      { label: t('hr:leaveType.other'),      color: SLATE[600], border: 'rgba(15,23,42,0.14)', Icon: DocumentIcon },
+  const LEAVE_TYPE_CONFIG: Record<string, { label: string; color: string; border: string; Icon: React.ComponentType<{ color?: string; size?: number }> }> = {
+    vacation:   { label: t('hr:leaveType.vacation'),   color: '#2563EB', border: '#BFDBFE', Icon: Palmtree },
+    sick_leave: { label: t('hr:leaveType.sick_leave'), color: '#EA580C', border: '#FED7AA', Icon: Thermometer },
+    personal:   { label: t('hr:leaveType.personal'),   color: '#7C3AED', border: '#DDD6FE', Icon: User },
+    maternity:  { label: t('hr:leaveType.maternity'),  color: '#DB2777', border: '#FBCFE8', Icon: Heart },
+    paternity:  { label: t('hr:leaveType.paternity'),  color: '#16A34A', border: '#BBF7D0', Icon: Users },
+    other:      { label: t('hr:leaveType.other'),      color: SLATE[600], border: 'rgba(15,23,42,0.14)', Icon: FileText },
   }
 
   const { data, setData, post, processing, errors } = useForm<{

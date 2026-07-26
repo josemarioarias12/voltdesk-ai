@@ -7,6 +7,7 @@ import EmptyState from '@/components/EmptyState'
 import { LeaveRequest } from '@/types'
 import Avatar from '@/components/Avatar'
 import { CARD, LABEL, TH_STYLE, BADGE, SLATE, NAVY, TEAL, DANGER, DANGER_BG, WARNING, WARNING_BG, SUCCESS, SUCCESS_BG } from '@/styles/tokens'
+import { Clock, CheckCircle2, CalendarDays } from 'lucide-react'
 
 function useWindowWidth() {
   const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
@@ -278,21 +279,21 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
-          {[
-            { label: t('hr:leaveRequests.index.kpis.pendingApproval'), value: stats.pending_count, sub: t('hr:leaveRequests.index.kpis.awaitingReview'), color: WARNING, bg: WARNING_BG },
-            { label: t('hr:leaveRequests.index.kpis.approvedThisMonth'), value: stats.approved_this_month, sub: t('hr:leaveRequests.index.kpis.thisMonth'), color: SUCCESS, bg: SUCCESS_BG },
-            { label: t('hr:leaveRequests.index.kpis.onLeaveToday'), value: stats.on_leave_today, sub: t('hr:leaveRequests.index.kpis.activeToday'), color: TEAL, bg: '#F0FDFA' },
-          ].map(card => (
-            <div key={card.label} style={{ ...CARD, padding: '20px 24px' }}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
-                <div style={{ width: 16, height: 16, borderRadius: '50%', background: card.color }} />
+            {[
+              { label: t('hr:leaveRequests.index.kpis.pendingApproval'), value: stats.pending_count, sub: t('hr:leaveRequests.index.kpis.awaitingReview'), color: WARNING, bg: WARNING_BG, Icon: Clock },
+              { label: t('hr:leaveRequests.index.kpis.approvedThisMonth'), value: stats.approved_this_month, sub: t('hr:leaveRequests.index.kpis.thisMonth'), color: SUCCESS, bg: SUCCESS_BG, Icon: CheckCircle2 },
+              { label: t('hr:leaveRequests.index.kpis.onLeaveToday'), value: stats.on_leave_today, sub: t('hr:leaveRequests.index.kpis.activeToday'), color: TEAL, bg: '#F0FDFA', Icon: CalendarDays },
+            ].map(card => (
+              <div key={card.label} style={{ ...CARD, padding: '20px 24px' }}>
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+                  <card.Icon size={20} color={card.color} strokeWidth={2} />
+                </div>
+                <p style={{ fontSize: 11, fontWeight: 600, color: SLATE[400], textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>{card.label}</p>
+                <p style={{ fontSize: 30, fontWeight: 700, color: card.color, margin: '0 0 2px' }}>{card.value}</p>
+                <p style={{ fontSize: 12, color: SLATE[600], margin: 0 }}>{card.sub}</p>
               </div>
-              <p style={{ fontSize: 11, fontWeight: 600, color: SLATE[400], textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>{card.label}</p>
-              <p style={{ fontSize: 30, fontWeight: 700, color: card.color, margin: '0 0 2px' }}>{card.value}</p>
-              <p style={{ fontSize: 12, color: SLATE[600], margin: 0 }}>{card.sub}</p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
         <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 12, marginBottom: 16, alignItems: isMobile ? 'stretch' : 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
