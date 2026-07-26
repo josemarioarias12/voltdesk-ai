@@ -9,6 +9,7 @@ class Workspace < ApplicationRecord
   has_many :ai_audit_logs,   dependent: :destroy
   has_many :leave_requests,  dependent: :destroy
   has_many :onboarding_plans, dependent: :destroy
+  has_many :climate_surveys, dependent: :destroy
   has_many :notifications,   dependent: :destroy
   has_many :assets,          dependent: :destroy
   has_many :asset_incidents, dependent: :destroy
