@@ -170,12 +170,16 @@ export default function LeaveRequestsNew({ leave_types }: Props) {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
   }, [data.leave_type, data.start_date, data.end_date, fetchPreview])
 
+  const [locked, setLocked] = useState(false)
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    post('/hr/leave_requests')
+    if (locked) return
+    setLocked(true)
+    post('/hr/leave_requests', { onError: () => setLocked(false) })
   }
 
-  const canSubmit = !processing && !!data.leave_type && !!data.start_date && !!data.end_date
+  const canSubmit = !processing && !locked && !!data.leave_type && !!data.start_date && !!data.end_date
 
   const noticeWarning = preview?.min_notice_days != null && data.start_date
     ? (() => {
