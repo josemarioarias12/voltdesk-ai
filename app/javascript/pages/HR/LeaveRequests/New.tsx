@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { router, useForm } from '@inertiajs/react'
 import { useTranslation } from 'react-i18next'
 import AppLayout from '@/components/AppLayout'
+import DatePicker from '@/components/DatePicker'
 import { CARD, LABEL, INPUT, SLATE, NAVY, TEAL, DANGER } from '@/styles/tokens'
 
 interface Props {
@@ -279,12 +280,12 @@ export default function LeaveRequestsNew({ leave_types }: Props) {
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr auto 1fr', gap: 12, alignItems: 'end' }}>
               <div>
                 <label style={LABEL}>{t('hr:leaveRequests.new.startDate')}</label>
-                <input type="date" value={data.start_date} onChange={e => setData('start_date', e.target.value)} style={INPUT} />
+                <DatePicker value={data.start_date} onChange={v => setData('start_date', v)} minDate={new Date()} />
               </div>
               {!isMobile && <span style={{ color: SLATE[400], fontSize: 18, paddingBottom: 9 }}>→</span>}
               <div>
                 <label style={LABEL}>{t('hr:leaveRequests.new.endDate')}</label>
-                <input type="date" value={data.end_date} onChange={e => setData('end_date', e.target.value)} style={INPUT} />
+                <DatePicker value={data.end_date} onChange={v => setData('end_date', v)} minDate={data.start_date ? new Date(data.start_date) : new Date()} />
               </div>
             </div>
             {(errors.start_date || errors.end_date) && (

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { router } from '@inertiajs/react'
 import AppLayout from '@/components/AppLayout'
+import DatePicker from '@/components/DatePicker'
 
 interface Department { id: number; name: string }
 interface UserOption  { id: number; name: string }
@@ -104,7 +105,7 @@ export default function AssetsNew({ departments, users }: Props) {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <Field label="Purchase Date">
-                <input type="date" value={purchaseDate} onChange={e => setPurchaseDate(e.target.value)} style={inputStyle} />
+                <DatePicker value={purchaseDate} onChange={setPurchaseDate} />
               </Field>
               <Field label="Purchase Price">
                 <div style={{ position: 'relative' }}>
@@ -115,7 +116,7 @@ export default function AssetsNew({ departments, users }: Props) {
             </div>
 
             <Field label="Warranty Expiry Date">
-              <input type="date" value={warrantyDate} onChange={e => setWarrantyDate(e.target.value)} style={inputStyle} />
+              <DatePicker value={warrantyDate} onChange={setWarrantyDate} minDate={purchaseDate ? new Date(purchaseDate) : undefined} />
               <p style={{ fontSize: '12px', color: '#028090', margin: '6px 0 0' }}>
                 Warranty alerts will be sent 30, 15, and 7 days before expiry
               </p>

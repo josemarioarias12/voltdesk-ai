@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { router } from '@inertiajs/react'
 import AppLayout from '@/components/AppLayout'
+import DatePicker from '@/components/DatePicker'
 
 interface LogEntry {
   id: number
@@ -113,19 +114,16 @@ export default function AuditLog({ logs, pagination, filters, operations, provid
             <option value="error">Error</option>
           </select>
 
-          <input
-            type="date"
+          <DatePicker
             value={localFilters.from || ''}
-            onChange={e => { setLocalFilters(f => ({ ...f, from: e.target.value })); applyFilters({ from: e.target.value }) }}
-            className="px-3 py-2 rounded-xl border text-sm"
-            style={{ borderColor: '#E2E8F0', background: '#fff', color: '#475569' }}
+            onChange={v => { setLocalFilters(f => ({ ...f, from: v })); applyFilters({ from: v }) }}
+            placeholder="From"
           />
-          <input
-            type="date"
+          <DatePicker
             value={localFilters.to || ''}
-            onChange={e => { setLocalFilters(f => ({ ...f, to: e.target.value })); applyFilters({ to: e.target.value }) }}
-            className="px-3 py-2 rounded-xl border text-sm"
-            style={{ borderColor: '#E2E8F0', background: '#fff', color: '#475569' }}
+            onChange={v => { setLocalFilters(f => ({ ...f, to: v })); applyFilters({ to: v }) }}
+            minDate={localFilters.from ? new Date(localFilters.from) : undefined}
+            placeholder="To"
           />
         </div>
 
