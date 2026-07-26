@@ -103,3 +103,29 @@ export interface OnboardingPlan {
   tasks_total: number
   sections: OnboardingSection[]
 }
+export interface ClimateSurveyTheme {
+  theme: string
+  sentiment: 'positive' | 'negative' | 'mixed'
+  mentions: number
+  example_quote: string
+}
+
+export interface ClimateSurveySummary {
+  id: number
+  title: string
+  status: 'draft' | 'active' | 'closed'
+  department: string | null
+  created_by: string
+  participation_count: number
+  eligible_count: number
+  created_at: string
+  closes_at: string | null
+}
+
+export interface ClimateSurveyDetail extends ClimateSurveySummary {
+  description: string | null
+  can_close: boolean
+  ai_themes: ClimateSurveyTheme[]
+  average_rating: number | null
+  average_recommend_score: number | null
+}
