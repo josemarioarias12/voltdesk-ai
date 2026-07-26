@@ -7,6 +7,115 @@ RSpec.describe LeaveRequest do
   let(:department) { create(:department, workspace: workspace) }
   let(:user)       { create(:user, workspace: workspace, department: department) }
 
+  describe 'end_date_after_start_date' do
+    it 'is valid when end_date is after start_date' do
+      request = build(:leave_request, workspace: workspace, user: user,
+                                       start_date: 1.week.from_now, end_date: 2.weeks.from_now)
+      expect(request).to be_valid
+    end
+
+    it 'is valid when end_date equals start_date (single-day leave)' do
+      request = build(:leave_request, workspace: workspace, user: user,
+                                       start_date: 1.week.from_now, end_date: 1.week.from_now)
+      expect(request).to be_valid
+    end
+
+    it 'is invalid when end_date is before start_date' do
+      request = build(:leave_request, workspace: workspace, user: user,
+                                       start_date: 2.weeks.from_now, end_date: 1.week.from_now)
+      expect(request).not_to be_valid
+      expect(request.errors[:end_date]).to include('must be after start date')
+    end
+  end
+
+  describe 'no_overlapping_approved_requests' do
+    it 'rejects a new request overlapping an existing approved one for the same user' do
+      create(:leave_request, :approved, workspace: workspace, user: user,
+                                         start_date: 10.days.from_now, end_date: 20.days.from_now)
+
+      overlapping = build(:leave_request, workspace: workspace, user: user,
+                                           start_date: 15.days.from_now, end_date: 25.days.from_now)
+      expect(overlapping).not_to be_valid
+      expect(overlapping.errors[:base]).to include('overlaps with an existing approved request')
+    end
+
+    it 'allows a non-overlapping request for the same user' do
+      create(:leave_request, :approved, workspace: workspace, user: user,
+                                         start_date: 10.days.from_now, end_date: 20.days.from_now)
+
+      non_overlapping = build(:leave_request, workspace: workspace, user: user,
+                                               start_date: 25.days.from_now, end_date: 30.days.from_now)
+      expect(non_overlapping).to be_valid
+    end
+
+    it 'does not consider pending requests as overlapping' do
+      create(:leave_request, workspace: workspace, user: user,
+                              start_date: 10.days.from_now, end_date: 20.days.from_now, status: :pending)
+
+      overlapping = build(:leave_request, workspace: workspace, user: user,
+                                           start_date: 15.days.from_now, end_date: 25.days.from_now)
+      expect(overlapping).to be_valid
+    end
+
+    it 'does not consider approved requests from a different user' do
+      other_user = create(:user, workspace: workspace, department: department)
+      create(:leave_request, :approved, workspace: workspace, user: other_user,
+                                         start_date: 10.days.from_now, end_date: 20.days.from_now)
+
+      request = build(:leave_request, workspace: workspace, user: user,
+                                       start_date: 15.days.from_now, end_date: 25.days.from_now)
+      expect(request).to be_valid
+    end
+  end
+
+  describe '#business_days' do
+    it 'counts only weekdays in the range' do
+      request = build(:leave_request, workspace: workspace, user: user,
+                                       start_date: Date.new(2026, 8, 3), end_date: Date.new(2026, 8, 7))
+      expect(request.business_days).to eq(5)
+    end
+
+    it 'excludes weekends from the count' do
+      request = build(:leave_request, workspace: workspace, user: user,
+                                       start_date: Date.new(2026, 8, 1), end_date: Date.new(2026, 8, 9))
+      expect(request.business_days).to eq(5)
+    end
+
+    it 'returns 0 when start_date is missing' do
+      request = build(:leave_request, workspace: workspace, user: user, start_date: nil,
+                                       end_date: 1.week.from_now.to_date)
+      expect(request.business_days).to eq(0)
+    end
+
+    it 'returns 0 when end_date is missing' do
+      request = build(:leave_request, workspace: workspace, user: user, start_date: 1.week.from_now.to_date,
+                                       end_date: nil)
+      expect(request.business_days).to eq(0)
+    end
+  end
+
+  describe 'assign_department_from_user' do
+    it 'defaults department_id to the user department when not set explicitly' do
+      request = build(:leave_request, workspace: workspace, user: user, department: nil)
+      request.valid?
+      expect(request.department_id).to eq(department.id)
+    end
+
+    it 'does not override an explicitly set department_id' do
+      other_department = create(:department, workspace: workspace)
+      request = build(:leave_request, workspace: workspace, user: user, department: other_department)
+      request.valid?
+      expect(request.department_id).to eq(other_department.id)
+    end
+
+    it 'leaves department_id nil when the user has no department' do
+      user_without_dept = create(:user, workspace: workspace, department: nil)
+      request = build(:leave_request, workspace: workspace, user: user_without_dept, department: nil)
+      request.valid?
+      expect(request.department_id).to be_nil
+    end
+  end
+
   describe 'leave cap enforcement' do
     context 'when a department-wide cap policy exists' do
       before do
