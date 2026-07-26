@@ -69,6 +69,7 @@ export interface LeaveRequest {
     email: string
     role: string
     department: string | null
+    avatar_url: string | null
   }
   approved_by: {
     id: number

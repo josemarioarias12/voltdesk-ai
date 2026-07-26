@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import AppLayout from '@/components/AppLayout'
 import EmptyState from '@/components/EmptyState'
 import { LeaveRequest } from '@/types'
+import Avatar from '@/components/Avatar'
 import { CARD, LABEL, TH_STYLE, BADGE, SLATE, NAVY, TEAL, DANGER, DANGER_BG, WARNING, WARNING_BG, SUCCESS, SUCCESS_BG } from '@/styles/tokens'
 
 function useWindowWidth() {
@@ -90,19 +91,7 @@ function ClockIcon({ size = 13, color = SLATE[400] }: { size?: number; color?: s
   )
 }
 
-function Avatar({ name }: { name: string }) {
-  const initials = name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()
-  return (
-    <div style={{
-      width: 34, height: 34, borderRadius: '50%',
-      background: TEAL, color: '#fff',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontSize: 12, fontWeight: 700, flexShrink: 0,
-    }}>
-      {initials}
-    </div>
-  )
-}
+
 
 interface RejectModal {
   id: number
@@ -350,8 +339,8 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
                 return (
                   <div key={lr.id} style={{ ...CARD, padding: 16 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                      <Avatar name={lr.user.full_name} />
-                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <Avatar avatarUrl={lr.user.avatar_url} firstName={lr.user.full_name} size={34} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
                         <p style={{ fontSize: 13, fontWeight: 600, color: NAVY, margin: 0 }}>{lr.user.full_name}</p>
                         <p style={{ fontSize: 12, color: SLATE[400], margin: 0 }}>{lr.user.department ?? 'General'}</p>
                       </div>
@@ -401,8 +390,8 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
                         }}>
                           <td style={{ padding: '14px 16px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                              <Avatar name={lr.user.full_name} />
-                              <div>
+                                <Avatar avatarUrl={lr.user.avatar_url} firstName={lr.user.full_name} size={34} />
+                                <div>
                                 <p style={{ fontSize: 13, fontWeight: 600, color: NAVY, margin: 0 }}>{lr.user.full_name}</p>
                                 <p style={{ fontSize: 12, color: SLATE[400], margin: 0 }}>{humanize(lr.user.role)} · {lr.user.department ?? 'General'}</p>
                               </div>

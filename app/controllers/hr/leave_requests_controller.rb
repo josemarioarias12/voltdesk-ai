@@ -159,14 +159,15 @@ module Hr
     end
 
     def serialize_lr_user(usr)
-      {
-        id: usr.id,
-        full_name: usr.full_name,
-        email: usr.email,
-        role: usr.role,
-        department: usr.department&.name
-      }
-    end
+        {
+          id: usr.id,
+          full_name: usr.full_name,
+          email: usr.email,
+          role: usr.role,
+          department: usr.department&.name,
+          avatar_url: usr.avatar.attached? ? url_for(usr.avatar) : nil
+        }
+      end
 
     def serialize_lr_approver(approver)
       return nil unless approver
