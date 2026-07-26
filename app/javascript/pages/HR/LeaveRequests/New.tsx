@@ -15,6 +15,8 @@ interface PolicyPreview {
   current_concurrent_count: number | null
 }
 
+const MEDICAL_DOCUMENTATION_TYPES = ['sick_leave', 'maternity', 'paternity']
+
 function PalmIcon({ color = 'currentColor' }: { color?: string }) {
   return (
     <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2}>
@@ -116,6 +118,14 @@ function BellIcon({ size = 14, color = SLATE[400] }: { size?: number; color?: st
   )
 }
 
+function UploadIcon({ size = 16, color = TEAL }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 16V4m0 0L7 9m5-5l5 5M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3" />
+    </svg>
+  )
+}
+
 function useWindowWidth() {
   const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
   useEffect(() => {
@@ -138,20 +148,33 @@ export default function LeaveRequestsNew({ leave_types }: Props) {
     other:      { label: t('hr:leaveType.other'),      color: SLATE[600], border: 'rgba(15,23,42,0.14)', Icon: DocumentIcon },
   }
 
-  const { data, setData, post, processing, errors } = useForm({
-    leave_type:    '',
-    start_date:    '',
-    end_date:      '',
-    reason:        '',
-    coverage_plan: '',
+  const { data, setData, post, processing, errors } = useForm<{
+    leave_type: string
+    start_date: string
+    end_date: string
+    reason: string
+    coverage_plan: string
+    medical_notes: string
+    doctor_certificate: File | null
+  }>({
+    leave_type:         '',
+    start_date:         '',
+    end_date:           '',
+    reason:             '',
+    coverage_plan:      '',
+    medical_notes:      '',
+    doctor_certificate: null,
   })
 
   const [preview, setPreview]   = useState<PolicyPreview | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
   const [locked, setLocked] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const windowWidth  = useWindowWidth()
   const isMobile     = windowWidth < 640
+
+  const showMedicalDocumentation = MEDICAL_DOCUMENTATION_TYPES.includes(data.leave_type)
 
   const fetchPreview = useCallback(async (leaveType: string, startDate: string, endDate: string) => {
     if (!leaveType || !startDate || !endDate) { setPreview(null); return }
@@ -176,7 +199,12 @@ export default function LeaveRequestsNew({ leave_types }: Props) {
     e.preventDefault()
     if (locked) return
     setLocked(true)
-    post('/hr/leave_requests', { onError: () => setLocked(false) })
+    post('/hr/leave_requests', { forceFormData: true, onError: () => setLocked(false) })
+  }
+
+  function handleCertificateChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) setData('doctor_certificate', file)
   }
 
   const canSubmit = !processing && !locked && !!data.leave_type && !!data.start_date && !!data.end_date
@@ -315,7 +343,7 @@ export default function LeaveRequestsNew({ leave_types }: Props) {
             />
           </div>
 
-          <div style={{ marginBottom: 28 }}>
+          <div style={{ marginBottom: 20 }}>
             <label style={{ ...LABEL, fontSize: 14, textTransform: 'none', letterSpacing: 0, color: NAVY, marginBottom: 8 }}>
               {t('hr:leaveRequests.new.coveragePlanLabel')} <span style={{ fontSize: 12, fontWeight: 400, color: SLATE[400] }}>{t('hr:leaveRequests.new.optional')}</span>
             </label>
@@ -327,6 +355,49 @@ export default function LeaveRequestsNew({ leave_types }: Props) {
               style={INPUT}
             />
           </div>
+
+          {showMedicalDocumentation && (
+            <div style={{ marginBottom: 28, padding: 16, borderRadius: 10, background: SLATE[50], border: '1px solid rgba(15,23,42,0.08)' }}>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ ...LABEL, fontSize: 14, textTransform: 'none', letterSpacing: 0, color: NAVY, marginBottom: 8 }}>
+                  {t('hr:leaveRequests.new.medicalNotesLabel')} <span style={{ fontSize: 12, fontWeight: 400, color: SLATE[400] }}>{t('hr:leaveRequests.new.optional')}</span>
+                </label>
+                <textarea
+                  value={data.medical_notes}
+                  onChange={e => setData('medical_notes', e.target.value)}
+                  placeholder={t('hr:leaveRequests.new.medicalNotesPlaceholder')}
+                  rows={2}
+                  style={{ ...INPUT, resize: 'vertical', background: '#fff' }}
+                />
+                {errors.medical_notes && <p style={{ fontSize: 12, color: DANGER, marginTop: 4 }}>{errors.medical_notes}</p>}
+              </div>
+
+              <div>
+                <label style={{ ...LABEL, fontSize: 14, textTransform: 'none', letterSpacing: 0, color: NAVY, marginBottom: 8 }}>
+                  {t('hr:leaveRequests.new.doctorCertificateLabel')} <span style={{ fontSize: 12, fontWeight: 400, color: SLATE[400] }}>{t('hr:leaveRequests.new.optional')}</span>
+                </label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".png,.jpg,.jpeg,.webp,.pdf,.doc,.docx"
+                  onChange={handleCertificateChange}
+                  style={{ display: 'none' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px dashed rgba(15,23,42,0.2)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 13, color: SLATE[600] }}
+                >
+                  <UploadIcon />
+                  {data.doctor_certificate
+                    ? t('hr:leaveRequests.new.certificateSelected', { name: data.doctor_certificate.name })
+                    : t('hr:leaveRequests.new.doctorCertificateLabel')}
+                </button>
+                <p style={{ fontSize: 11, color: SLATE[400], margin: '6px 0 0' }}>{t('hr:leaveRequests.new.doctorCertificateHint')}</p>
+                {errors.doctor_certificate && <p style={{ fontSize: 12, color: DANGER, marginTop: 4 }}>{errors.doctor_certificate}</p>}
+              </div>
+            </div>
+          )}
 
           <button
             type="submit"
