@@ -7,6 +7,38 @@ RSpec.describe LeaveRequest do
   let(:department) { create(:department, workspace: workspace) }
   let(:user)       { create(:user, workspace: workspace, department: department) }
 
+  describe 'start_date_not_in_past' do
+    it 'rejects a start_date in the past' do
+      request = build(:leave_request, workspace: workspace, user: user,
+                                       start_date: 1.day.ago.to_date, end_date: 1.week.from_now.to_date)
+      expect(request).not_to be_valid
+      expect(request.errors[:start_date]).to include("can't be in the past")
+    end
+
+    it 'allows a start_date of today' do
+      request = build(:leave_request, workspace: workspace, user: user,
+                                       start_date: Time.zone.today, end_date: 1.week.from_now.to_date)
+      expect(request).to be_valid
+    end
+
+    it 'allows a future start_date' do
+      request = build(:leave_request, workspace: workspace, user: user,
+                                       start_date: 1.week.from_now.to_date, end_date: 2.weeks.from_now.to_date)
+      expect(request).to be_valid
+    end
+
+    it 'does not re-validate on update, so approving an older request still works' do
+      request = create(:leave_request, workspace: workspace, user: user,
+                        start_date: 1.week.from_now.to_date, end_date: 2.weeks.from_now.to_date)
+
+      travel_to(3.weeks.from_now) do
+        expect(request.update(status: :approved)).to be(true)
+      end
+    end
+  end
+
+  describe 'end_date_after_start_date' do
+
   describe 'end_date_after_start_date' do
     it 'is valid when end_date is after start_date' do
       request = build(:leave_request, workspace: workspace, user: user,
@@ -217,4 +249,5 @@ RSpec.describe LeaveRequest do
       end
     end
   end
+end
 end

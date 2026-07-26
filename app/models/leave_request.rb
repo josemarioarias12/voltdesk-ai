@@ -32,6 +32,7 @@ class LeaveRequest < ApplicationRecord
   before_validation :assign_department_from_user
 
   validate :end_date_after_start_date
+  validate :start_date_not_in_past, on: :create
   validate :no_overlapping_approved_requests, on: :create
   validate :leave_cap_not_exceeded, on: :create
   validate :respects_minimum_notice, on: :create
@@ -62,6 +63,12 @@ class LeaveRequest < ApplicationRecord
     return unless start_date && end_date
 
     errors.add(:end_date, 'must be after start date') if end_date < start_date
+  end
+
+  def start_date_not_in_past
+    return unless start_date
+
+    errors.add(:start_date, "can't be in the past") if start_date < Time.zone.today
   end
 
   def no_overlapping_approved_requests
