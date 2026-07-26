@@ -96,7 +96,8 @@ module Hr
     end
 
     def leave_request_params
-      params.expect(leave_request: %i[leave_type start_date end_date reason coverage_plan])
+      params.expect(leave_request: %i[leave_type start_date end_date reason coverage_plan
+                                      medical_notes doctor_certificate])
     end
 
     def approval_notice(leave_request)
@@ -150,9 +151,9 @@ module Hr
       }
 
       sensitive = mask(leave_req, {
-                         medical_notes: leave_req.medical_notes,
-        doctor_certificate_url: leave_req.doctor_certificate_url
-                       }, current_user)
+                           medical_notes: leave_req.medical_notes,
+          doctor_certificate_url: certificate_url_for(leave_req)
+                         }, current_user)
 
       base.merge(sensitive)
     end
@@ -171,6 +172,12 @@ module Hr
       return nil unless approver
 
       { id: approver.id, full_name: approver.full_name }
+    end
+
+    def certificate_url_for(leave_req)
+      return nil unless leave_req.doctor_certificate.attached?
+
+      url_for(leave_req.doctor_certificate)
     end
   end
 end

@@ -53,10 +53,33 @@ RSpec.describe Hr::LeaveRequestsController, type: :request do
     end
 
     it 'redirects after creation' do
-      post hr_leave_requests_path, params: valid_params
-      expect(response).to have_http_status(:redirect)
+        post hr_leave_requests_path, params: valid_params
+        expect(response).to have_http_status(:redirect)
+      end
+
+      context 'with a doctor_certificate attached' do
+        let(:certificate_file) do
+          fixture_file_upload(Rails.root.join('spec/fixtures/files/certificate.png'), 'image/png')
+        end
+        let(:params_with_certificate) do
+          { leave_request: { leave_type: 'sick_leave',
+              start_date: 1.day.from_now.to_date,
+              end_date: 3.days.from_now.to_date,
+              medical_notes: 'Doctor recommended 3 days of rest',
+              doctor_certificate: certificate_file } }
+        end
+
+        it 'attaches the certificate to the created request' do
+          post hr_leave_requests_path, params: params_with_certificate
+          expect(LeaveRequest.last.doctor_certificate).to be_attached
+        end
+
+        it 'persists the medical_notes' do
+          post hr_leave_requests_path, params: params_with_certificate
+          expect(LeaveRequest.last.medical_notes).to eq('Doctor recommended 3 days of rest')
+        end
+      end
     end
-  end
 
   describe 'GET /hr/leave_requests/:id' do
     let(:leave_request) { create(:leave_request, user: employee, workspace: workspace) }

@@ -38,8 +38,6 @@ RSpec.describe LeaveRequest do
   end
 
   describe 'end_date_after_start_date' do
-
-  describe 'end_date_after_start_date' do
     it 'is valid when end_date is after start_date' do
       request = build(:leave_request, workspace: workspace, user: user,
                                        start_date: 1.week.from_now, end_date: 2.weeks.from_now)
@@ -123,6 +121,43 @@ RSpec.describe LeaveRequest do
       request = build(:leave_request, workspace: workspace, user: user, start_date: 1.week.from_now.to_date,
                                        end_date: nil)
       expect(request.business_days).to eq(0)
+    end
+  end
+
+  describe 'doctor_certificate_valid' do
+    it 'is valid without any certificate attached' do
+      request = build(:leave_request, workspace: workspace, user: user)
+      expect(request).to be_valid
+    end
+
+    it 'accepts an accepted file type' do
+      request = build(:leave_request, workspace: workspace, user: user)
+      request.doctor_certificate.attach(
+        io: File.open(Rails.root.join('spec/fixtures/files/certificate.png')),
+        filename: 'certificate.png', content_type: 'image/png'
+      )
+      expect(request).to be_valid
+    end
+
+    it 'rejects an unsupported file type' do
+      request = build(:leave_request, workspace: workspace, user: user)
+      request.doctor_certificate.attach(
+        io: File.open(Rails.root.join('spec/fixtures/files/certificate.txt')),
+        filename: 'certificate.txt', content_type: 'text/plain'
+      )
+      expect(request).not_to be_valid
+      expect(request.errors[:doctor_certificate]).to include('must be a PNG, JPG, PDF, or DOC file')
+    end
+
+    it 'rejects a file over the size limit' do
+      request = build(:leave_request, workspace: workspace, user: user)
+      request.doctor_certificate.attach(
+        io: File.open(Rails.root.join('spec/fixtures/files/certificate.png')),
+        filename: 'certificate.png', content_type: 'image/png'
+      )
+      allow(request.doctor_certificate).to receive(:byte_size).and_return(11.megabytes)
+      expect(request).not_to be_valid
+      expect(request.errors[:doctor_certificate]).to include('must be under 10MB')
     end
   end
 
@@ -249,5 +284,4 @@ RSpec.describe LeaveRequest do
       end
     end
   end
-end
 end

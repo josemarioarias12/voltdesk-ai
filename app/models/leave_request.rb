@@ -3,10 +3,16 @@
 class LeaveRequest < ApplicationRecord
   include WorkspaceScoped
 
+  ACCEPTED_CERTIFICATE_TYPES = %w[image/png image/jpeg image/webp application/pdf
+                                  application/msword
+                                  application/vnd.openxmlformats-officedocument.wordprocessingml.document].freeze
+  MAX_CERTIFICATE_SIZE = 10.megabytes
+
   belongs_to :workspace
   belongs_to :user
   belongs_to :approved_by, class_name: 'User', optional: true
   belongs_to :department, optional: true
+  has_one_attached :doctor_certificate
 
   enum :leave_type, {
     vacation: 0,
@@ -36,6 +42,7 @@ class LeaveRequest < ApplicationRecord
   validate :no_overlapping_approved_requests, on: :create
   validate :leave_cap_not_exceeded, on: :create
   validate :respects_minimum_notice, on: :create
+  validate :doctor_certificate_valid
 
   scope :pending_approval, -> { where(status: :pending) }
   scope :recent, -> { order(created_at: :desc) }
@@ -69,6 +76,18 @@ class LeaveRequest < ApplicationRecord
     return unless start_date
 
     errors.add(:start_date, "can't be in the past") if start_date < Time.zone.today
+  end
+
+  def doctor_certificate_valid
+    return unless doctor_certificate.attached?
+
+    unless ACCEPTED_CERTIFICATE_TYPES.include?(doctor_certificate.content_type)
+      errors.add(:doctor_certificate, 'must be a PNG, JPG, PDF, or DOC file')
+    end
+
+    return unless doctor_certificate.byte_size > MAX_CERTIFICATE_SIZE
+
+    errors.add(:doctor_certificate, 'must be under 10MB')
   end
 
   def no_overlapping_approved_requests
