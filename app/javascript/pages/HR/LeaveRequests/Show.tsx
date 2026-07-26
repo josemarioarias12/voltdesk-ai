@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { router } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 import AppLayout from '@/components/AppLayout'
 import { LeaveRequest } from '@/types'
 import { CARD, LABEL, BADGE, SLATE, NAVY, TEAL, DANGER, DANGER_BG, WARNING, WARNING_BG, SUCCESS, SUCCESS_BG } from '@/styles/tokens'
@@ -8,19 +9,6 @@ interface Props {
   leave_request: LeaveRequest
 }
 
-const STATUS_STYLES: Record<string, { bg: string; color: string; label: string }> = {
-  pending:                 { bg: WARNING_BG, color: WARNING, label: 'Pending Approval' },
-  pending_second_approval: { bg: '#F5F3FF', color: '#7C3AED', label: 'Awaiting Final Approval' },
-  approved:                { bg: SUCCESS_BG, color: SUCCESS, label: 'Approved' },
-  rejected:                { bg: DANGER_BG, color: DANGER, label: 'Rejected' },
-}
-
-const LEAVE_LABELS: Record<string, string> = {
-  vacation: 'Vacation', sick_leave: 'Sick Leave', personal: 'Personal',
-  maternity: 'Maternity', paternity: 'Paternity', other: 'Other',
-}
-
-// ── Icons ─────────────────────────────────────────────────────────────────────
 function BackIcon({ size = 16, color = SLATE[600] }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2}>
@@ -148,7 +136,6 @@ function ChevronIcon({ size = 14, color = SLATE[400] }: { size?: number; color?:
   )
 }
 
-// ── Responsive hook ───────────────────────────────────────────────────────────
 function useWindowWidth() {
   const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
   useEffect(() => {
@@ -159,7 +146,7 @@ function useWindowWidth() {
   return width
 }
 
-function SensitiveField({ label, value }: { label: string; value: string | null }) {
+function SensitiveField({ label, value, restrictedLabel }: { label: string; value: string | null; restrictedLabel: string }) {
   const redacted = value === '[REDACTED]'
   return (
     <div>
@@ -167,7 +154,7 @@ function SensitiveField({ label, value }: { label: string; value: string | null 
       {redacted ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', background: SLATE[50], borderRadius: 8 }}>
           <LockIcon />
-          <span style={{ fontSize: 13, color: SLATE[400], fontStyle: 'italic' }}>Restricted to HR and admins</span>
+          <span style={{ fontSize: 13, color: SLATE[400], fontStyle: 'italic' }}>{restrictedLabel}</span>
         </div>
       ) : (
         <p style={{ fontSize: 14, color: NAVY, margin: 0 }}>{value}</p>
@@ -177,20 +164,27 @@ function SensitiveField({ label, value }: { label: string; value: string | null 
 }
 
 export default function LeaveRequestsShow({ leave_request: lr }: Props) {
+  const { t } = useTranslation(['hr', 'common'])
   const [rejectionReason, setRejectionReason] = useState('')
   const [showRejectForm, setShowRejectForm]   = useState(false)
   const [submitting, setSubmitting]           = useState(false)
-  const rejectFormRef = useRef<HTMLTextAreaElement>(null)
 
   const windowWidth = useWindowWidth()
   const isMobile     = windowWidth < 900
 
+  const STATUS_STYLES: Record<string, { bg: string; color: string; label: string }> = {
+    pending:                 { bg: WARNING_BG, color: WARNING, label: t('hr:status.pending') },
+    pending_second_approval: { bg: '#F5F3FF', color: '#7C3AED', label: t('hr:status.pendingSecondApproval') },
+    approved:                { bg: SUCCESS_BG, color: SUCCESS, label: t('hr:status.approved') },
+    rejected:                { bg: DANGER_BG, color: DANGER, label: t('hr:status.rejected') },
+  }
+
   const status = STATUS_STYLES[lr.status] ?? STATUS_STYLES.pending
   const hasSensitiveFields = lr.medical_notes !== undefined || lr.doctor_certificate_url !== undefined
 
-  useEffect(() => {
-    if (showRejectForm) rejectFormRef.current?.focus()
-  }, [showRejectForm])
+  function leaveTypeLabel(type: string) {
+    return t(`hr:leaveType.${type}`, { defaultValue: type })
+  }
 
   const handleApprove = () => {
     setSubmitting(true)
@@ -209,21 +203,20 @@ export default function LeaveRequestsShow({ leave_request: lr }: Props) {
   const isFinalStage = lr.status === 'pending_second_approval'
 
   return (
-    <AppLayout title={`Leave Request #LR-${String(lr.id).padStart(5, '0')}`}>
+    <AppLayout title={t('hr:leaveRequests.show.title', { id: String(lr.id).padStart(5, '0') })}>
       <div style={{ maxWidth: 1000 }}>
-        {/* Header */}
         <div style={{ display: 'flex', alignItems: isMobile ? 'stretch' : 'flex-start', justifyContent: 'space-between', marginBottom: 24, flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 12 : 0 }}>
           <div>
             <button
               onClick={() => router.get('/hr/leave_requests')}
               style={{ background: 'none', border: 'none', color: SLATE[600], cursor: 'pointer', fontSize: 14, padding: 0, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}
             >
-              <BackIcon /> Leave Requests
+              <BackIcon /> {t('hr:leaveRequests.show.back')}
             </button>
             <h1 style={{ fontSize: 22, fontWeight: 700, color: NAVY, letterSpacing: '-0.02em', margin: '0 0 4px' }}>
-              Leave Request #LR-{String(lr.id).padStart(5, '0')}
+              {t('hr:leaveRequests.show.title', { id: String(lr.id).padStart(5, '0') })}
             </h1>
-            <p style={{ color: SLATE[600], fontSize: 13, margin: 0 }}>Review and action this leave request</p>
+            <p style={{ color: SLATE[600], fontSize: 13, margin: 0 }}>{t('hr:leaveRequests.show.subtitle')}</p>
           </div>
           <span style={{ ...BADGE, fontSize: 13, padding: '6px 14px', color: status.color, background: status.bg, display: 'flex', alignItems: 'center', gap: 6, alignSelf: isMobile ? 'flex-start' : undefined }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: status.color }} />
@@ -232,14 +225,12 @@ export default function LeaveRequestsShow({ leave_request: lr }: Props) {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 340px', gap: 20 }}>
-          {/* Left — details */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={{ ...CARD, padding: 24 }}>
               <h2 style={{ fontSize: 15, fontWeight: 700, color: NAVY, margin: '0 0 20px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <ClipboardIcon /> Request Details
+                <ClipboardIcon /> {t('hr:leaveRequests.show.requestDetails')}
               </h2>
 
-              {/* Employee */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, paddingBottom: 20, borderBottom: '1px solid rgba(15,23,42,0.06)', flexWrap: 'wrap', gap: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{ width: 44, height: 44, borderRadius: '50%', background: TEAL, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700 }}>
@@ -251,17 +242,16 @@ export default function LeaveRequestsShow({ leave_request: lr }: Props) {
                   </div>
                 </div>
                 <span style={{ ...BADGE, color: '#2563EB', background: '#EFF6FF' }}>
-                  {LEAVE_LABELS[lr.leave_type] ?? lr.leave_type}
+                  {leaveTypeLabel(lr.leave_type)}
                 </span>
               </div>
 
-              {/* Dates grid */}
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)', gap: 16, marginBottom: 20 }}>
                 {[
-                  { label: 'Start Date', icon: <CalendarIcon />, value: lr.start_date },
-                  { label: 'End Date', icon: <CalendarIcon />, value: lr.end_date },
-                  { label: 'Duration', icon: <ClockIcon />, value: `${lr.business_days} business days` },
-                  { label: 'Submitted', icon: <MailIcon />, value: new Date(lr.created_at).toLocaleDateString() },
+                  { label: t('hr:leaveRequests.show.startDate'), icon: <CalendarIcon />, value: lr.start_date },
+                  { label: t('hr:leaveRequests.show.endDate'), icon: <CalendarIcon />, value: lr.end_date },
+                  { label: t('hr:leaveRequests.show.duration'), icon: <ClockIcon />, value: t('hr:leaveRequests.show.day', { count: lr.business_days }) },
+                  { label: t('hr:leaveRequests.show.submitted'), icon: <MailIcon />, value: new Date(lr.created_at).toLocaleDateString() },
                 ].map(item => (
                   <div key={item.label}>
                     <p style={{ fontSize: 11, fontWeight: 600, color: SLATE[400], textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>{item.label}</p>
@@ -270,56 +260,50 @@ export default function LeaveRequestsShow({ leave_request: lr }: Props) {
                 ))}
               </div>
 
-              {/* Reason */}
               {lr.reason && (
                 <div style={{ marginBottom: 16 }}>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: SLATE[400], textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 8px' }}>Reason</p>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: SLATE[400], textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 8px' }}>{t('hr:leaveRequests.show.reason')}</p>
                   <div style={{ background: SLATE[50], borderRadius: 10, padding: '12px 16px', fontSize: 14, color: SLATE[600] }}>{lr.reason}</div>
                 </div>
               )}
 
-              {/* Coverage plan */}
               {lr.coverage_plan && (
                 <div style={{ marginBottom: 16 }}>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: SLATE[400], textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 8px' }}>Coverage Plan</p>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: SLATE[400], textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 8px' }}>{t('hr:leaveRequests.show.coveragePlan')}</p>
                   <div style={{ background: SLATE[50], borderRadius: 10, padding: '12px 16px', fontSize: 14, color: SLATE[600] }}>{lr.coverage_plan}</div>
                 </div>
               )}
 
-              {/* Sensitive fields */}
               {hasSensitiveFields && (
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16, marginBottom: 16, paddingTop: 16, borderTop: '1px solid rgba(15,23,42,0.06)' }}>
-                  <SensitiveField label="Medical Notes" value={lr.medical_notes} />
-                  <SensitiveField label="Doctor Certificate" value={lr.doctor_certificate_url} />
+                  <SensitiveField label={t('hr:leaveRequests.show.medicalNotes')} value={lr.medical_notes} restrictedLabel={t('hr:leaveRequests.show.restricted')} />
+                  <SensitiveField label={t('hr:leaveRequests.show.doctorCertificate')} value={lr.doctor_certificate_url} restrictedLabel={t('hr:leaveRequests.show.restricted')} />
                 </div>
               )}
 
-              {/* Rejection reason */}
               {lr.rejection_reason && (
                 <div>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: SLATE[400], textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 8px' }}>Rejection Reason</p>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: SLATE[400], textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 8px' }}>{t('hr:leaveRequests.show.rejectionReason')}</p>
                   <div style={{ background: DANGER_BG, borderRadius: 10, padding: '12px 16px', fontSize: 14, color: DANGER }}>{lr.rejection_reason}</div>
                 </div>
               )}
             </div>
 
-            {/* Decision panel */}
             {showDecisionPanel && (
               <div style={{ ...CARD, padding: 24 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
                   <h2 style={{ fontSize: 15, fontWeight: 700, color: NAVY, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
                     {isFinalStage ? <ShieldIcon /> : <ClipboardIcon />}
-                    {isFinalStage ? 'Final Approval' : 'Decision'}
+                    {isFinalStage ? t('hr:leaveRequests.show.finalApproval') : t('hr:leaveRequests.show.decision')}
                   </h2>
-                  <span style={{ ...BADGE, color: WARNING, background: WARNING_BG }}>Action required</span>
+                  <span style={{ ...BADGE, color: WARNING, background: WARNING_BG }}>{t('hr:leaveRequests.show.actionRequired')}</span>
                 </div>
 
                 {isFinalStage && (
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 16, padding: '10px 14px', background: '#F5F3FF', borderRadius: 10 }}>
                     <AlertIcon color="#7C3AED" />
                     <p style={{ fontSize: 13, color: '#6D28D9', margin: 0 }}>
-                      Already approved by {lr.approved_by?.full_name ?? 'a manager'}. This request requires
-                      final sign-off because its duration exceeds your department's second-approval threshold.
+                      {t('hr:leaveRequests.show.alreadyApproved', { name: lr.approved_by?.full_name ?? t('hr:leaveRequests.show.aManager') })}
                     </p>
                   </div>
                 )}
@@ -336,7 +320,7 @@ export default function LeaveRequestsShow({ leave_request: lr }: Props) {
                     }}
                   >
                     {isFinalStage ? <ShieldIcon color="#fff" /> : <CheckIcon />}
-                    {isFinalStage ? 'Give Final Approval' : 'Approve Request'}
+                    {isFinalStage ? t('hr:leaveRequests.show.giveFinalApproval') : t('hr:leaveRequests.show.approveRequest')}
                   </button>
                 )}
 
@@ -345,20 +329,19 @@ export default function LeaveRequestsShow({ leave_request: lr }: Props) {
                     onClick={() => setShowRejectForm(prev => !prev)}
                     style={{ width: '100%', padding: 12, borderRadius: 10, background: 'transparent', color: DANGER, border: `1px solid ${DANGER}`, fontSize: 15, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                   >
-                    <XIcon /> Reject Request
+                    <XIcon /> {t('hr:leaveRequests.show.rejectRequest')}
                   </button>
                 )}
 
                 {showRejectForm && (
                   <div style={{ marginTop: 16 }}>
                     <p style={{ fontSize: 13, fontWeight: 600, color: DANGER, margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <AlertIcon color={DANGER} /> Rejection reason is required
+                      <AlertIcon color={DANGER} /> {t('hr:leaveRequests.show.rejectionRequired')}
                     </p>
                     <textarea
-                      ref={rejectFormRef}
                       value={rejectionReason}
                       onChange={e => setRejectionReason(e.target.value)}
-                      placeholder="Explain why this request is being rejected"
+                      placeholder={t('hr:leaveRequests.show.rejectionPlaceholder')}
                       rows={3}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid #FCA5A5', fontSize: 14, resize: 'vertical', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: 10 }}
                     />
@@ -367,7 +350,7 @@ export default function LeaveRequestsShow({ leave_request: lr }: Props) {
                       disabled={!rejectionReason.trim() || submitting}
                       style={{ width: '100%', padding: 11, borderRadius: 10, background: rejectionReason.trim() ? DANGER : SLATE[400], color: '#fff', border: 'none', fontSize: 14, fontWeight: 600, cursor: rejectionReason.trim() ? 'pointer' : 'not-allowed' }}
                     >
-                      Confirm Rejection
+                      {t('hr:leaveRequests.show.confirmRejection')}
                     </button>
                   </div>
                 )}
@@ -375,26 +358,25 @@ export default function LeaveRequestsShow({ leave_request: lr }: Props) {
             )}
           </div>
 
-          {/* Right — sidebar */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {lr.approved_by && (
               <div style={{ ...CARD, padding: 20 }}>
                 <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
                   {lr.status === 'rejected' ? <XBadgeIcon /> : <CheckBadgeIcon />}
-                  {lr.status === 'rejected' ? 'Rejected by' : 'Approved by'}
+                  {lr.status === 'rejected' ? t('hr:leaveRequests.show.rejectedBy') : t('hr:leaveRequests.show.approvedBy')}
                 </h3>
                 <p style={{ fontSize: 14, color: SLATE[600], margin: 0 }}>{lr.approved_by.full_name}</p>
                 {isFinalStage && (
-                  <p style={{ fontSize: 12, color: SLATE[400], margin: '6px 0 0' }}>Awaiting final approval from an admin</p>
+                  <p style={{ fontSize: 12, color: SLATE[400], margin: '6px 0 0' }}>{t('hr:leaveRequests.show.awaitingFinalNote')}</p>
                 )}
               </div>
             )}
 
             <div style={{ ...CARD, padding: 20 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: '0 0 12px' }}>Quick Actions</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: '0 0 12px' }}>{t('hr:leaveRequests.show.quickActions')}</h3>
               {[
-                { label: 'View all requests', icon: <ListIcon />, path: '/hr/leave_requests' },
-                { label: 'New request', icon: <PlusIcon />, path: '/hr/leave_requests/new' },
+                { label: t('hr:leaveRequests.show.viewAll'), icon: <ListIcon />, path: '/hr/leave_requests' },
+                { label: t('hr:leaveRequests.show.newRequest'), icon: <PlusIcon />, path: '/hr/leave_requests/new' },
               ].map(action => (
                 <button
                   key={action.path}

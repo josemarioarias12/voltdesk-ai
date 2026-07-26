@@ -6,6 +6,8 @@ import commonEn from './locales/en/common.json'
 import commonEs from './locales/es/common.json'
 import ticketsEn from './locales/en/tickets.json'
 import ticketsEs from './locales/es/tickets.json'
+import hrEn from './locales/en/hr.json'
+import hrEs from './locales/es/hr.json'
 import departmentsEn from './locales/en/departments.json'
 import departmentsEs from './locales/es/departments.json'
 import demoEn from './locales/en/demo.json'
@@ -20,12 +22,14 @@ export const resources = {
     tickets: ticketsEn,
     departments: departmentsEn,
     demo: demoEn,
+    hr: hrEn,
   },
   es: {
     common: commonEs,
     tickets: ticketsEs,
     departments: departmentsEs,
     demo: demoEs,
+    hr: hrEs,
   },
 } as const
 

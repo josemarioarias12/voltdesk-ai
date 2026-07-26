@@ -1,0 +1,213 @@
+{
+  "status": {
+    "pending": "Pendiente",
+    "pendingSecondApproval": "Esperando Aprobación Final",
+    "approved": "Aprobado",
+    "rejected": "Rechazado",
+    "draft": "Borrador",
+    "active": "Activa",
+    "closed": "Cerrada"
+  },
+  "leaveType": {
+    "vacation": "Vacaciones",
+    "sick_leave": "Incapacidad",
+    "personal": "Personal",
+    "maternity": "Maternidad",
+    "paternity": "Paternidad",
+    "other": "Otro"
+  },
+  "leaveRequests": {
+    "index": {
+      "title": "Solicitudes de Permiso",
+      "subtitle": "Gestioná y aprobá solicitudes de tiempo libre de empleados",
+      "newRequest": "Nueva Solicitud",
+      "kpis": {
+        "pendingApproval": "Pendientes de Aprobación",
+        "awaitingReview": "esperando revisión",
+        "approvedThisMonth": "Aprobadas Este Mes",
+        "thisMonth": "este mes",
+        "onLeaveToday": "De Permiso Hoy",
+        "activeToday": "activas hoy"
+      },
+      "tabs": {
+        "all": "Todas",
+        "pending": "Pendientes",
+        "awaitingFinal": "Esperando Final",
+        "approved": "Aprobadas",
+        "rejected": "Rechazadas"
+      },
+      "searchPlaceholder": "Buscar por empleado",
+      "table": {
+        "employee": "Empleado",
+        "leaveType": "Tipo de Permiso",
+        "period": "Período y Duración",
+        "status": "Estado",
+        "requested": "Solicitado",
+        "actions": "Acciones",
+        "day_one": "{{count}} día",
+        "day_other": "{{count}} días",
+        "finalApproval": "Aprobación final",
+        "approve": "Aprobar",
+        "reject": "Rechazar",
+        "view": "Ver"
+      },
+      "empty": {
+        "title": "No se encontraron solicitudes",
+        "description": "Intentá ajustar los filtros o la búsqueda."
+      },
+      "showing": "Mostrando {{count}} de {{total}} solicitudes",
+      "rejectModal": {
+        "title": "Rechazar solicitud de permiso",
+        "rejecting": "Rechazando solicitud de {{name}}",
+        "reasonLabel": "Motivo de rechazo",
+        "reasonPlaceholder": "Explicá por qué se rechaza esta solicitud",
+        "cancel": "Cancelar",
+        "confirm": "Confirmar rechazo",
+        "rejecting_": "Rechazando…"
+      },
+      "toast": {
+        "approved": "Solicitud de {{name}} aprobada",
+        "finalApproved": "Aprobación final otorgada para {{name}}",
+        "approveFailed": "No se pudo aprobar la solicitud",
+        "rejected": "Solicitud de {{name}} rechazada",
+        "rejectFailed": "No se pudo rechazar la solicitud"
+      }
+    },
+    "new": {
+      "back": "Solicitudes de Permiso",
+      "title": "Solicitar Tiempo Libre",
+      "subtitle": "Enviá una solicitud de permiso para aprobación",
+      "leaveTypeLabel": "Tipo de Permiso",
+      "dateRangeLabel": "Rango de Fechas",
+      "startDate": "Fecha de Inicio",
+      "endDate": "Fecha de Fin",
+      "checkingAvailability": "Verificando disponibilidad…",
+      "day_one": "{{count}} día hábil",
+      "day_other": "{{count}} días hábiles",
+      "noticeRequired": "Este tipo de permiso requiere al menos {{count}} días de anticipación",
+      "noticeOk": "Requiere {{count}} días de anticipación — estás dentro del rango",
+      "capReached": "Tu departamento alcanzó su límite de {{count}} solicitudes simultáneas",
+      "capOk": "{{used}} de {{total}} cupos del departamento usados",
+      "reasonLabel": "Motivo",
+      "optional": "Opcional",
+      "reasonPlaceholder": "Describí brevemente el motivo de tu solicitud",
+      "coveragePlanLabel": "Plan de Cobertura",
+      "coveragePlanPlaceholder": "¿Quién cubrirá tus responsabilidades?",
+      "submit": "Enviar Solicitud",
+      "submitting": "Enviando…",
+      "managerNotified": "Tu manager será notificado de inmediato",
+      "cancel": "Cancelar"
+    },
+    "show": {
+      "back": "Solicitudes de Permiso",
+      "title": "Solicitud de Permiso #LR-{{id}}",
+      "subtitle": "Revisá y accioná esta solicitud de permiso",
+      "requestDetails": "Detalles de la Solicitud",
+      "startDate": "Fecha de Inicio",
+      "endDate": "Fecha de Fin",
+      "duration": "Duración",
+      "day_one": "{{count}} día hábil",
+      "day_other": "{{count}} días hábiles",
+      "submitted": "Enviada",
+      "reason": "Motivo",
+      "coveragePlan": "Plan de Cobertura",
+      "medicalNotes": "Notas Médicas",
+      "doctorCertificate": "Certificado Médico",
+      "restricted": "Restringido a RRHH y administradores",
+      "rejectionReason": "Motivo de Rechazo",
+      "decision": "Decisión",
+      "finalApproval": "Aprobación Final",
+      "actionRequired": "Acción requerida",
+      "alreadyApproved": "Ya aprobada por {{name}}. Esta solicitud requiere aprobación final porque su duración supera el umbral de segunda aprobación de tu departamento.",
+      "aManager": "un manager",
+      "giveFinalApproval": "Dar Aprobación Final",
+      "approveRequest": "Aprobar Solicitud",
+      "rejectRequest": "Rechazar Solicitud",
+      "rejectionRequired": "Se requiere el motivo de rechazo",
+      "rejectionPlaceholder": "Explicá por qué se rechaza esta solicitud",
+      "confirmRejection": "Confirmar Rechazo",
+      "approvedBy": "Aprobada por",
+      "rejectedBy": "Rechazada por",
+      "awaitingFinalNote": "Esperando aprobación final de un administrador",
+      "quickActions": "Acciones Rápidas",
+      "viewAll": "Ver todas las solicitudes",
+      "newRequest": "Nueva solicitud"
+    }
+  },
+  "climateSurveys": {
+    "index": {
+      "title": "Encuestas de Clima",
+      "subtitle": "Medí el sentimiento de los empleados y seguí temas a través del tiempo",
+      "newSurvey": "Nueva Encuesta",
+      "empty": {
+        "title": "Todavía no hay encuestas de clima",
+        "description": "Creá una encuesta para medir la satisfacción de los empleados y detectar temas recurrentes."
+      },
+      "companyWide": "Toda la empresa",
+      "deptOnly": "Solo {{name}}",
+      "responded": "{{count}} de {{total}} respondieron ({{pct}}%)",
+      "table": {
+        "survey": "Encuesta",
+        "scope": "Alcance",
+        "status": "Estado",
+        "participation": "Participación",
+        "created": "Creada",
+        "by": "por {{name}}"
+      }
+    },
+    "new": {
+      "back": "Encuestas de Clima",
+      "title": "Nueva Encuesta de Clima",
+      "subtitle": "Las respuestas de los empleados siempre son anónimas",
+      "titleLabel": "Título",
+      "titlePlaceholder": "Satisfacción de Empleados Q1 2026",
+      "descriptionLabel": "Descripción",
+      "optional": "Opcional",
+      "descriptionPlaceholder": "De qué trata esta encuesta y por qué importa",
+      "scopeLabel": "Alcance",
+      "companyWide": "Toda la empresa",
+      "deptOnly": "Solo {{name}}",
+      "submit": "Crear Encuesta (Borrador)",
+      "submitting": "Creando…",
+      "reviewHint": "Vas a poder revisarla antes de publicarla"
+    },
+    "show": {
+      "back": "Encuestas de Clima",
+      "companyWide": "Toda la empresa",
+      "by": "por {{name}}",
+      "closeSurvey": "Cerrar Encuesta",
+      "closing": "Cerrando…",
+      "participation": "Participación",
+      "responded": "{{count}} de {{total}} respondieron",
+      "avgSatisfaction": "Satisfacción Promedio",
+      "satisfactionSub": "Qué tan satisfechos se sienten los empleados",
+      "avgRecommend": "Recomendación Promedio",
+      "recommendSub": "Si recomendarían trabajar acá",
+      "detectedThemes": "Temas Detectados",
+      "notClosedYet": "El análisis de temas corre automáticamente cuando se cierra la encuesta.",
+      "noThemes": "No hay suficientes respuestas con comentarios escritos para detectar temas relevantes.",
+      "mentions": "{{count}} menciones",
+      "sentiment": {
+        "positive": "Positivo",
+        "negative": "Negativo",
+        "mixed": "Mixto"
+      },
+      "anonymityNotice": "Todas las respuestas son anónimas. Nunca se identifica a quien respondió, ni siquiera a los administradores."
+    },
+    "respond": {
+      "anonymityNotice": "Tu respuesta es completamente anónima. Nadie — ni siquiera RRHH o administradores — puede ver quién envió qué.",
+      "satisfactionQuestion": "¿Qué tan satisfecho estás trabajando acá?",
+      "satisfactionLow": "Nada satisfecho",
+      "satisfactionHigh": "Muy satisfecho",
+      "recommendQuestion": "¿Qué tan probable es que recomiendes este lugar para trabajar?",
+      "recommendLow": "Poco probable",
+      "recommendHigh": "Muy probable",
+      "feedbackQuestion": "¿Cuál es la razón principal de tus respuestas anteriores?",
+      "optional": "Opcional",
+      "feedbackPlaceholder": "Tu opinión honesta ayuda a identificar qué funciona y qué necesita atención",
+      "submit": "Enviar de Forma Anónima",
+      "submitting": "Enviando…",
+      "skip": "Omitir por ahora"
+    }
+  }
+}

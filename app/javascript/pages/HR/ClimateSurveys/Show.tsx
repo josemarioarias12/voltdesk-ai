@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { router } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 import AppLayout from '@/components/AppLayout'
 import { ClimateSurveyDetail } from '@/types'
 import { CARD, LABEL, BADGE, SLATE, NAVY, TEAL, DANGER, WARNING, WARNING_BG, SUCCESS, SUCCESS_BG } from '@/styles/tokens'
@@ -8,19 +9,6 @@ interface Props {
   survey: ClimateSurveyDetail
 }
 
-const STATUS_STYLES: Record<string, { bg: string; color: string; label: string }> = {
-  draft:  { bg: SLATE[50], color: SLATE[600], label: 'Draft' },
-  active: { bg: SUCCESS_BG, color: SUCCESS, label: 'Active' },
-  closed: { bg: WARNING_BG, color: WARNING, label: 'Closed' },
-}
-
-const SENTIMENT_STYLES: Record<string, { bg: string; color: string; label: string }> = {
-  positive: { bg: SUCCESS_BG, color: SUCCESS, label: 'Positive' },
-  negative: { bg: '#FEF2F2', color: DANGER, label: 'Negative' },
-  mixed:    { bg: '#FFFBEB', color: WARNING, label: 'Mixed' },
-}
-
-// ── Icons ─────────────────────────────────────────────────────────────────────
 function BackIcon({ size = 16, color = SLATE[600] }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2}>
@@ -72,7 +60,6 @@ function LockIcon({ size = 16, color = '#fff' }: { size?: number; color?: string
   )
 }
 
-// ── Responsive hook ───────────────────────────────────────────────────────────
 function useWindowWidth() {
   const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
   useEffect(() => {
@@ -97,9 +84,22 @@ function MetricCard({ icon, label, value, sub }: { icon: React.ReactNode; label:
 }
 
 export default function ClimateSurveysShow({ survey }: Props) {
+  const { t } = useTranslation(['hr', 'common'])
   const [closing, setClosing] = useState(false)
   const windowWidth = useWindowWidth()
   const isMobile     = windowWidth < 768
+
+  const STATUS_STYLES: Record<string, { bg: string; color: string; label: string }> = {
+    draft:  { bg: SLATE[50], color: SLATE[600], label: t('hr:status.draft') },
+    active: { bg: SUCCESS_BG, color: SUCCESS, label: t('hr:status.active') },
+    closed: { bg: WARNING_BG, color: WARNING, label: t('hr:status.closed') },
+  }
+
+  const SENTIMENT_STYLES: Record<string, { bg: string; color: string; label: string }> = {
+    positive: { bg: SUCCESS_BG, color: SUCCESS, label: t('hr:climateSurveys.show.sentiment.positive') },
+    negative: { bg: '#FEF2F2', color: DANGER, label: t('hr:climateSurveys.show.sentiment.negative') },
+    mixed:    { bg: '#FFFBEB', color: WARNING, label: t('hr:climateSurveys.show.sentiment.mixed') },
+  }
 
   const status = STATUS_STYLES[survey.status] ?? STATUS_STYLES.draft
   const participationPct = survey.eligible_count > 0
@@ -120,10 +120,12 @@ export default function ClimateSurveysShow({ survey }: Props) {
               onClick={() => router.get('/hr/climate_surveys')}
               style={{ background: 'none', border: 'none', color: SLATE[600], cursor: 'pointer', fontSize: 14, padding: 0, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}
             >
-              <BackIcon /> Climate Surveys
+              <BackIcon /> {t('hr:climateSurveys.show.back')}
             </button>
             <h1 style={{ fontSize: 22, fontWeight: 700, color: NAVY, letterSpacing: '-0.02em', margin: '0 0 4px' }}>{survey.title}</h1>
-            <p style={{ color: SLATE[600], fontSize: 13, margin: 0 }}>{survey.department ?? 'Company-wide'} · by {survey.created_by}</p>
+            <p style={{ color: SLATE[600], fontSize: 13, margin: 0 }}>
+              {survey.department ?? t('hr:climateSurveys.show.companyWide')} · {t('hr:climateSurveys.show.by', { name: survey.created_by })}
+            </p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, alignSelf: isMobile ? 'flex-start' : undefined }}>
             <span style={{ ...BADGE, fontSize: 13, padding: '6px 14px', color: status.color, background: status.bg }}>{status.label}</span>
@@ -133,7 +135,7 @@ export default function ClimateSurveysShow({ survey }: Props) {
                 disabled={closing}
                 style={{ background: WARNING, color: '#fff', border: 'none', borderRadius: 10, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
               >
-                {closing ? 'Closing…' : 'Close Survey'}
+                {closing ? t('hr:climateSurveys.show.closing') : t('hr:climateSurveys.show.closeSurvey')}
               </button>
             )}
           </div>
@@ -148,39 +150,39 @@ export default function ClimateSurveysShow({ survey }: Props) {
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
           <MetricCard
             icon={<UsersIcon />}
-            label="Participation"
+            label={t('hr:climateSurveys.show.participation')}
             value={`${participationPct}%`}
-            sub={`${survey.participation_count} of ${survey.eligible_count} responded`}
+            sub={t('hr:climateSurveys.show.responded', { count: survey.participation_count, total: survey.eligible_count })}
           />
           <MetricCard
             icon={<StarIcon />}
-            label="Avg. Satisfaction"
+            label={t('hr:climateSurveys.show.avgSatisfaction')}
             value={survey.average_rating != null ? `${survey.average_rating} / 5` : '—'}
-            sub="How satisfied employees feel"
+            sub={t('hr:climateSurveys.show.satisfactionSub')}
           />
           <MetricCard
             icon={<ThumbsUpIcon />}
-            label="Avg. Recommend Score"
+            label={t('hr:climateSurveys.show.avgRecommend')}
             value={survey.average_recommend_score != null ? `${survey.average_recommend_score} / 5` : '—'}
-            sub="Would they recommend working here"
+            sub={t('hr:climateSurveys.show.recommendSub')}
           />
         </div>
 
         <div style={{ ...CARD, padding: 24 }}>
           <h2 style={{ fontSize: 15, fontWeight: 700, color: NAVY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <SparkleIcon /> Detected Themes
+            <SparkleIcon /> {t('hr:climateSurveys.show.detectedThemes')}
           </h2>
 
           {survey.status !== 'closed' ? (
             <div style={{ padding: '16px', background: SLATE[50], borderRadius: 10, textAlign: 'center' }}>
               <p style={{ fontSize: 13, color: SLATE[400], margin: 0 }}>
-                Theme analysis runs automatically once the survey is closed.
+                {t('hr:climateSurveys.show.notClosedYet')}
               </p>
             </div>
           ) : survey.ai_themes.length === 0 ? (
             <div style={{ padding: '16px', background: SLATE[50], borderRadius: 10, textAlign: 'center' }}>
               <p style={{ fontSize: 13, color: SLATE[400], margin: 0 }}>
-                Not enough responses with written feedback to detect meaningful themes.
+                {t('hr:climateSurveys.show.noThemes')}
               </p>
             </div>
           ) : (
@@ -193,7 +195,7 @@ export default function ClimateSurveysShow({ survey }: Props) {
                       <p style={{ fontSize: 14, fontWeight: 600, color: NAVY, margin: 0 }}>{theme.theme}</p>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{ ...BADGE, color: sentimentStyle.color, background: sentimentStyle.bg }}>{sentimentStyle.label}</span>
-                        <span style={{ fontSize: 12, color: SLATE[400] }}>{theme.mentions} mentions</span>
+                        <span style={{ fontSize: 12, color: SLATE[400] }}>{t('hr:climateSurveys.show.mentions', { count: theme.mentions })}</span>
                       </div>
                     </div>
                     <p style={{ fontSize: 13, color: SLATE[600], fontStyle: 'italic', margin: 0 }}>&ldquo;{theme.example_quote}&rdquo;</p>
@@ -206,7 +208,7 @@ export default function ClimateSurveysShow({ survey }: Props) {
           <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', background: SLATE[50], borderRadius: 8 }}>
             <LockIcon color={SLATE[400]} />
             <p style={{ fontSize: 12, color: SLATE[400], margin: 0 }}>
-              All responses are anonymous. Individual respondents are never identified, even to admins.
+              {t('hr:climateSurveys.show.anonymityNotice')}
             </p>
           </div>
         </div>

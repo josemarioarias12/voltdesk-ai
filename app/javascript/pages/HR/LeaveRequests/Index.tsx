@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { router } from '@inertiajs/react'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import AppLayout from '@/components/AppLayout'
 import EmptyState from '@/components/EmptyState'
 import { LeaveRequest } from '@/types'
 import { CARD, LABEL, TH_STYLE, BADGE, SLATE, NAVY, TEAL, DANGER, DANGER_BG, WARNING, WARNING_BG, SUCCESS, SUCCESS_BG } from '@/styles/tokens'
 
-// ── Responsive hook ───────────────────────────────────────────────────────────
 function useWindowWidth() {
   const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
   useEffect(() => {
@@ -30,23 +30,6 @@ interface Props {
 
 type StatusFilter = 'all' | 'pending' | 'pending_second_approval' | 'approved' | 'rejected'
 
-const STATUS_STYLES: Record<string, { bg: string; color: string; label: string }> = {
-  pending:                 { bg: WARNING_BG, color: WARNING, label: 'Pending' },
-  pending_second_approval: { bg: '#F5F3FF', color: '#7C3AED', label: 'Awaiting Final Approval' },
-  approved:                { bg: SUCCESS_BG, color: SUCCESS, label: 'Approved' },
-  rejected:                { bg: DANGER_BG, color: DANGER, label: 'Rejected' },
-}
-
-const LEAVE_TYPE_STYLES: Record<string, { bg: string; color: string }> = {
-  vacation:   { bg: '#EFF6FF', color: '#2563EB' },
-  sick_leave: { bg: '#FFF7ED', color: '#EA580C' },
-  personal:   { bg: '#F5F3FF', color: '#7C3AED' },
-  maternity:  { bg: '#FDF2F8', color: '#DB2777' },
-  paternity:  { bg: '#F0FDF4', color: '#16A34A' },
-  other:      { bg: SLATE[50], color: SLATE[600] },
-}
-
-// ── Icons ─────────────────────────────────────────────────────────────────────
 function PlusIcon({ size = 16, color = '#fff' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2}>
@@ -121,16 +104,13 @@ function Avatar({ name }: { name: string }) {
   )
 }
 
-function humanize(value: string) {
-  return value.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-}
-
 interface RejectModal {
   id: number
   name: string
 }
 
 export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
+  const { t } = useTranslation(['hr', 'common'])
   const [rejectModal, setRejectModal]         = useState<RejectModal | null>(null)
   const [rejectionReason, setRejectionReason] = useState('')
   const [submitting, setSubmitting]           = useState(false)
@@ -140,6 +120,22 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
 
   const windowWidth = useWindowWidth()
   const isMobile     = windowWidth < 768
+
+  const STATUS_STYLES: Record<string, { bg: string; color: string; label: string }> = {
+    pending:                 { bg: WARNING_BG, color: WARNING, label: t('hr:status.pending') },
+    pending_second_approval: { bg: '#F5F3FF', color: '#7C3AED', label: t('hr:status.pendingSecondApproval') },
+    approved:                { bg: SUCCESS_BG, color: SUCCESS, label: t('hr:status.approved') },
+    rejected:                { bg: DANGER_BG, color: DANGER, label: t('hr:status.rejected') },
+  }
+
+  const LEAVE_TYPE_STYLES: Record<string, { bg: string; color: string }> = {
+    vacation:   { bg: '#EFF6FF', color: '#2563EB' },
+    sick_leave: { bg: '#FFF7ED', color: '#EA580C' },
+    personal:   { bg: '#F5F3FF', color: '#7C3AED' },
+    maternity:  { bg: '#FDF2F8', color: '#DB2777' },
+    paternity:  { bg: '#F0FDF4', color: '#16A34A' },
+    other:      { bg: SLATE[50], color: SLATE[600] },
+  }
 
   const counts = useMemo(() => ({
     all: leave_requests.length,
@@ -183,8 +179,8 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
   const handleApprove = (id: number, name: string, isFinal: boolean) => {
     setSubmitting(true)
     router.post(`/hr/leave_requests/${id}/approve`, {}, {
-      onSuccess: () => toast.success(isFinal ? `Final approval given for ${name}` : `Leave request for ${name} approved`),
-      onError:   () => toast.error('Failed to approve request'),
+      onSuccess: () => toast.success(isFinal ? t('hr:leaveRequests.index.toast.finalApproved', { name }) : t('hr:leaveRequests.index.toast.approved', { name })),
+      onError:   () => toast.error(t('hr:leaveRequests.index.toast.approveFailed')),
       onFinish:  () => setSubmitting(false),
     })
   }
@@ -201,26 +197,33 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
       { rejection_reason: rejectionReason },
       {
         onSuccess: () => {
-          toast.error(`Leave request for ${rejectModal.name} rejected`)
+          toast.error(t('hr:leaveRequests.index.toast.rejected', { name: rejectModal.name }))
           setRejectModal(null)
         },
-        onError:  () => toast.error('Failed to reject request'),
+        onError:  () => toast.error(t('hr:leaveRequests.index.toast.rejectFailed')),
         onFinish: () => setSubmitting(false),
       }
     )
   }
 
   const STATUS_TABS: Array<{ key: StatusFilter; label: string }> = [
-    { key: 'all', label: 'All' },
-    { key: 'pending', label: 'Pending' },
-    { key: 'pending_second_approval', label: 'Awaiting Final' },
-    { key: 'approved', label: 'Approved' },
-    { key: 'rejected', label: 'Rejected' },
+    { key: 'all', label: t('hr:leaveRequests.index.tabs.all') },
+    { key: 'pending', label: t('hr:leaveRequests.index.tabs.pending') },
+    { key: 'pending_second_approval', label: t('hr:leaveRequests.index.tabs.awaitingFinal') },
+    { key: 'approved', label: t('hr:leaveRequests.index.tabs.approved') },
+    { key: 'rejected', label: t('hr:leaveRequests.index.tabs.rejected') },
   ]
 
+  function humanize(value: string) {
+    return value.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+  }
+
+  function leaveTypeLabel(type: string) {
+    return t(`hr:leaveType.${type}`, { defaultValue: humanize(type) })
+  }
+
   return (
-    <AppLayout title="Leave Requests">
-      {/* Reject modal */}
+    <AppLayout title={t('hr:leaveRequests.index.title')}>
       {rejectModal && (
         <div
           style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: 16 }}
@@ -235,19 +238,19 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
             style={{ ...CARD, padding: 28, width: '100%', maxWidth: 440, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}
           >
             <h2 id="reject-modal-title" style={{ fontSize: 18, fontWeight: 700, color: NAVY, margin: '0 0 6px' }}>
-              Reject leave request
+              {t('hr:leaveRequests.index.rejectModal.title')}
             </h2>
             <p style={{ fontSize: 14, color: SLATE[600], margin: '0 0 20px' }}>
-              Rejecting request from <strong>{rejectModal.name}</strong>
+              {t('hr:leaveRequests.index.rejectModal.rejecting', { name: rejectModal.name })}
             </p>
 
             <label style={LABEL}>
-              Rejection reason <span style={{ color: DANGER }}>*</span>
+              {t('hr:leaveRequests.index.rejectModal.reasonLabel')} <span style={{ color: DANGER }}>*</span>
             </label>
             <textarea
               value={rejectionReason}
               onChange={e => setRejectionReason(e.target.value)}
-              placeholder="Explain why this request is being rejected"
+              placeholder={t('hr:leaveRequests.index.rejectModal.reasonPlaceholder')}
               rows={3}
               style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid rgba(15,23,42,0.14)', fontSize: 14, resize: 'none', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: 16 }}
             />
@@ -257,14 +260,14 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
                 onClick={() => setRejectModal(null)}
                 style={{ flex: 1, padding: 11, borderRadius: 10, background: 'transparent', border: '1px solid rgba(15,23,42,0.14)', fontSize: 14, fontWeight: 600, color: SLATE[600], cursor: 'pointer' }}
               >
-                Cancel
+                {t('hr:leaveRequests.index.rejectModal.cancel')}
               </button>
               <button
                 onClick={handleReject}
                 disabled={!rejectionReason.trim() || submitting}
                 style={{ flex: 1, padding: 11, borderRadius: 10, background: rejectionReason.trim() ? DANGER : SLATE[400], border: 'none', fontSize: 14, fontWeight: 600, color: '#fff', cursor: rejectionReason.trim() ? 'pointer' : 'not-allowed' }}
               >
-                {submitting ? 'Rejecting…' : 'Confirm rejection'}
+                {submitting ? t('hr:leaveRequests.index.rejectModal.rejecting_') : t('hr:leaveRequests.index.rejectModal.confirm')}
               </button>
             </div>
           </div>
@@ -272,26 +275,24 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
       )}
 
       <div style={{ maxWidth: 1100 }}>
-        {/* Header */}
         <div style={{ display: 'flex', alignItems: isMobile ? 'stretch' : 'flex-start', justifyContent: 'space-between', marginBottom: 24, flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 16 : 0 }}>
           <div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: NAVY, letterSpacing: '-0.02em', margin: '0 0 4px' }}>Leave Requests</h1>
-            <p style={{ color: SLATE[600], fontSize: 13, margin: 0 }}>Manage and approve employee time-off requests</p>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: NAVY, letterSpacing: '-0.02em', margin: '0 0 4px' }}>{t('hr:leaveRequests.index.title')}</h1>
+            <p style={{ color: SLATE[600], fontSize: 13, margin: 0 }}>{t('hr:leaveRequests.index.subtitle')}</p>
           </div>
           <button
             onClick={() => router.get('/hr/leave_requests/new')}
             style={{ background: TEAL, color: '#fff', border: 'none', borderRadius: 10, padding: '10px 18px', fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}
           >
-            <PlusIcon /> New Request
+            <PlusIcon /> {t('hr:leaveRequests.index.newRequest')}
           </button>
         </div>
 
-        {/* KPI cards */}
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
           {[
-            { label: 'Pending Approval', value: stats.pending_count, sub: 'awaiting review', color: WARNING, bg: WARNING_BG },
-            { label: 'Approved This Month', value: stats.approved_this_month, sub: 'this month', color: SUCCESS, bg: SUCCESS_BG },
-            { label: 'On Leave Today', value: stats.on_leave_today, sub: 'active today', color: TEAL, bg: '#F0FDFA' },
+            { label: t('hr:leaveRequests.index.kpis.pendingApproval'), value: stats.pending_count, sub: t('hr:leaveRequests.index.kpis.awaitingReview'), color: WARNING, bg: WARNING_BG },
+            { label: t('hr:leaveRequests.index.kpis.approvedThisMonth'), value: stats.approved_this_month, sub: t('hr:leaveRequests.index.kpis.thisMonth'), color: SUCCESS, bg: SUCCESS_BG },
+            { label: t('hr:leaveRequests.index.kpis.onLeaveToday'), value: stats.on_leave_today, sub: t('hr:leaveRequests.index.kpis.activeToday'), color: TEAL, bg: '#F0FDFA' },
           ].map(card => (
             <div key={card.label} style={{ ...CARD, padding: '20px 24px' }}>
               <div style={{ width: 40, height: 40, borderRadius: 12, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
@@ -304,7 +305,6 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
           ))}
         </div>
 
-        {/* Filter bar */}
         <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 12, marginBottom: 16, alignItems: isMobile ? 'stretch' : 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {STATUS_TABS.map(tab => {
@@ -333,17 +333,16 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Search by employee"
+              placeholder={t('hr:leaveRequests.index.searchPlaceholder')}
               style={{ width: '100%', padding: '8px 12px 8px 34px', borderRadius: 8, border: '1px solid rgba(15,23,42,0.14)', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
             />
           </div>
         </div>
 
-        {/* Table (desktop) / Card list (mobile) */}
         {isMobile ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {filtered.length === 0 ? (
-              <div style={CARD}><EmptyState title="No leave requests found" description="Try adjusting your filters or search." /></div>
+              <div style={CARD}><EmptyState title={t('hr:leaveRequests.index.empty.title')} description={t('hr:leaveRequests.index.empty.description')} /></div>
             ) : (
               filtered.map(lr => {
                 const status    = STATUS_STYLES[lr.status] ?? STATUS_STYLES.pending
@@ -359,12 +358,12 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
                       <span style={{ ...BADGE, color: status.color, background: status.bg }}>{status.label}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                      <span style={{ ...BADGE, color: leaveType.color, background: leaveType.bg }}>{humanize(lr.leave_type)}</span>
+                      <span style={{ ...BADGE, color: leaveType.color, background: leaveType.bg }}>{leaveTypeLabel(lr.leave_type)}</span>
                       <span style={{ fontSize: 12, color: SLATE[400], display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <ClockIcon /> {lr.business_days} days
+                        <ClockIcon /> {t('hr:leaveRequests.index.table.day', { count: lr.business_days })}
                       </span>
                     </div>
-                    <RowActions lr={lr} onApprove={handleApprove} onReject={openRejectModal} submitting={submitting} fullWidth />
+                    <RowActions lr={lr} onApprove={handleApprove} onReject={openRejectModal} submitting={submitting} fullWidth t={t} />
                   </div>
                 )
               })
@@ -376,14 +375,21 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
               <table style={{ width: '100%', minWidth: 700, borderCollapse: 'collapse', fontSize: 14 }}>
                 <thead>
                   <tr style={{ background: SLATE[50], borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
-                    {['Employee', 'Leave Type', 'Period & Duration', 'Status', 'Requested', 'Actions'].map(col => (
+                    {[
+                      t('hr:leaveRequests.index.table.employee'),
+                      t('hr:leaveRequests.index.table.leaveType'),
+                      t('hr:leaveRequests.index.table.period'),
+                      t('hr:leaveRequests.index.table.status'),
+                      t('hr:leaveRequests.index.table.requested'),
+                      t('hr:leaveRequests.index.table.actions'),
+                    ].map(col => (
                       <th key={col} style={TH_STYLE}>{col}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.length === 0 ? (
-                    <tr><td colSpan={6}><EmptyState title="No leave requests found" description="Try adjusting your filters or search." /></td></tr>
+                    <tr><td colSpan={6}><EmptyState title={t('hr:leaveRequests.index.empty.title')} description={t('hr:leaveRequests.index.empty.description')} /></td></tr>
                   ) : (
                     filtered.map((lr, i) => {
                       const status    = STATUS_STYLES[lr.status] ?? STATUS_STYLES.pending
@@ -403,12 +409,12 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
                             </div>
                           </td>
                           <td style={{ padding: '14px 16px' }}>
-                            <span style={{ ...BADGE, color: leaveType.color, background: leaveType.bg }}>{humanize(lr.leave_type)}</span>
+                            <span style={{ ...BADGE, color: leaveType.color, background: leaveType.bg }}>{leaveTypeLabel(lr.leave_type)}</span>
                           </td>
                           <td style={{ padding: '14px 16px' }}>
                             <p style={{ fontSize: 13, color: NAVY, margin: '0 0 2px' }}>{lr.start_date} – {lr.end_date}</p>
                             <p style={{ fontSize: 12, color: SLATE[400], margin: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
-                              <ClockIcon /> {lr.business_days} days
+                              <ClockIcon /> {t('hr:leaveRequests.index.table.day', { count: lr.business_days })}
                             </p>
                           </td>
                           <td style={{ padding: '14px 16px' }}>
@@ -418,7 +424,7 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
                             {new Date(lr.created_at).toLocaleDateString()}
                           </td>
                           <td style={{ padding: '14px 16px' }}>
-                            <RowActions lr={lr} onApprove={handleApprove} onReject={openRejectModal} submitting={submitting} />
+                            <RowActions lr={lr} onApprove={handleApprove} onReject={openRejectModal} submitting={submitting} t={t} />
                           </td>
                         </tr>
                       )
@@ -428,7 +434,7 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
               </table>
             </div>
             <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(15,23,42,0.04)', color: SLATE[400], fontSize: 13 }}>
-              Showing {filtered.length} of {leave_requests.length} requests
+              {t('hr:leaveRequests.index.showing', { count: filtered.length, total: leave_requests.length })}
             </div>
           </div>
         )}
@@ -437,13 +443,13 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
   )
 }
 
-// ── Row actions — driven entirely by backend-computed permissions ─────────────
-function RowActions({ lr, onApprove, onReject, submitting, fullWidth }: {
+function RowActions({ lr, onApprove, onReject, submitting, fullWidth, t }: {
   lr: LeaveRequest
   onApprove: (id: number, name: string, isFinal: boolean) => void
   onReject: (id: number, name: string) => void
   submitting: boolean
   fullWidth?: boolean
+  t: (key: string) => string
 }) {
   const containerStyle: React.CSSProperties = { display: 'flex', gap: 8, width: fullWidth ? '100%' : undefined }
 
@@ -455,14 +461,14 @@ function RowActions({ lr, onApprove, onReject, submitting, fullWidth }: {
           disabled={submitting}
           style={{ flex: fullWidth ? 1 : undefined, background: '#7C3AED', color: '#fff', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}
         >
-          <ShieldIcon /> Final approval
+          <ShieldIcon /> {t('hr:leaveRequests.index.table.finalApproval')}
         </button>
         {lr.can_reject && (
           <button
             onClick={() => onReject(lr.id, lr.user.full_name)}
             style={{ flex: fullWidth ? 1 : undefined, background: 'transparent', color: DANGER, border: `1px solid ${DANGER}`, borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
           >
-            Reject
+            {t('hr:leaveRequests.index.table.reject')}
           </button>
         )}
       </div>
@@ -477,14 +483,14 @@ function RowActions({ lr, onApprove, onReject, submitting, fullWidth }: {
           disabled={submitting}
           style={{ flex: fullWidth ? 1 : undefined, background: SUCCESS, color: '#fff', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}
         >
-          <CheckIcon /> Approve
+          <CheckIcon /> {t('hr:leaveRequests.index.table.approve')}
         </button>
         {lr.can_reject && (
           <button
             onClick={() => onReject(lr.id, lr.user.full_name)}
             style={{ flex: fullWidth ? 1 : undefined, background: 'transparent', color: DANGER, border: `1px solid ${DANGER}`, borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}
           >
-            <XIcon /> Reject
+            <XIcon /> {t('hr:leaveRequests.index.table.reject')}
           </button>
         )}
       </div>
@@ -496,7 +502,7 @@ function RowActions({ lr, onApprove, onReject, submitting, fullWidth }: {
       onClick={() => router.get(`/hr/leave_requests/${lr.id}`)}
       style={{ background: 'transparent', color: SLATE[600], border: '1px solid rgba(15,23,42,0.14)', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, width: fullWidth ? '100%' : undefined }}
     >
-      <EyeIcon /> View
+      <EyeIcon /> {t('hr:leaveRequests.index.table.view')}
     </button>
   )
 }

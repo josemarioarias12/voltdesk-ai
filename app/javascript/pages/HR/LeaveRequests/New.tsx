@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { router, useForm } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 import AppLayout from '@/components/AppLayout'
 import { CARD, LABEL, INPUT, SLATE, NAVY, TEAL, DANGER } from '@/styles/tokens'
 
@@ -14,16 +15,6 @@ interface PolicyPreview {
   current_concurrent_count: number | null
 }
 
-const LEAVE_TYPE_CONFIG: Record<string, { label: string; color: string; border: string; Icon: (props: { color?: string }) => React.ReactElement }> = {
-  vacation:   { label: 'Vacation',   color: '#2563EB', border: '#BFDBFE', Icon: PalmIcon },
-  sick_leave: { label: 'Sick Leave', color: '#EA580C', border: '#FED7AA', Icon: ThermometerIcon },
-  personal:   { label: 'Personal',   color: '#7C3AED', border: '#DDD6FE', Icon: UserIcon },
-  maternity:  { label: 'Maternity',  color: '#DB2777', border: '#FBCFE8', Icon: HeartIcon },
-  paternity:  { label: 'Paternity',  color: '#16A34A', border: '#BBF7D0', Icon: UsersIcon },
-  other:      { label: 'Other',      color: SLATE[600], border: 'rgba(15,23,42,0.14)', Icon: DocumentIcon },
-}
-
-// ── Icons ─────────────────────────────────────────────────────────────────────
 function PalmIcon({ color = 'currentColor' }: { color?: string }) {
   return (
     <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2}>
@@ -125,7 +116,6 @@ function BellIcon({ size = 14, color = SLATE[400] }: { size?: number; color?: st
   )
 }
 
-// ── Responsive hook ───────────────────────────────────────────────────────────
 function useWindowWidth() {
   const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
   useEffect(() => {
@@ -137,6 +127,17 @@ function useWindowWidth() {
 }
 
 export default function LeaveRequestsNew({ leave_types }: Props) {
+  const { t } = useTranslation(['hr', 'common'])
+
+  const LEAVE_TYPE_CONFIG: Record<string, { label: string; color: string; border: string; Icon: (props: { color?: string }) => React.ReactElement }> = {
+    vacation:   { label: t('hr:leaveType.vacation'),   color: '#2563EB', border: '#BFDBFE', Icon: PalmIcon },
+    sick_leave: { label: t('hr:leaveType.sick_leave'), color: '#EA580C', border: '#FED7AA', Icon: ThermometerIcon },
+    personal:   { label: t('hr:leaveType.personal'),   color: '#7C3AED', border: '#DDD6FE', Icon: UserIcon },
+    maternity:  { label: t('hr:leaveType.maternity'),  color: '#DB2777', border: '#FBCFE8', Icon: HeartIcon },
+    paternity:  { label: t('hr:leaveType.paternity'),  color: '#16A34A', border: '#BBF7D0', Icon: UsersIcon },
+    other:      { label: t('hr:leaveType.other'),      color: SLATE[600], border: 'rgba(15,23,42,0.14)', Icon: DocumentIcon },
+  }
+
   const { data, setData, post, processing, errors } = useForm({
     leave_type:    '',
     start_date:    '',
@@ -147,6 +148,7 @@ export default function LeaveRequestsNew({ leave_types }: Props) {
 
   const [preview, setPreview]   = useState<PolicyPreview | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
+  const [locked, setLocked] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const windowWidth  = useWindowWidth()
   const isMobile     = windowWidth < 640
@@ -170,8 +172,6 @@ export default function LeaveRequestsNew({ leave_types }: Props) {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
   }, [data.leave_type, data.start_date, data.end_date, fetchPreview])
 
-  const [locked, setLocked] = useState(false)
-
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (locked) return
@@ -193,25 +193,23 @@ export default function LeaveRequestsNew({ leave_types }: Props) {
     : false
 
   return (
-    <AppLayout title="Request Time Off">
+    <AppLayout title={t('hr:leaveRequests.new.title')}>
       <div style={{ maxWidth: 700 }}>
-        {/* Header */}
         <div style={{ marginBottom: 24 }}>
           <button
             onClick={() => router.get('/hr/leave_requests')}
             style={{ background: 'none', border: 'none', color: SLATE[600], cursor: 'pointer', fontSize: 14, padding: 0, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}
           >
-            <BackIcon /> Leave Requests
+            <BackIcon /> {t('hr:leaveRequests.new.back')}
           </button>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: NAVY, letterSpacing: '-0.02em', margin: '0 0 4px' }}>Request Time Off</h1>
-          <p style={{ color: SLATE[600], fontSize: 13, margin: 0 }}>Submit a leave request for approval</p>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: NAVY, letterSpacing: '-0.02em', margin: '0 0 4px' }}>{t('hr:leaveRequests.new.title')}</h1>
+          <p style={{ color: SLATE[600], fontSize: 13, margin: 0 }}>{t('hr:leaveRequests.new.subtitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit} style={{ ...CARD, padding: 28 }}>
-          {/* Leave type */}
           <div style={{ marginBottom: 24 }}>
             <label style={{ ...LABEL, fontSize: 14, textTransform: 'none', letterSpacing: 0, color: NAVY, marginBottom: 12 }}>
-              Leave Type <span style={{ color: DANGER }}>*</span>
+              {t('hr:leaveRequests.new.leaveTypeLabel')} <span style={{ color: DANGER }}>*</span>
             </label>
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, 1fr)', gap: 10 }}>
               {leave_types.map(type => {
@@ -246,19 +244,18 @@ export default function LeaveRequestsNew({ leave_types }: Props) {
             {errors.leave_type && <p style={{ fontSize: 12, color: DANGER, marginTop: 8 }}>{errors.leave_type}</p>}
           </div>
 
-          {/* Date range */}
           <div style={{ marginBottom: 24 }}>
             <label style={{ ...LABEL, fontSize: 14, textTransform: 'none', letterSpacing: 0, color: NAVY, marginBottom: 12 }}>
-              Date Range <span style={{ color: DANGER }}>*</span>
+              {t('hr:leaveRequests.new.dateRangeLabel')} <span style={{ color: DANGER }}>*</span>
             </label>
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr auto 1fr', gap: 12, alignItems: 'end' }}>
               <div>
-                <label style={LABEL}>Start Date</label>
+                <label style={LABEL}>{t('hr:leaveRequests.new.startDate')}</label>
                 <input type="date" value={data.start_date} onChange={e => setData('start_date', e.target.value)} style={INPUT} />
               </div>
               {!isMobile && <span style={{ color: SLATE[400], fontSize: 18, paddingBottom: 9 }}>→</span>}
               <div>
-                <label style={LABEL}>End Date</label>
+                <label style={LABEL}>{t('hr:leaveRequests.new.endDate')}</label>
                 <input type="date" value={data.end_date} onChange={e => setData('end_date', e.target.value)} style={INPUT} />
               </div>
             </div>
@@ -266,18 +263,17 @@ export default function LeaveRequestsNew({ leave_types }: Props) {
               <p style={{ fontSize: 12, color: DANGER, marginTop: 8 }}>{errors.start_date || errors.end_date}</p>
             )}
 
-            {/* Policy preview */}
             {data.start_date && data.end_date && data.leave_type && (
               <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {previewLoading && (
-                  <p style={{ fontSize: 12, color: SLATE[400], margin: 0 }}>Checking availability…</p>
+                  <p style={{ fontSize: 12, color: SLATE[400], margin: 0 }}>{t('hr:leaveRequests.new.checkingAvailability')}</p>
                 )}
                 {!previewLoading && preview && (
                   <>
                     <div style={{ padding: '10px 14px', borderRadius: 10, background: '#F0FDFA', border: '1px solid #99F6E4', display: 'flex', alignItems: 'center', gap: 8 }}>
                       <ClockIcon />
                       <span style={{ fontSize: 13, fontWeight: 600, color: TEAL }}>
-                        {preview.business_days} business {preview.business_days === 1 ? 'day' : 'days'}
+                        {t('hr:leaveRequests.new.day', { count: preview.business_days })}
                       </span>
                     </div>
                     {preview.min_notice_days != null && (
@@ -285,8 +281,8 @@ export default function LeaveRequestsNew({ leave_types }: Props) {
                         {noticeWarning ? <AlertIcon /> : <InfoIcon />}
                         <span style={{ fontSize: 13, color: noticeWarning ? DANGER : SLATE[600] }}>
                           {noticeWarning
-                            ? `This leave type requires at least ${preview.min_notice_days} days advance notice`
-                            : `Requires ${preview.min_notice_days} days advance notice — you're within range`}
+                            ? t('hr:leaveRequests.new.noticeRequired', { count: preview.min_notice_days })
+                            : t('hr:leaveRequests.new.noticeOk', { count: preview.min_notice_days })}
                         </span>
                       </div>
                     )}
@@ -295,8 +291,8 @@ export default function LeaveRequestsNew({ leave_types }: Props) {
                         {capReached ? <AlertIcon /> : <InfoIcon />}
                         <span style={{ fontSize: 13, color: capReached ? DANGER : SLATE[600] }}>
                           {capReached
-                            ? `Your department has reached its limit of ${preview.max_concurrent} concurrent requests`
-                            : `${preview.current_concurrent_count} of ${preview.max_concurrent} department slots used`}
+                            ? t('hr:leaveRequests.new.capReached', { count: preview.max_concurrent })
+                            : t('hr:leaveRequests.new.capOk', { used: preview.current_concurrent_count, total: preview.max_concurrent })}
                         </span>
                       </div>
                     )}
@@ -306,35 +302,32 @@ export default function LeaveRequestsNew({ leave_types }: Props) {
             )}
           </div>
 
-          {/* Reason */}
           <div style={{ marginBottom: 20 }}>
             <label style={{ ...LABEL, fontSize: 14, textTransform: 'none', letterSpacing: 0, color: NAVY, marginBottom: 8 }}>
-              Reason <span style={{ fontSize: 12, fontWeight: 400, color: SLATE[400] }}>Optional</span>
+              {t('hr:leaveRequests.new.reasonLabel')} <span style={{ fontSize: 12, fontWeight: 400, color: SLATE[400] }}>{t('hr:leaveRequests.new.optional')}</span>
             </label>
             <textarea
               value={data.reason}
               onChange={e => setData('reason', e.target.value)}
-              placeholder="Briefly describe the reason for your leave request"
+              placeholder={t('hr:leaveRequests.new.reasonPlaceholder')}
               rows={3}
               style={{ ...INPUT, resize: 'vertical' }}
             />
           </div>
 
-          {/* Coverage plan */}
           <div style={{ marginBottom: 28 }}>
             <label style={{ ...LABEL, fontSize: 14, textTransform: 'none', letterSpacing: 0, color: NAVY, marginBottom: 8 }}>
-              Coverage Plan <span style={{ fontSize: 12, fontWeight: 400, color: SLATE[400] }}>Optional</span>
+              {t('hr:leaveRequests.new.coveragePlanLabel')} <span style={{ fontSize: 12, fontWeight: 400, color: SLATE[400] }}>{t('hr:leaveRequests.new.optional')}</span>
             </label>
             <input
               type="text"
               value={data.coverage_plan}
               onChange={e => setData('coverage_plan', e.target.value)}
-              placeholder="Who will cover your responsibilities?"
+              placeholder={t('hr:leaveRequests.new.coveragePlanPlaceholder')}
               style={INPUT}
             />
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={!canSubmit}
@@ -345,14 +338,14 @@ export default function LeaveRequestsNew({ leave_types }: Props) {
               cursor: canSubmit ? 'pointer' : 'not-allowed',
             }}
           >
-            {processing ? 'Submitting…' : 'Submit Request'}
+            {processing ? t('hr:leaveRequests.new.submitting') : t('hr:leaveRequests.new.submit')}
           </button>
           <p style={{ textAlign: 'center', fontSize: 13, color: SLATE[400], margin: '12px 0 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-            <BellIcon /> Your manager will be notified immediately
+            <BellIcon /> {t('hr:leaveRequests.new.managerNotified')}
           </p>
           <p style={{ textAlign: 'center', margin: '8px 0 0' }}>
             <button type="button" onClick={() => router.get('/hr/leave_requests')} style={{ background: 'none', border: 'none', color: SLATE[400], fontSize: 13, cursor: 'pointer' }}>
-              Cancel
+              {t('hr:leaveRequests.new.cancel')}
             </button>
           </p>
         </form>

@@ -1,0 +1,213 @@
+{
+  "status": {
+    "pending": "Pending",
+    "pendingSecondApproval": "Awaiting Final Approval",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "draft": "Draft",
+    "active": "Active",
+    "closed": "Closed"
+  },
+  "leaveType": {
+    "vacation": "Vacation",
+    "sick_leave": "Sick Leave",
+    "personal": "Personal",
+    "maternity": "Maternity",
+    "paternity": "Paternity",
+    "other": "Other"
+  },
+  "leaveRequests": {
+    "index": {
+      "title": "Leave Requests",
+      "subtitle": "Manage and approve employee time-off requests",
+      "newRequest": "New Request",
+      "kpis": {
+        "pendingApproval": "Pending Approval",
+        "awaitingReview": "awaiting review",
+        "approvedThisMonth": "Approved This Month",
+        "thisMonth": "this month",
+        "onLeaveToday": "On Leave Today",
+        "activeToday": "active today"
+      },
+      "tabs": {
+        "all": "All",
+        "pending": "Pending",
+        "awaitingFinal": "Awaiting Final",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "searchPlaceholder": "Search by employee",
+      "table": {
+        "employee": "Employee",
+        "leaveType": "Leave Type",
+        "period": "Period & Duration",
+        "status": "Status",
+        "requested": "Requested",
+        "actions": "Actions",
+        "day_one": "{{count}} day",
+        "day_other": "{{count}} days",
+        "finalApproval": "Final approval",
+        "approve": "Approve",
+        "reject": "Reject",
+        "view": "View"
+      },
+      "empty": {
+        "title": "No leave requests found",
+        "description": "Try adjusting your filters or search."
+      },
+      "showing": "Showing {{count}} of {{total}} requests",
+      "rejectModal": {
+        "title": "Reject leave request",
+        "rejecting": "Rejecting request from {{name}}",
+        "reasonLabel": "Rejection reason",
+        "reasonPlaceholder": "Explain why this request is being rejected",
+        "cancel": "Cancel",
+        "confirm": "Confirm rejection",
+        "rejecting_": "Rejecting…"
+      },
+      "toast": {
+        "approved": "Leave request for {{name}} approved",
+        "finalApproved": "Final approval given for {{name}}",
+        "approveFailed": "Failed to approve request",
+        "rejected": "Leave request for {{name}} rejected",
+        "rejectFailed": "Failed to reject request"
+      }
+    },
+    "new": {
+      "back": "Leave Requests",
+      "title": "Request Time Off",
+      "subtitle": "Submit a leave request for approval",
+      "leaveTypeLabel": "Leave Type",
+      "dateRangeLabel": "Date Range",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "checkingAvailability": "Checking availability…",
+      "day_one": "{{count}} business day",
+      "day_other": "{{count}} business days",
+      "noticeRequired": "This leave type requires at least {{count}} days advance notice",
+      "noticeOk": "Requires {{count}} days advance notice — you're within range",
+      "capReached": "Your department has reached its limit of {{count}} concurrent requests",
+      "capOk": "{{used}} of {{total}} department slots used",
+      "reasonLabel": "Reason",
+      "optional": "Optional",
+      "reasonPlaceholder": "Briefly describe the reason for your leave request",
+      "coveragePlanLabel": "Coverage Plan",
+      "coveragePlanPlaceholder": "Who will cover your responsibilities?",
+      "submit": "Submit Request",
+      "submitting": "Submitting…",
+      "managerNotified": "Your manager will be notified immediately",
+      "cancel": "Cancel"
+    },
+    "show": {
+      "back": "Leave Requests",
+      "title": "Leave Request #LR-{{id}}",
+      "subtitle": "Review and action this leave request",
+      "requestDetails": "Request Details",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "duration": "Duration",
+      "day_one": "{{count}} business day",
+      "day_other": "{{count}} business days",
+      "submitted": "Submitted",
+      "reason": "Reason",
+      "coveragePlan": "Coverage Plan",
+      "medicalNotes": "Medical Notes",
+      "doctorCertificate": "Doctor Certificate",
+      "restricted": "Restricted to HR and admins",
+      "rejectionReason": "Rejection Reason",
+      "decision": "Decision",
+      "finalApproval": "Final Approval",
+      "actionRequired": "Action required",
+      "alreadyApproved": "Already approved by {{name}}. This request requires final sign-off because its duration exceeds your department's second-approval threshold.",
+      "aManager": "a manager",
+      "giveFinalApproval": "Give Final Approval",
+      "approveRequest": "Approve Request",
+      "rejectRequest": "Reject Request",
+      "rejectionRequired": "Rejection reason is required",
+      "rejectionPlaceholder": "Explain why this request is being rejected",
+      "confirmRejection": "Confirm Rejection",
+      "approvedBy": "Approved by",
+      "rejectedBy": "Rejected by",
+      "awaitingFinalNote": "Awaiting final approval from an admin",
+      "quickActions": "Quick Actions",
+      "viewAll": "View all requests",
+      "newRequest": "New request"
+    }
+  },
+  "climateSurveys": {
+    "index": {
+      "title": "Climate Surveys",
+      "subtitle": "Measure employee sentiment and track themes over time",
+      "newSurvey": "New Survey",
+      "empty": {
+        "title": "No climate surveys yet",
+        "description": "Create a survey to measure employee satisfaction and surface recurring themes."
+      },
+      "companyWide": "Company-wide",
+      "deptOnly": "{{name}} only",
+      "responded": "{{count}} of {{total}} responded ({{pct}}%)",
+      "table": {
+        "survey": "Survey",
+        "scope": "Scope",
+        "status": "Status",
+        "participation": "Participation",
+        "created": "Created",
+        "by": "by {{name}}"
+      }
+    },
+    "new": {
+      "back": "Climate Surveys",
+      "title": "New Climate Survey",
+      "subtitle": "Employee responses are always anonymous",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Q1 2026 Employee Satisfaction",
+      "descriptionLabel": "Description",
+      "optional": "Optional",
+      "descriptionPlaceholder": "What this survey is about and why it matters",
+      "scopeLabel": "Scope",
+      "companyWide": "Company-wide",
+      "deptOnly": "{{name}} only",
+      "submit": "Create Survey (Draft)",
+      "submitting": "Creating…",
+      "reviewHint": "You'll be able to review it before publishing"
+    },
+    "show": {
+      "back": "Climate Surveys",
+      "companyWide": "Company-wide",
+      "by": "by {{name}}",
+      "closeSurvey": "Close Survey",
+      "closing": "Closing…",
+      "participation": "Participation",
+      "responded": "{{count}} of {{total}} responded",
+      "avgSatisfaction": "Avg. Satisfaction",
+      "satisfactionSub": "How satisfied employees feel",
+      "avgRecommend": "Avg. Recommend Score",
+      "recommendSub": "Would they recommend working here",
+      "detectedThemes": "Detected Themes",
+      "notClosedYet": "Theme analysis runs automatically once the survey is closed.",
+      "noThemes": "Not enough responses with written feedback to detect meaningful themes.",
+      "mentions": "{{count}} mentions",
+      "sentiment": {
+        "positive": "Positive",
+        "negative": "Negative",
+        "mixed": "Mixed"
+      },
+      "anonymityNotice": "All responses are anonymous. Individual respondents are never identified, even to admins."
+    },
+    "respond": {
+      "anonymityNotice": "Your response is completely anonymous. No one — not even HR or admins — can see who submitted what.",
+      "satisfactionQuestion": "How satisfied are you working here?",
+      "satisfactionLow": "Not satisfied",
+      "satisfactionHigh": "Very satisfied",
+      "recommendQuestion": "How likely are you to recommend this as a good place to work?",
+      "recommendLow": "Not likely",
+      "recommendHigh": "Very likely",
+      "feedbackQuestion": "What's the main reason for your answers above?",
+      "optional": "Optional",
+      "feedbackPlaceholder": "Your honest thoughts help identify what's working and what needs attention",
+      "submit": "Submit Anonymously",
+      "submitting": "Submitting…",
+      "skip": "Skip for now"
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { router, useForm } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 import AppLayout from '@/components/AppLayout'
 import { CARD, LABEL, INPUT, SLATE, NAVY, TEAL } from '@/styles/tokens'
 
@@ -13,7 +14,6 @@ interface Props {
   survey: SurveyInfo
 }
 
-// ── Icons ─────────────────────────────────────────────────────────────────────
 function LockIcon({ size = 16, color = TEAL }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2}>
@@ -31,7 +31,6 @@ function StarIcon({ size = 24, filled, color = '#F59E0B' }: { size?: number; fil
   )
 }
 
-// ── Responsive hook ───────────────────────────────────────────────────────────
 function useWindowWidth() {
   const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
   useEffect(() => {
@@ -67,6 +66,7 @@ function ScoreSelector({ value, onChange, labels }: { value: number; onChange: (
 }
 
 export default function ClimateSurveysRespond({ survey }: Props) {
+  const { t } = useTranslation(['hr', 'common'])
   const { data, setData, post, processing, errors } = useForm({
     rating: 0,
     recommend_score: 0,
@@ -97,35 +97,43 @@ export default function ClimateSurveysRespond({ survey }: Props) {
         <div style={{ ...CARD, padding: '12px 16px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10, background: '#F0FDFA', border: '1px solid #99F6E4' }}>
           <LockIcon />
           <p style={{ fontSize: 13, color: TEAL, margin: 0, fontWeight: 500 }}>
-            Your response is completely anonymous. No one — not even HR or admins — can see who submitted what.
+            {t('hr:climateSurveys.respond.anonymityNotice')}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} style={{ ...CARD, padding: isMobile ? 20 : 28 }}>
           <div style={{ marginBottom: 24 }}>
             <label style={{ ...LABEL, fontSize: 14, textTransform: 'none', letterSpacing: 0, color: NAVY, marginBottom: 10 }}>
-              How satisfied are you working here?
+              {t('hr:climateSurveys.respond.satisfactionQuestion')}
             </label>
-            <ScoreSelector value={data.rating} onChange={n => setData('rating', n)} labels={['Not satisfied', 'Very satisfied']} />
+            <ScoreSelector
+              value={data.rating}
+              onChange={n => setData('rating', n)}
+              labels={[t('hr:climateSurveys.respond.satisfactionLow'), t('hr:climateSurveys.respond.satisfactionHigh')]}
+            />
             {errors.rating && <p style={{ fontSize: 12, color: '#DC2626', marginTop: 6 }}>{errors.rating}</p>}
           </div>
 
           <div style={{ marginBottom: 24 }}>
             <label style={{ ...LABEL, fontSize: 14, textTransform: 'none', letterSpacing: 0, color: NAVY, marginBottom: 10 }}>
-              How likely are you to recommend this as a good place to work?
+              {t('hr:climateSurveys.respond.recommendQuestion')}
             </label>
-            <ScoreSelector value={data.recommend_score} onChange={n => setData('recommend_score', n)} labels={['Not likely', 'Very likely']} />
+            <ScoreSelector
+              value={data.recommend_score}
+              onChange={n => setData('recommend_score', n)}
+              labels={[t('hr:climateSurveys.respond.recommendLow'), t('hr:climateSurveys.respond.recommendHigh')]}
+            />
             {errors.recommend_score && <p style={{ fontSize: 12, color: '#DC2626', marginTop: 6 }}>{errors.recommend_score}</p>}
           </div>
 
           <div style={{ marginBottom: 28 }}>
             <label style={{ ...LABEL, fontSize: 14, textTransform: 'none', letterSpacing: 0, color: NAVY }}>
-              What's the main reason for your answers above? <span style={{ fontSize: 12, fontWeight: 400, color: SLATE[400] }}>Optional</span>
+              {t('hr:climateSurveys.respond.feedbackQuestion')} <span style={{ fontSize: 12, fontWeight: 400, color: SLATE[400] }}>{t('hr:climateSurveys.respond.optional')}</span>
             </label>
             <textarea
               value={data.feedback}
               onChange={e => setData('feedback', e.target.value)}
-              placeholder="Your honest thoughts help identify what's working and what needs attention"
+              placeholder={t('hr:climateSurveys.respond.feedbackPlaceholder')}
               rows={4}
               style={{ ...INPUT, resize: 'vertical' }}
             />
@@ -141,11 +149,11 @@ export default function ClimateSurveysRespond({ survey }: Props) {
               cursor: canSubmit ? 'pointer' : 'not-allowed',
             }}
           >
-            {processing ? 'Submitting…' : 'Submit Anonymously'}
+            {processing ? t('hr:climateSurveys.respond.submitting') : t('hr:climateSurveys.respond.submit')}
           </button>
           <p style={{ textAlign: 'center', margin: '12px 0 0' }}>
             <button type="button" onClick={() => router.get('/dashboard')} style={{ background: 'none', border: 'none', color: SLATE[400], fontSize: 13, cursor: 'pointer' }}>
-              Skip for now
+              {t('hr:climateSurveys.respond.skip')}
             </button>
           </p>
         </form>
