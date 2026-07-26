@@ -300,6 +300,7 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
   const [selectedDept, setDept] = useState(filters.department_id ?? '')
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isFiltering, setIsFiltering] = useState(false)
   const [patternAlert, setPatternAlert] = useState<PatternAlertPayload | null>(null)
   const alertShownIds = useRef<Set<number>>(new Set())
   const { auth } = usePage<SharedProps>().props
@@ -324,6 +325,7 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
   }, [tickets])
 
   function applyFilters(overrides: Partial<TicketsFilters> = {}) {
+    setIsFiltering(true)
     router.get('/tickets', {
       status: overrides.status ?? (activeTab || undefined),
       priority: overrides.priority ?? (selectedPriority || undefined),
@@ -331,7 +333,12 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
       q: overrides.q ?? (searchQuery || undefined),
       sort: overrides.sort ?? filters.sort,
       direction: overrides.direction ?? filters.direction,
-    }, { preserveScroll: true, replace: true })
+    }, {
+      only: ['tickets', 'stats', 'pagination', 'filters'],
+      preserveScroll: true,
+      replace: true,
+      onFinish: () => setIsFiltering(false),
+    })
   }
 
   function handleExport() {
@@ -511,7 +518,7 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
             )}
           </AnimatePresence>
 
-          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', opacity: isFiltering ? 0.5 : 1, transition: 'opacity 150ms ease', pointerEvents: isFiltering ? 'none' : 'auto' }}>
             <table style={{ width: '100%', minWidth: '680px', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
