@@ -57,6 +57,12 @@ Rails.application.routes.draw do
   patch '/settings/ai', to: 'settings#update_ai', as: :settings_ai
   patch '/settings/automation', to: 'settings#update_automation', as: :settings_automation
 
+  # ── Volt Copilot ─────────────────────────────────────────────────────────
+  namespace :assistant do
+    resource  :conversation, only: [:show]
+    resources :messages,     only: [:create]
+  end
+
   #  HR Operations Hub ──────────────────────────────────────────────────
   get '/hr', to: redirect('/hr/leave_requests'), as: :hr_root
 
