@@ -9,6 +9,7 @@ import Avatar from '@/components/Avatar'
 import { useLocale } from '@/hooks/useLocale'
 import { SkeletonDashboard } from './Skeleton'
 import { Toaster, toast } from 'sonner'
+import VoltCopilotPanel from '@/components/VoltCopilotPanel'
 
 interface Props {
   children: ReactNode
@@ -229,6 +230,8 @@ export default function AppLayout({ children, title }: Props) {
           {navigating ? <SkeletonDashboard /> : children}
         </main>
       </div>
+
+      <VoltCopilotPanel />
     </div>
   )
 }
