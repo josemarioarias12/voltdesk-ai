@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { router } from '@inertiajs/react'
+import { ExternalLink } from 'lucide-react'
 import AppLayout from '@/components/AppLayout'
 import SettingsTabs from '@/components/SettingsTabs'
 
@@ -8,6 +9,8 @@ interface WorkspaceAiSettings {
   ai_model: string
   ai_fallback_provider: string
   ai_selection_mode: string
+  ai_assistant_provider: string | null
+  ai_assistant_model: string | null
 }
 
 interface AutomationSettings {
@@ -43,11 +46,18 @@ const PROVIDER_COLORS: Record<string, string> = {
   gemini:    '#3B82F6',
 }
 
+const PROVIDER_DOCS_URL: Record<string, string> = {
+  openai:    'https://openai.com/api/pricing/',
+  anthropic: 'https://www.anthropic.com/pricing#api',
+  gemini:    'https://ai.google.dev/pricing',
+}
+
 const MODEL_LABELS: Record<string, string> = {
   'gpt-4o':                    'GPT-4o — Most capable',
   'gpt-4o-mini':               'GPT-4o Mini — Fastest & cheapest',
   'gpt-4.1':                   'GPT-4.1 — Latest generation',
   'gpt-4.1-mini':              'GPT-4.1 Mini — Latest, fast',
+  'gpt-5.2':                   'GPT-5.2 — Best tool-calling accuracy',
   'claude-sonnet-5':           'Claude Sonnet 5 — Balanced',
   'claude-haiku-4-5-20251001': 'Claude Haiku 4.5 — Ultra fast',
   'gemini-2.0-flash':          'Gemini 2.0 Flash — Fastest',
@@ -74,6 +84,9 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
   const [saving, setSaving]     = useState(false)
   const [saved, setSaved]       = useState(false)
 
+  const [assistantProvider, setAssistantProvider] = useState(workspace.ai_assistant_provider ?? '')
+  const [assistantModel, setAssistantModel]       = useState(workspace.ai_assistant_model ?? '')
+
   const [urgencyThreshold, setUrgencyThreshold] = useState(automation.agent_urgency_threshold)
   const [similarityPercent, setSimilarityPercent] = useState(Math.round(automation.agent_similarity_threshold * 100))
   const [humanInLoop, setHumanInLoop] = useState(automation.human_in_the_loop)
@@ -86,6 +99,12 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
     return Array.isArray(models) ? models : []
   }, [provider, provider_models])
 
+  const assistantAvailableModels: string[] = useMemo(() => {
+    if (!assistantProvider) return []
+    const models = provider_models[assistantProvider]
+    return Array.isArray(models) ? models : []
+  }, [assistantProvider, provider_models])
+
   const currentCost = cost_table.find(r => r.provider === provider && r.model === model)
 
   function handleProviderChange(p: string) {
@@ -96,14 +115,33 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
     if (fallback === p) setFallback('openai')
   }
 
+  function handleAssistantProviderChange(p: string) {
+    const models = provider_models[p] || []
+    setAssistantProvider(p)
+    setAssistantModel(models[0] || '')
+  }
+
+  function handleUseGeneralModel() {
+    setAssistantProvider('')
+    setAssistantModel('')
+  }
+
+  function handleCustomAssistantModel() {
+    if (assistantProvider) return
+    const firstProvider = Object.keys(PROVIDER_LABELS)[0]
+    handleAssistantProviderChange(firstProvider)
+  }
+
   function handleSave() {
     setSaving(true)
     router.patch('/settings/ai', {
       workspace: {
-        ai_provider:          provider,
-        ai_model:             model,
-        ai_fallback_provider: fallback,
-        ai_selection_mode:    mode,
+        ai_provider:           provider,
+        ai_model:              model,
+        ai_fallback_provider:  fallback,
+        ai_selection_mode:     mode,
+        ai_assistant_provider: assistantProvider,
+        ai_assistant_model:    assistantModel,
       }
     }, {
       onFinish: () => setSaving(false),
@@ -283,6 +321,105 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
               </p>
             </div>
 
+            {/* Assistant Model Override */}
+            <div className="rounded-2xl border p-6 space-y-5" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+              <div>
+                <h2 className="text-base font-semibold mb-1" style={{ color: '#0F172A' }}>Volt Copilot Model</h2>
+                <p className="text-sm" style={{ color: '#475569' }}>
+                  Optional override for the workspace assistant. Leave unset to reuse the model above.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); handleUseGeneralModel(); }}
+                  className="flex-1 py-3 px-4 rounded-xl border-2 text-sm font-medium transition-all text-left"
+                  style={{
+                    borderColor: !assistantProvider ? '#028090' : '#E2E8F0',
+                    background:  !assistantProvider ? '#F0FDFA' : '#F8FAFC',
+                    color:       !assistantProvider ? '#028090' : '#475569',
+                  }}
+                >
+                  Use general model
+                  <p className="text-xs font-normal mt-0.5" style={{ color: !assistantProvider ? '#028090' : '#94A3B8' }}>
+                    Same as above ({MODEL_LABELS[model] || model})
+                  </p>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); handleCustomAssistantModel(); }}
+                  className="flex-1 py-3 px-4 rounded-xl border-2 text-sm font-medium transition-all text-left"
+                  style={{
+                    borderColor: assistantProvider ? '#028090' : '#E2E8F0',
+                    background:  assistantProvider ? '#F0FDFA' : '#F8FAFC',
+                    color:       assistantProvider ? '#028090' : '#475569',
+                  }}
+                >
+                  Custom model
+                  <p className="text-xs font-normal mt-0.5" style={{ color: assistantProvider ? '#028090' : '#94A3B8' }}>
+                    Choose a different model for the assistant
+                  </p>
+                </button>
+              </div>
+
+              {assistantProvider && (
+                <>
+                  <div className="grid grid-cols-3 gap-3">
+                    {Object.entries(PROVIDER_LABELS).map(([p, label]) => {
+                      const isActive = assistantProvider === p
+                      const dot = PROVIDER_COLORS[p]
+                      const modelCount = (provider_models[p] || []).length
+                      return (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); handleAssistantProviderChange(p); }}
+                          className="p-4 rounded-xl border-2 text-left transition-all"
+                          style={{
+                            borderColor: isActive ? '#028090' : '#E2E8F0',
+                            background:  isActive ? '#F0FDFA' : '#F8FAFC',
+                          }}
+                        >
+                          <div className="flex items-center gap-2 mb-2" style={{ pointerEvents: 'none' }}>
+                            <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: dot }} />
+                            <span className="text-xs font-bold uppercase tracking-wide" style={{ color: dot }}>{p}</span>
+                          </div>
+                          <p className="text-sm font-medium" style={{ color: '#0F172A', pointerEvents: 'none' }}>{label}</p>
+                          <p className="text-xs mt-1" style={{ color: '#94A3B8', pointerEvents: 'none' }}>
+                            {modelCount} models available
+                          </p>
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#0F172A' }}>
+                      Assistant model
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {assistantAvailableModels.map(m => (
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setAssistantModel(m); }}
+                          className="p-3 rounded-xl border-2 text-left text-sm transition-all"
+                          style={{
+                            borderColor: assistantModel === m ? '#028090' : '#E2E8F0',
+                            background:  assistantModel === m ? '#F0FDFA' : '#F8FAFC',
+                            color:       assistantModel === m ? '#028090' : '#475569',
+                          }}
+                        >
+                          {MODEL_LABELS[m] || m}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
             {/* Cost Comparison Table */}
             <div className="rounded-2xl border p-6" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
               <h2 className="text-base font-semibold mb-4" style={{ color: '#0F172A' }}>Cost Comparison — All Models</h2>
@@ -311,6 +448,16 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
                             <div className="flex items-center gap-2">
                               <span className="w-2 h-2 rounded-full" style={{ background: dot }} />
                               <span style={{ color: '#475569' }}>{PROVIDER_LABELS[row.provider]}</span>
+                                <a
+                                href={PROVIDER_DOCS_URL[row.provider]}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                aria-label={`${PROVIDER_LABELS[row.provider]} pricing documentation`}
+                                style={{ color: '#94A3B8', display: 'inline-flex' }}
+                              >
+                                <ExternalLink size={13} />
+                              </a>
                             </div>
                           </td>
                           <td className="px-4 py-3" style={{ color: '#0F172A' }}>

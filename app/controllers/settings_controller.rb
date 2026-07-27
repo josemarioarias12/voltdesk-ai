@@ -53,7 +53,9 @@ class SettingsController < ApplicationController
       ai_provider: w.ai_provider,
       ai_model: w.ai_model,
       ai_fallback_provider: w.ai_fallback_provider,
-      ai_selection_mode: w.ai_selection_mode
+      ai_selection_mode: w.ai_selection_mode,
+      ai_assistant_provider: w.ai_assistant_provider,
+      ai_assistant_model: w.ai_assistant_model
     }
   end
 
@@ -85,13 +87,12 @@ class SettingsController < ApplicationController
       workspace: %i[ai_provider
                     ai_model
                     ai_fallback_provider
-                    ai_selection_mode]
+                    ai_selection_mode
+                    ai_assistant_provider
+                    ai_assistant_model]
     )
   end
 
-  # automatable_categories is a JSONB array - params.expect cannot express
-  # mixed scalar + array shapes (see S12.5 lessons). require/permit is the
-  # correct tool here, not a strong-params downgrade.
   # rubocop:disable Rails/StrongParametersExpect
   def automation_params
     params.require(:workspace).permit(
