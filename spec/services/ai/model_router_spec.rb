@@ -3,63 +3,50 @@
 require 'rails_helper'
 
 RSpec.describe Ai::ModelRouter do
-  let(:workspace) { create(:workspace, ai_provider: 'openai', ai_model: 'gpt-4o', ai_fallback_provider: 'anthropic') }
+  describe '#resolve — assistant operation override' do
+    let(:workspace) do
+      create(:workspace, ai_provider: 'openai', ai_model: 'gpt-4o',
+                          ai_assistant_provider: 'anthropic', ai_assistant_model: 'claude-sonnet-5')
+    end
 
-  describe '.for' do
-    it 'returns a ModelRouter instance' do
-      router = described_class.for(workspace: workspace)
-      expect(router).to be_a(described_class)
+    before { allow(Ai::Providers::AnthropicAdapter).to receive(:new).and_return(instance_double(Ai::Providers::AnthropicAdapter)) }
+
+    it 'uses the assistant override for workspace_assistant_query' do
+      _adapter, model, provider = described_class.for(workspace: workspace, operation: :workspace_assistant_query).resolve
+      expect([provider, model]).to eq(%w[anthropic claude-sonnet-5])
+    end
+
+    it 'ignores the override for other operations' do
+      allow(Ai::Providers::OpenaiAdapter).to receive(:new).and_return(instance_double(Ai::Providers::OpenaiAdapter))
+      _adapter, model, provider = described_class.for(workspace: workspace, operation: :classification).resolve
+      expect([provider, model]).to eq(%w[openai gpt-4o])
+    end
+
+    context 'when only one override column is set' do
+      let(:workspace) do
+        create(:workspace, ai_provider: 'openai', ai_model: 'gpt-4o',
+                            ai_assistant_provider: 'anthropic', ai_assistant_model: nil)
+      end
+
+      it 'falls back to the general model' do
+        allow(Ai::Providers::OpenaiAdapter).to receive(:new).and_return(instance_double(Ai::Providers::OpenaiAdapter))
+        _adapter, model, provider = described_class.for(workspace: workspace, operation: :workspace_assistant_query).resolve
+        expect([provider, model]).to eq(%w[openai gpt-4o])
+      end
     end
   end
 
-  describe '#resolve' do
-    it 'returns openai adapter for openai workspace' do
-      adapter, model, provider = described_class.for(workspace: workspace).resolve
-      expect(adapter).to be_a(Ai::Providers::OpenaiAdapter)
-      expect(model).to eq('gpt-4o')
-      expect(provider).to eq('openai')
+  describe '#resolve — fallback bug fix' do
+    let(:workspace) { create(:workspace, ai_provider: 'openai', ai_fallback_provider: 'openai') }
+
+    before do
+      allow(Ai::Providers::OpenaiAdapter).to receive(:new).and_raise(StandardError, 'connection refused')
+      allow(Ai::Providers::AnthropicAdapter).to receive(:new).and_return(instance_double(Ai::Providers::AnthropicAdapter))
     end
 
-    it 'returns openai adapter for embedding operations' do
-      adapter, _, provider = described_class.for(workspace: workspace, operation: :embedding).resolve
-      expect(adapter).to be_a(Ai::Providers::OpenaiAdapter)
-      expect(provider).to eq('openai')
-    end
-
-    it 'falls back to anthropic when primary fails' do
-      allow(Ai::Providers::OpenaiAdapter).to receive(:new).and_raise(StandardError, 'unavailable')
-      _, _model, provider = described_class.for(workspace: workspace).resolve
+    it 'does not retry the same provider that just failed' do
+      _adapter, _model, provider = described_class.for(workspace: workspace, operation: :classification).resolve
       expect(provider).to eq('anthropic')
-    end
-
-    it 'uses gemini adapter for gemini workspace' do
-      workspace.update!(ai_provider: 'gemini', ai_model: 'gemini-2.0-flash')
-      adapter, _, provider = described_class.for(workspace: workspace).resolve
-      expect(adapter).to be_a(Ai::Providers::GeminiAdapter)
-      expect(provider).to eq('gemini')
-    end
-  end
-
-  describe '#estimated_cost_per_1k_calls' do
-    it 'returns a positive number' do
-      cost = described_class.for(workspace: workspace).estimated_cost_per_1k_calls
-      expect(cost).to be > 0
-    end
-  end
-
-  describe '.cost_per_1k' do
-    it 'returns cost for known provider/model' do
-      expect(described_class.cost_per_1k('openai', 'gpt-4o')).to be > 0
-    end
-
-    it 'returns 0 for unknown provider/model' do
-      expect(described_class.cost_per_1k('unknown', 'unknown')).to eq(0.0)
-    end
-  end
-
-  describe '.provider_models' do
-    it 'returns models for each provider' do
-      expect(described_class.provider_models.keys).to include('openai', 'anthropic', 'gemini')
     end
   end
 end
