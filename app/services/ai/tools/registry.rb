@@ -6,7 +6,8 @@ module Ai
       TOOLS = [
         Ai::Tools::TicketsOverview,
         Ai::Tools::LeaveRequestsOverview,
-        Ai::Tools::AssetsOverview
+        Ai::Tools::AssetsOverview,
+        Ai::Tools::MyNotifications
       ].freeze
 
       def self.available_for(user)
