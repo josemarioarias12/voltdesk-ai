@@ -12,7 +12,8 @@ class AiAuditLog < ApplicationRecord
     pattern_detection: 7,
     space_optimization: 8,
     sla_prediction: 9,
-    anomaly_detection: 10
+    anomaly_detection: 10,
+    workspace_assistant_query: 11
   }, prefix: :op
 
   enum :status, {

@@ -19,6 +19,7 @@ module AiAuditable
         tokens: audit_ctx[:tokens] || {},
         duration_ms: duration_ms,
         confidence: audit_ctx[:confidence],
+        metadata: audit_ctx[:metadata] || {},
         status: :success
       )
 
@@ -35,6 +36,7 @@ module AiAuditable
         tokens: {},
         duration_ms: duration_ms,
         confidence: nil,
+        metadata: audit_ctx[:metadata] || {},
         status: :error
       )
 
@@ -44,7 +46,8 @@ module AiAuditable
 
   private
 
-  def log_ai_call(operation:, model:, provider:, prompt:, response:, tokens:, duration_ms:, confidence:, status:)
+  def log_ai_call(operation:, model:, provider:, prompt:, response:, tokens:, duration_ms:, confidence:, status:,
+                  metadata: {})
     AiAuditLog.create!(
       workspace: resolve_workspace,
       user: resolve_user,
@@ -58,6 +61,7 @@ module AiAuditable
       total_tokens: tokens['total_tokens'] || tokens[:total] || 0,
       duration_ms: duration_ms,
       confidence_score: confidence,
+      metadata: metadata,
       status: status
     )
   rescue StandardError => e

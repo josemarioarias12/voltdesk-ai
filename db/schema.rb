@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_26_160148) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_27_180002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -67,6 +67,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_160148) do
     t.decimal "confidence_score", precision: 4, scale: 3
     t.datetime "created_at", null: false
     t.integer "duration_ms", default: 0, null: false
+    t.jsonb "metadata", default: {}, null: false
     t.string "model", default: "gpt-4o", null: false
     t.integer "operation", null: false
     t.text "prompt", null: false
@@ -162,6 +163,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_160148) do
     t.index ["workspace_id", "asset_number"], name: "index_assets_on_workspace_id_and_asset_number", unique: true
     t.index ["workspace_id", "risk_score"], name: "index_assets_on_workspace_id_and_risk_score"
     t.index ["workspace_id", "status"], name: "index_assets_on_workspace_id_and_status"
+  end
+
+  create_table "assistant_conversations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.bigint "workspace_id", null: false
+    t.index ["user_id"], name: "index_assistant_conversations_on_user_id"
+    t.index ["workspace_id"], name: "index_assistant_conversations_on_workspace_id"
+  end
+
+  create_table "assistant_messages", force: :cascade do |t|
+    t.bigint "assistant_conversation_id", null: false
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.integer "role", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["assistant_conversation_id"], name: "index_assistant_messages_on_assistant_conversation_id"
   end
 
   create_table "classification_corrections", force: :cascade do |t|
@@ -594,6 +614,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_160148) do
 
   create_table "workspaces", force: :cascade do |t|
     t.boolean "active", default: true, null: false
+    t.string "ai_assistant_model"
+    t.string "ai_assistant_provider"
     t.string "ai_fallback_provider", default: "openai", null: false
     t.string "ai_model", default: "gpt-4o", null: false
     t.string "ai_provider", default: "openai", null: false
@@ -625,6 +647,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_160148) do
   add_foreign_key "assets", "departments"
   add_foreign_key "assets", "users", column: "assigned_to_id"
   add_foreign_key "assets", "workspaces"
+  add_foreign_key "assistant_conversations", "users"
+  add_foreign_key "assistant_conversations", "workspaces"
+  add_foreign_key "assistant_messages", "assistant_conversations"
   add_foreign_key "classification_corrections", "tickets"
   add_foreign_key "classification_corrections", "users", column: "agent_id"
   add_foreign_key "classification_corrections", "workspaces"
