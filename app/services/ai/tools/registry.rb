@@ -4,7 +4,8 @@ module Ai
   module Tools
     class Registry
       TOOLS = [
-        Ai::Tools::TicketsOverview
+        Ai::Tools::TicketsOverview,
+        Ai::Tools::LeaveRequestsOverview
       ].freeze
 
       def self.available_for(user)
