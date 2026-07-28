@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class AssistantMessage < ApplicationRecord
-  belongs_to :assistant_conversation
+  belongs_to :assistant_conversation, touch: true
   has_one_attached :report_file
 
   enum :role, {

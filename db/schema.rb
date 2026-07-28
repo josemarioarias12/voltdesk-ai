@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_27_180002) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_28_184515) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -166,11 +166,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_180002) do
   end
 
   create_table "assistant_conversations", force: :cascade do |t|
+    t.datetime "archived_at"
     t.datetime "created_at", null: false
+    t.string "title"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.bigint "workspace_id", null: false
+    t.index ["archived_at"], name: "index_assistant_conversations_on_archived_at"
     t.index ["user_id"], name: "index_assistant_conversations_on_user_id"
+    t.index ["workspace_id", "user_id", "archived_at"], name: "idx_assistant_conversations_active_lookup"
     t.index ["workspace_id"], name: "index_assistant_conversations_on_workspace_id"
   end
 
