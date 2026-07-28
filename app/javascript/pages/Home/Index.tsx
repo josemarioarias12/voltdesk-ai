@@ -42,6 +42,19 @@ export default function LandingPage() {
 
   return (
     <div style={{ fontFamily: "Inter, sans-serif", background: "#fff", color: "#1E293B", overflowX: "hidden" }}>
+      <style>{`
+        .xai-grid { grid-template-columns: 1fr 1fr; }
+        @media (max-width: 900px) {
+          .xai-grid { grid-template-columns: 1fr; gap: 48px; }
+        }
+        .footer-grid { grid-template-columns: 1.8fr 1fr 1fr 1fr 1fr; }
+        @media (max-width: 768px) {
+          .footer-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+          .footer-grid { grid-template-columns: 1fr; }
+        }
+      `}</style>
       <Head title="VoltDesk AI" />
       <motion.div style={{ scaleX, transformOrigin: "left", position: "fixed", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg,#028090,#02C39A)", zIndex: 9999 }} />
 
@@ -194,7 +207,7 @@ export default function LandingPage() {
           </motion.div>
 
           {/* Main grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+          <div className="xai-grid" style={{ display: "grid", gap: 80, alignItems: "center" }}>
 
             {/* Left — text */}
             <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
@@ -415,7 +428,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer style={{ background: "#0D1B2A", borderTop: "1px solid rgba(255,255,255,0.08)", padding: "72px 24px 32px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1.8fr 1fr 1fr 1fr 1fr", gap: 32, marginBottom: 64 }}>
+          <div className="footer-grid" style={{ display: "grid", gap: 32, marginBottom: 64 }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
                 <div style={{ width: 34, height: 34, borderRadius: 9, overflow: "hidden" }}>
@@ -474,4 +487,4 @@ export default function LandingPage() {
       </footer>
     </div>
   );
-}
+  }

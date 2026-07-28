@@ -63,8 +63,15 @@ export default function DashboardMockup() {
   ];
 
   return (
-    <div
-      ref={containerRef}
+      <>
+      <style>{`
+        .kpi-grid { grid-template-columns: repeat(4, 1fr); }
+        @media (max-width: 640px) {
+          .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+      `}</style>
+      <div
+        ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ perspective: "1200px", maxWidth: 780, margin: "56px auto 0", position: "relative" }}
@@ -105,7 +112,7 @@ export default function DashboardMockup() {
 
             {/* Main content */}
             <div style={{ flex: 1, padding: 20 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 14 }}>
+              <div className="kpi-grid" style={{ display: "grid", gap: 10, marginBottom: 14 }}>
                 {kpis.map((kpi, i) => (
                   <motion.div
                     key={i}
@@ -186,5 +193,6 @@ export default function DashboardMockup() {
         style={{ position: "absolute", inset: 0, zIndex: -2, borderRadius: 20, background: "radial-gradient(ellipse at center, rgba(2,128,144,0.25) 0%, transparent 70%)", filter: "blur(32px)", transform: "translateY(32px) scale(0.9)", pointerEvents: "none" }}
       />
     </div>
-  );
-}
+      </>
+    );
+  }
