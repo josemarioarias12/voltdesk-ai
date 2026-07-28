@@ -128,10 +128,22 @@ module Reports
     def generate_xlsx(headers, rows)
       package = Axlsx::Package.new
       package.workbook.add_worksheet(name: 'Report') do |sheet|
-        sheet.add_row headers, style: sheet.styles.add_style(b: true)
+        header_style = sheet.styles.add_style(
+          b: true, bg_color: '028090', fg_color: 'FFFFFF', alignment: { horizontal: :center }
+        )
+        sheet.add_row headers, style: header_style
         rows.each { |row| sheet.add_row row }
+        sheet.column_widths(*column_widths_for(headers, rows))
+        sheet.auto_filter = "A1:#{('A'.ord + headers.size - 1).chr}1"
       end
       package.to_stream.read
+    end
+
+    def column_widths_for(headers, rows)
+      headers.each_with_index.map do |header, i|
+        longest = rows.map { |row| row[i].to_s.length }.push(header.to_s.length).max
+        [longest + 2, 45].min
+      end
     end
 
     def generate_pdf(headers, rows)
@@ -139,11 +151,32 @@ module Reports
         pdf.font('Helvetica', style: :bold, size: 16) { pdf.text 'VoltDesk AI — Volt Copilot Report' }
         pdf.font('Helvetica', size: 9) { pdf.text "Generated: #{Time.current.iso8601}" }
         pdf.move_down 10
-        pdf.table([headers] + rows, header: true, width: pdf.bounds.width) do |t|
+
+        widths = pdf_column_widths(headers, rows, pdf.bounds.width)
+
+        pdf.table([headers] + rows, header: true, width: pdf.bounds.width, column_widths: widths) do |t|
           t.row(0).font_style = :bold
+          t.row(0).background_color = 'E8F7F5'
           t.cells.size = 8
+          t.cells.padding = 5
         end
       end.render
+    end
+
+    # Sizes each column proportionally to its longest value (header included),
+    # so a wide field like Title doesn't get squeezed to the same width as
+    # short ones like Status — that's what was forcing mid-word line breaks.
+    def pdf_column_widths(headers, rows, total_width)
+      max_lengths = headers.each_with_index.map do |header, i|
+        [rows.map { |row| row[i].to_s.length }.max.to_i, header.to_s.length, 4].max
+      end
+
+      total_chars = max_lengths.sum.to_f
+      min_width = total_width * 0.05
+      raw = max_lengths.map { |len| (len / total_chars) * total_width }
+      clamped = raw.map { |w| [w, min_width].max }
+      scale = total_width / clamped.sum
+      clamped.map { |w| w * scale }
     end
   end
 end
