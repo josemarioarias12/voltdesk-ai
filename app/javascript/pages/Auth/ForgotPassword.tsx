@@ -82,7 +82,7 @@ export default function AuthForgotPassword() {
               VoltDesk AI
             </span>
           </div>
-          <p style={{ fontSize: 12, color: '#334155', margin: 0, fontWeight: 500 }}>
+          <p style={{ fontSize: 12, color: '#64748B', margin: 0, fontWeight: 500 }}>
             Enterprise Operational Intelligence Platform
           </p>
         </div>

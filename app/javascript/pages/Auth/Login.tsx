@@ -322,7 +322,7 @@ export default function AuthLogin() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#334155', display: 'flex', padding: 0 }}
+                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer',color: '#64748B', display: 'flex', padding: 0 }}
                 >
                   {showPassword ? <IconEyeOff size={16} /> : <IconEye size={16} />}
                 </button>
