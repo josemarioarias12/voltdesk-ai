@@ -104,8 +104,8 @@ export default function ProfileShow({ user }: Props) {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
-            <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '16px' }}>
+            <div style={{ flex: '1 1 200px' }}>
               <label style={{ fontSize: '13px', color: '#475569', display: 'block', marginBottom: '6px' }}>
                 First Name
               </label>
@@ -122,7 +122,7 @@ export default function ProfileShow({ user }: Props) {
                 }}
               />
             </div>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: '1 1 200px' }}>
               <label style={{ fontSize: '13px', color: '#475569', display: 'block', marginBottom: '6px' }}>
                 Last Name
               </label>

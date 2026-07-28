@@ -71,32 +71,32 @@ export default function PasskeysIndex({ credentials }: Props) {
               <IconFaceId size={20} color={TEAL} />
               <h2 className="text-sm font-semibold" style={{ color: SLATE }}>Add a new passkey</h2>
             </div>
-            <div className="flex gap-3">
-              <input
-                type="text"
-                value={nickname}
-                onChange={e => setNickname(e.target.value)}
-                placeholder="e.g. My iPhone"
-                className="flex-1 px-3 py-2 rounded-xl border text-sm"
-                style={{ borderColor: BORDER, color: SLATE }}
-              />
-              <button
-                onClick={handleAdd}
-                disabled={status === 'in_progress'}
-                className="px-4 py-2 rounded-xl text-sm font-semibold text-white flex-shrink-0"
-                style={{ background: status === 'in_progress' ? '#94A3B8' : TEAL }}
-              >
-                {status === 'in_progress' ? 'Waiting for Face ID…' : 'Activate Face ID'}
-              </button>
-            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="text"
+                  value={nickname}
+                  onChange={e => setNickname(e.target.value)}
+                  placeholder="e.g. My iPhone"
+                  className="flex-1 px-3 py-2 rounded-xl border text-sm"
+                  style={{ borderColor: BORDER, color: SLATE }}
+                />
+                <button
+                  onClick={handleAdd}
+                  disabled={status === 'in_progress'}
+                  className="px-4 py-2 rounded-xl text-sm font-semibold text-white flex-shrink-0"
+                  style={{ background: status === 'in_progress' ? '#94A3B8' : TEAL }}
+                >
+                  {status === 'in_progress' ? 'Waiting for Face ID…' : 'Activate Face ID'}
+                </button>
+              </div>
             {errorMessage && (
               <p className="text-xs" style={{ color: '#DC2626' }}>Could not add passkey — try again</p>
             )}
           </div>
         )}
 
-        <div className="rounded-2xl border overflow-hidden" style={{ background: '#fff', borderColor: BORDER, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-          <table className="w-full text-sm">
+       <div className="rounded-2xl border overflow-x-auto" style={{ background: '#fff', borderColor: BORDER, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+            <table className="w-full text-sm" style={{ minWidth: '480px' }}>
             <thead>
               <tr style={{ background: LIGHT, borderBottom: `1px solid ${BORDER}` }}>
                 {['Device', 'Added', 'Last Used', 'Actions'].map(h => (
