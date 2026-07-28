@@ -6,6 +6,7 @@ import { SharedProps } from '@/types'
 import { IconBolt } from '@/components/Icons'
 import NotificationBell from '@/components/NotificationBell'
 import Avatar from '@/components/Avatar'
+import UserMenu from '@/components/UserMenu'
 import { useLocale } from '@/hooks/useLocale'
 import { SkeletonDashboard } from './Skeleton'
 import { Toaster, toast } from 'sonner'
@@ -119,8 +120,8 @@ export default function AppLayout({ children, title }: Props) {
         </nav>
 
        <div className="px-3 py-4 border-t" style={{ borderColor: '#1E293B' }}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
               <Link href="/settings/profile"><Avatar avatarUrl={auth.user?.avatar_url} firstName={auth.user?.first_name} size={32} /></Link>
               <div className="min-w-0">
                 <p className="text-white text-xs font-medium truncate" title={auth.user?.full_name ?? ''}>
@@ -132,12 +133,12 @@ export default function AppLayout({ children, title }: Props) {
                       : n
                   })()}
                 </p>
-                <p className="text-xs truncate capitalize" style={{ color: '#94A3B8' }}>
+                <p className="text-xs capitalize" style={{ color: '#94A3B8', lineHeight: 1.3 }} title={auth.user?.role?.replace(/_/g, ' ') ?? ''}>
                   {auth.user?.role?.replace(/_/g, ' ')}
                 </p>
               </div>
             </div>
-            <form method="post" action="/users/logout" style={{ margin: 0 }}>
+            <form method="post" action="/users/logout" className="flex-shrink-0" style={{ margin: 0 }}>
                 <input type="hidden" name="_method" value="delete" />
                 <input type="hidden" name="authenticity_token" value={document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? ''} />
                 <button
@@ -221,7 +222,7 @@ export default function AppLayout({ children, title }: Props) {
                 userId={auth.user.id}
               />
             )}
-            <Link href="/settings/profile" style={{ display: 'flex' }}><Avatar avatarUrl={auth.user?.avatar_url} firstName={auth.user?.first_name} size={36} /></Link>
+            <UserMenu avatarUrl={auth.user?.avatar_url} firstName={auth.user?.first_name} fullName={auth.user?.full_name} role={auth.user?.role} />
           </div>
         </header>
 
