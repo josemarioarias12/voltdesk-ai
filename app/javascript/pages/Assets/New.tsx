@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { router } from '@inertiajs/react'
+import { Laptop, Monitor, Server, Smartphone, Package } from 'lucide-react'
 import AppLayout from '@/components/AppLayout'
 import DatePicker from '@/components/DatePicker'
 
@@ -12,12 +13,12 @@ interface Props {
 }
 
 const ASSET_TYPES = [
-  { value: 'laptop',   label: 'Laptop',   icon: '💻' },
-  { value: 'desktop',  label: 'Desktop',  icon: '🖥️' },
-  { value: 'server',   label: 'Server',   icon: '🗄️' },
-  { value: 'monitor',  label: 'Monitor',  icon: '🖥️' },
-  { value: 'phone',    label: 'Phone',    icon: '📱' },
-  { value: 'other',    label: 'Other',    icon: '📦' },
+  { value: 'laptop',   label: 'Laptop',   icon: Laptop },
+  { value: 'desktop',  label: 'Desktop',  icon: Monitor },
+  { value: 'server',   label: 'Server',   icon: Server },
+  { value: 'monitor',  label: 'Monitor',  icon: Monitor },
+  { value: 'phone',    label: 'Phone',    icon: Smartphone },
+  { value: 'other',    label: 'Other',    icon: Package },
 ]
 
 const CONDITIONS = ['Excellent', 'Good', 'Fair', 'Poor']
@@ -68,8 +69,8 @@ export default function AssetsNew({ departments, users }: Props) {
         {/* Asset Type selector */}
         <div style={{ background: '#fff', borderRadius: '16px', padding: '24px', border: '1px solid #E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', marginBottom: '20px' }}>
           <label style={labelStyle}>Asset Type</label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-            {ASSET_TYPES.map(({ value, label, icon }) => (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px' }}>
+            {ASSET_TYPES.map(({ value, label, icon: Icon }) => (
               <button
                 key={value}
                 onClick={() => setAssetType(value)}
@@ -81,7 +82,7 @@ export default function AssetsNew({ departments, users }: Props) {
                   transition: 'all 0.15s',
                 }}
               >
-                <span style={{ fontSize: '20px' }}>{icon}</span>
+                <Icon size={20} color={assetType === value ? '#028090' : '#64748B'} />
                 <span style={{ fontSize: '14px', fontWeight: 600, color: assetType === value ? '#028090' : '#475569' }}>{label}</span>
               </button>
             ))}
@@ -103,7 +104,7 @@ export default function AssetsNew({ departments, users }: Props) {
               <input value={serial} onChange={e => setSerial(e.target.value)} placeholder="MBP-2024-M3-0142" style={{ ...inputStyle, fontFamily: 'monospace' }} />
             </Field>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
               <Field label="Purchase Date">
                 <DatePicker value={purchaseDate} onChange={setPurchaseDate} />
               </Field>
@@ -137,7 +138,7 @@ export default function AssetsNew({ departments, users }: Props) {
             </Field>
 
             <Field label="Initial Condition">
-              <div style={{ display: 'flex', gap: '12px' }}>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                 {CONDITIONS.map(c => (
                   <label key={c} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
                     <input type="radio" checked={condition === c} onChange={() => setCondition(c)} style={{ accentColor: '#028090' }} />

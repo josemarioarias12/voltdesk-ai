@@ -1,4 +1,5 @@
 import { router } from '@inertiajs/react'
+import { Bot, AlertTriangle } from 'lucide-react'
 import AppLayout from '@/components/AppLayout'
 
 interface RiskFactor {
@@ -77,6 +78,12 @@ export default function AssetsShow({ asset }: Props) {
 
   return (
     <AppLayout title={asset.name}>
+      <style>{`
+        .asset-columns { grid-template-columns: 60% 1fr; }
+        @media (max-width: 900px) {
+          .asset-columns { grid-template-columns: 1fr; }
+        }
+      `}</style>
       <div style={{ maxWidth: '1100px' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px' }}>
@@ -94,7 +101,7 @@ export default function AssetsShow({ asset }: Props) {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '60% 1fr', gap: '24px' }}>
+        <div className="asset-columns" style={{ display: 'grid', gap: '24px' }}>
           {/* Left column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {/* Asset info */}
@@ -111,13 +118,13 @@ export default function AssetsShow({ asset }: Props) {
 
             {/* Risk Score */}
             <Card>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
                   <span style={{ fontSize: '56px', fontWeight: '800', color: isHigh ? '#EF4444' : asset.risk_score > 40 ? '#F97316' : '#16A34A', lineHeight: 1 }}>{asset.risk_score}</span>
                   <span style={{ fontSize: '20px', color: '#94A3B8', fontWeight: 400 }}>/100</span>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <p style={{ fontSize: '14px', fontWeight: 700, color: isHigh ? '#EF4444' : '#F97316', margin: '0 0 2px' }}>
+                  <p style={{ fontSize: '14px', fontWeight: 700, color: isHigh ? '#EF4444': '#F97316', margin: '0 0 2px' }}>
                     {isHigh ? 'High Risk — Action Required' : asset.risk_score > 40 ? 'Medium Risk' : 'Low Risk'}
                   </p>
                   <p style={{ fontSize: '12px', color: '#94A3B8', margin: 0 }}>AI Risk Score</p>
@@ -126,9 +133,9 @@ export default function AssetsShow({ asset }: Props) {
 
               {/* XAI Panel */}
               {ra && (
-                <div style={{ border: '1px solid #E2E8F0', borderRadius: '12px', overflow: 'hidden' }}>
+                <div style={{ border: '1px solid #E2E8F0', borderRadius: '12px', overflow:'hidden' }}>
                   <div style={{ background: '#028090', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '14px' }}>🤖</span>
+                    <Bot size={14} color="#fff" />
                     <span style={{ fontSize: '14px', fontWeight: 700, color: '#fff' }}>AI Risk Assessment — Powered by GPT-4o</span>
                   </div>
                   <div style={{ padding: '16px' }}>
@@ -161,14 +168,14 @@ export default function AssetsShow({ asset }: Props) {
               <Card title="Warranty">
                 {warrantyUrgent && (
                   <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '10px', padding: '10px 14px', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span>⚠️</span>
+                    <AlertTriangle size={14} color="#DC2626" />
                     <span style={{ fontSize: '13px', fontWeight: 600, color: '#DC2626' }}>Warranty expiring soon!</span>
                   </div>
                 )}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                   <div>
                     <p style={{ fontSize: '13px', color: '#94A3B8', margin: '0 0 2px' }}>Expires</p>
-                    <p style={{ fontSize: '16px', fontWeight: 600, color: warrantyUrgent ? '#DC2626' : '#0F172A', margin: 0 }}>
+                    <p style={{ fontSize: '16px', fontWeight: 600, color: warrantyUrgent ?'#DC2626' : '#0F172A', margin: 0 }}>
                       {new Date(asset.warranty_expires_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                       {asset.days_until_warranty !== null && (
                         <span style={{ fontSize: '13px', color: warrantyUrgent ? '#DC2626' : '#94A3B8', marginLeft: '8px' }}>
@@ -247,7 +254,7 @@ function StatusBadge({ status }: { status: string }) {
 
 function InfoGrid({ items }: { items: { label: string; value: React.ReactNode }[] }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 24px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px 24px' }}>
       {items.map(({ label, value }) => (
         <div key={label}>
           <p style={{ fontSize: '11px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600, margin: '0 0 2px' }}>{label}</p>

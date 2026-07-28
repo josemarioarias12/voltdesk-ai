@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, router } from '@inertiajs/react'
+import { Laptop, Monitor, Server, Smartphone, Package } from 'lucide-react'
 import AppLayout from '@/components/AppLayout'
 import EmptyState from '@/components/EmptyState'
 
@@ -37,9 +38,16 @@ const STATUS_STYLE: Record<string, { bg: string; color: string }> = {
   lost:           { bg: '#FEF2F2', color: '#DC2626' },
 }
 
-const TYPE_ICONS: Record<string, string> = {
-  laptop:   '💻', desktop: '🖥️', server: '🗄️',
-  monitor:  '🖥️', phone:   '📱', software: '📦', other: '📦',
+function TypeIcon({ type }: { type: string }) {
+  const props = { size: 20, color: '#64748B' }
+  switch (type) {
+    case 'laptop':   return <Laptop {...props} />
+    case 'desktop':  return <Monitor {...props} />
+    case 'server':   return <Server {...props} />
+    case 'monitor':  return <Monitor {...props} />
+    case 'phone':    return <Smartphone {...props} />
+    default:         return <Package {...props} />
+  }
 }
 
 function RiskBar({ score }: { score: number }) {
@@ -47,7 +55,7 @@ function RiskBar({ score }: { score: number }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
       <div style={{ flex: 1, height: '6px', borderRadius: '999px', background: '#F1F5F9', overflow: 'hidden' }}>
-        <div style={{ width: `${score}%`, height: '100%', background: color, borderRadius: '999px' }} />
+        <div style={{ width: `${score}%`, height: '100%', background: color, borderRadius:'999px' }} />
       </div>
       <span style={{ fontSize: '13px', fontWeight: 700, color, minWidth: '28px' }}>{score}</span>
     </div>
@@ -90,7 +98,7 @@ export default function AssetsIndex({ assets, summary }: Props) {
     <AppLayout title="Asset Inventory">
       <div style={{ maxWidth: '1200px' }}>
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '28px' }}>
           <div>
             <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#0F172A', margin: '0 0 4px' }}>Asset Inventory</h1>
             <p style={{ color: '#475569', fontSize: '14px', margin: 0 }}>Track and manage all company hardware and software</p>
@@ -101,7 +109,7 @@ export default function AssetsIndex({ assets, summary }: Props) {
         </div>
 
         {/* KPI cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
           <KpiCard label="Total Assets"            value={summary.total}             color="#028090" />
           <KpiCard label="High Risk (score >70)"   value={summary.high_risk}         color="#EF4444" />
           <KpiCard label="In Maintenance"          value={summary.in_maintenance}    color="#F97316" />
@@ -109,7 +117,7 @@ export default function AssetsIndex({ assets, summary }: Props) {
         </div>
 
         {/* Filters */}
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap'}}>
           <input
             placeholder="Search assets..."
             value={search}
@@ -125,7 +133,7 @@ export default function AssetsIndex({ assets, summary }: Props) {
               key={placeholder}
               value={value}
               onChange={e => setter(e.target.value)}
-              style={{ padding: '8px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', color: value ? '#0F172A' : '#94A3B8', background: '#fff', cursor: 'pointer', outline: 'none' }}
+              style={{ padding: '8px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', color: value ? '#0F172A' : '#94A3B8', background: '#fff', cursor: 'pointer',outline: 'none' }}
             >
               <option value="">{placeholder}</option>
               {options.map(o => <option key={o} value={o}>{o.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}</option>)}
@@ -146,7 +154,7 @@ export default function AssetsIndex({ assets, summary }: Props) {
             </thead>
             <tbody>
               {filtered.length === 0 ? (
-                <tr><td colSpan={8}><EmptyState icon="💻" title="No assets found" description="Try adjusting your filters or register a new asset." /></td></tr>
+                <tr><td colSpan={8}><EmptyState title="No assets found" description="Try adjusting your filters or register a new asset." /></td></tr>
               ) : filtered.map(asset => (
                 <tr
                   key={asset.id}
@@ -157,7 +165,7 @@ export default function AssetsIndex({ assets, summary }: Props) {
                 >
                   <td style={{ padding: '14px 16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ fontSize: '20px' }}>{TYPE_ICONS[asset.asset_type] ?? '📦'}</span>
+                      <TypeIcon type={asset.asset_type} />
                       <div>
                         <p style={{ fontSize: '14px', color: '#0F172A', fontWeight: 500, margin: '0 0 2px' }}>{asset.name}</p>
                         <p style={{ fontSize: '12px', color: '#94A3B8', margin: 0 }}>{asset.asset_number}</p>
@@ -170,7 +178,7 @@ export default function AssetsIndex({ assets, summary }: Props) {
                   <td style={{ padding: '14px 16px', fontSize: '14px', color: '#475569' }}>{asset.assigned_to?.name ?? <span style={{ color: '#CBD5E1' }}>Unassigned</span>}</td>
                   <td style={{ padding: '14px 16px', fontSize: '14px', color: '#475569' }}>{asset.department?.name ?? '—'}</td>
                   <td style={{ padding: '14px 16px' }}>
-                    <span style={{ fontSize: '12px', fontWeight: 600, padding: '3px 10px', borderRadius: '999px', background: STATUS_STYLE[asset.status]?.bg ?? '#F8FAFC', color: STATUS_STYLE[asset.status]?.color ?? '#475569', textTransform: 'capitalize', whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: '12px', fontWeight: 600, padding: '3px 10px',borderRadius: '999px', background: STATUS_STYLE[asset.status]?.bg ?? '#F8FAFC', color: STATUS_STYLE[asset.status]?.color ?? '#475569', textTransform: 'capitalize', whiteSpace: 'nowrap' }}>
                       {asset.status.replace('_', ' ')}
                     </span>
                   </td>
@@ -190,7 +198,7 @@ export default function AssetsIndex({ assets, summary }: Props) {
   )
 }
 
-function KpiCard({ label, value, color }: { label: string; value: number; color: string }) {
+function KpiCard({ label, value, color }: { label: string; value: number; color: string }){
   return (
     <div style={{ background: '#fff', borderRadius: '16px', padding: '20px', border: '1px solid #E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
       <p style={{ fontSize: '11px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 8px', fontWeight: 600 }}>{label}</p>
