@@ -88,7 +88,7 @@ export default function Navbar() {
               Sign in
             </a>
             <motion.a
-              href="/login"
+              href="mailto:josemarioarias12@gmail.com?subject=Demo%20Request%20-%20VoltDesk%20AI"
               whileHover={{ scale: 1.04, boxShadow: "0 0 20px rgba(2,128,144,0.5)" }}
               whileTap={{ scale: 0.97 }}
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
@@ -132,9 +132,9 @@ export default function Navbar() {
                 ))}
                 <div style={{ height: 1, background: "rgba(255,255,255,0.07)", margin: "8px 0" }} />
                 <a href="/login" style={{ color: "#94a3b8", fontSize: 15, textDecoration: "none", padding: "10px 12px", borderRadius: 8 }}>Sign in</a>
-                <a href="/login" style={{ color: "#fff", fontSize: 15, fontWeight: 600, textDecoration: "none", padding: "10px 12px", borderRadius: 8, background: "linear-gradient(135deg,#028090,#02C39A)", textAlign: "center", marginTop: 4 }}>
-                  Request Demo
-                </a>
+                <a href="mailto:josemarioarias12@gmail.com?subject=Demo%20Request%20-%20VoltDesk%20AI" style={{ color: "#fff", fontSize: 15, fontWeight: 600, textDecoration: "none", padding: "10px 12px", borderRadius: 8, background: "linear-gradient(135deg,#028090,#02C39A)", textAlign: "center", marginTop: 4 }}>
+                    Request Demo
+                  </a>
               </div>
             </motion.div>
           )}

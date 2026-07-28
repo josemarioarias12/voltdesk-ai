@@ -6,12 +6,9 @@ export interface FeatureCard {
   badge?: string;
 }
 
-export interface Testimonial {
-  quote: string;
-  name: string;
-  role: string;
-  initials: string;
-  avatar: string;
+export interface TrustMetric {
+  title: string;
+  description: string;
 }
 
 export interface StatItem {
@@ -31,14 +28,4 @@ export interface FooterSection {
   links: { label: string; href: string }[];
 }
 
-export interface PricingPlan {
-  name: string;
-  price: number | null;
-  period: string | null;
-  description: string;
-  highlight: boolean;
-  badge: string | null;
-  features: string[];
-  cta: string;
-  href: string;
-}
+

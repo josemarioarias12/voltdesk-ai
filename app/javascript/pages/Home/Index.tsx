@@ -6,7 +6,7 @@ import DashboardMockup from "./components/DashboardMockup";
 import XAIPanelMockup from "./components/XAIPanelMockup";
 import AnimatedCounter from "./components/AnimatedCounter";
 import ParticleCanvas from "./components/ParticleCanvas";
-import { STATS, FEATURES, TESTIMONIALS, TECH_STACK, FOOTER_SECTIONS, PRICING_PLANS } from "./components/constants";
+import { STATS, FEATURES, TRUST_METRICS, TECH_STACK, FOOTER_SECTIONS } from "./components/constants";
 
 const staggerContainer = {
   hidden: {},
@@ -17,14 +17,6 @@ const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" as const } },
 };
-
-function CheckIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#02C39A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
 
 const TECH_DESCRIPTIONS: Record<string, string> = {
   "Rails": "Backend framework · API & business logic",
@@ -38,8 +30,6 @@ const TECH_DESCRIPTIONS: Record<string, string> = {
 };
 
 export default function LandingPage() {
-  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
-  const [showContact, setShowContact] = useState(false);
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
@@ -83,8 +73,7 @@ export default function LandingPage() {
             </motion.p>
             <motion.div variants={fadeUp} style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 48 }}>
               <motion.a
-                href="#pricing"
-                onClick={(e) => handleAnchorClick(e, "#pricing")}
+                href="mailto:josemarioarias12@gmail.com?subject=Demo%20Request%20-%20VoltDesk%20AI"
                 whileHover={{ scale: 1.04, boxShadow: "0 0 32px rgba(2,128,144,0.55)" }}
                 whileTap={{ scale: 0.97 }}
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
@@ -99,22 +88,15 @@ export default function LandingPage() {
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
                 style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.05)", color: "#fff", fontWeight: 600, fontSize: 16, padding: "14px 32px", borderRadius: 10, textDecoration: "none", border: "1px solid rgba(255,255,255,0.14)" }}
               >
-                View Live Demo →
+                Sign in →
               </motion.a>
             </motion.div>
             <motion.div variants={fadeUp} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 24, flexWrap: "wrap" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{ display: "flex" }}>
-                  {["https://i.pravatar.cc/40?img=1","https://i.pravatar.cc/40?img=5","https://i.pravatar.cc/40?img=12","https://i.pravatar.cc/40?img=23","https://i.pravatar.cc/40?img=31"].map((src, i) => (
-                    <img key={i} src={src} alt="user" style={{ width: 28, height: 28, borderRadius: "50%", border: "2px solid #0D1B2A", marginLeft: i > 0 ? -8 : 0, objectFit: "cover" }} />
-                  ))}
-                </div>
-                <span style={{ color: "#64748b", fontSize: 13 }}>Trusted by 500+ teams</span>
-              </div>
-              <span style={{ color: "#1e3a5f" }}>·</span>
-              <span style={{ color: "#64748b", fontSize: 13 }}>99.9% uptime</span>
-              <span style={{ color: "#1e3a5f" }}>·</span>
               <span style={{ color: "#64748b", fontSize: 13 }}>{"<"} 3s AI classification</span>
+              <span style={{ color: "#1e3a5f" }}>·</span>
+              <span style={{ color: "#64748b", fontSize: 13 }}>Multi-provider AI · GPT-4o + Claude + Gemini</span>
+              <span style={{ color: "#1e3a5f" }}>·</span>
+              <span style={{ color: "#64748b", fontSize: 13 }}>SOC 2-ready</span>
             </motion.div>
           </motion.div>
           <DashboardMockup />
@@ -168,7 +150,7 @@ export default function LandingPage() {
                   style={{ position: "absolute", inset: 0, borderRadius: 16, border: "1.5px solid rgba(2,195,154,0.5)", pointerEvents: "none" }}
                 />
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 }}>
-                 {/* Icon */}
+                  {/* Icon */}
                   <motion.div
                     variants={{
                       rest: { scale: 1, background: "rgba(2,128,144,0.18)", boxShadow: "0 0 0 1px rgba(2,128,144,0.2)" },
@@ -300,156 +282,52 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Trust */}
       <section style={{ background: "#0D1B2A", padding: "96px 24px", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(2,128,144,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(2,128,144,0.03) 1px, transparent 1px)", backgroundSize: "48px 48px", pointerEvents: "none" }} />
         <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative" }}>
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: "center", marginBottom: 64 }}>
-            <p style={{ color: "#02C39A", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 12 }}>✦ Customer Stories</p>
-            <h2 style={{ fontSize: "clamp(28px,4vw,44px)", fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", marginBottom: 12 }}>Built for enterprise teams</h2>
-            <p style={{ color: "#475569", fontSize: 17 }}>Trusted by operations leaders across industries.</p>
+            <p style={{ color: "#02C39A", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 12 }}>✦ Built for Trust</p>
+            <h2 style={{ fontSize: "clamp(28px,4vw,44px)", fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", marginBottom: 12 }}>Enterprise-grade by design</h2>
+            <p style={{ color: "#475569", fontSize: 17 }}>What the platform actually guarantees.</p>
           </motion.div>
           <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}
             style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 20 }}>
-            {TESTIMONIALS.map((t) => (
+            {TRUST_METRICS.map((metric) => (
               <motion.div
-                key={t.name}
+                key={metric.title}
                 variants={fadeUp}
-                whileHover={{ y: -6, borderColor: "rgba(2,195,154,0.4)", boxShadow: "0 24px 48px rgba(0,0,0,0.3)" }}
+                whileHover={{ y: -6, borderColor: "rgba(2,195,154,0.4)" }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                style={{ background: "rgba(255,255,255,0.04)", borderRadius: 20, padding: 32, border: "1px solid rgba(255,255,255,0.08)", position: "relative", backdropFilter: "blur(8px)" }}
+                style={{ background: "rgba(255,255,255,0.04)", borderRadius: 20, padding: 32, border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(8px)" }}
               >
-                {/* Quote mark */}
-                <div style={{ position: "absolute", top: 20, right: 24, color: "rgba(2,195,154,0.15)", fontSize: 64, fontFamily: "Georgia, serif", lineHeight: 1, fontWeight: 700, userSelect: "none" }}>"</div>
-                {/* Stars */}
-                <div style={{ display: "flex", gap: 3, marginBottom: 20 }}>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <motion.span key={i} initial={{ opacity: 0, scale: 0 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 + i * 0.06, type: "spring", stiffness: 400 }}
-                      style={{ color: "#f59e0b", fontSize: 14 }}>★</motion.span>
-                  ))}
-                </div>
-                <p style={{ color: "#cbd5e1", fontSize: 15, lineHeight: 1.8, marginBottom: 28, fontStyle: "italic", position: "relative" }}>"{t.quote}"</p>
-                <div style={{ display: "flex", alignItems: "center", gap: 14, paddingTop: 20, borderTop: "1px solid rgba(255,255,255,0.07)" }}>
-                  <img src={t.avatar} alt={t.name} style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(2,195,154,0.4)", flexShrink: 0 }} />
-                  <div>
-                    <p style={{ fontWeight: 700, fontSize: 14, color: "#fff", margin: 0 }}>{t.name}</p>
-                    <p style={{ color: "#475569", fontSize: 13, margin: 0 }}>{t.role}</p>
-                  </div>
-                </div>
+                <h3 style={{ fontWeight: 700, fontSize: 17, color: "#fff", marginBottom: 12 }}>{metric.title}</h3>
+                <p style={{ color: "#94a3b8", fontSize: 14, lineHeight: 1.7, margin: 0 }}>{metric.description}</p>
               </motion.div>
             ))}
           </motion.div>
         </div>
       </section>
 
-      {/* Pricing */}
+      {/* Enterprise */}
       <section id="pricing" style={{ background: "#0a0f1a", padding: "96px 24px", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(2,128,144,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(2,128,144,0.04) 1px, transparent 1px)", backgroundSize: "48px 48px", pointerEvents: "none" }} />
         <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 600, height: 600, background: "radial-gradient(ellipse, rgba(2,195,154,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0}} viewport={{ once: true }} style={{ textAlign: "center", marginBottom: 64, position: "relative" }}>
-            <p style={{ color: "#02C39A", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 12 }}>✦ Pricing</p>
-            <h2 style={{ fontSize: "clamp(28px,4vw,48px)", fontWeight: 800, color: "#fff", marginBottom: 12, letterSpacing: "-0.02em" }}>Simple, transparent pricing</h2>
-            <p style={{ color: "#64748b", fontSize: 18, marginBottom: 32 }}>Start free. Scale as you grow. No hidden fees.</p>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 0, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: 4 }}>
-              <button onClick={() => setBilling("monthly")} style={{ padding: "8px 20px", borderRadius: 9, border: "none", cursor: "pointer", fontWeight: 600, fontSize: 14, transition: "all 0.2s", background: billing === "monthly" ? "rgba(2,128,144,0.9)" : "transparent", color: billing === "monthly" ? "#fff" : "#64748b" }}>Monthly</button>
-              <button onClick={() => setBilling("annual")} style={{ padding: "8px 20px", borderRadius: 9, border: "none", cursor: "pointer", fontWeight: 600, fontSize: 14, transition: "all 0.2s", background: billing === "annual" ? "rgba(2,128,144,0.9)" : "transparent", color: billing === "annual" ? "#fff" : "#64748b", display: "flex", alignItems: "center", gap: 8 }}>
-                Annual
-                <span style={{ background: "linear-gradient(135deg,#028090,#02C39A)", color: "#fff", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20, letterSpacing: "0.05em" }}>-20%</span>
-              </button>
-            </div>
-          </motion.div>
-         <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 24, alignItems: "stretch" }}>
-            {PRICING_PLANS.map((plan) => {
-              const displayPrice = plan.price !== null ? (billing === "annual" ? Math.round(plan.price * 0.8) : plan.price) : null;
-              return (
-                <motion.div
-                  key={plan.name}
-                  variants={fadeUp}
-                  whileHover={{ y: plan.highlight ? -8 : -6, boxShadow: plan.highlight ? "0 32px 80px rgba(2,128,144,0.35)" : "0 16px 48px rgba(0,0,0,0.2)" }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  style={{
-                    background: plan.highlight ? "linear-gradient(160deg,#0c1f35 0%,#0a1628 100%)" : "rgba(255,255,255,0.03)",
-                    borderRadius: 24,
-                    padding: plan.highlight ? 36 : 32,
-                    border: plan.highlight ? "1px solid rgba(2,195,154,0.5)" : "1px solid rgba(255,255,255,0.08)",
-                    position: "relative",
-                    boxShadow: plan.highlight ? "0 24px 64px rgba(2,128,144,0.25), inset 0 1px 0 rgba(255,255,255,0.08)" : "none",
-                    display: "flex",
-                    flexDirection: "column",
-                    transform: plan.highlight ? "scale(1.03)" : "scale(1)",
-                  }}
-                >
-                  {plan.highlight && (
-                    <div style={{ position: "absolute", inset: 0, borderRadius: 24, background: "radial-gradient(ellipse at top, rgba(2,195,154,0.08) 0%, transparent 60%)", pointerEvents: "none" }} />
-                  )}
-                  {plan.badge && (
-                    <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg,#028090,#02C39A)", color: "#fff", fontSize: 11, fontWeight: 700, padding: "5px 18px", borderRadius: 100, whiteSpace: "nowrap", letterSpacing: "0.08em", boxShadow: "0 4px 16px rgba(2,195,154,0.4)" }}>
-                      {plan.badge}
-                    </div>
-                  )}
-                  <div style={{ marginBottom: 24, position: "relative" }}>
-                    <h3 style={{ fontSize: 20, fontWeight: 700, color: "#fff", marginBottom: 8 }}>{plan.name}</h3>
-                    <p style={{ color: "#475569", fontSize: 14, lineHeight: 1.6, marginBottom: 24 }}>{plan.description}</p>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 4 }}>
-                      {displayPrice !== null ? (
-                        <>
-                          <span style={{ fontSize: 56, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1 }}>${displayPrice}</span>
-                          <span style={{ color: "#475569", fontSize: 15 }}>/mo</span>
-                        </>
-                      ) : (
-                        <span style={{ fontSize: 40, fontWeight: 800, color: "#fff", letterSpacing: "-0.02em" }}>Custom</span>
-                      )}
-                    </div>
-                    {displayPrice !== null && (
-                      <p style={{ color: "#475569", fontSize: 13 }}>
-                        per workspace · {billing === "annual" ? "billed annually" : "billed monthly"}
-                        {billing === "annual" && <span style={{ color: "#02C39A", fontWeight: 600, marginLeft: 8 }}>Save 20%</span>}
-                      </p>
-                    )}
-                  </div>
-                  <div style={{ flex: 1, marginBottom: 28, borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 24 }}>
-                    {plan.features.map((feature) => (
-                      <motion.div key={feature} whileHover={{ x: 4 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                        style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 14, cursor: "default" }}>
-                        <div style={{ flexShrink: 0, marginTop: 1 }}><CheckIcon /></div>
-                        <span style={{ color: "#94a3b8", fontSize: 14, lineHeight: 1.5 }}>{feature}</span>
-                      </motion.div>
-                    ))}
-                  </div>
-                  <motion.button
-                    onClick={() => plan.href === "#contact" ? setShowContact(true) : window.location.href = plan.href}
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                    style={{
-                      display: "block",
-                      width: "100%",
-                      textAlign: "center",
-                      padding: "14px 24px",
-                      borderRadius: 12,
-                      fontWeight: 700,
-                      fontSize: 15,
-                      position: "relative",
-                      background: plan.highlight ? "linear-gradient(135deg,#028090,#02C39A)" : "rgba(255,255,255,0.06)",
-                      color: "#fff",
-                      border: plan.highlight ? "none" : "1px solid rgba(255,255,255,0.12)",
-                      boxShadow: plan.highlight ? "0 4px 24px rgba(2,128,144,0.4)" : "none",
-                      cursor: "pointer",
-                      fontFamily: "Inter, sans-serif",
-                    }}
-                  >
-                    {plan.cta}
-                  </motion.button>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-          <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{once: true }} transition={{ delay: 0.4 }}
-            style={{ textAlign: "center", color: "#475569", fontSize: 14, marginTop: 48 }}>
-            All plans include a 14-day free trial · No credit card required · Cancel anytime
-          </motion.p>
+        <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center", position: "relative" }}>
+          <p style={{ color: "#02C39A", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 12 }}>✦ Enterprise</p>
+          <h2 style={{ fontSize: "clamp(28px,4vw,48px)", fontWeight: 800, color: "#fff", marginBottom: 20, letterSpacing: "-0.02em" }}>Built for organizations, not individual seats</h2>
+          <p style={{ color: "#64748b", fontSize: 18, marginBottom: 40, lineHeight: 1.7 }}>
+            Every workspace is custom-deployed and configured for your departments, compliance requirements, and AI provider preferences. Talk to us about your organization.
+          </p>
+          <motion.a
+            href="mailto:josemarioarias12@gmail.com?subject=Demo%20Request%20-%20VoltDesk%20AI"
+            whileHover={{ scale: 1.03, boxShadow: "0 8px 32px rgba(2,128,144,0.4)" }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg,#028090,#02C39A)", color: "#fff", fontWeight: 700, fontSize: 16, padding: "14px 32px", borderRadius: 10, textDecoration: "none" }}
+          >
+            Request Demo →
+          </motion.a>
         </div>
       </section>
 
@@ -516,11 +394,6 @@ export default function LandingPage() {
         <div style={{ position: "absolute", top: "20%", left: "10%", width: 300, height: 300, background: "radial-gradient(ellipse, rgba(2,128,144,0.08) 0%, transparent 70%)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", bottom: "20%", right: "10%", width: 250, height: 250, background: "radial-gradient(ellipse, rgba(2,195,154,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
         <div style={{ position: "relative", maxWidth: 700, margin: "0 auto" }}>
-          <motion.div initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(2,195,154,0.1)", border: "1px solid rgba(2,195,154,0.25)", borderRadius: 100, padding: "6px 16px", marginBottom: 32 }}>
-            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#02C39A", boxShadow: "0 0 8px rgba(2,195,154,0.8)" }} />
-            <span style={{ color: "#02C39A", fontSize: 13, fontWeight: 600 }}>500+ enterprises already onboard</span>
-          </motion.div>
           <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.05 }}
             style={{ fontSize: "clamp(32px,5vw,64px)", fontWeight: 800, color: "#fff", marginBottom: 20, letterSpacing: "-0.03em", lineHeight: 1.1 }}>
             Stop managing chaos.<br />
@@ -532,18 +405,18 @@ export default function LandingPage() {
           </motion.p>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }}
             style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 48 }}>
-            <motion.button onClick={() => setShowContact(true)} whileHover={{ scale: 1.04, boxShadow: "0 8px 40px rgba(2,128,144,0.5)" }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              style={{ background: "linear-gradient(135deg,#028090,#02C39A)", color: "#fff", fontWeight: 700, fontSize: 16, padding: "15px 36px", borderRadius: 12, border: "none", cursor: "pointer", boxShadow: "0 4px 24px rgba(2,128,144,0.35)", fontFamily: "Inter, sans-serif" }}>
+            <motion.a href="mailto:josemarioarias12@gmail.com?subject=Demo%20Request%20-%20VoltDesk%20AI" whileHover={{ scale: 1.04, boxShadow: "0 8px 40px rgba(2,128,144,0.5)" }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg,#028090,#02C39A)", color: "#fff", fontWeight: 700, fontSize: 16, padding: "15px 36px", borderRadius: 12, textDecoration: "none", boxShadow: "0 4px 24px rgba(2,128,144,0.35)", fontFamily: "Inter, sans-serif" }}>
               Request Demo →
-            </motion.button>
-            <motion.button onClick={() => setShowContact(true)} whileHover={{ scale: 1.04, borderColor: "rgba(2,195,154,0.5)", color: "#02C39A" }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              style={{ background: "transparent", color: "#fff", fontWeight: 600, fontSize: 16, padding: "15px 36px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.15)", cursor: "pointer", fontFamily: "Inter, sans-serif" }}>
-              Schedule a call
-            </motion.button>
+            </motion.a>
+            <motion.a href="/login" whileHover={{ scale: 1.04, borderColor: "rgba(2,195,154,0.5)", color: "#02C39A" }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "transparent", color: "#fff", fontWeight: 600, fontSize: 16, padding: "15px 36px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.15)", textDecoration: "none", fontFamily: "Inter, sans-serif" }}>
+              Sign in →
+            </motion.a>
           </motion.div>
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.25 }}
             style={{ display: "flex", justifyContent: "center", gap: 40, flexWrap: "wrap" }}>
-            {[["99.9%", "Uptime SLA"], ["< 3s", "AI Classification"], ["SOC 2", "Compliant"], ["14-day", "Free Trial"]].map(([value, label]) => (
+            {[["< 3s", "AI Classification"], ["SOC 2", "Ready"], ["3", "AI Providers"], ["Full", "Audit Trail"]].map(([value, label]) => (
               <div key={label} style={{ textAlign: "center" }}>
                 <p style={{ color: "#fff", fontSize: 20, fontWeight: 800, letterSpacing: "-0.02em" }}>{value}</p>
                 <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 13, marginTop: 2 }}>{label}</p>
@@ -553,19 +426,19 @@ export default function LandingPage() {
         </div>
       </section>
 
-   {/* Footer */}
+      {/* Footer */}
       <footer style={{ background: "#0D1B2A", borderTop: "1px solid rgba(255,255,255,0.08)", padding: "72px 24px 32px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ display: "grid", gridTemplateColumns: "1.8fr 1fr 1fr 1fr 1fr", gap: 32, marginBottom: 64 }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-                <div style={{ width: 34, height: 34, borderRadius: 9, background: "linear-gradient(135deg,#028090,#02C39A)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 12px rgba(2,195,154,0.3)" }}>
-                  <span style={{ color: "#fff", fontSize: 16, fontWeight: 800 }}>P</span>
+                <div style={{ width: 34, height: 34, borderRadius: 9, overflow: "hidden" }}>
+                  <img src="/voltdesk-navy.svg" alt="VoltDesk AI" style={{ width: 34, height: 34 }} />
                 </div>
                 <span style={{ color: "#fff", fontWeight: 700, fontSize: 16 }}>VoltDesk <span style={{ color: "#02C39A" }}>AI</span></span>
               </div>
               <p style={{ fontSize: 14, lineHeight: 1.8, color: "#475569", marginBottom: 16, maxWidth: 260 }}>AI-native helpdesk that classifies, predicts, and acts. Built for teams that can't afford to slow down.</p>
-              
+
               <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(2,195,154,0.08)", border: "1px solid rgba(2,195,154,0.2)", borderRadius: 20, padding: "6px 12px", width: "fit-content", marginBottom: 20 }}>
                 <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#02C39A", boxShadow: "0 0 6px rgba(2,195,154,0.8)" }} />
                 <span style={{ color: "#02C39A", fontSize: 12, fontWeight: 600 }}>All systems operational</span>
@@ -613,83 +486,6 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
-    {/* Contact Modal */}
-      {showContact && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={() => setShowContact(false)}
-          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)", zIndex: 10000, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
-        >
-          <motion.div
-            initial={{ scale: 0.92, opacity: 0, y: 16 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            transition={{ type: "spring", stiffness: 350, damping: 25 }}
-            onClick={(e) => e.stopPropagation()}
-            style={{ background: "#0D1B2A", border: "1px solid rgba(2,195,154,0.2)", borderRadius: 20, padding: 40, maxWidth: 480, width: "100%", position: "relative" }}
-          >
-            {/* Close */}
-            <button
-              onClick={() => setShowContact(false)}
-              style={{ position: "absolute", top: 16, right: 16, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748b" }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
-            </button>
-
-            {/* Header */}
-            <div style={{ marginBottom: 28 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#02C39A", boxShadow: "0 0 8px rgba(2,195,154,0.8)" }} />
-                <span style={{ color: "#02C39A", fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.1em" }}>Enterprise Sales</span>
-              </div>
-              <h3 style={{ fontSize: 24, fontWeight: 800, color: "#fff", marginBottom: 8, letterSpacing: "-0.02em" }}>Let's talk about your team</h3>
-              <p style={{ color: "#475569", fontSize: 14, lineHeight: 1.6 }}>Our team will reach out within 24 hours to schedule a personalized demo.</p>
-            </div>
-
-            {/* Fields */}
-            <div style={{ display: "flex", flexDirection: "column" as const, gap: 14, marginBottom: 24 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <div>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: "#475569", textTransform: "uppercase" as const, letterSpacing: "0.08em", display: "block", marginBottom: 6 }}>First name</label>
-                  <input type="text" placeholder="Jose" style={{ width: "100%", padding: "10px 14px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, color: "#fff", fontSize: 14, outline: "none", fontFamily: "Inter, sans-serif", boxSizing: "border-box" as const }} />
-                </div>
-                <div>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: "#475569", textTransform: "uppercase" as const, letterSpacing: "0.08em", display: "block", marginBottom: 6 }}>Last name</label>
-                  <input type="text" placeholder="Arias" style={{ width: "100%", padding: "10px 14px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, color: "#fff", fontSize: 14, outline: "none", fontFamily: "Inter, sans-serif", boxSizing: "border-box" as const }} />
-                </div>
-              </div>
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: "#475569", textTransform: "uppercase" as const, letterSpacing: "0.08em", display: "block", marginBottom: 6 }}>Work email</label>
-                <input type="email" placeholder="jose@company.com" style={{ width: "100%", padding: "10px 14px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, color: "#fff", fontSize: 14, outline: "none", fontFamily: "Inter, sans-serif", boxSizing: "border-box" as const }} />
-              </div>
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: "#475569", textTransform: "uppercase" as const, letterSpacing: "0.08em", display: "block", marginBottom: 6 }}>Company</label>
-                <input type="text" placeholder="Acme Corp" style={{ width: "100%", padding: "10px 14px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, color: "#fff", fontSize: 14, outline: "none", fontFamily: "Inter, sans-serif", boxSizing: "border-box" as const }} />
-              </div>
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: "#475569", textTransform: "uppercase" as const, letterSpacing: "0.08em", display: "block", marginBottom: 6 }}>Message</label>
-                <textarea placeholder="Tell us about your team size and use case…" rows={3} style={{ width: "100%", padding: "10px 14px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, color: "#fff", fontSize: 14, outline: "none", fontFamily: "Inter, sans-serif", resize: "none", boxSizing: "border-box" as const }} />
-              </div>
-            </div>
-
-            {/* Submit */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => {
-                setShowContact(false);
-              }}
-              style={{ width: "100%", padding: "14px", background: "linear-gradient(135deg,#028090,#02C39A)", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 700, color: "#fff", cursor: "pointer", fontFamily: "Inter, sans-serif", boxShadow: "0 4px 24px rgba(2,128,144,0.3)" }}
-            >
-              Send message →
-            </motion.button>
-            <p style={{ textAlign: "center" as const, fontSize: 12, color: "#334155", marginTop: 12 }}>We'll respond within 24 hours · No spam ever</p>
-          </motion.div>
-        </motion.div>
-      )}
     </div>
   );
 }
