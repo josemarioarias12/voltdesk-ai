@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, KeyboardEvent } from 'react'
-import { X, Send, Loader2, Sparkles, Download, FileSpreadsheet, FileText, FileSpreadsheet as FileCsv } from 'lucide-react'
+import { X, Send, Loader2, Download, FileSpreadsheet, FileText, FileSpreadsheet as FileCsv } from 'lucide-react'
 import { toast } from 'sonner'
 import { IconBolt } from '@/components/Icons'
 
@@ -160,30 +160,56 @@ export default function VoltCopilotPanel() {
           100% { box-shadow: 0 0 0 0 rgba(2,128,144,0); }
         }
         .volt-copilot-pulse { animation: volt-copilot-pulse 1.8s ease-out 2; }
+        .volt-copilot-tooltip {
+          position: absolute;
+          bottom: 64px;
+          right: 0;
+          background: #0D1B2A;
+          color: #fff;
+          padding: 6px 10px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 500;
+          white-space: nowrap;
+          opacity: 0;
+          transform: translateY(4px);
+          pointer-events: none;
+          transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+        @media (hover: hover) and (pointer: fine) {
+          .volt-copilot-fab-wrapper:hover .volt-copilot-tooltip {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
       `}</style>
 
-      <button
-        onClick={() => setOpen(true)}
-        aria-label="Open Volt Copilot"
-        title="Volt Copilot"
-        className={`fixed z-40 flex items-center justify-center rounded-full shadow-lg transition-transform hover:scale-105 ${showPulse ? 'volt-copilot-pulse' : ''}`}
+      <div
+        className="volt-copilot-fab-wrapper"
         style={{
-          bottom: '24px', right: '24px', width: '52px', height: '52px',
-          background: '#028090', border: 'none', cursor: 'pointer',
-          display: open ? 'none' : 'flex', position: 'fixed',
+          position: 'fixed',
+          bottom: 'calc(24px + env(safe-area-inset-bottom))',
+          right: '24px',
+          zIndex: 40,
+          display: open ? 'none' : 'block',
         }}
       >
-        <IconBolt size={22} color="#fff" />
-        <span
-          className="absolute flex items-center justify-center rounded-full"
+        <span className="volt-copilot-tooltip">¿En qué te ayudo?</span>
+        <button
+          onClick={() => setOpen(true)}
+          aria-label="Open Volt Copilot"
+          title="Volt Copilot"
+          className={`flex items-center justify-center rounded-full transition-transform hover:scale-105 ${showPulse ? 'volt-copilot-pulse' : ''}`}
           style={{
-            top: '-2px', right: '-2px', width: '18px', height: '18px',
-            background: '#02C39A', border: '2px solid #fff',
+            width: '52px', height: '52px',
+            background: 'linear-gradient(135deg, #028090 0%, #02C39A 100%)',
+            border: 'none', cursor: 'pointer',
+            boxShadow: '0 8px 20px rgba(2,128,144,0.35), 0 2px 6px rgba(2,128,144,0.25)',
           }}
         >
-          <Sparkles size={9} color="#fff" />
-        </span>
-      </button>
+          <IconBolt size={22} color="#fff" />
+        </button>
+      </div>
 
       <div
         className="fixed top-0 right-0 bottom-0 z-40 flex flex-col transition-transform duration-300"
@@ -196,7 +222,7 @@ export default function VoltCopilotPanel() {
       >
         <div
           onMouseDown={handleResizeStart}
-          className="absolute top-0 bottom-0 left-0"
+          className="hidden sm:block absolute top-0 bottom-0 left-0"
           style={{ width: '5px', cursor: 'ew-resize', zIndex: 41 }}
         />
 
