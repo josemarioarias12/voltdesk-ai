@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, KeyboardEvent } from 'react'
-import { X, Send, Loader2, Download, FileSpreadsheet, FileText, FileSpreadsheet as FileCsv } from 'lucide-react'
+import { X, Send, Loader2, Download, FileSpreadsheet, FileText, FileSpreadsheet as FileCsv, History, Plus, ArrowLeft, Pencil, Trash2, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { IconBolt } from '@/components/Icons'
 
@@ -16,11 +16,18 @@ interface AssistantMessage {
   report?: ReportAttachment | null
 }
 
+interface ConversationSummary {
+  id: number
+  title: string | null
+  archived: boolean
+  updated_at: string
+}
+
 const DEFAULT_WIDTH = 380
 const MIN_WIDTH = 320
 const MAX_WIDTH = 520
 
-const REPORT_KIND_MAP: Record<string, { label: string; color: string; icon: 'pdf' | 'xlsx' | 'csv' }> = {
+const REPORT_KIND_MAP: Record<string, { label: string; color: string; icon: 'pdf' | 'xlsx'| 'csv' }> = {
   'application/pdf': { label: 'PDF Document', color: '#DC2626', icon: 'pdf' },
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': { label: 'Excel Spreadsheet', color: '#16A34A', icon: 'xlsx' },
   'text/csv': { label: 'CSV File', color: '#0284C7', icon: 'csv' },
@@ -49,10 +56,24 @@ function csrfToken(): string {
   return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? ''
 }
 
+function formatConversationLabel(conversation: ConversationSummary): string {
+  if (conversation.title) return conversation.title
+  const date = new Date(conversation.updated_at)
+  return date.toLocaleDateString('es-CR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+}
+
 export default function VoltCopilotPanel() {
   const [open, setOpen] = useState(false)
   const [loaded, setLoaded] = useState(false)
+  const [view, setView] = useState<'chat' | 'history'>('chat')
   const [messages, setMessages] = useState<AssistantMessage[]>([])
+  const [conversationId, setConversationId] = useState<number | null>(null)
+  const [hasMore, setHasMore] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [conversations, setConversations] = useState<ConversationSummary[]>([])
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editingValue, setEditingValue] = useState('')
+  const [loadingConversations, setLoadingConversations] = useState(false)
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
   const [width, setWidth] = useState(DEFAULT_WIDTH)
@@ -65,8 +86,8 @@ export default function VoltCopilotPanel() {
   }, [open, loaded])
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, sending])
+    if (view === 'chat') bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, sending, view])
 
   useEffect(() => {
     const timer = setTimeout(() => setShowPulse(false), 4000)
@@ -97,9 +118,129 @@ export default function VoltCopilotPanel() {
       if (!res.ok) throw new Error('Failed to load conversation')
       const data = await res.json()
       setMessages(data.messages)
+      setConversationId(data.conversation_id)
+      setHasMore(data.has_more)
       setLoaded(true)
     } catch {
       toast.error('Could not load Volt Copilot. Please try again.')
+    }
+  }
+
+  async function handleLoadMore() {
+    if (!conversationId || messages.length === 0) return
+    setLoadingMore(true)
+
+    try {
+      const oldestId = messages[0].id
+      const res = await fetch(`/assistant/conversations/${conversationId}/messages?before_id=${oldestId}`, {
+        headers: { Accept: 'application/json' },
+      })
+      if (!res.ok) throw new Error('Failed to load older messages')
+      const data = await res.json()
+      setMessages(prev => [...data.messages, ...prev])
+      setHasMore(data.has_more)
+    } catch {
+      toast.error('Could not load older messages.')
+    } finally {
+      setLoadingMore(false)
+    }
+  }
+
+  async function handleNewConversation(force = false) {
+    if (!force && messages.length === 0) {
+      toast.info('Ya estás en una conversación nueva.')
+      return
+    }
+
+    try {
+      const res = await fetch('/assistant/conversations', {
+        method: 'POST',
+        headers: { Accept: 'application/json', 'X-CSRF-Token': csrfToken() },
+      })
+      if (!res.ok) throw new Error('Failed to create conversation')
+      const data = await res.json()
+      setMessages(data.messages)
+      setConversationId(data.conversation_id)
+      setHasMore(data.has_more)
+      setView('chat')
+      toast.success('Nueva conversación iniciada.')
+    } catch {
+      toast.error('Could not start a new conversation.')
+    }
+  }
+
+  async function handleToggleHistory() {
+    if (view === 'chat') {
+      setView('history')
+      setLoadingConversations(true)
+      try {
+        const res = await fetch('/assistant/conversations', { headers: { Accept: 'application/json' } })
+        if (!res.ok) throw new Error('Failed to load conversations')
+        const data = await res.json()
+        setConversations(data.conversations)
+      } catch {
+        toast.error('Could not load conversation history.')
+      } finally {
+        setLoadingConversations(false)
+      }
+    } else {
+      setView('chat')
+    }
+  }
+
+  async function handleActivateConversation(id: number) {
+    try {
+      const res = await fetch(`/assistant/conversations/${id}/activate`, {
+        method: 'PATCH',
+        headers: { Accept: 'application/json', 'X-CSRF-Token': csrfToken() },
+      })
+      if (!res.ok) throw new Error('Failed to activate conversation')
+      const data = await res.json()
+      setMessages(data.messages)
+      setConversationId(data.conversation_id)
+      setHasMore(data.has_more)
+      setView('chat')
+    } catch {
+      toast.error('Could not open that conversation.')
+    }
+  }
+
+  function startEditing(conversation: ConversationSummary) {
+    setEditingId(conversation.id)
+    setEditingValue(conversation.title ?? '')
+  }
+
+  async function saveEditing(id: number) {
+    const title = editingValue.trim()
+    setEditingId(null)
+    if (!title) return
+
+    try {
+      const res = await fetch(`/assistant/conversations/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-Token': csrfToken() },
+        body: JSON.stringify({ title }),
+      })
+      if (!res.ok) throw new Error('Failed to rename conversation')
+      const data = await res.json()
+      setConversations(prev => prev.map(c => (c.id === id ? { ...c, title: data.title } : c)))
+    } catch {
+      toast.error('Could not rename the conversation.')
+    }
+  }
+
+  async function handleArchiveConversation(id: number) {
+    try {
+      const res = await fetch(`/assistant/conversations/${id}`, {
+        method: 'DELETE',
+        headers: { Accept: 'application/json', 'X-CSRF-Token': csrfToken() },
+      })
+      if (!res.ok) throw new Error('Failed to archive conversation')
+      setConversations(prev => prev.filter(c => c.id !== id))
+
+      if (id === conversationId) await handleNewConversation(true)
+    } catch {
+      toast.error('Could not archive the conversation.')
     }
   }
 
@@ -228,105 +369,261 @@ export default function VoltCopilotPanel() {
 
         <div className="flex items-center justify-between px-4 py-4 border-b" style={{ borderColor: 'rgba(15,23,42,0.08)' }}>
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: '#028090' }}>
-              <IconBolt size={14} color="#fff" />
-            </div>
-            <span className="font-semibold text-sm" style={{ color: '#0D1B2A' }}>Volt Copilot</span>
-          </div>
-          <button
-            onClick={() => setOpen(false)}
-            aria-label="Close Volt Copilot"
-            style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8' }}
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        <div className="volt-copilot-scroll flex-1 overflow-y-auto px-4 py-4 space-y-3">
-          {!loaded && (
-            <div className="flex items-center justify-center h-full">
-              <Loader2 size={20} className="animate-spin" style={{ color: '#94A3B8' }} />
-            </div>
-          )}
-
-          {loaded && messages.length === 0 && (
-            <p className="text-sm" style={{ color: '#94A3B8' }}>
-              Ask Volt Copilot about your tickets, leave requests, or assets.
-            </p>
-          )}
-
-          {messages.map(message => (
-            <div key={message.id} className="max-w-[85%]" style={{ marginLeft: message.role === 'user' ? 'auto' : '0' }}>
-              <div
-                className="px-3 py-2 rounded-2xl text-sm"
-                style={{
-                  background: message.role === 'user' ? '#028090' : '#F8FAFC',
-                  color: message.role === 'user' ? '#fff' : '#0D1B2A',
-                  border: message.role === 'user' ? 'none' : '1px solid rgba(15,23,42,0.08)',
-                }}
+            {view === 'history' ? (
+              <button
+                onClick={handleToggleHistory}
+                aria-label="Back to chat"
+                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#0D1B2A', display: 'flex' }}
               >
-                {message.content}
+                <ArrowLeft size={16} />
+              </button>
+            ) : (
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: '#028090' }}>
+                <IconBolt size={14} color="#fff" />
               </div>
-              {message.report && (
-                  <a
-                  href={message.report.url}
-                  download={message.report.filename}
-                  className="flex items-center gap-3 mt-1.5 p-3 rounded-xl transition-colors hover:bg-black/[0.02]"
-                  style={{ background: '#fff', border: '1px solid rgba(15,23,42,0.08)', textDecoration: 'none' }}
+            )}
+            <span className="font-semibold text-sm" style={{ color: '#0D1B2A' }}>
+              {view === 'history' ? 'Historial' : 'Volt Copilot'}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1">
+            {view === 'chat' && (
+              <>
+                <button
+                  onClick={() => handleNewConversation()}
+                  aria-label="New conversation"
+                  title="Nueva conversación"
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex' }}
                 >
-                  <ReportFileIcon contentType={message.report.content_type} />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium truncate" style={{ color: '#0D1B2A' }}>
-                      {message.report.filename}
-                    </p>
-                    <p className="text-xs" style={{ color: '#94A3B8' }}>
-                      {reportKindLabel(message.report.content_type)}
-                    </p>
-                  </div>
-                  <Download size={16} style={{ color: '#028090', flexShrink: 0 }} />
-                </a>
-              )}
-            </div>
-          ))}
-
-          {sending && (
-            <div
-              className="max-w-[85%] px-3 py-2 rounded-2xl text-sm flex items-center gap-2"
-              style={{ background: '#F8FAFC', border: '1px solid rgba(15,23,42,0.08)', color: '#94A3B8' }}
-            >
-              <Loader2 size={14} className="animate-spin" />
-              Thinking...
-            </div>
-          )}
-
-          <div ref={bottomRef} />
-        </div>
-
-        <div className="px-4 py-3 border-t" style={{ borderColor: 'rgba(15,23,42,0.08)' }}>
-          <div className="flex items-end gap-2">
-            <textarea
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask Volt Copilot..."
-              rows={1}
-              className="flex-1 px-3 py-2 rounded-xl text-sm resize-none"
-              style={{ border: '1px solid rgba(15,23,42,0.08)', outline: 'none', maxHeight: '96px' }}
-            />
+                  <Plus size={17} />
+                </button>
+                <button
+                  onClick={handleToggleHistory}
+                  aria-label="Conversation history"
+                  title="Historial"
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex' }}
+                >
+                  <History size={16} />
+                </button>
+              </>
+            )}
             <button
-              onClick={handleSend}
-              disabled={sending || !input.trim()}
-              aria-label="Send message"
-              className="flex items-center justify-center rounded-xl flex-shrink-0"
-              style={{
-                width: '36px', height: '36px', border: 'none', cursor: 'pointer',
-                background: sending || !input.trim() ? '#E2E8F0' : '#028090',
-              }}
+              onClick={() => setOpen(false)}
+              aria-label="Close Volt Copilot"
+              style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex' }}
             >
-              <Send size={16} color={sending || !input.trim() ? '#94A3B8' : '#fff'} />
+              <X size={18} />
             </button>
           </div>
         </div>
+
+        {view === 'history' ? (
+          <div className="volt-copilot-scroll flex-1 overflow-y-auto px-4 py-4 space-y-2">
+            {loadingConversations && (
+              <div className="flex items-center justify-center h-full">
+                <Loader2 size={20} className="animate-spin" style={{ color: '#94A3B8' }} />
+              </div>
+            )}
+
+            {!loadingConversations && conversations.length === 0 && (
+              <p className="text-sm" style={{ color: '#94A3B8' }}>No hay conversaciones todavía.</p>
+            )}
+
+            {conversations.map(conversation => (
+              <div
+                key={conversation.id}
+                className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl transition-colors hover:bg-black/[0.02]"
+                style={{
+                  border: conversation.id === conversationId ? '1px solid #028090' : '1px solid rgba(15,23,42,0.08)',
+                  background: conversation.id === conversationId ? 'rgba(2,128,144,0.05)' : '#fff',
+                }}
+              >
+                <div
+                  onClick={() => { if (editingId !== conversation.id) handleActivateConversation(conversation.id) }}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => {
+                    if (editingId === conversation.id) return
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      handleActivateConversation(conversation.id)
+                    }
+                  }}
+                  className="min-w-0 flex-1 text-left"
+                  style={{ cursor: 'pointer' }}
+                >
+                  {editingId === conversation.id ? (
+                    <input
+                      autoFocus
+                      value={editingValue}
+                      onClick={e => e.stopPropagation()}
+                      onChange={e => setEditingValue(e.target.value)}
+                      onKeyDown={e => {
+                        e.stopPropagation()
+                        if (e.key === 'Enter') saveEditing(conversation.id)
+                        if (e.key === 'Escape') setEditingId(null)
+                      }}
+                      className="w-full text-sm font-medium px-1 py-0.5 rounded"
+                      style={{ border: '1px solid #028090', outline: 'none', color: '#0D1B2A' }}
+                    />
+                  ) : (
+                    <>
+                      <p
+                        className="text-sm font-medium truncate"
+                        style={{ color: conversation.archived ? '#94A3B8' : '#0D1B2A' }}
+                      >
+                        {formatConversationLabel(conversation)}
+                      </p>
+                      {conversation.id === conversationId && (
+                        <p className="text-xs mt-0.5" style={{ color: '#028090' }}>Conversación actual</p>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  {editingId === conversation.id ? (
+                    <>
+                      <button
+                        onClick={e => { e.stopPropagation(); saveEditing(conversation.id) }}
+                        aria-label="Confirm rename"
+                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#028090', display: 'flex' }}
+                      >
+                        <Check size={15} />
+                      </button>
+                      <button
+                        onClick={e => { e.stopPropagation(); setEditingId(null) }}
+                        aria-label="Cancel rename"
+                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex' }}
+                      >
+                        <X size={15} />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={e => { e.stopPropagation(); startEditing(conversation) }}
+                        aria-label="Rename conversation"
+                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex' }}
+                      >
+                        <Pencil size={14} />
+                      </button>
+                      <button
+                        onClick={e => { e.stopPropagation(); handleArchiveConversation(conversation.id) }}
+                        aria-label="Archive conversation"
+                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex' }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <>
+            <div className="volt-copilot-scroll flex-1 overflow-y-auto px-4 py-4 space-y-3">
+              {!loaded && (
+                <div className="flex items-center justify-center h-full">
+                  <Loader2 size={20} className="animate-spin" style={{ color: '#94A3B8' }} />
+                </div>
+              )}
+
+              {loaded && hasMore && (
+                <div className="flex justify-center pb-1">
+                  <button
+                    onClick={handleLoadMore}
+                    disabled={loadingMore}
+                    className="text-xs font-medium px-3 py-1.5 rounded-full transition-colors hover:bg-black/[0.02]"
+                    style={{ border: '1px solid rgba(15,23,42,0.08)', color: '#028090', background: '#fff', cursor: 'pointer' }}
+                  >
+                    {loadingMore ? 'Cargando...' : 'Ver mensajes anteriores'}
+                  </button>
+                </div>
+              )}
+
+              {loaded && messages.length === 0 && (
+                <p className="text-sm" style={{ color: '#94A3B8' }}>
+                  Ask Volt Copilot about your tickets, leave requests, or assets.
+                </p>
+              )}
+
+              {messages.map(message => (
+                <div key={message.id} className="max-w-[85%]" style={{ marginLeft: message.role === 'user' ? 'auto' : '0' }}>
+                  <div
+                    className="px-3 py-2 rounded-2xl text-sm"
+                    style={{
+                      background: message.role === 'user' ? '#028090' : '#F8FAFC',
+                      color: message.role === 'user' ? '#fff' : '#0D1B2A',
+                      border: message.role === 'user' ? 'none' : '1px solid rgba(15,23,42,0.08)',
+                    }}
+                  >
+                    {message.content}
+                  </div>
+                  {message.report && (
+                      <a
+                      href={message.report.url}
+                      download={message.report.filename}
+                      className="flex items-center gap-3 mt-1.5 p-3 rounded-xl transition-colors hover:bg-black/[0.02]"
+                      style={{ background: '#fff', border: '1px solid rgba(15,23,42,0.08)', textDecoration: 'none' }}
+                    >
+                      <ReportFileIcon contentType={message.report.content_type} />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium truncate" style={{ color: '#0D1B2A' }}>
+                          {message.report.filename}
+                        </p>
+                        <p className="text-xs" style={{ color: '#94A3B8' }}>
+                          {reportKindLabel(message.report.content_type)}
+                        </p>
+                      </div>
+                      <Download size={16} style={{ color: '#028090', flexShrink: 0 }} />
+                    </a>
+                  )}
+                </div>
+              ))}
+
+              {sending && (
+                <div
+                  className="max-w-[85%] px-3 py-2 rounded-2xl text-sm flex items-center gap-2"
+                  style={{ background: '#F8FAFC', border: '1px solid rgba(15,23,42,0.08)', color: '#94A3B8' }}
+                >
+                  <Loader2 size={14} className="animate-spin" />
+                  Thinking...
+                </div>
+              )}
+
+              <div ref={bottomRef} />
+            </div>
+
+            <div className="px-4 py-3 border-t" style={{ borderColor: 'rgba(15,23,42,0.08)' }}>
+              <div className="flex items-end gap-2">
+                <textarea
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Ask Volt Copilot..."
+                  rows={1}
+                  className="flex-1 px-3 py-2 rounded-xl text-sm resize-none"
+                  style={{ border: '1px solid rgba(15,23,42,0.08)', outline: 'none', maxHeight: '96px' }}
+                />
+                <button
+                  onClick={handleSend}
+                  disabled={sending || !input.trim()}
+                  aria-label="Send message"
+                  className="flex items-center justify-center rounded-xl flex-shrink-0"
+                  style={{
+                    width: '36px', height: '36px', border: 'none', cursor: 'pointer',
+                    background: sending || !input.trim() ? '#E2E8F0' : '#028090',
+                  }}
+                >
+                  <Send size={16} color={sending || !input.trim() ? '#94A3B8' : '#fff'} />
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </>
   )
