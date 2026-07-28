@@ -2,6 +2,7 @@ import { SharedProps } from '@/types'
 import { useForm } from 'react-hook-form'
 import { usePage, router } from '@inertiajs/react'
 import { useState } from 'react'
+import { IconBolt, IconLock, IconEye, IconEyeOff } from '@/components/Icons'
 
 interface ResetPasswordForm {
   password: string
@@ -17,6 +18,8 @@ export default function AuthResetPassword() {
   const { flash, reset_password_token } = usePage<Props>().props
   const { register, handleSubmit } = useForm<ResetPasswordForm>()
   const [showPassword, setShowPassword] = useState(false)
+  const [passwordFocus, setPasswordFocus] = useState(false)
+  const [confirmFocus, setConfirmFocus] = useState(false)
 
   const onSubmit = (data: ResetPasswordForm) => {
     router.put('/users/password', {
@@ -25,103 +28,191 @@ export default function AuthResetPassword() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8"
-      style={{
-        backgroundColor: '#F8FAFC',
-        backgroundImage: 'linear-gradient(rgba(2,128,144,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(2,128,144,0.06) 1px, transparent 1px)',
-        backgroundSize: '32px 32px'
+    <div style={{
+      minHeight: '100vh',
+      background: '#0D1B2A',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '64px 24px 24px',
+      fontFamily: 'Inter, system-ui, sans-serif',
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        backgroundImage: `linear-gradient(rgba(2,128,144,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(2,128,144,0.04) 1px, transparent 1px)`,
+        backgroundSize: '48px 48px',
+      }} />
+
+      <div style={{
+        position: 'absolute', top: '30%', left: '50%', transform: 'translate(-50%,-50%)',
+        width: 600, height: 600,
+        background: 'radial-gradient(circle, rgba(2,128,144,0.08) 0%, transparent 70%)',
+        pointerEvents: 'none',
+      }} />
+
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg,#028090,#02C39A)', zIndex: 9999 }} />
+
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9998, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 24px' }}>
+        <a
+          href="/"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#475569', fontSize: 12, fontWeight: 600, textDecoration: 'none', fontFamily: 'Inter, system-ui, sans-serif', padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)' }}
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 5 5 12 12 19"/>
+          </svg>
+          Back to home
+        </a>
+      </div>
+
+      <div style={{
+        width: '100%',
+        maxWidth: 440,
+        background: 'rgba(13,27,42,0.95)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 20,
+        boxShadow: '0 32px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(2,195,154,0.05)',
+        overflow: 'hidden',
+        position: 'relative',
+        zIndex: 1,
       }}>
+        <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 300, height: 1, background: 'linear-gradient(90deg, transparent, rgba(2,195,154,0.4), transparent)' }} />
 
-      <div className="w-full max-w-md bg-white rounded-2xl overflow-hidden"
-        style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-
-        <div className="px-8 pt-8 pb-6 text-center">
-          <div className="inline-flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: '#028090' }}>
-              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-              </svg>
+        <div style={{ padding: '32px 32px 24px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#028090,#02C39A)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(2,195,154,0.3)' }}>
+              <IconBolt size={18} color="#fff" />
             </div>
-            <span className="text-2xl font-bold" style={{ color: '#028090' }}>VoltDesk AI</span>
+            <span style={{ fontSize: 20, fontWeight: 800, background: 'linear-gradient(135deg,#028090,#02C39A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              VoltDesk AI
+            </span>
           </div>
-          <p className="text-sm" style={{ color: '#94A3B8' }}>Enterprise Operational Intelligence Platform</p>
+          <p style={{ fontSize: 12, color: '#334155', margin: 0, fontWeight: 500 }}>
+            Enterprise Operational Intelligence Platform
+          </p>
         </div>
 
-        <div className="mx-8" style={{ height: '0.5px', background: '#E2E8F0' }} />
-
-        <div className="px-8 py-6">
-          <p className="text-center font-bold mb-2" style={{ fontSize: '16px', color: '#0F172A' }}>
+        <div style={{ padding: '28px 32px 32px' }}>
+          <p style={{ textAlign: 'center', fontWeight: 700, fontSize: 15, color: '#fff', marginBottom: 6 }}>
             Choose a new password
           </p>
-          <p className="text-center text-sm mb-6" style={{ color: '#94A3B8' }}>
+          <p style={{ textAlign: 'center', fontSize: 13, color: '#64748B', marginBottom: 24 }}>
             Choose a strong password for your account.
           </p>
 
           {flash?.alert && (
-            <div className="mb-4 px-4 py-3 rounded-xl text-sm"
-              style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}>
+            <div style={{ marginBottom: 16, padding: '12px 16px', borderRadius: 12, background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.2)', color: '#EF4444', fontSize: 13 }}>
               {flash.alert}
             </div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 8 }}>
                 New password
               </label>
-              <div className="relative">
+              <div style={{ position: 'relative' }}>
                 <input
                   {...register('password')}
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
-                  className="w-full px-3 py-3 rounded-xl text-sm outline-none pr-10"
-                  style={{ border: '1px solid #E2E8F0', color: '#0F172A', background: '#fff' }}
+                  onFocus={() => setPasswordFocus(true)}
+                  onBlur={() => setPasswordFocus(false)}
+                  style={{
+                    width: '100%',
+                    padding: '11px 42px 11px 14px',
+                    borderRadius: 10,
+                    border: `1px solid ${passwordFocus ? '#028090' : 'rgba(255,255,255,0.08)'}`,
+                    background: 'rgba(255,255,255,0.04)',
+                    color: '#fff',
+                    fontSize: 14,
+                    outline: 'none',
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                    transition: 'border-color 0.2s',
+                    boxSizing: 'border-box' as const,
+                  }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
-                  style={{ color: '#94A3B8' }}
+                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#334155', display: 'flex', padding: 0 }}
                 >
-                  {showPassword ? '🙈' : '👁️'}
+                  {showPassword ? <IconEyeOff size={16} /> : <IconEye size={16} />}
                 </button>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 8 }}>
                 Confirm password
               </label>
               <input
                 {...register('password_confirmation')}
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
-                className="w-full px-3 py-3 rounded-xl text-sm outline-none"
-                style={{ border: '1px solid #E2E8F0', color: '#0F172A', background: '#fff' }}
+                onFocus={() => setConfirmFocus(true)}
+                onBlur={() => setConfirmFocus(false)}
+                style={{
+                  width: '100%',
+                  padding: '11px 14px',
+                  borderRadius: 10,
+                  border: `1px solid ${confirmFocus ? '#028090' : 'rgba(255,255,255,0.08)'}`,
+                  background: 'rgba(255,255,255,0.04)',
+                  color: '#fff',
+                  fontSize: 14,
+                  outline: 'none',
+                  fontFamily: 'Inter, system-ui, sans-serif',
+                  transition: 'border-color 0.2s',
+                  boxSizing: 'border-box' as const,
+                }}
               />
             </div>
 
             <button
               type="submit"
-              className="w-full py-3 px-4 rounded-xl text-sm font-semibold text-white"
-              style={{ background: '#028090' }}
+              style={{
+                width: '100%',
+                padding: '13px',
+                borderRadius: 12,
+                background: 'linear-gradient(135deg,#028090,#02C39A)',
+                border: 'none',
+                color: '#fff',
+                fontSize: 15,
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: 'Inter, system-ui, sans-serif',
+                boxShadow: '0 4px 16px rgba(2,128,144,0.3)',
+              }}
             >
               Update password
             </button>
           </form>
 
-          <div className="text-center mt-5">
-            <a href="/login" className="text-sm" style={{ color: '#028090' }}>
-              ← Back to sign in
-            </a>
+          <a
+            href="/login"
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              width: '100%', padding: '12px 16px', borderRadius: 12, marginTop: 12,
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              color: '#94A3B8', fontSize: 14, fontWeight: 600, textDecoration: 'none',
+              boxSizing: 'border-box' as const,
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 5 5 12 12 19"/>
+            </svg>
+            Back to sign in
+          </a>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 20, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <IconLock size={11} color="#64748B" />
+            <p style={{ fontSize: 11, color: '#64748B', margin: 0 }}>256-bit encryption</p>
           </div>
         </div>
       </div>
-
-      <p className="mt-6 text-center" style={{ fontSize: '11px', color: '#94A3B8' }}>
-        VoltDesk AI · Enterprise Platform · v1.0
-      </p>
     </div>
   )
 }

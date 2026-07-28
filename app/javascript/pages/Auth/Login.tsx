@@ -131,9 +131,9 @@ export default function AuthLogin() {
           initial={{ opacity: 0, x: -8 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#475569',fontSize: 12, fontWeight: 600, textDecoration: 'none', fontFamily: 'Inter, system-ui, sans-serif',padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', transition: 'all 0.15s' }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = '#02C39A'; e.currentTarget.style.borderColor = 'rgba(2,195,154,0.3)'; e.currentTarget.style.background = 'rgba(2,195,154,0.05)' }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#94A3B8',fontSize: 12, fontWeight: 600, textDecoration: 'none', fontFamily: 'Inter, system-ui, sans-serif',padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', transition: 'all 0.15s' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#02C39A'; e.currentTarget.style.borderColor = 'rgba(2,195,154,0.3)'; e.currentTarget.style.background = 'rgba(2,195,154,0.05)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = '#94A3B8'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 5 5 12 12 19"/>
@@ -227,33 +227,33 @@ export default function AuthLogin() {
             <IconBrandGoogle size={18} />
             Continue with Google
           </motion.button>
-          <p style={{ textAlign: 'center', fontSize: 11, color: '#334155', marginBottom: 20}}>
-            Use your corporate Google Workspace account
-          </p>
+          <p style={{ textAlign: 'center', fontSize: 11, color: '#64748B', marginBottom: 20}}>
+              Use your corporate Google Workspace account
+            </p>
 
           {/* Divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
             <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
-            <span style={{ fontSize: 11, color: '#334155', fontWeight: 500 }}>Secure enterprise login</span>
+            <span style={{ fontSize: 11, color: '#64748B', fontWeight: 500 }}>Secure enterprise login</span>
             <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
           </div>
 
           {/* Trust badges */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginBottom: 20 }}>
-            {[
-              { icon: <IconShieldCheck size={16} color="#028090" />, label: 'SOC 2 Type II'},
-              { icon: <IconBuilding size={16} color="#028090" />, label: 'Multi-tenant Isolated' },
-              { icon: <IconRobot size={16} color="#028090" />, label: 'AI Audit Log' },
-            ].map((badge) => (
-              <div
-                key={badge.label}
-                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '10px 8px', borderRadius: 10, background: 'rgba(2,128,144,0.06)', border: '1px solid rgba(2,128,144,0.12)' }}
-              >
-                {badge.icon}
-                <span style={{ fontSize: 10, color: '#475569', fontWeight: 600, textAlign:'center' }}>{badge.label}</span>
-              </div>
-            ))}
-          </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 8, marginBottom: 20 }}>
+              {[
+                { icon: <IconShieldCheck size={16} color="#02C39A" />, label: 'SOC 2 Type II'},
+                { icon: <IconBuilding size={16} color="#02C39A" />, label: 'Multi-tenant Isolated' },
+                { icon: <IconRobot size={16} color="#02C39A" />, label: 'AI Audit Log' },
+              ].map((badge) => (
+                <div
+                  key={badge.label}
+                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '10px 8px', borderRadius: 10, background: 'rgba(2,195,154,0.08)', border: '1px solid rgba(2,195,154,0.25)' }}
+                >
+                  {badge.icon}
+                  <span style={{ fontSize: 10, color: '#94A3B8', fontWeight: 600, textAlign:'center' }}>{badge.label}</span>
+                </div>
+              ))}
+            </div>
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', marginBottom: 20 }} />
 
@@ -385,12 +385,12 @@ export default function AuthLogin() {
 
           {/* Footer */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 20, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-            <IconLock size={11} color="#334155" />
-            <p style={{ fontSize: 11, color: '#334155', margin: 0 }}>
+            <IconLock size={11} color="#64748B" />
+            <p style={{ fontSize: 11, color: '#64748B', margin: 0 }}>
               256-bit encryption ·{' '}
-              <a href="#" style={{ color: '#475569', textDecoration: 'none' }}>Terms</a>
+              <a href="#" style={{ color: '#94A3B8', textDecoration: 'none' }}>Terms</a>
               {' · '}
-              <a href="#" style={{ color: '#475569', textDecoration: 'none' }}>Privacy</a>
+              <a href="#" style={{ color: '#94A3B8', textDecoration: 'none' }}>Privacy</a>
             </p>
           </div>
         </div>
@@ -401,7 +401,7 @@ export default function AuthLogin() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
-        style={{ marginTop: 24, fontSize: 12, color: '#475569', textAlign: 'center', position: 'relative', zIndex: 1 }}
+        style={{ marginTop: 24, fontSize: 12, color: '#64748B', textAlign: 'center', position: 'relative', zIndex: 1 }}
       >
         Don't have an account? Contact your workspace administrator.
       </motion.p>
