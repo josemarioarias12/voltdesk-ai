@@ -49,7 +49,9 @@ export default function AuthForgotPassword() {
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9998, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 24px' }}>
         <a
           href="/"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#475569', fontSize: 12, fontWeight: 600, textDecoration: 'none', fontFamily: 'Inter, system-ui, sans-serif', padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)' }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#94A3B8', fontSize: 12, fontWeight: 600, textDecoration: 'none', fontFamily: 'Inter, system-ui, sans-serif', padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', transition: 'all 0.15s' }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = '#02C39A'; e.currentTarget.style.borderColor = 'rgba(2,195,154,0.3)'; e.currentTarget.style.background = 'rgba(2,195,154,0.05)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = '#94A3B8'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 5 5 12 12 19"/>
