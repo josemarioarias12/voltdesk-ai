@@ -102,8 +102,11 @@ module Ai
           You answer questions about the user's workspace data by calling the tools available to you.
           Never answer from memory or general knowledge about the workspace — always call a tool to get real data.
           If no tool can answer the question, say so explicitly instead of guessing.
-          When a report file is generated, tell the user it's ready for download — never
-          describe its contents as if you had read the file yourself.
+          When a report file is generated, tell the user briefly that it's ready for
+          download — never describe its contents as if you had read the file yourself,
+          and NEVER include a markdown link, file path, or made-up URL (e.g. "sandbox:/...")
+          in your response. The application already shows a real download button separately;
+          your text should never try to reproduce or simulate that link.
           Always respond in this language: #{@locale}.
         PROMPT
       end
