@@ -223,7 +223,7 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
               </div>
 
               {/* Provider Cards */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {Object.entries(PROVIDER_LABELS).map(([p, label]) => {
                   const isActive = provider === p
                   const dot = PROVIDER_COLORS[p]
@@ -257,7 +257,7 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: '#0F172A' }}>
                   Model — {provider} has {availableModels.length} models</label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {availableModels.map(m => (
                     <button
                       key={m}
@@ -365,7 +365,7 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
 
               {assistantProvider && (
                 <>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {Object.entries(PROVIDER_LABELS).map(([p, label]) => {
                       const isActive = assistantProvider === p
                       const dot = PROVIDER_COLORS[p]
@@ -398,7 +398,7 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
                     <label className="block text-sm font-medium mb-2" style={{ color: '#0F172A' }}>
                       Assistant model
                     </label>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {assistantAvailableModels.map(m => (
                         <button
                           key={m}
@@ -423,7 +423,7 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
             {/* Cost Comparison Table */}
             <div className="rounded-2xl border p-6" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
               <h2 className="text-base font-semibold mb-4" style={{ color: '#0F172A' }}>Cost Comparison — All Models</h2>
-              <div className="overflow-hidden rounded-xl border" style={{ borderColor: '#E2E8F0' }}>
+              <div className="overflow-x-auto rounded-xl border" style={{ borderColor: '#E2E8F0' }}>
                 <table className="w-full text-sm">
                   <thead>
                     <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
@@ -583,7 +583,7 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
               <p className="text-sm mb-4" style={{ color: '#475569' }}>
                 Only tickets in selected categories are eligible for AI auto-resolution.
               </p>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {ticket_categories.map(cat => {
                   const isSelected = categories.includes(cat)
                   return (
