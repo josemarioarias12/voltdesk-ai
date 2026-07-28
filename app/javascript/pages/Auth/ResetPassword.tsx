@@ -150,26 +150,35 @@ export default function AuthResetPassword() {
               <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 8 }}>
                 Confirm password
               </label>
-              <input
-                {...register('password_confirmation')}
-                type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••"
-                onFocus={() => setConfirmFocus(true)}
-                onBlur={() => setConfirmFocus(false)}
-                style={{
-                  width: '100%',
-                  padding: '11px 14px',
-                  borderRadius: 10,
-                  border: `1px solid ${confirmFocus ? '#028090' : 'rgba(255,255,255,0.08)'}`,
-                  background: 'rgba(255,255,255,0.04)',
-                  color: '#fff',
-                  fontSize: 14,
-                  outline: 'none',
-                  fontFamily: 'Inter, system-ui, sans-serif',
-                  transition: 'border-color 0.2s',
-                  boxSizing: 'border-box' as const,
-                }}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  {...register('password_confirmation')}
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  onFocus={() => setConfirmFocus(true)}
+                  onBlur={() => setConfirmFocus(false)}
+                  style={{
+                    width: '100%',
+                    padding: '11px 42px 11px 14px',
+                    borderRadius: 10,
+                    border: `1px solid ${confirmFocus ? '#028090' : 'rgba(255,255,255,0.08)'}`,
+                    background: 'rgba(255,255,255,0.04)',
+                    color: '#fff',
+                    fontSize: 14,
+                    outline: 'none',
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                    transition: 'border-color 0.2s',
+                    boxSizing: 'border-box' as const,
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#334155', display: 'flex', padding: 0 }}
+                >
+                  {showPassword ? <IconEyeOff size={16} /> : <IconEye size={16} />}
+                </button>
+              </div>
             </div>
 
             <button
