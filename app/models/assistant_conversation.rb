@@ -18,6 +18,16 @@ class AssistantConversation < ApplicationRecord
   end
 
   def activate!
-    touch
+    self.class.active.where(workspace: workspace, user: user).where.not(id: id)
+        .update_all(archived_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
+    update!(archived_at: nil, updated_at: Time.current)
+  end
+
+  def ensure_title!(content)
+    return if title.present?
+
+    cleaned    = content.strip
+    formatted  = cleaned[0].upcase + cleaned[1..]
+    update!(title: formatted.truncate(60))
   end
 end

@@ -88,5 +88,44 @@ RSpec.describe AssistantConversationsController, type: :request do
 
       expect(response).to have_http_status(:not_found)
     end
+
+    it 'unarchives the conversation' do
+      conversation = create(:assistant_conversation, :archived, workspace: workspace, user: user)
+
+      patch activate_assistant_conversation_path(conversation)
+
+      expect(conversation.reload.archived_at).to be_nil
+    end
+  end
+
+  describe 'GET /assistant/conversation pagination' do
+    before { sign_in user }
+
+    it 'returns has_more true and only the last 30 messages when there are more' do
+      conversation = AssistantConversation.current_for(user: user, workspace: workspace)
+      35.times { |i| create(:assistant_message, assistant_conversation: conversation, content: "msg #{i}") }
+
+      get assistant_conversation_path
+      json = response.parsed_body
+
+      expect(json['has_more']).to be true
+      expect(json['messages'].size).to eq(30)
+    end
+  end
+
+  describe 'GET /assistant/conversations/:id/messages' do
+    before { sign_in user }
+
+    it 'returns the page before the given message id' do
+      conversation = AssistantConversation.current_for(user: user, workspace: workspace)
+      created = Array.new(35) { |i| create(:assistant_message, assistant_conversation: conversation, content: "msg #{i}") }
+      cutoff  = created[5].id
+
+      get assistant_conversation_messages_path(conversation), params: { before_id: cutoff }
+      json = response.parsed_body
+
+      expect(json['messages'].pluck('id')).to eq(created[0..4].map(&:id))
+      expect(json['has_more']).to be false
+    end
   end
 end

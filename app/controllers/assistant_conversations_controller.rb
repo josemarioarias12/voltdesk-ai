@@ -3,6 +3,8 @@
 class AssistantConversationsController < ApplicationController
   include JsonErrorHandling
 
+  MESSAGES_PAGE_SIZE = 30
+
   def index
     authorize AssistantConversation
     conversations = policy_scope(AssistantConversation).order(updated_at: :desc)
@@ -26,6 +28,22 @@ class AssistantConversationsController < ApplicationController
     render json: conversation_payload(conversation)
   end
 
+  def update
+    conversation = policy_scope(AssistantConversation).find(params.expect(:id))
+    authorize conversation, :update?
+
+    conversation.update!(title: params[:title].to_s.strip.presence&.truncate(60))
+    render json: serialize_conversation(conversation)
+  end
+
+  def destroy
+    conversation = policy_scope(AssistantConversation).find(params.expect(:id))
+    authorize conversation, :update?
+    conversation.archive!
+
+    render json: { archived: true }
+  end
+
   def activate
     conversation = policy_scope(AssistantConversation).find(params.expect(:id))
     authorize conversation, :activate?
@@ -34,12 +52,31 @@ class AssistantConversationsController < ApplicationController
     render json: conversation_payload(conversation)
   end
 
+  def messages
+    conversation = policy_scope(AssistantConversation).find(params.expect(:id))
+    authorize conversation, :show?
+
+    scope = conversation.assistant_messages.order(id: :desc)
+    scope = scope.where(id: ...params[:before_id].to_i) if params[:before_id].present?
+
+    page     = scope.limit(MESSAGES_PAGE_SIZE + 1).to_a
+    has_more = page.size > MESSAGES_PAGE_SIZE
+    ordered  = page.first(MESSAGES_PAGE_SIZE).reverse
+
+    render json: { messages: ordered.map { |m| serialize_message(m) }, has_more: has_more }
+  end
+
   private
 
   def conversation_payload(conversation)
+    page     = conversation.assistant_messages.order(id: :desc).limit(MESSAGES_PAGE_SIZE + 1).to_a
+    has_more = page.size > MESSAGES_PAGE_SIZE
+    ordered  = page.first(MESSAGES_PAGE_SIZE).reverse
+
     {
       conversation_id: conversation.id,
-      messages: conversation.assistant_messages.order(:created_at).map { |m| serialize_message(m) }
+      messages: ordered.map { |m| serialize_message(m) },
+      has_more: has_more
     }
   end
 

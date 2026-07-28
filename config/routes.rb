@@ -58,11 +58,18 @@ Rails.application.routes.draw do
   patch '/settings/automation', to: 'settings#update_automation', as: :settings_automation
 
   # ── Volt Copilot ─────────────────────────────────────────────────────────
-  get   '/assistant/conversation',              to: 'assistant_conversations#show',     as: :assistant_conversation
-  get   '/assistant/conversations',              to: 'assistant_conversations#index',    as: :assistant_conversations
-  post  '/assistant/conversations',              to: 'assistant_conversations#create'
-  patch '/assistant/conversations/:id/activate', to: 'assistant_conversations#activate', as: :activate_assistant_conversation
-  post  '/assistant/messages',                   to: 'assistant_messages#create',        as: :assistant_messages
+  get    '/assistant/conversation', to: 'assistant_conversations#show', as: :assistant_conversation
+  get    '/assistant/conversations', to: 'assistant_conversations#index', as: :assistant_conversations
+  post   '/assistant/conversations', to: 'assistant_conversations#create'
+  patch  '/assistant/conversations/:id', to: 'assistant_conversations#update', as: :update_assistant_conversation
+  delete '/assistant/conversations/:id', to: 'assistant_conversations#destroy', as: :destroy_assistant_conversation
+  patch  '/assistant/conversations/:id/activate',
+         to: 'assistant_conversations#activate',
+         as: :activate_assistant_conversation
+  get    '/assistant/conversations/:id/messages',
+         to: 'assistant_conversations#messages',
+         as: :assistant_conversation_messages
+  post   '/assistant/messages', to: 'assistant_messages#create', as: :assistant_messages
 
   #  HR Operations Hub ──────────────────────────────────────────────────
   get '/hr', to: redirect('/hr/leave_requests'), as: :hr_root

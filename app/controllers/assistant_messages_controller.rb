@@ -10,6 +10,8 @@ class AssistantMessagesController < ApplicationController
     content = params[:content].to_s.strip
     return render json: { error: 'blank_message' }, status: :unprocessable_content if content.blank?
 
+    conversation.ensure_title!(content)
+
     result = Ai::WorkspaceAssistant::HandleQuery.call(
       conversation: conversation,
       user: current_user,
