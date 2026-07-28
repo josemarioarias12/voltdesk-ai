@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useWebAuthn } from '@/hooks/useWebAuthn'
+import { getPlatformAuthenticatorName } from '@/utils/platformAuthLabel'
 import { IconFaceId } from '@/components/Icons'
 
 const TEAL = '#028090'
@@ -10,6 +11,7 @@ export default function FaceIdPrompt({ show }: { show: boolean }) {
   const [dismissed, setDismissed] = useState(false)
   const [activated, setActivated] = useState(false)
   const { isSupported, status, registerPasskey } = useWebAuthn()
+  const platformAuthName = useMemo(() => getPlatformAuthenticatorName(), [])
 
   const visible = show && isSupported && !dismissed && !activated
 
@@ -35,7 +37,7 @@ export default function FaceIdPrompt({ show }: { show: boolean }) {
         >
           <IconFaceId size={20} color={MINT} />
           <p style={{ flex: 1, fontSize: 13, color: '#0D1B2A', margin: 0, fontWeight: 500 }}>
-            Sign in faster next time with Face ID
+            Sign in faster next time with {platformAuthName}
           </p>
           <button
             type="button"

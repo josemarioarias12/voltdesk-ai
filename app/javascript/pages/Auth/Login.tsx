@@ -1,9 +1,10 @@
 import { SharedProps } from '@/types'
 import { useForm } from 'react-hook-form'
 import { usePage } from '@inertiajs/react'
-import { useState, useRef } from 'react'
+import { useMemo, useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useWebAuthn } from '@/hooks/useWebAuthn'
+import { getPlatformAuthenticatorName } from '@/utils/platformAuthLabel'
 import {
   IconBrandGoogle,
   IconShieldCheck,
@@ -33,6 +34,7 @@ export default function AuthLogin() {
   const [faceIdHint, setFaceIdHint] = useState<string | null>(null)
 
   const { isSupported, status, errorMessage, authenticateWithPasskey } = useWebAuthn()
+  const platformAuthName = useMemo(() => getPlatformAuthenticatorName(), [])
 
   const getCsrfToken = () =>
     document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? ''
@@ -129,7 +131,7 @@ export default function AuthLogin() {
           initial={{ opacity: 0, x: -8 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#475569', fontSize: 12, fontWeight: 600, textDecoration: 'none', fontFamily: 'Inter, system-ui, sans-serif', padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', transition: 'all 0.15s' }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#475569',fontSize: 12, fontWeight: 600, textDecoration: 'none', fontFamily: 'Inter, system-ui, sans-serif',padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', transition: 'all 0.15s' }}
           onMouseEnter={(e) => { e.currentTarget.style.color = '#02C39A'; e.currentTarget.style.borderColor = 'rgba(2,195,154,0.3)'; e.currentTarget.style.background = 'rgba(2,195,154,0.05)' }}
           onMouseLeave={(e) => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}
         >
@@ -248,7 +250,7 @@ export default function AuthLogin() {
                 style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '10px 8px', borderRadius: 10, background: 'rgba(2,128,144,0.06)', border: '1px solid rgba(2,128,144,0.12)' }}
               >
                 {badge.icon}
-                <span style={{ fontSize: 10, color: '#475569', fontWeight: 600, textAlign: 'center' }}>{badge.label}</span>
+                <span style={{ fontSize: 10, color: '#475569', fontWeight: 600, textAlign:'center' }}>{badge.label}</span>
               </div>
             ))}
           </div>
@@ -371,7 +373,7 @@ export default function AuthLogin() {
                 }}
               >
                 <IconFaceId size={18} color="#02C39A" />
-                {status === 'in_progress' ? 'Verifying…' : 'Sign in with Face ID'}
+                {status === 'in_progress' ? 'Verifying…' : `Sign in with ${platformAuthName}`}
               </motion.button>
               {(faceIdHint || errorMessage) && (
                 <p style={{ textAlign: 'center', fontSize: 11, color: '#F97316', marginTop: 8 }}>
