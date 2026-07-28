@@ -14,6 +14,22 @@ class AssistantConversationsController < ApplicationController
   private
 
   def serialize_message(message)
-    { id: message.id, role: message.role, content: message.content, created_at: message.created_at.iso8601 }
+    {
+      id: message.id,
+      role: message.role,
+      content: message.content,
+      created_at: message.created_at.iso8601,
+      report: report_payload(message)
+    }
+  end
+
+  def report_payload(message)
+    return nil unless message.report_file.attached?
+
+    {
+      url: url_for(message.report_file),
+      filename: message.report_file.filename.to_s,
+      content_type: message.report_file.content_type
+    }
   end
 end

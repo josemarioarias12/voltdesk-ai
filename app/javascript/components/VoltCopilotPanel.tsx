@@ -1,17 +1,49 @@
 import { useState, useRef, useEffect, useCallback, KeyboardEvent } from 'react'
-import { X, Send, Loader2, Sparkles } from 'lucide-react'
+import { X, Send, Loader2, Sparkles, Download, FileSpreadsheet, FileText, FileSpreadsheet as FileCsv } from 'lucide-react'
 import { toast } from 'sonner'
 import { IconBolt } from '@/components/Icons'
+
+interface ReportAttachment {
+  url: string
+  filename: string
+  content_type: string
+}
 
 interface AssistantMessage {
   id: number | string
   role: 'user' | 'assistant'
   content: string
+  report?: ReportAttachment | null
 }
 
 const DEFAULT_WIDTH = 380
 const MIN_WIDTH = 320
 const MAX_WIDTH = 520
+
+const REPORT_KIND_MAP: Record<string, { label: string; color: string; icon: 'pdf' | 'xlsx' | 'csv' }> = {
+  'application/pdf': { label: 'PDF Document', color: '#DC2626', icon: 'pdf' },
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': { label: 'Excel Spreadsheet', color: '#16A34A', icon: 'xlsx' },
+  'text/csv': { label: 'CSV File', color: '#0284C7', icon: 'csv' },
+}
+
+function reportKindLabel(contentType: string): string {
+  return REPORT_KIND_MAP[contentType]?.label ?? 'File'
+}
+
+function ReportFileIcon({ contentType }: { contentType: string }) {
+  const kind = REPORT_KIND_MAP[contentType]
+  const color = kind?.color ?? '#94A3B8'
+  const Icon = kind?.icon === 'pdf' ? FileText : kind?.icon === 'xlsx' ? FileSpreadsheet : FileCsv
+
+  return (
+    <div
+      className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+      style={{ background: `${color}1A` }}
+    >
+      <Icon size={17} color={color} />
+    </div>
+  )
+}
 
 function csrfToken(): string {
   return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? ''
@@ -96,7 +128,10 @@ export default function VoltCopilotPanel() {
         return
       }
 
-      setMessages(prev => [...prev, { id: `local-${Date.now()}-a`, role: 'assistant', content: data.content }])
+      setMessages(prev => [
+        ...prev,
+        { id: `local-${Date.now()}-a`, role: 'assistant', content: data.content, report: data.report },
+      ])
     } catch {
       toast.error('Network error — Volt Copilot did not respond.')
     } finally {
@@ -195,17 +230,36 @@ export default function VoltCopilotPanel() {
           )}
 
           {messages.map(message => (
-            <div
-              key={message.id}
-              className="max-w-[85%] px-3 py-2 rounded-2xl text-sm"
-              style={{
-                marginLeft: message.role === 'user' ? 'auto' : '0',
-                background: message.role === 'user' ? '#028090' : '#F8FAFC',
-                color: message.role === 'user' ? '#fff' : '#0D1B2A',
-                border: message.role === 'user' ? 'none' : '1px solid rgba(15,23,42,0.08)',
-              }}
-            >
-              {message.content}
+            <div key={message.id} className="max-w-[85%]" style={{ marginLeft: message.role === 'user' ? 'auto' : '0' }}>
+              <div
+                className="px-3 py-2 rounded-2xl text-sm"
+                style={{
+                  background: message.role === 'user' ? '#028090' : '#F8FAFC',
+                  color: message.role === 'user' ? '#fff' : '#0D1B2A',
+                  border: message.role === 'user' ? 'none' : '1px solid rgba(15,23,42,0.08)',
+                }}
+              >
+                {message.content}
+              </div>
+              {message.report && (
+                  <a
+                  href={message.report.url}
+                  download={message.report.filename}
+                  className="flex items-center gap-3 mt-1.5 p-3 rounded-xl transition-colors hover:bg-black/[0.02]"
+                  style={{ background: '#fff', border: '1px solid rgba(15,23,42,0.08)', textDecoration: 'none' }}
+                >
+                  <ReportFileIcon contentType={message.report.content_type} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium truncate" style={{ color: '#0D1B2A' }}>
+                      {message.report.filename}
+                    </p>
+                    <p className="text-xs" style={{ color: '#94A3B8' }}>
+                      {reportKindLabel(message.report.content_type)}
+                    </p>
+                  </div>
+                  <Download size={16} style={{ color: '#028090', flexShrink: 0 }} />
+                </a>
+              )}
             </div>
           ))}
 
