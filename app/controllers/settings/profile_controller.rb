@@ -18,7 +18,7 @@ module Settings
     private
 
     def profile_params
-      params.permit(:first_name, :last_name, :avatar)
+      params.permit(:first_name, :last_name, :avatar, :remove_avatar)
     end
   end
 end

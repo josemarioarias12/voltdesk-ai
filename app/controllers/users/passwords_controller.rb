@@ -26,8 +26,7 @@ module Users
       self.resource = resource_class.reset_password_by_token(resource_params)
 
       if resource.errors.empty?
-        sign_in(resource_name, resource)
-        redirect_to root_path, notice: t('devise.passwords.updated')
+        redirect_to login_page_path, notice: 'Password updated. Please sign in with your new password.'
       else
         redirect_to edit_user_password_path(reset_password_token: resource_params[:reset_password_token]),
                     alert: resource.errors.full_messages.join(', ')

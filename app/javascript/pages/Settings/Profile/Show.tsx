@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useForm } from '@inertiajs/react'
+import { router, useForm } from '@inertiajs/react'
 import AppLayout from '@/components/AppLayout'
 import SettingsTabs from '@/components/SettingsTabs'
 import Avatar from '@/components/Avatar'
@@ -42,6 +42,14 @@ export default function ProfileShow({ user }: Props) {
     setPreviewUrl(URL.createObjectURL(file))
   }
 
+  function handleRemoveAvatar() {
+    if (!confirm('Remove your profile photo?')) return
+    setPreviewUrl(null)
+    router.patch('/settings/profile', { remove_avatar: true }, {
+      headers: { 'X-CSRF-Token': csrfToken() },
+    })
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     patch('/settings/profile', {
@@ -70,27 +78,47 @@ export default function ProfileShow({ user }: Props) {
             padding:      '24px',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '28px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '28px', flexWrap: 'wrap' }}>
             <label htmlFor="avatar-upload" style={{ cursor: 'pointer' }}>
               <Avatar avatarUrl={previewUrl ?? user.avatar_url} firstName={user.first_name} size={72} />
             </label>
             <div>
-              <label
-                htmlFor="avatar-upload"
-                style={{
-                  display:      'inline-block',
-                  background:   'transparent',
-                  border:       '1px solid #E2E8F0',
-                  borderRadius: '8px',
-                  padding:      '8px 14px',
-                  fontSize:     '13px',
-                  fontWeight:   600,
-                  color:        '#028090',
-                  cursor:       'pointer',
-                }}
-              >
-                Upload Photo
-              </label>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <label
+                  htmlFor="avatar-upload"
+                  style={{
+                    display:      'inline-block',
+                    background:   'transparent',
+                    border:       '1px solid #E2E8F0',
+                    borderRadius: '8px',
+                    padding:      '8px 14px',
+                    fontSize:     '13px',
+                    fontWeight:   600,
+                    color:        '#028090',
+                    cursor:       'pointer',
+                  }}
+                >
+                  Upload Photo
+                </label>
+                {(previewUrl ?? user.avatar_url) && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveAvatar}
+                    style={{
+                      background:   'transparent',
+                      border:       '1px solid #FECACA',
+                      borderRadius: '8px',
+                      padding:      '8px 14px',
+                      fontSize:     '13px',
+                      fontWeight:   600,
+                      color:        '#DC2626',
+                      cursor:       'pointer',
+                    }}
+                  >
+                    Remove Photo
+                  </button>
+                )}
+              </div>
               <input
                 id="avatar-upload"
                 type="file"
