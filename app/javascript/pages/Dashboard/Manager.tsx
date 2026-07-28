@@ -101,24 +101,24 @@ export default function ManagerDashboard({ metrics }: Props) {
     <ErrorBoundary section="Manager Dashboard">
       <div style={{ maxWidth: '1100px' }}>
 
-        {/* ── Dark hero header ── */}
+        {/* ── Hero header ── */}
         <motion.div
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: 'easeOut' }}
           style={{
-            background: '#0D1B2A', borderRadius: '16px', padding: '28px 32px',
-            marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            ...card, borderTop: '3px solid #028090', padding: '28px 32px',
+            marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px',
           }}
         >
           <div>
-            <p style={{ fontSize: '11px', color: '#02C39A', letterSpacing: '0.12em', fontWeight: 700, margin: '0 0 6px', textTransform: 'uppercase' }}>
+            <p style={{ fontSize: '11px', color: '#028090', letterSpacing: '0.12em', fontWeight: 700, margin: '0 0 6px', textTransform: 'uppercase' }}>
               Operations · Week of {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
             </p>
-            <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#fff', margin: '0 0 6px', letterSpacing: '-0.4px' }}>
+            <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#0F172A', margin: '0 0 6px', letterSpacing: '-0.4px' }}>
               Team Dashboard
             </h1>
-            <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0 }}>
+            <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>
               {metrics.tickets_breached.length > 0 || metrics.tickets_at_risk.length > 0 ? (
                 <>
                   {metrics.tickets_breached.length > 0 && (
@@ -133,14 +133,14 @@ export default function ManagerDashboard({ metrics }: Props) {
               ) : "All tickets within SLA. Great work, team!"}
             </p>
           </div>
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <motion.div
               initial={{ opacity: 0, scale: 0.85 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.3 }}
               style={{
-                background: metrics.tickets_breached.length > 0 ? 'rgba(239,68,68,0.12)' : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${metrics.tickets_breached.length > 0 ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                background: metrics.tickets_breached.length > 0 ? '#FEF2F2' : '#F8FAFC',
+                border: `1px solid ${metrics.tickets_breached.length > 0 ? '#FECACA' : '#E2E8F0'}`,
                 borderRadius: '12px', padding: '12px 20px', textAlign: 'center', minWidth: '76px',
               }}
             >
@@ -154,12 +154,12 @@ export default function ManagerDashboard({ metrics }: Props) {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.28, duration: 0.3 }}
               style={{
-                background: metrics.tickets_at_risk.length > 0 ? 'rgba(249,115,22,0.12)' : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${metrics.tickets_at_risk.length > 0 ? 'rgba(249,115,22,0.25)' : 'rgba(255,255,255,0.08)'}`,
+                background: metrics.tickets_at_risk.length > 0 ? '#FFF7ED' : '#F8FAFC',
+                border: `1px solid ${metrics.tickets_at_risk.length > 0 ? '#FED7AA' : '#E2E8F0'}`,
                 borderRadius: '12px', padding: '12px 20px', textAlign: 'center', minWidth: '76px',
               }}
             >
-              <p style={{ fontSize: '24px', fontWeight: 700, color: metrics.tickets_at_risk.length > 0 ? '#F97316' : '#475569', margin: 0, lineHeight: 1 }}>
+              <p style={{ fontSize: '24px', fontWeight: 700, color: metrics.tickets_at_risk.length> 0 ? '#F97316' : '#475569', margin: 0, lineHeight: 1 }}>
                 {metrics.tickets_at_risk.length}
               </p>
               <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>At Risk</p>
@@ -307,7 +307,8 @@ export default function ManagerDashboard({ metrics }: Props) {
                 ))}
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '32px repeat(7, 1fr)', gap: '2px' }}>
+            <div style={{ overflowX: 'auto' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '32px repeat(7, 1fr)', gap: '2px', minWidth: '480px' }}>
               <div />
               {DAYS.map(d => (
                 <div key={d} style={{ fontSize: '11px', color: '#94A3B8', textAlign: 'center', paddingBottom: '4px', fontWeight: 600 }}>{d}</div>
@@ -340,6 +341,7 @@ export default function ManagerDashboard({ metrics }: Props) {
                   })}
                 </>
               ))}
+            </div>
             </div>
           </div>
         </motion.div>

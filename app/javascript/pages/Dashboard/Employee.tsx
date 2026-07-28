@@ -128,46 +128,48 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
     <ErrorBoundary section="Employee Dashboard">
       <div style={{ maxWidth: '1020px' }}>
 
-        {/* ── Dark hero header ── */}
+        {/* ── Hero header ── */}
         <motion.div
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: 'easeOut' }}
           style={{
-            background: '#0D1B2A',
-            borderRadius: '16px',
+            ...card,
+            borderTop: '3px solid #028090',
             padding: '28px 32px',
             marginBottom: '20px',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '16px',
           }}
         >
           <div>
-            <p style={{ fontSize: '11px', color: '#02C39A', letterSpacing: '0.12em', fontWeight: 700, margin: '0 0 6px', textTransform: 'uppercase' }}>
+            <p style={{ fontSize: '11px', color: '#028090', letterSpacing: '0.12em', fontWeight: 700, margin: '0 0 6px', textTransform: 'uppercase' }}>
               {dateLabel}
             </p>
-            <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#fff', margin: '0 0 6px', letterSpacing: '-0.4px' }}>
+            <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#0F172A', margin: '0 0 6px', letterSpacing: '-0.4px' }}>
               {greeting}, {user.first_name}.
             </h1>
-            <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0 }}>
+            <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>
               {metrics.tickets.open > 0
-                ? <>You have <span style={{ color: '#02C39A', fontWeight: 600 }}>{metrics.tickets.open} open ticket{metrics.tickets.open !== 1 ? 's' : ''}</span>{metrics.leave_requests.pending > 0 ? <> and <span style={{ color: '#F97316', fontWeight: 600 }}>{metrics.leave_requests.pending} pending request</span></> : ''} today.</>
+                ? <>You have <span style={{ color: '#028090', fontWeight: 600 }}>{metrics.tickets.open} open ticket{metrics.tickets.open !== 1 ? 's' : ''}</span>{metrics.leave_requests.pending > 0 ? <> and <span style={{ color: '#F97316', fontWeight: 600 }}>{metrics.leave_requests.pending} pending request</span></> : ''} today.</>
                 : "You're all caught up. Great work!"}
             </p>
           </div>
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <motion.div
               initial={{ opacity: 0, scale: 0.85 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.3 }}
               style={{
-                background: metrics.tickets.open > 0 ? 'rgba(2,128,144,0.15)' : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${metrics.tickets.open > 0 ? 'rgba(2,195,154,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                background: metrics.tickets.open > 0 ? '#F0FDFA' : '#F8FAFC',
+                border: `1px solid ${metrics.tickets.open > 0 ? '#99F6E4' : '#E2E8F0'}`,
                 borderRadius: '12px', padding: '12px 20px', textAlign: 'center', minWidth: '76px',
               }}
             >
-              <p style={{ fontSize: '24px', fontWeight: 700, color: metrics.tickets.open > 0 ? '#02C39A' : '#475569', margin: 0, lineHeight: 1 }}>
+              <p style={{ fontSize: '24px', fontWeight: 700, color: metrics.tickets.open > 0 ? '#028090' : '#475569', margin: 0, lineHeight: 1 }}>
                 {metrics.tickets.open}
               </p>
               <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Tickets</p>
@@ -178,12 +180,12 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.28, duration: 0.3 }}
               style={{
-                background: metrics.leave_requests.pending > 0 ? 'rgba(249,115,22,0.12)' : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${metrics.leave_requests.pending > 0 ? 'rgba(249,115,22,0.25)' : 'rgba(255,255,255,0.08)'}`,
+                background: metrics.leave_requests.pending > 0 ? '#FFF7ED' : '#F8FAFC',
+                border: `1px solid ${metrics.leave_requests.pending > 0 ? '#FED7AA' : '#E2E8F0'}`,
                 borderRadius: '12px', padding: '12px 20px', textAlign: 'center', minWidth: '76px',
               }}
             >
-              <p style={{ fontSize: '24px', fontWeight: 700, color: metrics.leave_requests.pending > 0 ? '#F97316' : '#475569', margin: 0, lineHeight: 1 }}>
+              <p style={{ fontSize: '24px', fontWeight: 700, color: metrics.leave_requests.pending> 0 ? '#F97316' : '#475569', margin: 0, lineHeight: 1 }}>
                 {metrics.leave_requests.pending}
               </p>
               <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Leave</p>
