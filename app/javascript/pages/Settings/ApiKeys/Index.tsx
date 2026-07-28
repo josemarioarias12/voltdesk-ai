@@ -79,7 +79,7 @@ export default function ApiKeysIndex({ api_keys, new_token }: Props) {
         <SettingsTabs active="api_keys" />
 
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1 className="text-2xl font-bold" style={{ color: SLATE }}>API Keys</h1>
             <p className="text-sm mt-1" style={{ color: GRAY }}>Manage external integrations and API access</p>
@@ -124,8 +124,8 @@ export default function ApiKeysIndex({ api_keys, new_token }: Props) {
         </div>
 
         {/* Keys table */}
-        <div className="rounded-2xl border overflow-hidden" style={{ background: '#fff', borderColor: BORDER, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-          <table className="w-full text-sm">
+        <div className="rounded-2xl border overflow-x-auto" style={{ background: '#fff', borderColor: BORDER, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+          <table className="w-full text-sm" style={{ minWidth: '640px' }}>
             <thead>
               <tr style={{ background: LIGHT, borderBottom: `1px solid ${BORDER}` }}>
                 {['Name', 'Key', 'Scopes', 'Last Used', 'Status', 'Actions'].map(h => (
@@ -179,7 +179,7 @@ export default function ApiKeysIndex({ api_keys, new_token }: Props) {
 
         {/* Create Modal */}
         {showModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.4)' }}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: 'rgba(0,0,0,0.4)' }}>
             <div className="rounded-2xl p-6 w-full max-w-md space-y-5" style={{ background: '#fff', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold" style={{ color: SLATE }}>Create API Key</h2>
