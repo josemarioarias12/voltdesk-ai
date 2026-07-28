@@ -127,15 +127,14 @@ export default function LandingPage() {
           <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}
             style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 24 }}>
             {FEATURES.map((feature) => (
-              <motion.a
+              <motion.div
                 key={feature.title}
-                href={feature.href}
                 variants={fadeUp}
                 whileHover="hover"
                 initial="rest"
                 animate="rest"
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                style={{ background: "#fff", borderRadius: 16, padding: 28, border: "1px solid #e2e8f0", textDecoration: "none", display: "flex", flexDirection: "column", cursor: "pointer", position: "relative", overflow: "hidden" }}
+                style={{ background: "#fff", borderRadius: 16, padding: 28, border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}
               >
                 {/* Hover background gradient */}
                 <motion.div
@@ -173,18 +172,7 @@ export default function LandingPage() {
                 </div>
                 <h3 style={{ fontSize: 17, fontWeight: 700, color: "#0f172a", marginBottom: 8 }}>{feature.title}</h3>
                 <p style={{ color: "#64748b", fontSize: 15, lineHeight: 1.65, margin: 0, flex: 1 }}>{feature.description}</p>
-                {/* Arrow */}
-                <motion.div
-                  variants={{ rest: { opacity: 0, x: -6 }, hover: { opacity: 1, x: 0 } }}
-                  transition={{ duration: 0.2 }}
-                  style={{ marginTop: 20, display: "flex", alignItems: "center", gap: 6, color: "#028090", fontSize: 13, fontWeight: 600 }}
-                >
-                  Explore feature
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-                  </svg>
-                </motion.div>
-              </motion.a>
+              </motion.div>
             ))}
           </motion.div>
         </div>
@@ -388,11 +376,9 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section style={{ background: "linear-gradient(160deg, #0a2a30 0%, #028090 40%, #02C39A 100%)", padding: "120px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 30% 50%, rgba(255,255,255,0.07) 0%, transparent 60%)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 80% 20%, rgba(0,0,0,0.1) 0%, transparent 50%)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", top: "20%", left: "10%", width: 300, height: 300, background: "radial-gradient(ellipse, rgba(2,128,144,0.08) 0%, transparent 70%)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", bottom: "20%", right: "10%", width: 250, height: 250, background: "radial-gradient(ellipse, rgba(2,195,154,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
+      <section style={{ background: "#0D1B2A", padding: "120px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(2,128,144,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(2,128,144,0.04) 1px, transparent 1px)", backgroundSize: "48px 48px", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", width: 700, height: 500, background: "radial-gradient(ellipse, rgba(2,195,154,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
         <div style={{ position: "relative", maxWidth: 700, margin: "0 auto" }}>
           <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.05 }}
             style={{ fontSize: "clamp(32px,5vw,64px)", fontWeight: 800, color: "#fff", marginBottom: 20, letterSpacing: "-0.03em", lineHeight: 1.1 }}>
@@ -400,7 +386,7 @@ export default function LandingPage() {
             <span style={{ color: "#fff" }}>Start commanding it.</span>
           </motion.h2>
           <motion.p initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
-            style={{ color: "rgba(255,255,255,0.82)", fontSize: 18, marginBottom: 48, lineHeight: 1.7 }}>
+            style={{ color: "#94a3b8", fontSize: 18, marginBottom: 48, lineHeight: 1.7 }}>
             VoltDesk AI gives your team the intelligence layer<br />to classify, predict, and act — automatically.
           </motion.p>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }}
@@ -419,7 +405,7 @@ export default function LandingPage() {
             {[["< 3s", "AI Classification"], ["SOC 2", "Ready"], ["3", "AI Providers"], ["Full", "Audit Trail"]].map(([value, label]) => (
               <div key={label} style={{ textAlign: "center" }}>
                 <p style={{ color: "#fff", fontSize: 20, fontWeight: 800, letterSpacing: "-0.02em" }}>{value}</p>
-                <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 13, marginTop: 2 }}>{label}</p>
+                <p style={{ color: "#64748b", fontSize: 13, marginTop: 2 }}>{label}</p>
               </div>
             ))}
           </motion.div>

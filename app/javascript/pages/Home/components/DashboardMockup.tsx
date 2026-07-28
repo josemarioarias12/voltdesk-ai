@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, useSpring, useMotionValue } from "framer-motion";
 import SparklineChart from "./SparklineChart";
+import { IconBolt } from "@/components/Icons";
 
 export default function DashboardMockup() {
   const [activeKpi, setActiveKpi] = useState<number | null>(null);
@@ -86,14 +87,14 @@ export default function DashboardMockup() {
                 transition={{ duration: 0.5 }}
                 style={{ width: 6, height: 6, borderRadius: "50%", background: "#02C39A", flexShrink: 0 }}
               />
-              app.voltdesk.app
+              voltdesk.app
             </div>
           </div>
 
           <div style={{ display: "flex", minHeight: 300 }}>
             {/* Sidebar */}
             <div style={{ width: 52, background: "#0a1520", borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 0", gap: 16 }}>
-              <div style={{ width: 28, height: 28, borderRadius: 8, background: "linear-gradient(135deg,#028090,#02C39A)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 13, fontWeight: 700 }}>P</div>
+              <div style={{ width: 28, height: 28, borderRadius: 8, background: "linear-gradient(135deg,#028090,#02C39A)", display: "flex", alignItems: "center", justifyContent: "center" }}><IconBolt size={14} color="#fff" /></div>
               {["▦", "☰", "👤", "◉", "📊", "⚙"].map((ic, i) => (
                 <motion.div key={i} whileHover={{ scale: 1.15 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}
                   style={{ width: 28, height: 28, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, background: i === 0 ? "rgba(2,128,144,0.25)" : "transparent", color: i === 0 ? "#02C39A" : "#475569", cursor: "pointer" }}>
