@@ -3,6 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe Ai::WorkspaceAssistant::HandleQuery do
+  subject(:result) do
+    described_class.call(conversation: conversation, user: user, workspace: workspace,
+                         message: 'How many tickets do I have?', locale: 'en')
+  end
+
   let(:workspace)    { create(:workspace) }
   let(:department)   { create(:department, workspace: workspace) }
   let(:user)         { create(:user, workspace: workspace, department: department, role: :employee) }
@@ -13,11 +18,6 @@ RSpec.describe Ai::WorkspaceAssistant::HandleQuery do
     allow(Ai::ModelRouter).to receive(:for)
       .with(workspace: workspace, operation: :workspace_assistant_query)
       .and_return(instance_double(Ai::ModelRouter, resolve: [adapter, 'gpt-4o', 'openai']))
-  end
-
-  subject(:result) do
-    described_class.call(conversation: conversation, user: user, workspace: workspace,
-                          message: 'How many tickets do I have?', locale: 'en')
   end
 
   context 'when the model answers without calling a tool' do
@@ -91,6 +91,54 @@ RSpec.describe Ai::WorkspaceAssistant::HandleQuery do
     it 'does not raise, and lets the model respond instead of executing the tool' do
       expect(result).to be_success
       expect(result.data[:content]).to eq("I don't have access to that information.")
+    end
+  end
+
+  context 'when a tool call returns a report attachment' do
+    before do
+      allow(adapter).to receive(:chat_with_tools).and_return(
+        {
+          content: nil,
+          tool_calls: [{ id: 'call_1', name: 'generate_report', arguments: { report_type: 'tickets', format: 'csv' } }],
+          tokens: {},
+          stop_reason: :tool_use
+        },
+        {
+          content: 'Your report is ready for download.',
+          tool_calls: [],
+          tokens: {},
+          stop_reason: :end_turn
+        }
+      )
+      allow(Ai::Tools::Registry).to receive(:find).with('generate_report').and_return(Ai::Tools::GenerateReport)
+      allow_any_instance_of(Ai::Tools::GenerateReport).to receive(:call).and_return(
+        ServiceResult.success(
+          total_records: 3,
+          filename: 'tickets_2026-07-27.csv',
+          attachment: { filename: 'tickets_2026-07-27.csv', content_type: 'text/csv', data: "a,b
+1,2
+" }
+        )
+      )
+    end
+
+    it 'attaches the report file to the final assistant message' do
+      result
+      assistant_message = conversation.assistant_messages.order(:created_at).last
+      expect(assistant_message.report_file).to be_attached
+      expect(assistant_message.report_file.filename.to_s).to eq('tickets_2026-07-27.csv')
+    end
+
+    it 'never sends the binary attachment data back into the conversation history sent to the model' do
+      result
+
+      expect(adapter).to have_received(:chat_with_tools).at_least(:once) do |args|
+        expect(args[:messages].to_json).not_to include('a,b')
+      end
+    end
+
+    it 'reports has_attachment as true in the result' do
+      expect(result.data[:has_attachment]).to be(true)
     end
   end
 

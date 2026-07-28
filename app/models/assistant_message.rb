@@ -2,6 +2,7 @@
 
 class AssistantMessage < ApplicationRecord
   belongs_to :assistant_conversation
+  has_one_attached :report_file
 
   enum :role, {
     user: 0,

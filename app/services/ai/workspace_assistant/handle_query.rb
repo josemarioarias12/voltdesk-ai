@@ -13,10 +13,11 @@ module Ai
 
       def initialize(conversation:, user:, workspace:, message:, locale:)
         @conversation = conversation
-        @user         = user
-        @workspace    = workspace
-        @message      = message
-        @locale       = locale
+        @user = user
+        @workspace = workspace
+        @message = message
+        @locale = locale
+        @pending_attachments = []
       end
 
       def call
@@ -25,8 +26,8 @@ module Ai
         adapter, model, provider = Ai::ModelRouter.for(workspace: @workspace,
                                                        operation: :workspace_assistant_query).resolve
         tools_schema = Ai::Tools::Registry.schema_for(@user, provider: provider)
-        history      = build_history_messages
-        tools_used   = []
+        history = build_history_messages
+        tools_used = []
 
         hops = 0
         loop do
@@ -64,7 +65,7 @@ module Ai
           )
 
           ctx[:response] = result[:content].presence || result[:tool_calls].to_json
-          ctx[:tokens]   = result[:tokens]
+          ctx[:tokens] = result[:tokens]
           ctx[:metadata] = { tool_calls: result[:tool_calls].pluck(:name) }
 
           result
@@ -72,13 +73,27 @@ module Ai
       end
 
       def finalize(final_text, tools_used)
-        @conversation.assistant_messages.create!(
+        message = @conversation.assistant_messages.create!(
           role: :assistant,
           content: final_text,
           metadata: { tools_used: tools_used }
         )
 
-        ServiceResult.success(content: final_text, tools_used: tools_used)
+        attach_pending_report(message)
+
+        ServiceResult.success(content: final_text, tools_used: tools_used,
+                              has_attachment: message.report_file.attached?)
+      end
+
+      def attach_pending_report(message)
+        attachment = @pending_attachments.last
+        return unless attachment
+
+        message.report_file.attach(
+          io: StringIO.new(attachment[:data]),
+          filename: attachment[:filename],
+          content_type: attachment[:content_type]
+        )
       end
 
       def system_prompt
@@ -87,6 +102,8 @@ module Ai
           You answer questions about the user's workspace data by calling the tools available to you.
           Never answer from memory or general knowledge about the workspace — always call a tool to get real data.
           If no tool can answer the question, say so explicitly instead of guessing.
+          When a report file is generated, tell the user it's ready for download — never
+          describe its contents as if you had read the file yourself.
           Always respond in this language: #{@locale}.
         PROMPT
       end
@@ -104,7 +121,20 @@ module Ai
           return ServiceResult.failure("Tool not available for this user: #{tool_call[:name]}")
         end
 
-        tool_class.new(user: @user, workspace: @workspace).call(**tool_call[:arguments].symbolize_keys)
+        result = tool_class.new(user: @user, workspace: @workspace, locale: @locale)
+                           .call(**tool_call[:arguments].symbolize_keys)
+
+        extract_attachment(result)
+      end
+
+      # File attachments never travel back into the conversation history — only a
+      # stripped summary does. The binary data is tracked separately and attached
+      # directly to the final AssistantMessage once the loop ends.
+      def extract_attachment(result)
+        return result unless result.success? && result.data.is_a?(Hash) && result.data[:attachment]
+
+        @pending_attachments << result.data[:attachment]
+        ServiceResult.success(result.data.except(:attachment))
       end
 
       def append_tool_round(history, provider, tool_calls, tool_results)

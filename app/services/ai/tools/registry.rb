@@ -8,7 +8,8 @@ module Ai
         Ai::Tools::LeaveRequestsOverview,
         Ai::Tools::AssetsOverview,
         Ai::Tools::MyNotifications,
-        Ai::Tools::WorkspacePatternAlerts
+        Ai::Tools::WorkspacePatternAlerts,
+        Ai::Tools::GenerateReport
       ].freeze
 
       def self.available_for(user)

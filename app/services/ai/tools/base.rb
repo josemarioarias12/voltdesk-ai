@@ -19,8 +19,6 @@ module Ai
         raise NotImplementedError, "#{name} must define .visible_to?"
       end
 
-      # OpenAI wraps the schema in a 'function' object; Anthropic takes it flat.
-      # This is the only place either provider's shape is known outside the adapters.
       def self.to_provider_schema(provider)
         if provider.to_s == 'anthropic'
           { name: tool_name, description: description, input_schema: parameters_schema }
@@ -29,9 +27,10 @@ module Ai
         end
       end
 
-      def initialize(user:, workspace:)
+      def initialize(user:, workspace:, locale: nil)
         @user = user
         @workspace = workspace
+        @locale = locale
       end
 
       def call(**_params)
