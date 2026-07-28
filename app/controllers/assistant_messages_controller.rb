@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class AssistantMessagesController < ApplicationController
+  include JsonErrorHandling
+
   def create
     conversation = AssistantConversation.current_for(user: current_user, workspace: current_workspace)
     authorize conversation, :update?

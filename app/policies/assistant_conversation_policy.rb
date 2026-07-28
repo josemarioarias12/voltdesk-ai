@@ -7,7 +7,9 @@ class AssistantConversationPolicy < ApplicationPolicy
     end
   end
 
-  def show?   = record.user_id == user.id
-  def create? = true
-  def update? = record.user_id == user.id
+  def index?    = true
+  def show?     = record.user_id == user.id
+  def create?   = true
+  def update?   = record.user_id == user.id
+  def activate? = record.user_id == user.id
 end
