@@ -27,10 +27,10 @@ const LIGHT  = '#F8FAFC'
 const BORDER = '#E2E8F0'
 
 const EVENT_LABELS: Record<string, string> = {
-  'ticket.created':  '🎫 ticket.created',
-  'ticket.resolved': '✅ ticket.resolved',
-  'agent.executed':  '🤖 agent.executed',
-  'sla.breached':    '⚠️ sla.breached',
+  'ticket.created':  'ticket.created',
+  'ticket.resolved': 'ticket.resolved',
+  'agent.executed':  'agent.executed',
+  'sla.breached':    'sla.breached',
 }
 
 export default function WebhooksIndex({ webhooks, supported_events, new_secret }: Props) {
@@ -95,7 +95,7 @@ export default function WebhooksIndex({ webhooks, supported_events, new_secret }
         <SettingsTabs active="webhooks" />
 
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1 className="text-2xl font-bold" style={{ color: SLATE }}>Webhooks</h1>
             <p className="text-sm mt-1" style={{ color: GRAY }}>
@@ -137,8 +137,8 @@ export default function WebhooksIndex({ webhooks, supported_events, new_secret }
         )}
 
         {/* Webhooks table */}
-        <div className="rounded-2xl border overflow-hidden" style={{ background: '#fff', borderColor: BORDER, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-          <table className="w-full text-sm">
+        <div className="rounded-2xl border overflow-x-auto" style={{ background: '#fff', borderColor: BORDER, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+          <table className="w-full text-sm" style={{ minWidth: '720px' }}>
             <thead>
               <tr style={{ background: LIGHT, borderBottom: `1px solid ${BORDER}` }}>
                 {['Name', 'URL', 'Events', 'Last Triggered', 'Status', 'Actions'].map(h => (
@@ -199,7 +199,7 @@ export default function WebhooksIndex({ webhooks, supported_events, new_secret }
 
         {/* Create Modal */}
         {showModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.4)' }}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: 'rgba(0,0,0,0.4)' }}>
             <div className="rounded-2xl p-6 w-full max-w-md space-y-5" style={{ background: '#fff', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold" style={{ color: SLATE }}>Add Webhook</h2>

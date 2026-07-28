@@ -155,13 +155,13 @@ export default function LearningIndex({
 
         {top_patterns.length > 0 && (
           <div
-            className="overflow-hidden"
+            className="overflow-x-auto"
             style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}
           >
             <div className="px-5 py-4" style={{ borderBottom: '1px solid #F1F5F9' }}>
               <h2 className="font-semibold" style={{ color: '#0F172A' }}>Top Correction Patterns</h2>
             </div>
-            <table className="w-full text-sm">
+            <table className="w-full text-sm" style={{ minWidth: '420px' }}>
               <thead style={{ background: '#F8FAFC' }}>
                 <tr>
                   <th className="text-left px-4 py-3 font-medium" style={{ color: '#475569' }}>From</th>
