@@ -127,56 +127,56 @@ export default function ExecutiveDashboard({ metrics }: Props) {
     <ErrorBoundary section="Executive Dashboard">
       <div style={{ maxWidth: '1200px' }}>
 
-        {/* ── Dark hero header ── */}
-        <motion.div
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: 'easeOut' }}
-          style={{
-            background: '#0D1B2A', borderRadius: '16px', padding: '28px 32px',
-            marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          }}
-        >
-          <div>
-            <p style={{ fontSize: '11px', color: '#02C39A', letterSpacing: '0.12em', fontWeight: 700, margin: '0 0 6px', textTransform: 'uppercase' }}>
-              Executive Overview · Week of {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-            </p>
-            <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#fff', margin: '0 0 6px', letterSpacing: '-0.4px' }}>
-              Workspace Intelligence
-            </h1>
-            <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0 }}>
-              {riskScore > 0 ? (
-                <>Risk score <span style={{ color: riskColor(riskScore), fontWeight: 600 }}>{riskScore}/100</span> · {riskLabel(riskScore)} this week</>
-              ) : (
-                <>SLA compliance at <span style={{ color: slaColor(metrics.kpis.sla_compliance), fontWeight: 600 }}>{metrics.kpis.sla_compliance}%</span> this week</>
-              )}
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.85 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.3 }}
-              style={{ background: 'rgba(2,128,144,0.15)', border: '1px solid rgba(2,195,154,0.3)', borderRadius: '12px', padding: '12px 20px', textAlign: 'center', minWidth: '76px' }}
-            >
-              <p style={{ fontSize: '24px', fontWeight: 700, color: '#02C39A', margin: 0, lineHeight: 1 }}>{metrics.kpis.total_tickets_week}</p>
-              <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Tickets</p>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.85 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.28, duration: 0.3 }}
-              style={{
-                background: metrics.kpis.sla_compliance >= 90 ? 'rgba(22,163,74,0.12)' : 'rgba(249,115,22,0.12)',
-                border: `1px solid ${metrics.kpis.sla_compliance >= 90 ? 'rgba(22,163,74,0.3)' : 'rgba(249,115,22,0.25)'}`,
-                borderRadius: '12px', padding: '12px 20px', textAlign: 'center', minWidth: '76px',
-              }}
-            >
-              <p style={{ fontSize: '24px', fontWeight: 700, color: slaColor(metrics.kpis.sla_compliance), margin: 0, lineHeight: 1 }}>{metrics.kpis.sla_compliance}%</p>
-              <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>SLA</p>
-            </motion.div>
-          </div>
-        </motion.div>
+        {/* ── Hero header ── */}
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            style={{
+              ...card, borderTop: '3px solid #028090', padding: '28px 32px',
+              marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}
+          >
+            <div>
+              <p style={{ fontSize: '11px', color: '#028090', letterSpacing: '0.12em', fontWeight: 700, margin: '0 0 6px', textTransform: 'uppercase' }}>
+                Executive Overview · Week of {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+              </p>
+              <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#0F172A', margin: '0 0 6px', letterSpacing: '-0.4px' }}>
+                Workspace Intelligence
+              </h1>
+              <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>
+                {riskScore > 0 ? (
+                  <>Risk score <span style={{ color: riskColor(riskScore), fontWeight: 600 }}>{riskScore}/100</span> · {riskLabel(riskScore)} this week</>
+                ) : (
+                  <>SLA compliance at <span style={{ color: slaColor(metrics.kpis.sla_compliance), fontWeight: 600 }}>{metrics.kpis.sla_compliance}%</span> this week</>
+                )}
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.85 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.3 }}
+                style={{ background: '#F0FDFA', border: '1px solid #99F6E4', borderRadius: '12px', padding: '12px 20px', textAlign: 'center', minWidth: '76px' }}
+              >
+                <p style={{ fontSize: '24px', fontWeight: 700, color: '#028090', margin: 0, lineHeight: 1 }}>{metrics.kpis.total_tickets_week}</p>
+                <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Tickets</p>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.85 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.28, duration: 0.3 }}
+                style={{
+                  background: metrics.kpis.sla_compliance >= 90 ? '#F0FDF4' : '#FFF7ED',
+                  border: `1px solid ${metrics.kpis.sla_compliance >= 90 ? '#BBF7D0' : '#FED7AA'}`,
+                  borderRadius: '12px', padding: '12px 20px', textAlign: 'center', minWidth:'76px',
+                }}
+              >
+                <p style={{ fontSize: '24px', fontWeight: 700, color: slaColor(metrics.kpis.sla_compliance), margin: 0, lineHeight: 1 }}>{metrics.kpis.sla_compliance}%</p>
+                <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>SLA</p>
+              </motion.div>
+            </div>
+          </motion.div>
 
         {/* ── KPI row ── */}
         <motion.div
