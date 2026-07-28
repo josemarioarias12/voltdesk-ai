@@ -133,7 +133,7 @@ RSpec.describe LeaveRequest do
     it 'accepts an accepted file type' do
       request = build(:leave_request, workspace: workspace, user: user)
       request.doctor_certificate.attach(
-        io: File.open(Rails.root.join('spec/fixtures/files/certificate.png')),
+        io: Rails.root.join('spec/fixtures/files/certificate.png').open,
         filename: 'certificate.png', content_type: 'image/png'
       )
       expect(request).to be_valid
@@ -142,7 +142,7 @@ RSpec.describe LeaveRequest do
     it 'rejects an unsupported file type' do
       request = build(:leave_request, workspace: workspace, user: user)
       request.doctor_certificate.attach(
-        io: File.open(Rails.root.join('spec/fixtures/files/certificate.txt')),
+        io: Rails.root.join('spec/fixtures/files/certificate.txt').open,
         filename: 'certificate.txt', content_type: 'text/plain'
       )
       expect(request).not_to be_valid
@@ -152,7 +152,7 @@ RSpec.describe LeaveRequest do
     it 'rejects a file over the size limit' do
       request = build(:leave_request, workspace: workspace, user: user)
       request.doctor_certificate.attach(
-        io: File.open(Rails.root.join('spec/fixtures/files/certificate.png')),
+        io: Rails.root.join('spec/fixtures/files/certificate.png').open,
         filename: 'certificate.png', content_type: 'image/png'
       )
       allow(request.doctor_certificate).to receive(:byte_size).and_return(11.megabytes)

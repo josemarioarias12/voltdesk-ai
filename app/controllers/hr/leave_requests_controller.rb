@@ -151,23 +151,23 @@ module Hr
       }
 
       sensitive = mask(leave_req, {
-                           medical_notes: leave_req.medical_notes,
+                         medical_notes: leave_req.medical_notes,
           doctor_certificate_url: certificate_url_for(leave_req)
-                         }, current_user)
+                       }, current_user)
 
       base.merge(sensitive)
     end
 
     def serialize_lr_user(usr)
-        {
-          id: usr.id,
-          full_name: usr.full_name,
-          email: usr.email,
-          role: usr.role,
-          department: usr.department&.name,
-          avatar_url: usr.avatar.attached? ? url_for(usr.avatar) : nil
-        }
-      end
+      {
+        id: usr.id,
+        full_name: usr.full_name,
+        email: usr.email,
+        role: usr.role,
+        department: usr.department&.name,
+        avatar_url: usr.avatar.attached? ? url_for(usr.avatar) : nil
+      }
+    end
 
     def serialize_lr_approver(approver)
       return nil unless approver

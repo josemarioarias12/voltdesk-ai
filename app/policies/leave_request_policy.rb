@@ -45,7 +45,9 @@ class LeaveRequestPolicy < ApplicationPolicy
     if record.pending_second_approval?
       admin_or_above?
     else
-      record.pending? && (admin_or_above? || user.role_hr_manager? || (department_manager_owns? && record.medical_notes.blank?))
+      record.pending? &&
+        (admin_or_above? || user.role_hr_manager? ||
+          (department_manager_owns? && record.medical_notes.blank?))
     end
   end
 
