@@ -439,21 +439,8 @@ export default function VoltCopilotPanel() {
                   background: conversation.id === conversationId ? 'rgba(2,128,144,0.05)' : '#fff',
                 }}
               >
-                <div
-                  onClick={() => { if (editingId !== conversation.id) handleActivateConversation(conversation.id) }}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={e => {
-                    if (editingId === conversation.id) return
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      handleActivateConversation(conversation.id)
-                    }
-                  }}
-                  className="min-w-0 flex-1 text-left"
-                  style={{ cursor: 'pointer' }}
-                >
-                  {editingId === conversation.id ? (
+                {editingId === conversation.id ? (
+                  <div className="min-w-0 flex-1 text-left">
                     <input
                       autoFocus
                       value={editingValue}
@@ -467,20 +454,25 @@ export default function VoltCopilotPanel() {
                       className="w-full text-sm font-medium px-1 py-0.5 rounded"
                       style={{ border: '1px solid #028090', outline: 'none', color: '#0D1B2A' }}
                     />
-                  ) : (
-                    <>
-                      <p
-                        className="text-sm font-medium truncate"
-                        style={{ color: conversation.archived ? '#94A3B8' : '#0D1B2A' }}
-                      >
-                        {formatConversationLabel(conversation)}
-                      </p>
-                      {conversation.id === conversationId && (
-                        <p className="text-xs mt-0.5" style={{ color: '#028090' }}>Conversación actual</p>
-                      )}
-                    </>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleActivateConversation(conversation.id)}
+                    className="min-w-0 flex-1 text-left"
+                    style={{ cursor: 'pointer', background: 'transparent', border: 'none', padding: 0, font: 'inherit' }}
+                  >
+                    <p
+                      className="text-sm font-medium truncate"
+                      style={{ color: conversation.archived ? '#94A3B8' : '#0D1B2A' }}
+                    >
+                      {formatConversationLabel(conversation)}
+                    </p>
+                    {conversation.id === conversationId && (
+                      <p className="text-xs mt-0.5" style={{ color: '#028090' }}>Conversación actual</p>
+                    )}
+                  </button>
+                )}
 
                 <div className="flex items-center gap-1 flex-shrink-0">
                   {editingId === conversation.id ? (
