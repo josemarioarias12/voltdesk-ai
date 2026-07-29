@@ -14,21 +14,22 @@ module Ai
       'gemini' => %w[gemini-2.0-flash gemini-1.5-pro]
     }.freeze
 
-    # Source: official pricing pages, verified 2026-07-27.
-    # OpenAI:    https://openai.com/api/pricing/
-    # Anthropic: https://www.anthropic.com/pricing#api
-    # Gemini:    https://ai.google.dev/pricing
-    # gpt-5.2 is a placeholder estimate pending official confirmation.
-    PROVIDER_COST_PER_1K = {
-      'openai/gpt-4o' => 0.0075,
-      'openai/gpt-4o-mini' => 0.00030,
-      'openai/gpt-4.1' => 0.0075,
-      'openai/gpt-4.1-mini' => 0.00030,
-      'openai/gpt-5.2' => 0.0110,
-      'anthropic/claude-sonnet-5' => 0.0076,
-      'anthropic/claude-haiku-4-5-20251001' => 0.00040,
-      'gemini/gemini-2.0-flash' => 0.00010,
-      'gemini/gemini-1.5-pro' => 0.00175
+    # Per-model input/output pricing (USD per 1K tokens). A single
+    # blended number can't represent real pricing since input/output
+    # costs differ significantly per model.
+    PROVIDER_TOKEN_PRICING = {
+      # Verified 2026-07-29: https://developers.openai.com/api/docs/models/gpt-5.2
+      'openai/gpt-5.2' => { input: 0.00175, output: 0.014 },
+
+      # Not re-verified
+      'openai/gpt-4o' => { input: 0.0075, output: 0.0075 },
+      'openai/gpt-4o-mini' => { input: 0.00030, output: 0.00030 },
+      'openai/gpt-4.1' => { input: 0.0075, output: 0.0075 },
+      'openai/gpt-4.1-mini' => { input: 0.00030, output: 0.00030 },
+      'anthropic/claude-sonnet-5' => { input: 0.0076, output: 0.0076 },
+      'anthropic/claude-haiku-4-5-20251001' => { input: 0.00040, output: 0.00040 },
+      'gemini/gemini-2.0-flash' => { input: 0.00010, output: 0.00010 },
+      'gemini/gemini-1.5-pro' => { input: 0.00175, output: 0.00175 }
     }.freeze
 
     EMBEDDING_PROVIDER = 'openai'
@@ -39,7 +40,13 @@ module Ai
     end
 
     def self.provider_models = PROVIDER_MODELS
-    def self.cost_per_1k(provider, model) = PROVIDER_COST_PER_1K["#{provider}/#{model}"] || 0.0
+
+    def self.cost_per_1k(provider, model)
+      pricing = PROVIDER_TOKEN_PRICING["#{provider}/#{model}"]
+      return 0.0 unless pricing
+
+      (pricing[:input] + pricing[:output]) / 2.0
+    end
 
     def initialize(workspace:, operation:)
       @workspace = workspace
