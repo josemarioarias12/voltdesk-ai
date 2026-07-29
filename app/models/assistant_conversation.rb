@@ -26,8 +26,10 @@ class AssistantConversation < ApplicationRecord
   def ensure_title!(content)
     return if title.present?
 
-    cleaned    = content.strip
-    formatted  = cleaned[0].upcase + cleaned[1..]
+    cleaned = content.strip
+    return if cleaned.blank?
+
+    formatted = cleaned[0].upcase + cleaned[1..]
     update!(title: formatted.truncate(60))
   end
 end

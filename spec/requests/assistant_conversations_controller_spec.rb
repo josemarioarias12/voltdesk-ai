@@ -98,6 +98,80 @@ RSpec.describe AssistantConversationsController, type: :request do
     end
   end
 
+  describe 'PATCH /assistant/conversations/:id' do
+    before { sign_in user }
+
+    it 'updates the title' do
+      conversation = create(:assistant_conversation, workspace: workspace, user: user)
+
+      patch update_assistant_conversation_path(conversation), params: { title: 'Printer troubleshooting' }
+
+      expect(conversation.reload.title).to eq('Printer troubleshooting')
+    end
+
+    it 'truncates the title to 60 characters' do
+      conversation = create(:assistant_conversation, workspace: workspace, user: user)
+      long_title   = 'a' * 100
+
+      patch update_assistant_conversation_path(conversation), params: { title: long_title }
+
+      expect(conversation.reload.title.length).to eq(60)
+    end
+
+    it 'strips whitespace and blanks out the title when only whitespace is sent' do
+      conversation = create(:assistant_conversation, workspace: workspace, user: user, title: 'Old title')
+
+      patch update_assistant_conversation_path(conversation), params: { title: '   ' }
+
+      expect(conversation.reload.title).to be_nil
+    end
+
+    it 'returns the serialized conversation' do
+      conversation = create(:assistant_conversation, workspace: workspace, user: user)
+
+      patch update_assistant_conversation_path(conversation), params: { title: 'Renamed' }
+
+      expect(response.parsed_body['title']).to eq('Renamed')
+    end
+
+    it 'returns not_found for a conversation belonging to another user' do
+      other_user = create(:user, workspace: workspace, role: :employee)
+      foreign    = create(:assistant_conversation, workspace: workspace, user: other_user)
+
+      patch update_assistant_conversation_path(foreign), params: { title: 'Hijack attempt' }
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
+  describe 'DELETE /assistant/conversations/:id' do
+    before { sign_in user }
+
+    it 'archives the conversation instead of deleting the row' do
+      conversation = create(:assistant_conversation, workspace: workspace, user: user)
+
+      expect { delete destroy_assistant_conversation_path(conversation) }.not_to change(AssistantConversation, :count)
+      expect(conversation.reload.archived_at).to be_present
+    end
+
+    it 'returns archived: true' do
+      conversation = create(:assistant_conversation, workspace: workspace, user: user)
+
+      delete destroy_assistant_conversation_path(conversation)
+
+      expect(response.parsed_body['archived']).to be true
+    end
+
+    it 'returns not_found for a conversation belonging to another user' do
+      other_user = create(:user, workspace: workspace, role: :employee)
+      foreign    = create(:assistant_conversation, workspace: workspace, user: other_user)
+
+      delete destroy_assistant_conversation_path(foreign)
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
   describe 'GET /assistant/conversation pagination' do
     before { sign_in user }
 
