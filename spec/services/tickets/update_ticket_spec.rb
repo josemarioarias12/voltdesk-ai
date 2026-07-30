@@ -46,4 +46,20 @@ RSpec.describe Tickets::UpdateTicket do
       expect(ticket.reload.title).to eq('Updated title')
     end
   end
+
+  describe '.call — ActionCable broadcasts (Bug 1 fix)' do
+    it 'broadcasts to both the workspace-wide stream and the per-ticket stream' do
+      expect do
+        described_class.call(ticket: ticket, user: user, params: { title: 'Broadcast test' })
+      end.to have_broadcasted_to("tickets:#{workspace.id}").with(hash_including(event: 'ticket_updated', ticket_id: ticket.id))
+                                                           .and have_broadcasted_to("ticket:#{ticket.id}").with(hash_including(event: 'ticket_updated', ticket_id: ticket.id))
+    end
+
+    it 'also broadcasts to both streams on a status transition' do
+      expect do
+        described_class.call(ticket: ticket, user: user, params: { status: :in_progress })
+      end.to have_broadcasted_to("tickets:#{workspace.id}")
+        .and have_broadcasted_to("ticket:#{ticket.id}")
+    end
+  end
 end

@@ -110,10 +110,10 @@ module Tickets
     end
 
     def broadcast_update
-      ActionCable.server.broadcast(
-        "tickets:#{@ticket.workspace_id}",
-        { event: 'ticket_updated', ticket_id: @ticket.id }
-      )
+      payload = { event: 'ticket_updated', ticket_id: @ticket.id }
+
+      ActionCable.server.broadcast("tickets:#{@ticket.workspace_id}", payload)
+      ActionCable.server.broadcast("ticket:#{@ticket.id}", payload)
     end
   end
 end

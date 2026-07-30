@@ -409,4 +409,37 @@ RSpec.describe TicketsController, type: :request do
       end
     end
   end
+
+  describe 'GET /tickets/export' do
+    before do
+      create(:ticket, workspace: workspace, department: department, created_by: agent)
+      sign_in agent
+    end
+
+    it 'returns a CSV by default' do
+      get export_tickets_path
+      expect(response.media_type).to eq('text/csv')
+    end
+
+    it 'returns a PDF when format_type=pdf' do
+      get export_tickets_path, params: { format_type: 'pdf' }
+      expect(response.media_type).to eq('application/pdf')
+    end
+
+    it 'returns an XLSX when format_type=xlsx' do
+      get export_tickets_path, params: { format_type: 'xlsx' }
+      expect(response.media_type).to eq('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    end
+
+    it 'only exports tickets scoped to the current workspace' do
+      other_ws   = create(:workspace)
+      other_dept = create(:department, workspace: other_ws)
+      other_user = create(:user, workspace: other_ws, role: :employee)
+      foreign    = create(:ticket, workspace: other_ws, department: other_dept, created_by: other_user)
+
+      get export_tickets_path, params: { format_type: 'xlsx' }
+
+      expect(response.body).not_to include(foreign.ticket_number)
+    end
+  end
 end

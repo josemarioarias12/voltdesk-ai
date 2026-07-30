@@ -28,10 +28,12 @@ class TicketsController < ApplicationController
   def export
     authorize :ticket, :index?
 
-    scope = policy_scope(Ticket).filtered_by(filter_params)
-    result = Tickets::ExportCsv.call(scope: scope)
+    scope  = policy_scope(Ticket).filtered_by(filter_params)
+    result = exporter_for(params[:format_type]).call(scope: scope)
 
-    send_data result.data, filename: "tickets-#{Date.current.iso8601}.csv", type: 'text/csv'
+    return redirect_to tickets_path, alert: result.error if result.failure?
+
+    send_data result.data, filename: export_filename, type: export_content_type
   end
 
   def show
@@ -182,6 +184,27 @@ class TicketsController < ApplicationController
 
   def filter_params
     params.permit(:status, :priority, :department_id, :q, :sort, :direction)
+  end
+
+  def exporter_for(format_type)
+    case format_type
+    when 'pdf'  then Tickets::ExportPdf
+    when 'xlsx' then Tickets::ExportXlsx
+    else Tickets::ExportCsv
+    end
+  end
+
+  def export_filename
+    ext = %w[pdf xlsx].include?(params[:format_type]) ? params[:format_type] : 'csv'
+    "tickets-#{Date.current.iso8601}.#{ext}"
+  end
+
+  def export_content_type
+    case params[:format_type]
+    when 'pdf'  then 'application/pdf'
+    when 'xlsx' then 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    else 'text/csv'
+    end
   end
 
   def apply_filters(scope)
