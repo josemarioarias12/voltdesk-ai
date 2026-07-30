@@ -71,6 +71,29 @@ RSpec.describe UserPolicy do
     end
   end
 
+  describe '#assignable_roles' do
+    let(:super_admin) { create(:user, :super_admin, workspace:) }
+
+    it 'lets a super_admin assign any role, including super_admin' do
+      roles = described_class.new(super_admin, User).assignable_roles
+
+      expect(roles).to include('super_admin', 'workspace_admin', 'employee')
+    end
+
+    it 'lets a workspace_admin assign any role except super_admin' do
+      roles = described_class.new(admin, User).assignable_roles
+
+      expect(roles).to include('workspace_admin', 'hr_manager', 'employee')
+      expect(roles).not_to include('super_admin')
+    end
+
+    it 'returns no assignable roles for anyone below admin' do
+      roles = described_class.new(employee, User).assignable_roles
+
+      expect(roles).to eq([])
+    end
+  end
+
   describe 'Scope' do
     it 'returns only users in the same workspace' do
       Current.workspace = workspace
