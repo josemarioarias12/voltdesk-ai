@@ -25,7 +25,8 @@ class AssistantMessagesController < ApplicationController
       render json: {
         content: result.data[:content],
         tools_used: result.data[:tools_used],
-        report: report_payload(message)
+        report: report_payload(message),
+        resource_link: message.metadata['resource_link']
       }
     else
       render json: { error: result.error }, status: :unprocessable_content

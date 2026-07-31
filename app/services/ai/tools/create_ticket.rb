@@ -11,7 +11,8 @@ module Ai
           'preview summary for the user to confirm in their own words. Only call this tool again with ' \
           'confirmed: true — reusing the EXACT same parameters returned in the preview — after the user has ' \
           'explicitly confirmed. Never set confirmed: true on the first call, and never regenerate the ' \
-          'parameters from memory on the second call.'
+          'parameters from memory on the second call. IMPORTANT: if the result contains preview: true, ' \
+          'nothing was saved — do not tell the user it was created.'
       end
 
       def self.parameters_schema
@@ -29,12 +30,16 @@ module Ai
             category: {
               type: 'string',
               enum: Ticket.categories.keys,
-              description: 'Ticket category. Defaults to "general" if omitted.'
+              description: 'Ticket category. Do NOT ask the user for this — omit it unless ' \
+                           'they mention it unprompted. It defaults to "general" and is refined ' \
+                           'automatically by the real AI classification pipeline after creation.'
             },
             priority: {
               type: 'string',
               enum: Ticket.priorities.keys,
-              description: 'Ticket priority. Defaults to "medium" if omitted.'
+              description: 'Ticket priority. Do NOT ask the user for this — omit it unless ' \
+                           'they mention it unprompted. It defaults to "medium" and is refined ' \
+                           'automatically by the real AI classification pipeline after creation.'
             },
             department_id: {
               type: 'integer',
@@ -110,7 +115,18 @@ module Ai
       end
 
       def execute(ticket_params)
-        Tickets::CreateTicket.call(workspace: @workspace, user: @user, params: ticket_params)
+        result = Tickets::CreateTicket.call(workspace: @workspace, user: @user, params: ticket_params)
+        return result if result.failure?
+
+        ServiceResult.success(
+          message: "Ticket #{result.data.ticket_number} created successfully.",
+          ticket: result.data,
+          resource_link: {
+            title: "Ticket #{result.data.ticket_number}",
+            path: "/tickets/#{result.data.id}",
+            icon: 'ticket'
+          }
+        )
       end
     end
   end

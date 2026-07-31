@@ -102,9 +102,20 @@ RSpec.describe Ai::Tools::CreateTicket do
         result = tool.call(title: 'VPN not connecting', description: 'Cannot reach the VPN', confirmed: true)
 
         expect(result).to be_success
-        expect(result.data.source).to eq('web')
-        expect(result.data.department).to eq(department)
-        expect(result.data.created_by).to eq(employee)
+        expect(result.data[:ticket].source).to eq('web')
+        expect(result.data[:ticket].department).to eq(department)
+        expect(result.data[:ticket].created_by).to eq(employee)
+      end
+
+      it 'returns a resource_link pointing to the created ticket' do
+        result = tool.call(title: 'VPN not connecting', description: 'Cannot reach the VPN', confirmed: true)
+        ticket = result.data[:ticket]
+
+        expect(result.data[:resource_link]).to eq(
+          title: "Ticket #{ticket.ticket_number}",
+          path: "/tickets/#{ticket.id}",
+          icon: 'ticket'
+        )
       end
     end
   end

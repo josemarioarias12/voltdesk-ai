@@ -79,7 +79,7 @@ RSpec.describe Ai::Tools::CreateLeaveRequest do
       end
     end
 
-    context 'confirmed: true' do
+   context 'confirmed: true' do
       it 'persists a real leave request via Hr::ProcessLeaveRequest' do
         expect do
           tool.call(leave_type: 'vacation', start_date: start_date.to_s, end_date: end_date.to_s, confirmed: true)
@@ -88,11 +88,23 @@ RSpec.describe Ai::Tools::CreateLeaveRequest do
 
       it 'creates the leave request as pending, owned by the current user' do
         result = tool.call(leave_type: 'vacation', start_date: start_date.to_s, end_date: end_date.to_s,
-                           confirmed: true)
+                            confirmed: true)
 
         expect(result).to be_success
-        expect(result.data.user).to eq(employee)
-        expect(result.data.status).to eq('pending')
+        expect(result.data[:leave_request].user).to eq(employee)
+        expect(result.data[:leave_request].status).to eq('pending')
+      end
+
+      it 'returns a resource_link pointing to the created leave request' do
+        result = tool.call(leave_type: 'vacation', start_date: start_date.to_s, end_date: end_date.to_s,
+                            confirmed: true)
+        leave_request = result.data[:leave_request]
+
+        expect(result.data[:resource_link]).to eq(
+          title: 'Vacation request',
+          path: "/hr/leave_requests/#{leave_request.id}",
+          icon: 'calendar'
+        )
       end
     end
   end

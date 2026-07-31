@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect, useCallback, KeyboardEvent } from 'react'
-import { X, Send, Loader2, Download, FileSpreadsheet, FileText, FileSpreadsheet as FileCsv, History, Plus, ArrowLeft, Pencil, Trash2, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { IconBolt } from '@/components/Icons'
+import { router } from '@inertiajs/react'
+import ReactMarkdown from 'react-markdown'
+import { X, Send, Loader2, Download, FileSpreadsheet, FileText, FileSpreadsheet as FileCsv, History, Plus, ArrowLeft, Pencil, Trash2, Check, Ticket, Calendar, ChevronRight } from 'lucide-react'
 
 interface ReportAttachment {
   url: string
@@ -21,6 +23,19 @@ interface ConversationSummary {
   title: string | null
   archived: boolean
   updated_at: string
+}
+interface ResourceAttachment {
+  title: string
+  path: string
+  icon: 'ticket' | 'calendar'
+}
+
+interface AssistantMessage {
+  id: number | string
+  role: 'user' | 'assistant'
+  content: string
+  report?: ReportAttachment | null
+  resource_link?: ResourceAttachment | null
 }
 
 const DEFAULT_WIDTH = 380
@@ -49,6 +64,46 @@ function ReportFileIcon({ contentType }: { contentType: string }) {
     >
       <Icon size={17} color={color} />
     </div>
+  )
+}
+
+const RESOURCE_ICON_MAP: Record<string, { color: string; Icon: typeof Ticket }> = {
+  ticket: { color: '#028090', Icon: Ticket },
+  calendar: { color: '#02C39A', Icon: Calendar },
+}
+
+function ResourceLinkIcon({ icon }: { icon: string }) {
+  const kind = RESOURCE_ICON_MAP[icon]
+  const color = kind?.color ?? '#94A3B8'
+  const Icon = kind?.Icon ?? Ticket
+  return (
+    <div
+      className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+      style={{ background: `${color}1A` }}
+    >
+      <Icon size={17} color={color} />
+    </div>
+  )
+}
+
+function AssistantMarkdown({ content }: { content: string }) {
+  return (
+    <ReactMarkdown
+      components={{
+        p: ({ children }) => <p className="mb-1.5 last:mb-0">{children}</p>,
+        strong: ({ children }) => <strong style={{ color: '#0D1B2A', fontWeight: 600 }}>{children}</strong>,
+        ul: ({ children }) => <ul className="list-disc pl-4 mb-1.5 last:mb-0">{children}</ul>,
+        ol: ({ children }) => <ol className="list-decimal pl-4 mb-1.5 last:mb-0">{children}</ol>,
+        li: ({ children }) => <li className="mb-0.5">{children}</li>,
+        a: ({ children, href }) => (
+          <a href={href} target="_blank" rel="noreferrer" style={{ color: '#028090' }}>
+            {children}
+          </a>
+        ),
+      }}
+    >
+      {content}
+    </ReactMarkdown>
   )
 }
 
@@ -271,7 +326,7 @@ export default function VoltCopilotPanel() {
 
       setMessages(prev => [
         ...prev,
-        { id: `local-${Date.now()}-a`, role: 'assistant', content: data.content, report: data.report },
+        { id: `local-${Date.now()}-a`, role: 'assistant', content: data.content, report: data.report, resource_link: data.resource_link },
       ])
     } catch {
       toast.error('Network error — Volt Copilot did not respond.')
@@ -552,7 +607,7 @@ export default function VoltCopilotPanel() {
                       border: message.role === 'user' ? 'none' : '1px solid rgba(15,23,42,0.08)',
                     }}
                   >
-                    {message.content}
+                    {message.role === 'assistant' ? <AssistantMarkdown content={message.content} /> : message.content}
                   </div>
                   {message.report && (
                       <a
@@ -572,6 +627,24 @@ export default function VoltCopilotPanel() {
                       </div>
                       <Download size={16} style={{ color: '#028090', flexShrink: 0 }} />
                     </a>
+                  )}
+                  {message.resource_link && (
+                    <button
+                      onClick={() => router.get(message.resource_link!.path)}
+                      className="flex items-center gap-3 mt-1.5 p-3 rounded-xl transition-colors hover:bg-black/[0.02] w-full text-left"
+                      style={{ background: '#fff', border: '1px solid rgba(15,23,42,0.08)', cursor: 'pointer' }}
+                    >
+                      <ResourceLinkIcon icon={message.resource_link.icon} />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium truncate" style={{ color: '#0D1B2A' }}>
+                          {message.resource_link.title}
+                        </p>
+                        <p className="text-xs" style={{ color: '#94A3B8' }}>
+                          View details
+                        </p>
+                      </div>
+                      <ChevronRight size={16} style={{ color: '#028090', flexShrink: 0 }} />
+                    </button>
                   )}
                 </div>
               ))}

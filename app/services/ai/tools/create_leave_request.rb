@@ -77,8 +77,19 @@ module Ai
       end
 
       def execute(leave_request_params)
-        Hr::ProcessLeaveRequest.call(
+        result = Hr::ProcessLeaveRequest.call(
           workspace: @workspace, user: @user, action: :create, options: { params: leave_request_params }
+        )
+        return result if result.failure?
+
+        ServiceResult.success(
+          message: "#{result.data.leave_type.humanize} request submitted successfully.",
+          leave_request: result.data,
+          resource_link: {
+            title: "#{result.data.leave_type.humanize} request",
+            path: "/hr/leave_requests/#{result.data.id}",
+            icon: 'calendar'
+          }
         )
       end
     end

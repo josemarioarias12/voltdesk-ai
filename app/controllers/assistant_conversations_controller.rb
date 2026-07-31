@@ -95,7 +95,8 @@ class AssistantConversationsController < ApplicationController
       role: message.role,
       content: message.content,
       created_at: message.created_at.iso8601,
-      report: report_payload(message)
+      report: report_payload(message),
+      resource_link: message.metadata['resource_link']
     }
   end
 

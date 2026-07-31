@@ -18,6 +18,7 @@ module Ai
         @message = message
         @locale = locale
         @pending_attachments = []
+        @pending_resource_link = nil
       end
 
       def call
@@ -76,7 +77,7 @@ module Ai
         message = @conversation.assistant_messages.create!(
           role: :assistant,
           content: final_text,
-          metadata: { tools_used: tools_used }
+          metadata: { tools_used: tools_used, resource_link: @pending_resource_link }.compact
         )
 
         attach_pending_report(message)
@@ -108,11 +109,20 @@ module Ai
           in your response. The application already shows a real download button separately;
           your text should never try to reproduce or simulate that link.
           Some tools (create_ticket, create_leave_request) follow a two-step confirm-before-execute
-          flow: their first response is a preview, never an executed action. Summarize that preview
-          clearly and ask the user to confirm in their own words. Only call the same tool again with
-          confirmed: true after they do — and reuse the exact parameters from the preview, never
-          regenerate them from memory. Never set confirmed: true on your own initiative.
-          Always respond in this language: #{@locale}.
+            flow: their first response is a preview, never an executed action. Summarize that preview
+            clearly and ask the user to confirm in their own words. Only call the same tool again with
+            confirmed: true after they do — and reuse the exact parameters from the preview, never
+            regenerate them from memory. Never set confirmed: true on your own initiative.
+            IMPORTANT: when creating a ticket, ask ONLY for title and description. Do NOT ask
+            about category or priority under any circumstances — they are handled automatically.
+            Only ask about department if the tool explicitly reports that department_id is required.
+            CRITICAL: after calling create_ticket or create_leave_request, check the tool result.
+            If it contains preview: true, NOTHING was created yet — you MUST summarize it as a
+            preview and ask for confirmation, never say it was created. Only say something was
+            created if the tool result contains resource_link — that is the only reliable signal
+            that a real record was persisted. Never claim success without it.
+            Reply in the same language the user just wrote in. Default to #{@locale} only when
+            their message gives no clear signal either way.
         PROMPT
       end
 
@@ -132,17 +142,28 @@ module Ai
         result = tool_class.new(user: @user, workspace: @workspace, locale: @locale)
                            .call(**tool_call[:arguments].symbolize_keys)
 
+        extract_resource_link(result)
         extract_attachment(result)
       end
 
-      # File attachments never travel back into the conversation history — only a
-      # stripped summary does. The binary data is tracked separately and attached
-      # directly to the final AssistantMessage once the loop ends.
-      def extract_attachment(result)
-        return result unless result.success? && result.data.is_a?(Hash) && result.data[:attachment]
+      def extract_resource_link(result)
+        return unless result.success? && result.data.is_a?(Hash) && result.data[:resource_link]
 
-        @pending_attachments << result.data[:attachment]
-        ServiceResult.success(result.data.except(:attachment))
+        @pending_resource_link = result.data[:resource_link]
+      end
+
+      # File attachments and full AR records (ticket, leave_request) never travel back
+      # into the conversation history — only a stripped summary does. Binary data is
+      # tracked separately and attached directly to the final AssistantMessage once the
+      # loop ends; resource_link is captured separately too, for the frontend card.
+      def extract_attachment(result)
+        return result unless result.success? && result.data.is_a?(Hash)
+
+        attachment = result.data[:attachment]
+        @pending_attachments << attachment if attachment
+
+        stripped = result.data.except(:attachment, :ticket, :leave_request)
+        ServiceResult.success(stripped)
       end
 
       def append_tool_round(history, provider, tool_calls, tool_results)
