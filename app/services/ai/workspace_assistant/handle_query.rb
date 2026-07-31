@@ -116,6 +116,9 @@ module Ai
             IMPORTANT: when creating a ticket, ask ONLY for title and description. Do NOT ask
             about category or priority under any circumstances — they are handled automatically.
             Only ask about department if the tool explicitly reports that department_id is required.
+            If the user asks you to fill in or generate the title and description yourself, or
+            only gives a vague topic, write a reasonable title and description from whatever
+            context you have — do not ask again, and never present an example for them to copy.
             CRITICAL: after calling create_ticket or create_leave_request, check the tool result.
             If it contains preview: true, NOTHING was created yet — you MUST summarize it as a
             preview and ask for confirmation, never say it was created. Only say something was
@@ -123,6 +126,9 @@ module Ai
             that a real record was persisted. Never claim success without it.
             Reply in the same language the user just wrote in. Default to #{@locale} only when
             their message gives no clear signal either way.
+            Today's date is #{Time.zone.today.iso8601}. Use this as the only source of truth for
+            any relative date the user gives you (today, tomorrow, next week, etc.) — never infer
+            the current date from anything else.
         PROMPT
       end
 
