@@ -60,6 +60,16 @@ class LeaveRequest < ApplicationRecord
     (start_date..end_date).count(&:on_weekday?)
   end
 
+  def applicable_leave_policy
+    return nil unless department_id && leave_type
+
+    @applicable_leave_policy ||= LeavePolicy.resolve(
+      workspace: workspace,
+      department_id: department_id,
+      leave_type: leave_type
+    )
+  end
+
   private
 
   def assign_department_from_user
@@ -117,15 +127,5 @@ class LeaveRequest < ApplicationRecord
     return if days_until_start >= applicable_leave_policy.min_notice_days
 
     errors.add(:start_date, "must be requested at least #{applicable_leave_policy.min_notice_days} days in advance")
-  end
-
-  def applicable_leave_policy
-    return nil unless department_id && leave_type
-
-    @applicable_leave_policy ||= LeavePolicy.resolve(
-      workspace: workspace,
-      department_id: department_id,
-      leave_type: leave_type
-    )
   end
 end

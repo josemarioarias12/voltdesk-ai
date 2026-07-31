@@ -107,6 +107,11 @@ module Ai
           and NEVER include a markdown link, file path, or made-up URL (e.g. "sandbox:/...")
           in your response. The application already shows a real download button separately;
           your text should never try to reproduce or simulate that link.
+          Some tools (create_ticket, create_leave_request) follow a two-step confirm-before-execute
+          flow: their first response is a preview, never an executed action. Summarize that preview
+          clearly and ask the user to confirm in their own words. Only call the same tool again with
+          confirmed: true after they do — and reuse the exact parameters from the preview, never
+          regenerate them from memory. Never set confirmed: true on your own initiative.
           Always respond in this language: #{@locale}.
         PROMPT
       end
