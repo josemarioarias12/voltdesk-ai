@@ -3,7 +3,10 @@ import { toast } from 'sonner'
 import { IconBolt } from '@/components/Icons'
 import { router } from '@inertiajs/react'
 import ReactMarkdown from 'react-markdown'
-import { X, Send, Loader2, Download, FileSpreadsheet, FileText, FileSpreadsheet as FileCsv, History, Plus, ArrowLeft, Pencil, Trash2, Check, Ticket, Calendar, ChevronRight, Sparkles } from 'lucide-react'
+import { X, Send, Loader2, Download, FileSpreadsheet, FileText, FileSpreadsheet as FileCsv, History, Plus, ArrowLeft, Pencil, Trash2, Check, Ticket, Calendar, ChevronRight, Sparkles, Mic, MicOff } from 'lucide-react'
+import { useVoiceTicket } from '@/hooks/useVoiceTicket'
+import { useLocale } from '@/hooks/useLocale'
+import { useTranslation } from 'react-i18next'
 
 interface ReportAttachment {
   url: string
@@ -119,6 +122,18 @@ function formatConversationLabel(conversation: ConversationSummary): string {
 }
 
 export default function VoltCopilotPanel() {
+  const { t } = useTranslation('common')
+  const { speechLang } = useLocale()
+  const {
+    transcript: voiceTranscript,
+    interimTranscript: voiceInterimTranscript,
+    voiceState,
+    isSupported: voiceSupported,
+    startListening,
+    stopListening,
+    resetTranscript,
+    errorCode: voiceErrorCode,
+  } = useVoiceTicket(speechLang)
   const [open, setOpen] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const [view, setView] = useState<'chat' | 'history'>('chat')
@@ -149,6 +164,12 @@ export default function VoltCopilotPanel() {
     const timer = setTimeout(() => setShowPulse(false), 4000)
     return () => clearTimeout(timer)
   }, [])
+
+  const voiceBaseInputRef = useRef('')
+
+  useEffect(() => {
+    if (voiceTranscript) setInput(voiceBaseInputRef.current + voiceTranscript)
+  }, [voiceTranscript])
 
   const handleResizeMove = useCallback((e: MouseEvent) => {
     if (!resizingRef.current) return
@@ -334,6 +355,16 @@ export default function VoltCopilotPanel() {
     } finally {
       setSending(false)
     }
+  }
+
+  function handleVoiceToggle() {
+    if (voiceState === 'listening') {
+      stopListening()
+      return
+    }
+    voiceBaseInputRef.current = input
+    resetTranscript()
+    startListening()
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -675,6 +706,23 @@ export default function VoltCopilotPanel() {
                   style={{ border: '1px solid rgba(15,23,42,0.08)', outline: 'none', maxHeight: '96px' }}
                 />
                 <button
+                  onClick={handleVoiceToggle}
+                  disabled={!voiceSupported}
+                  type="button"
+                  aria-label={voiceState === 'listening' ? 'Stop dictation' : 'Start dictation'}
+                  aria-pressed={voiceState === 'listening'}
+                  className="flex items-center justify-center rounded-xl flex-shrink-0"
+                  style={{
+                    width: '36px', height: '36px', border: 'none',
+                    cursor: voiceSupported ? 'pointer' : 'not-allowed',
+                    background: voiceState === 'listening' ? '#028090' : '#F1F5F9',
+                  }}
+                >
+                  {voiceState === 'listening'
+                    ? <Mic size={16} color="#fff" />
+                    : <MicOff size={16} color={voiceSupported ? '#64748B' : '#CBD5E1'} />}
+                </button>
+                <button
                   onClick={handleSend}
                   disabled={sending || !input.trim()}
                   aria-label="Send message"
@@ -687,6 +735,12 @@ export default function VoltCopilotPanel() {
                   <Send size={16} color={sending || !input.trim() ? '#94A3B8' : '#fff'} />
                 </button>
               </div>
+
+              {voiceErrorCode && (
+                <p className="text-xs mt-1.5" style={{ color: '#DC2626' }}>
+                  {t(`voice.errors.${voiceErrorCode}`)}
+                </p>
+              )}
             </div>
           </>
         )}
