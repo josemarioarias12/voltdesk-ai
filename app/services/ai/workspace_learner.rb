@@ -37,8 +37,9 @@ module Ai
         result = adapter.chat(prompt: prompt, system: SYSTEM_PROMPT, model: model)
         ctx[:confidence] = 0.8
         ctx[:prompt]     = prompt
-        ctx[:response]   = result
-        result
+        ctx[:response]   = result[:content]
+        ctx[:tokens]     = result[:tokens]
+        result[:content]
       end
 
       parsed = JSON.parse(response.gsub(/```json|```/, '').strip)

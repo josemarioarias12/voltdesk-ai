@@ -22,7 +22,10 @@ RSpec.describe Ai::WorkspaceLearner do
   before do
     allow(Ai::ModelRouter).to receive(:for).with(workspace: workspace, operation: :analysis).and_return(router)
     allow(router).to receive(:resolve).and_return([adapter, model, provider])
-    allow(adapter).to receive(:chat).and_return(valid_ai_response)
+    allow(adapter).to receive(:chat).and_return(
+      content: valid_ai_response,
+      tokens: { 'prompt_tokens' => 200, 'completion_tokens' => 80, 'total_tokens' => 280 }
+    )
   end
 
   describe '.call' do
@@ -78,7 +81,10 @@ RSpec.describe Ai::WorkspaceLearner do
                         ai_metadata: { 'category' => 'billing' })
         agent  = create(:user, workspace: workspace)
         create_list(:classification_correction, 50, workspace: workspace, ticket: ticket, agent: agent)
-        allow(adapter).to receive(:chat).and_return('not valid json {{{')
+        allow(adapter).to receive(:chat).and_return(
+          content: 'not valid json {{{',
+          tokens: { 'prompt_tokens' => 200, 'completion_tokens' => 80, 'total_tokens' => 280 }
+        )
       end
 
       it 'returns failure with invalid_ai_response' do
