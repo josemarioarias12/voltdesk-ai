@@ -3,10 +3,11 @@ import { toast } from 'sonner'
 import { IconBolt } from '@/components/Icons'
 import { router } from '@inertiajs/react'
 import ReactMarkdown from 'react-markdown'
-import { X, Send, Loader2, Download, FileSpreadsheet, FileText, FileSpreadsheet as FileCsv, History, Plus, ArrowLeft, Pencil, Trash2, Check, Ticket, Calendar, ChevronRight, Sparkles, Mic, MicOff } from 'lucide-react'
+import { X, Send, Loader2, Download, FileSpreadsheet, FileText, FileSpreadsheet as FileCsv, History, Plus, ArrowLeft, Pencil, Trash2, Check, Ticket, Calendar, ChevronRight, Sparkles, Mic, MicOff, Volume2, VolumeX } from 'lucide-react'
 import { useVoiceTicket } from '@/hooks/useVoiceTicket'
 import { useLocale } from '@/hooks/useLocale'
 import { useTranslation } from 'react-i18next'
+import { stripMarkdownForSpeech } from '@/lib/stripMarkdownForSpeech'
 
 interface ReportAttachment {
   url: string
@@ -149,6 +150,7 @@ export default function VoltCopilotPanel() {
   const [sending, setSending] = useState(false)
   const [width, setWidth] = useState(DEFAULT_WIDTH)
   const [showPulse, setShowPulse] = useState(true)
+  const [voiceOutputEnabled, setVoiceOutputEnabled] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const resizingRef = useRef(false)
 
@@ -350,6 +352,13 @@ export default function VoltCopilotPanel() {
         ...prev,
         { id: `local-${Date.now()}-a`, role: 'assistant', content: data.content, report: data.report, resource_link: data.resource_link },
       ])
+
+      if (voiceOutputEnabled && data.content) {
+        const utterance = new SpeechSynthesisUtterance(stripMarkdownForSpeech(data.content))
+        utterance.lang = speechLang
+        window.speechSynthesis.cancel()
+        window.speechSynthesis.speak(utterance)
+      }
     } catch {
       toast.error('Network error — Volt Copilot did not respond.')
     } finally {
@@ -365,6 +374,15 @@ export default function VoltCopilotPanel() {
     voiceBaseInputRef.current = input
     resetTranscript()
     startListening()
+  }
+
+  function handleVoiceOutputToggle() {
+    if (voiceOutputEnabled) {
+      window.speechSynthesis.cancel()
+      setVoiceOutputEnabled(false)
+    } else {
+      setVoiceOutputEnabled(true)
+    }
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -492,6 +510,15 @@ export default function VoltCopilotPanel() {
                   style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex' }}
                 >
                   <History size={16} />
+                </button>
+                <button
+                  onClick={handleVoiceOutputToggle}
+                  aria-label={voiceOutputEnabled ? 'Disable voice output' : 'Enable voice output'}
+                  aria-pressed={voiceOutputEnabled}
+                  title={voiceOutputEnabled ? 'Voz activada' : 'Voz desactivada'}
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: voiceOutputEnabled ? '#028090' : '#94A3B8', display: 'flex' }}
+                >
+                  {voiceOutputEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
                 </button>
               </>
             )}
