@@ -3,7 +3,7 @@ import { toast } from 'sonner'
 import { IconBolt } from '@/components/Icons'
 import { router } from '@inertiajs/react'
 import ReactMarkdown from 'react-markdown'
-import { X, Send, Loader2, Download, FileSpreadsheet, FileText, FileSpreadsheet as FileCsv, History, Plus, ArrowLeft, Pencil, Trash2, Check, Ticket, Calendar, ChevronRight } from 'lucide-react'
+import { X, Send, Loader2, Download, FileSpreadsheet, FileText, FileSpreadsheet as FileCsv, History, Plus, ArrowLeft, Pencil, Trash2, Check, Ticket, Calendar, ChevronRight, Sparkles } from 'lucide-react'
 
 interface ReportAttachment {
   url: string
@@ -27,7 +27,7 @@ interface ConversationSummary {
 interface ResourceAttachment {
   title: string
   path: string
-  icon: 'ticket' | 'calendar'
+  icon: 'ticket' | 'calendar' | 'sparkles'
 }
 
 interface AssistantMessage {
@@ -70,6 +70,7 @@ function ReportFileIcon({ contentType }: { contentType: string }) {
 const RESOURCE_ICON_MAP: Record<string, { color: string; Icon: typeof Ticket }> = {
   ticket: { color: '#028090', Icon: Ticket },
   calendar: { color: '#02C39A', Icon: Calendar },
+  sparkles: { color: '#028090', Icon: Sparkles },
 }
 
 function ResourceLinkIcon({ icon }: { icon: string }) {

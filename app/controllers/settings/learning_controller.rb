@@ -21,16 +21,13 @@ module Settings
     def apply
       authorize current_workspace, :manage_learning?
 
-      suggestion = current_workspace.settings['learning_suggestion']
-      return redirect_to settings_learning_index_path, alert: 'No suggestion available.' if suggestion.blank?
+      result = Settings::ApplyLearningSuggestion.call(workspace: current_workspace)
 
-      addition = suggestion['suggested_prompt_addition'].to_s
-      current_workspace.settings['custom_prompt_context'] =
-        [current_workspace.settings['custom_prompt_context'], addition].compact.join("\n\n")
-      current_workspace.settings['learning_suggestion']['applied_at'] = Time.current.iso8601
-      current_workspace.save!
-
-      redirect_to settings_learning_index_path, notice: 'Suggestion applied successfully.'
+      if result.success?
+        redirect_to settings_learning_index_path, notice: 'Suggestion applied successfully.'
+      else
+        redirect_to settings_learning_index_path, alert: result.error
+      end
     end
 
     def dismiss

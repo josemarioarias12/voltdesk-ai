@@ -11,7 +11,11 @@ module Ai
         Ai::Tools::WorkspacePatternAlerts,
         Ai::Tools::GenerateReport,
         Ai::Tools::CreateTicket,
-        Ai::Tools::CreateLeaveRequest
+        Ai::Tools::CreateLeaveRequest,
+        Ai::Tools::ApplyLearningSuggestion,
+        Ai::Tools::LearningInsights,
+        Ai::Tools::ExplainDecision,
+        Ai::Tools::CrossModuleInsight
       ].freeze
 
       def self.available_for(user)
