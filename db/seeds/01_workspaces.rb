@@ -22,7 +22,7 @@ workspace_data = {
 ws = Workspace.create!(
   name: workspace_data[:name], slug: workspace_data[:slug], plan: workspace_data[:plan],
   active: true, ai_provider: "openai", ai_model: "gpt-4o",
-  ai_fallback_provider: "anthropic", ai_selection_mode: "primary",
+  ai_fallback_provider: "anthropic", ai_selection_mode: "automatic",
   settings: workspace_data[:settings]
 )
 puts "  Created workspace: #{ws.name} [#{ws.plan}]"
