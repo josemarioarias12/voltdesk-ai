@@ -712,8 +712,8 @@ export default function VoltCopilotPanel() {
                   {message.audit_trace && (
                     <a
                       href={`/admin/audit-log?assistant_message_id=${message.audit_trace.assistant_message_id}`}
-                      className="text-xs mt-1 inline-block"
-                      style={{ color: '#94A3B8' }}
+                      className="text-xs mt-1 inline-block hover:underline"
+                      style={{ color: '#028090', textDecoration: 'underline' }}
                     >
                       {t('auditTrace.viewLink')}
                     </a>
