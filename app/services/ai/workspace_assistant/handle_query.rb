@@ -19,6 +19,7 @@ module Ai
         @locale = locale
         @pending_attachments = []
         @pending_resource_link = nil
+        @audit_log_ids = []
       end
 
       def call
@@ -71,6 +72,8 @@ module Ai
 
           result
         end
+      ensure
+        @audit_log_ids << last_ai_audit_log_id if last_ai_audit_log_id
       end
 
       def finalize(final_text, tools_used)
@@ -80,10 +83,16 @@ module Ai
           metadata: { tools_used: tools_used, resource_link: @pending_resource_link }.compact
         )
 
+        # rubocop:disable Rails/SkipsModelValidations -- linking an already-validated,
+        # already-persisted log to its message; re-running full validations here is unnecessary
+        AiAuditLog.where(id: @audit_log_ids).update_all(assistant_message_id: message.id) if @audit_log_ids.present?
+        # rubocop:enable Rails/SkipsModelValidations
+
         attach_pending_report(message)
 
         ServiceResult.success(content: final_text, tools_used: tools_used,
-                              has_attachment: message.report_file.attached?)
+                              has_attachment: message.report_file.attached?,
+                              audit_log_ids: @audit_log_ids)
       end
 
       def attach_pending_report(message)

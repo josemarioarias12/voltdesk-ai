@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_28_184515) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_02_165433) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -63,6 +63,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_28_184515) do
   end
 
   create_table "ai_audit_logs", force: :cascade do |t|
+    t.bigint "assistant_message_id"
     t.integer "completion_tokens", default: 0, null: false
     t.decimal "confidence_score", precision: 4, scale: 3
     t.datetime "created_at", null: false
@@ -79,6 +80,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_28_184515) do
     t.datetime "updated_at", null: false
     t.bigint "user_id"
     t.bigint "workspace_id", null: false
+    t.index ["assistant_message_id"], name: "index_ai_audit_logs_on_assistant_message_id"
     t.index ["user_id"], name: "index_ai_audit_logs_on_user_id"
     t.index ["workspace_id", "created_at"], name: "idx_ai_audit_logs_workspace_date"
     t.index ["workspace_id", "operation"], name: "idx_ai_audit_logs_workspace_operation"
@@ -639,6 +641,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_28_184515) do
   add_foreign_key "agent_actions", "tickets"
   add_foreign_key "agent_actions", "users", column: "approved_by_id"
   add_foreign_key "agent_actions", "workspaces"
+  add_foreign_key "ai_audit_logs", "assistant_messages"
   add_foreign_key "ai_audit_logs", "users"
   add_foreign_key "ai_audit_logs", "workspaces"
   add_foreign_key "api_keys", "users"

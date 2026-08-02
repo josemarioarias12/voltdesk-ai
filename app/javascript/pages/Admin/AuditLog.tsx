@@ -29,6 +29,7 @@ interface Props {
   filters: Filters
   operations: string[]
   providers: string[]
+  highlight_id: number | null
 }
 
 const PROVIDER_COLORS: Record<string, string> = {
@@ -37,11 +38,11 @@ const PROVIDER_COLORS: Record<string, string> = {
 const OPERATION_COLORS: Record<string, string> = {
   ticket_classification: '#028090', ticket_embedding: '#6366F1',
   response_suggestion: '#F97316', asset_risk_scoring: '#EF4444',
-  onboarding_plan: '#8B5CF6', executive_report: '#0EA5E9',
+  onboarding_plan: '#8B5CF6', executive_report: '#0EA5E9', workspace_assistant_query: '#EC4899',
 }
 
-export default function AuditLog({ logs, pagination, filters, operations, providers }: Props) {
-  const [expanded, setExpanded] = useState<number | null>(null)
+export default function AuditLog({ logs, pagination, filters, operations, providers, highlight_id }: Props) {
+  const [expanded, setExpanded] = useState<number | null>(highlight_id)
   const [localFilters, setLocalFilters] = useState(filters)
 
   const totalPages = Math.ceil(pagination.total / pagination.per_page)

@@ -12,6 +12,7 @@ module Admin
       logs = logs.where(status:    params[:status])    if params[:status].present?
       logs = logs.where(created_at: params.expect(:from).to_date..) if params[:from].present?
       logs = logs.where(created_at: ..params.expect(:to).to_date.end_of_day) if params[:to].present?
+      logs = logs.where(assistant_message_id: params[:assistant_message_id]) if params[:assistant_message_id].present?
 
       total   = logs.count
       page    = (params[:page] || 1).to_i
@@ -23,6 +24,7 @@ module Admin
         filters: { operation: params[:operation], provider: params[:provider],
                    status: params[:status], from: params[:from], to: params[:to] },
         operations: AiAuditLog.operations.keys,
+        highlight_id: params[:highlight_id].presence&.to_i,
         providers: AiAuditLog.where.not(provider: nil).distinct.pluck(:provider).compact
       }
     end

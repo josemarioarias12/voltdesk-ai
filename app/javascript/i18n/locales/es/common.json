@@ -14,6 +14,9 @@
       "unknown": "Error de reconocimiento. Intentá de nuevo."
     }
   },
+  "auditTrace": {
+    "viewLink": "Ver auditoría de esta respuesta"
+  },
   "errorPages": {
     "notFound": {
       "title": "Página no encontrada",

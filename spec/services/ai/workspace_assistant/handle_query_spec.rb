@@ -43,6 +43,12 @@ RSpec.describe Ai::WorkspaceAssistant::HandleQuery do
     it 'writes exactly one AiAuditLog entry' do
       expect { result }.to change(AiAuditLog, :count).by(1)
     end
+
+    it 'links the AiAuditLog entry to the final assistant message' do
+      result
+      assistant_message = conversation.assistant_messages.role_assistant.last
+      expect(AiAuditLog.last.assistant_message).to eq(assistant_message)
+    end
   end
 
   context 'when the model calls one tool before answering' do
@@ -76,6 +82,12 @@ RSpec.describe Ai::WorkspaceAssistant::HandleQuery do
 
     it 'writes one AiAuditLog entry per model call, not per turn' do
       expect { result }.to change(AiAuditLog, :count).by(2)
+    end
+
+    it 'links both AiAuditLog entries to the same final assistant message' do
+      result
+      assistant_message = conversation.assistant_messages.role_assistant.last
+      expect(AiAuditLog.last(2).map(&:assistant_message)).to all(eq(assistant_message))
     end
   end
 
@@ -154,6 +166,11 @@ RSpec.describe Ai::WorkspaceAssistant::HandleQuery do
 
     it 'returns failure instead of looping forever' do
       expect(result).to be_failure
+    end
+
+    it 'leaves AiAuditLog entries unlinked when no final assistant message is ever created' do
+      result
+      expect(AiAuditLog.all).to all(have_attributes(assistant_message_id: nil))
     end
   end
 end

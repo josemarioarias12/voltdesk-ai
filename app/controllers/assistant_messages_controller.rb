@@ -26,7 +26,8 @@ class AssistantMessagesController < ApplicationController
         content: result.data[:content],
         tools_used: result.data[:tools_used],
         report: report_payload(message),
-        resource_link: message.metadata['resource_link']
+        resource_link: message.metadata['resource_link'],
+        audit_trace: audit_trace_payload(result.data[:audit_log_ids], message)
       }
     else
       render json: { error: result.error }, status: :unprocessable_content
@@ -43,5 +44,14 @@ class AssistantMessagesController < ApplicationController
       filename: message.report_file.filename.to_s,
       content_type: message.report_file.content_type
     }
+  end
+
+  def audit_trace_payload(audit_log_ids, message)
+    return nil if audit_log_ids.blank?
+
+    probe = AiAuditLog.new(workspace: current_workspace)
+    return nil unless AiAuditLogPolicy.new(current_user, probe).view_trace?
+
+    { assistant_message_id: message.id }
   end
 end

@@ -2,6 +2,7 @@
 
 class AssistantMessage < ApplicationRecord
   belongs_to :assistant_conversation, touch: true
+  has_many :ai_audit_logs, dependent: :nullify
   has_one_attached :report_file
 
   enum :role, {

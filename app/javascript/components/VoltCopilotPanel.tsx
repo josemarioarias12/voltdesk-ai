@@ -15,13 +15,6 @@ interface ReportAttachment {
   content_type: string
 }
 
-interface AssistantMessage {
-  id: number | string
-  role: 'user' | 'assistant'
-  content: string
-  report?: ReportAttachment | null
-}
-
 interface ConversationSummary {
   id: number
   title: string | null
@@ -33,6 +26,9 @@ interface ResourceAttachment {
   path: string
   icon: 'ticket' | 'calendar' | 'sparkles'
 }
+interface AuditTrace {
+  assistant_message_id: number
+}
 
 interface AssistantMessage {
   id: number | string
@@ -40,6 +36,7 @@ interface AssistantMessage {
   content: string
   report?: ReportAttachment | null
   resource_link?: ResourceAttachment | null
+  audit_trace?: AuditTrace | null
 }
 
 const DEFAULT_WIDTH = 380
@@ -350,7 +347,14 @@ export default function VoltCopilotPanel() {
 
       setMessages(prev => [
         ...prev,
-        { id: `local-${Date.now()}-a`, role: 'assistant', content: data.content, report: data.report, resource_link: data.resource_link },
+        {
+          id: `local-${Date.now()}-a`,
+          role: 'assistant',
+          content: data.content,
+          report: data.report,
+          resource_link: data.resource_link,
+          audit_trace: data.audit_trace,
+        },
       ])
 
       if (voiceOutputEnabled && data.content) {
@@ -704,6 +708,15 @@ export default function VoltCopilotPanel() {
                       </div>
                       <ChevronRight size={16} style={{ color: '#028090', flexShrink: 0 }} />
                     </button>
+                  )}
+                  {message.audit_trace && (
+                    <a
+                      href={`/admin/audit-log?assistant_message_id=${message.audit_trace.assistant_message_id}`}
+                      className="text-xs mt-1 inline-block"
+                      style={{ color: '#94A3B8' }}
+                    >
+                      {t('auditTrace.viewLink')}
+                    </a>
                   )}
                 </div>
               ))}

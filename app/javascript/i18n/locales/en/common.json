@@ -14,6 +14,9 @@
       "unknown": "Recognition error. Please try again."
     }
   },
+  "auditTrace": {
+    "viewLink": "View audit trail for this response"
+  },
   "errorPages": {
     "notFound": {
       "title": "Page not found",

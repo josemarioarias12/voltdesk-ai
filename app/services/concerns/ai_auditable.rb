@@ -44,11 +44,13 @@ module AiAuditable
     end
   end
 
+  attr_reader :last_ai_audit_log_id
+
   private
 
   def log_ai_call(operation:, model:, provider:, prompt:, response:, tokens:, duration_ms:, confidence:, status:,
                   metadata: {})
-    AiAuditLog.create!(
+    log = AiAuditLog.create!(
       workspace: resolve_workspace,
       user: resolve_user,
       operation: operation,
@@ -64,7 +66,9 @@ module AiAuditable
       metadata: metadata,
       status: status
     )
+    @last_ai_audit_log_id = log.id
   rescue StandardError => e
+    @last_ai_audit_log_id = nil
     Rails.logger.error("[AiAuditable] Failed to write AiAuditLog: #{e.class} — #{e.message}")
   end
 

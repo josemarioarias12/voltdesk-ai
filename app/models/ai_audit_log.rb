@@ -24,6 +24,7 @@ class AiAuditLog < ApplicationRecord
 
   belongs_to :workspace
   belongs_to :user, optional: true
+  belongs_to :assistant_message, optional: true
 
   validates :operation, presence: true
   validates :model, presence: true
