@@ -11,13 +11,13 @@ module Ai
 
       mail = Ai::GovernanceMailer.new_suggestions(suggestions)
 
-      Resend::Emails.send(
-        from:    ApplicationMailer::FROM_ADDRESS,
+      Resend::Emails.send({
+                            from:    ApplicationMailer::FROM_ADDRESS,
         to:      recipients(mail),
         subject: mail.subject,
         html:    mail.html_part.body.to_s,
         text:    mail.text_part.body.to_s
-      )
+                          })
     rescue StandardError => e
       Rails.logger.error("[Ai::SendGovernanceEmailJob] #{e.class}: #{e.message}")
       raise
