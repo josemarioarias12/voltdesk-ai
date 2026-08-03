@@ -47,13 +47,27 @@ export default function AdminOverview({ stats }: { stats: Stats }) {
             Telegram Test →
           </button>
           <button
-              onClick={() => router.get('/admin/users')}
-              className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
-              style={{ background: '#0D1B2A' }}
-            >
-              Users →
-            </button>
-        </div>
+                onClick={() => router.get('/admin/users')}
+                className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
+                style={{ background: '#0D1B2A' }}
+              >
+                Users →
+              </button>
+            <button
+                onClick={() => router.get('/admin/governance')}
+                className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
+                style={{ background: '#8B5CF6' }}
+              >
+                Model Governance →
+              </button>
+            <button
+                onClick={() => router.get('/admin/pattern_alerts')}
+                className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
+                style={{ background: '#F97316' }}
+              >
+                Pattern Alerts →
+              </button>
+          </div>
 
         {/* KPI Cards */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
