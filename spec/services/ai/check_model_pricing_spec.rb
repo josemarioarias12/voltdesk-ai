@@ -37,6 +37,12 @@ RSpec.describe Ai::CheckModelPricing do
       expect(suggestion.status_pending_approval?).to be true
       expect(suggestion.result['fetched_input']).to eq(0.002)
     end
+
+    it 'returns the real suggestion id, not a boolean' do
+      suggestion_id = result.data[:suggestion_ids].first
+      expect(suggestion_id).to be_a(Integer)
+      expect(Ai::ModelGovernanceSuggestion.find(suggestion_id).provider).to eq('openai')
+    end
   end
 
   context 'when the mapped model price did not change' do

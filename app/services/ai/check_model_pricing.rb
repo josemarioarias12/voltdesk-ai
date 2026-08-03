@@ -96,6 +96,7 @@ module Ai
         checked_at: Time.current.iso8601
       }
       suggestion.save!
+      suggestion.id
     end
   end
 end
