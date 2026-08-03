@@ -25,7 +25,12 @@ module Ai
     scope :recent, -> { order(created_at: :desc) }
 
     def approve!(user:)
-      update!(status: :approved, reviewed_by: user, reviewed_at: Time.current)
+      if suggestion_type_pricing_update?
+        apply_pricing!
+        update!(status: :applied, reviewed_by: user, reviewed_at: Time.current, applied_at: Time.current)
+      else
+        update!(status: :approved, reviewed_by: user, reviewed_at: Time.current)
+      end
     end
 
     def reject!(user:)
@@ -34,6 +39,23 @@ module Ai
 
     def mark_applied!
       update!(status: :applied, applied_at: Time.current)
+    end
+
+    private
+
+    def apply_pricing!
+      input  = result['fetched_input']
+      output = result['fetched_output']
+      raise ArgumentError, 'Missing fetched pricing data in result' if input.nil? || output.nil?
+
+      pricing = Ai::ModelPricing.find_or_initialize_by(provider: provider, model: model)
+      pricing.input_cost  = input
+      pricing.output_cost = output
+      pricing.source      = result['source']
+      pricing.verified_at = Time.current
+      pricing.save!
+
+      Rails.cache.delete("ai_model_pricing/#{provider}/#{model}")
     end
   end
 end

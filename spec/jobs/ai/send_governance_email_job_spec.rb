@@ -7,9 +7,11 @@ RSpec.describe Ai::SendGovernanceEmailJob do
 
   let(:suggestion) { create(:ai_model_governance_suggestion) }
   let(:suggestion_ids) { [suggestion.id] }
-  let!(:admin) { create(:user, role: :workspace_admin, active: true) }
+  let(:notification_email) { 'jmariasm@ucenfotec.ac.cr' }
 
   before do
+    allow(ENV).to receive(:fetch).and_call_original
+    allow(ENV).to receive(:fetch).with('GOVERNANCE_NOTIFICATION_EMAIL', anything).and_return(notification_email)
     allow(Resend).to receive(:api_key).and_return('re_test_fake_key')
     stub_request(:post, 'https://api.resend.com/emails')
       .to_return(status: 200, body: { id: 'fake-email-id' }.to_json, headers: { 'Content-Type' => 'application/json' })
@@ -21,12 +23,12 @@ RSpec.describe Ai::SendGovernanceEmailJob do
     expect(WebMock).to have_requested(:post, 'https://api.resend.com/emails').once
   end
 
-  it 'sends the admin recipient, subject, and non-empty html/text bodies' do
+  it 'sends to GOVERNANCE_NOTIFICATION_EMAIL with subject and non-empty html/text bodies' do
     perform
 
     expect(WebMock).to(have_requested(:post, 'https://api.resend.com/emails').with do |req|
       body = JSON.parse(req.body)
-      body['to'] == [admin.email] &&
+      body['to'] == [notification_email] &&
         body['subject'].include?('governance') &&
         body['html'].present? &&
         body['text'].present?

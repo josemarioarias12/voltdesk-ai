@@ -19,7 +19,13 @@ module Admin
       suggestion = Ai::ModelGovernanceSuggestion.find(params.expect(:id))
       authorize suggestion, :approve?
       suggestion.approve!(user: current_user)
-      redirect_to admin_governance_path, notice: 'Suggestion approved.'
+
+      message = if suggestion.status_applied?
+                  'Suggestion approved and price applied immediately.'
+                else
+                  'Suggestion approved.'
+                end
+      redirect_to admin_governance_path, notice: message
     end
 
     def reject

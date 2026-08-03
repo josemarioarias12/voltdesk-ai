@@ -42,6 +42,11 @@ module Ai
     def self.provider_models = PROVIDER_MODELS
 
     def self.cost_per_1k(provider, model)
+      cached = Rails.cache.fetch("ai_model_pricing/#{provider}/#{model}", expires_in: 1.hour) do
+        Ai::ModelPricing.cost_per_1k(provider, model)
+      end
+      return cached if cached
+
       pricing = PROVIDER_TOKEN_PRICING["#{provider}/#{model}"]
       return 0.0 unless pricing
 

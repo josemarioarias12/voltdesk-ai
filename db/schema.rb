@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_02_192000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_03_215724) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -103,6 +103,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_192000) do
     t.index ["reviewed_by_id"], name: "index_ai_model_governance_suggestions_on_reviewed_by_id"
     t.index ["status"], name: "index_ai_model_governance_suggestions_on_status"
     t.index ["suggestion_type"], name: "index_ai_model_governance_suggestions_on_suggestion_type"
+  end
+
+  create_table "ai_model_pricings", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.decimal "input_cost", precision: 10, scale: 6, null: false
+    t.string "model", null: false
+    t.decimal "output_cost", precision: 10, scale: 6, null: false
+    t.string "provider", null: false
+    t.string "source", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "verified_at", null: false
+    t.index ["provider", "model"], name: "index_ai_model_pricings_on_provider_and_model", unique: true
   end
 
   create_table "api_keys", force: :cascade do |t|

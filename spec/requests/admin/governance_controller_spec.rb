@@ -40,7 +40,7 @@ RSpec.describe Admin::GovernanceController, type: :request do
   end
 
   describe 'PATCH /admin/governance/:id/approve' do
-    let(:suggestion) { create(:ai_model_governance_suggestion) }
+    let(:suggestion) { create(:ai_model_governance_suggestion, suggestion_type: :model_deprecation) }
 
     before { sign_in workspace_admin }
 
@@ -49,6 +49,19 @@ RSpec.describe Admin::GovernanceController, type: :request do
       expect(response).to redirect_to(admin_governance_path)
       expect(suggestion.reload.status_approved?).to be true
       expect(suggestion.reviewed_by).to eq(workspace_admin)
+    end
+
+    context 'when the suggestion is a pricing_update with real fetched data' do
+      let(:suggestion) do
+        create(:ai_model_governance_suggestion,
+               suggestion_type: :pricing_update,
+               result: { 'fetched_input' => 0.002, 'fetched_output' => 0.01, 'source' => 'openrouter' })
+      end
+
+      it 'applies the price immediately instead of leaving it approved' do
+        patch admin_governance_approve_path(suggestion)
+        expect(suggestion.reload.status_applied?).to be true
+      end
     end
 
     it 'is forbidden for employee' do

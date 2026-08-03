@@ -42,13 +42,53 @@ RSpec.describe Ai::ModelGovernanceSuggestion do
   describe '#approve!' do
     let(:reviewer) { create(:user) }
 
-    it 'sets status, reviewed_by, and reviewed_at' do
-      suggestion.save!
-      suggestion.approve!(user: reviewer)
+    context 'when suggestion_type is model_deprecation' do
+      it 'sets status to approved (a human must still pick a replacement model)' do
+        suggestion.save!
+        suggestion.update!(suggestion_type: :model_deprecation)
+        suggestion.approve!(user: reviewer)
 
-      expect(suggestion.status_approved?).to be true
-      expect(suggestion.reviewed_by).to eq(reviewer)
-      expect(suggestion.reviewed_at).to be_present
+        expect(suggestion.status_approved?).to be true
+        expect(suggestion.reviewed_by).to eq(reviewer)
+        expect(suggestion.reviewed_at).to be_present
+      end
+    end
+
+    context 'when suggestion_type is pricing_update with real fetched data' do
+      before do
+        suggestion.result = { 'fetched_input' => 0.002, 'fetched_output' => 0.01, 'source' => 'openrouter' }
+        suggestion.save!
+      end
+
+      it 'jumps straight to applied, with no separate approved state' do
+        suggestion.approve!(user: reviewer)
+
+        expect(suggestion.status_applied?).to be true
+        expect(suggestion.applied_at).to be_present
+        expect(suggestion.reviewed_by).to eq(reviewer)
+      end
+
+      it 'writes the fetched price into Ai::ModelPricing' do
+        suggestion.approve!(user: reviewer)
+
+        pricing = Ai::ModelPricing.for_provider_model('openai', 'gpt-4o')
+        expect(pricing.input_cost).to eq(0.002)
+        expect(pricing.output_cost).to eq(0.01)
+      end
+
+      it 'invalidates the pricing cache for that provider/model' do
+        Rails.cache.write('ai_model_pricing/openai/gpt-4o', 999)
+        suggestion.approve!(user: reviewer)
+
+        expect(Rails.cache.read('ai_model_pricing/openai/gpt-4o')).to be_nil
+      end
+    end
+
+    context 'when suggestion_type is pricing_update without fetched data in result' do
+      it 'raises instead of silently applying a blank price' do
+        suggestion.save!
+        expect { suggestion.approve!(user: reviewer) }.to raise_error(ArgumentError, /Missing fetched pricing data/)
+      end
     end
   end
 

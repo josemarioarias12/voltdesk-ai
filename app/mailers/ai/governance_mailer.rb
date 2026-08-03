@@ -15,9 +15,7 @@ module Ai
     private
 
     def admin_recipients
-      User.where(role: :super_admin, active: true).pluck(:email).presence ||
-        User.where(role: :workspace_admin, active: true).pluck(:email).presence ||
-        [ENV.fetch('DEMO_EMAIL', 'noreply@voltdesk.app')]
+      [ENV.fetch('GOVERNANCE_NOTIFICATION_EMAIL', 'noreply@voltdesk.app')]
     end
   end
 end
