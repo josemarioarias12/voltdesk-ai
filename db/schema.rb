@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_02_165433) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_02_192000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -85,6 +85,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_165433) do
     t.index ["workspace_id", "created_at"], name: "idx_ai_audit_logs_workspace_date"
     t.index ["workspace_id", "operation"], name: "idx_ai_audit_logs_workspace_operation"
     t.index ["workspace_id"], name: "index_ai_audit_logs_on_workspace_id"
+  end
+
+  create_table "ai_model_governance_suggestions", force: :cascade do |t|
+    t.datetime "applied_at"
+    t.datetime "created_at", null: false
+    t.string "model", null: false
+    t.string "provider", null: false
+    t.jsonb "result", default: {}, null: false
+    t.datetime "reviewed_at"
+    t.bigint "reviewed_by_id"
+    t.integer "status", default: 0, null: false
+    t.integer "suggestion_type", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["provider", "model"], name: "index_ai_model_governance_suggestions_on_provider_and_model"
+    t.index ["result"], name: "index_ai_model_governance_suggestions_on_result", using: :gin
+    t.index ["reviewed_by_id"], name: "index_ai_model_governance_suggestions_on_reviewed_by_id"
+    t.index ["status"], name: "index_ai_model_governance_suggestions_on_status"
+    t.index ["suggestion_type"], name: "index_ai_model_governance_suggestions_on_suggestion_type"
   end
 
   create_table "api_keys", force: :cascade do |t|
@@ -644,6 +662,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_165433) do
   add_foreign_key "ai_audit_logs", "assistant_messages"
   add_foreign_key "ai_audit_logs", "users"
   add_foreign_key "ai_audit_logs", "workspaces"
+  add_foreign_key "ai_model_governance_suggestions", "users", column: "reviewed_by_id"
   add_foreign_key "api_keys", "users"
   add_foreign_key "api_keys", "workspaces"
   add_foreign_key "api_requests", "api_keys"

@@ -53,6 +53,10 @@ module Ai
               'Gemini embeddings are 768-dim — incompatible with pgvector 1536 index. Use OpenAI adapter.'
       end
 
+      def list_model_ids
+        @client.models['models'].to_a.map { |m| m['name'].to_s.delete_prefix('models/') }
+      end
+
       def provider_name = 'gemini'
       def embedding_model = nil
     end

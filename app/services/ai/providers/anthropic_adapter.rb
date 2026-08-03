@@ -71,6 +71,20 @@ module Ai
         raise NotImplementedError, 'Anthropic does not provide embeddings. Use OpenAI adapter.'
       end
 
+      def list_model_ids
+        uri = URI('https://api.anthropic.com/v1/models')
+        request = Net::HTTP::Get.new(uri)
+        request['x-api-key']         = ENV.fetch('ANTHROPIC_API_KEY')
+        request['anthropic-version'] = '2023-06-01'
+
+        response = Net::HTTP.start(uri.host, uri.port, use_ssl: true, open_timeout: 5, read_timeout: 10) do |http|
+          http.request(request)
+        end
+        return [] unless response.is_a?(Net::HTTPSuccess)
+
+        JSON.parse(response.body)['data'].to_a.pluck('id')
+      end
+
       def provider_name = 'anthropic'
       def embedding_model = nil
     end

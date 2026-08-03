@@ -1,0 +1,9 @@
+VoltDesk AI - Model Governance
+
+<%= @count %> <%= @count == 1 ? 'suggestion' : 'suggestions' %> pending review:
+
+<% @suggestions.each do |suggestion| %>
+- <%= suggestion.suggestion_type.humanize %>: <%= suggestion.provider %>/<%= suggestion.model %>
+<% end %>
+
+Review at: <%= ENV.fetch('APP_HOST', 'https://voltdesk.app') %>/admin/governance

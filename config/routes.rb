@@ -115,6 +115,11 @@ Rails.application.routes.draw do
   namespace :admin do
     get '/',          to: 'overview#index',  as: :root
     get '/audit-log', to: 'audit_log#index', as: :audit_log
+    get '/governance', to: 'governance#index', as: :governance
+    post '/governance/sync_now', to: 'governance#sync_now', as: :governance_sync_now
+    patch '/governance/:id/approve', to: 'governance#approve', as: :governance_approve
+    patch '/governance/:id/reject', to: 'governance#reject', as: :governance_reject
+    patch '/governance/:id/mark_applied', to: 'governance#mark_applied', as: :governance_mark_applied
     resources :pattern_alerts, only: %i[index update]
     get '/operational-twin', to: 'operational_twin#show', as: :operational_twin
     get '/ai-health', to: 'ai_health#index', as: :ai_health

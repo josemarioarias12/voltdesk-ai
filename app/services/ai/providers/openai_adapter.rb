@@ -92,6 +92,10 @@ module Ai
         }
       end
 
+      def list_model_ids
+        @client.models.list['data'].to_a.pluck('id')
+      end
+
       def provider_name = 'openai'
       def embedding_model = EMBEDDING_MODEL
 
