@@ -21,7 +21,9 @@ module Ai
       results = Ai::ModelRouter::PROVIDER_TOKEN_PRICING.keys.map { |key| check_model(key, response) }
       flagged = results.select { |r| r[:flagged] }
 
-      ServiceResult.success(checked: results.size, flagged: flagged.size, suggestion_ids: flagged.pluck(:suggestion_id))
+      ServiceResult.success(
+        checked: results.size, flagged: flagged.size, suggestion_ids: flagged.pluck(:suggestion_id)
+      )
     rescue StandardError => e
       Rails.logger.error("[Ai::CheckModelPricing] #{e.message}")
       ServiceResult.failure(e.message)
@@ -61,7 +63,8 @@ module Ai
                 price_changed?(current[:output], fetched_output_per_1k)
       return { flagged: false } unless changed
 
-      suggestion_id = upsert_suggestion(internal_key, current, fetched_input_per_1k, fetched_output_per_1k)
+      suggestion_id = upsert_suggestion(internal_key, openrouter_id, current, fetched_input_per_1k,
+                                        fetched_output_per_1k)
       { flagged: true, suggestion_id: suggestion_id }
     end
 
@@ -76,7 +79,7 @@ module Ai
       { flagged: false }
     end
 
-    def upsert_suggestion(internal_key, current, fetched_input, fetched_output)
+    def upsert_suggestion(internal_key, openrouter_id, current, fetched_input, fetched_output)
       provider, model = internal_key.split('/', 2)
 
       suggestion = Ai::ModelGovernanceSuggestion.find_or_initialize_by(
@@ -89,6 +92,7 @@ module Ai
       suggestion.result = {
         found: true,
         source: 'openrouter',
+        verify_url: "https://openrouter.ai/#{openrouter_id}",
         current_input: current[:input],
         current_output: current[:output],
         fetched_input: fetched_input,

@@ -29,6 +29,13 @@ RSpec.describe Ai::CheckModelPricing do
       expect(result.data[:flagged]).to eq(1)
     end
 
+    it 'includes a verify_url pointing to the OpenRouter model page' do
+      result
+
+      suggestion = Ai::ModelGovernanceSuggestion.find_by(provider: 'openai', model: 'gpt-4o')
+      expect(suggestion.result['verify_url']).to eq('https://openrouter.ai/openai/gpt-4o')
+    end
+
     it 'creates a pending pricing_update suggestion' do
       result
 

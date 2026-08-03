@@ -2,6 +2,12 @@
 
 module Ai
   class CheckModelDeprecation
+    VERIFY_URLS = {
+      'openai'    => 'https://platform.openai.com/docs/models',
+      'anthropic' => 'https://docs.claude.com/en/docs/about-claude/models/overview',
+      'gemini'    => 'https://ai.google.dev/gemini-api/docs/models'
+    }.freeze
+
     def self.call
       new.call
     end
@@ -10,7 +16,9 @@ module Ai
       results = Ai::ModelRouter::PROVIDER_MODELS.flat_map { |provider, models| check_provider(provider, models) }
       flagged = results.select { |r| r[:flagged] }
 
-      ServiceResult.success(checked: results.size, flagged: flagged.size, suggestion_ids: flagged.pluck(:suggestion_id))
+      ServiceResult.success(
+        checked: results.size, flagged: flagged.size, suggestion_ids: flagged.pluck(:suggestion_id)
+      )
     rescue StandardError => e
       Rails.logger.error("[Ai::CheckModelDeprecation] #{e.message}")
       ServiceResult.failure(e.message)
@@ -58,6 +66,7 @@ module Ai
       suggestion.result = {
         found: true,
         source: provider,
+        verify_url: VERIFY_URLS[provider],
         live_model_count: live_ids.size,
         checked_at: Time.current.iso8601
       }

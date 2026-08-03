@@ -42,6 +42,13 @@ RSpec.describe Ai::CheckModelDeprecation do
       expect(suggestion.status_pending_approval?).to be true
       expect(suggestion.suggestion_type_model_deprecation?).to be true
     end
+
+    it 'includes a verify_url pointing to the provider docs' do
+      result
+
+      suggestion = Ai::ModelGovernanceSuggestion.find_by(provider: 'openai', model: 'gpt-4o')
+      expect(suggestion.result['verify_url']).to eq('https://platform.openai.com/docs/models')
+    end
   end
 
   context 'when a provider is unreachable' do

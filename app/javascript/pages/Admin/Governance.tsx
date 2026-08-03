@@ -139,6 +139,19 @@ export default function Governance({ suggestions, filters }: Props) {
                     ) : (
                       <>Not found in {s.result.source}'s live model list</>
                     )}
+                    {s.result.verify_url && (
+                      <>
+                        {' · '}
+                        <a
+                          href={String(s.result.verify_url)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: '#028090', textDecoration: 'underline' }}
+                        >
+                          Verify source
+                        </a>
+                      </>
+                    )}
                   </td>
 
                   <td className="px-4 py-3">
