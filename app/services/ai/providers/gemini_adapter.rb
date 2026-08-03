@@ -5,13 +5,14 @@ module Ai
     class GeminiAdapter
       SUPPORTED_MODELS = %w[gemini-2.0-flash gemini-1.5-pro].freeze
       EMBEDDING_MODEL  = 'text-embedding-004'
-      EMBEDDING_DIMS   = 768 # Gemini embeddings are 768-dim — only OpenAI is used for pgvector
+      EMBEDDING_DIMS   = 768
 
       def initialize
         @client = Gemini.new(
           credentials: {
             service: 'generative-language-api',
-            api_key: ENV.fetch('GEMINI_API_KEY')
+            api_key: ENV.fetch('GEMINI_API_KEY'),
+            version: 'v1beta'
           },
           options: { model: 'gemini-2.0-flash', server_sent_events: false }
         )
@@ -22,7 +23,8 @@ module Ai
         @client = Gemini.new(
           credentials: {
             service: 'generative-language-api',
-            api_key: ENV.fetch('GEMINI_API_KEY')
+            api_key: ENV.fetch('GEMINI_API_KEY'),
+            version: 'v1beta'
           },
           options: { model: model, server_sent_events: false }
         )
