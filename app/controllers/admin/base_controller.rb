@@ -3,14 +3,12 @@
 module Admin
   class BaseController < ApplicationController
     before_action :authenticate_user!
-    before_action :authorize_admin!
+    before_action :authorize_admin_area!
 
     private
 
-    def authorize_admin!
-      return if current_user.role_workspace_admin? || current_user.role_super_admin?
-
-      raise Pundit::NotAuthorizedError, 'Admin access required'
+    def authorize_admin_area!
+      authorize :admin_area, :access?
     end
   end
 end
