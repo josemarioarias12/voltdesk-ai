@@ -124,4 +124,44 @@ RSpec.describe Ai::ModelGovernanceSuggestion do
       expect(described_class.for_provider_model('openai', 'gpt-4o')).not_to include(other)
     end
   end
+
+  describe '.filtered_by' do
+    let!(:pricing_pending) { suggestion.tap(&:save!) }
+    let!(:deprecation_rejected) do
+      described_class.create!(
+        provider: 'anthropic', model: 'claude-sonnet-5',
+        suggestion_type: :model_deprecation, status: :rejected
+      )
+    end
+
+    it 'filters by suggestion_type when present' do
+      result = described_class.filtered_by(suggestion_type: 'pricing_update')
+
+      expect(result).to contain_exactly(pricing_pending)
+    end
+
+    it 'filters by status when present' do
+      result = described_class.filtered_by(status: 'rejected')
+
+      expect(result).to contain_exactly(deprecation_rejected)
+    end
+
+    it 'returns everything when no filters are given' do
+      result = described_class.filtered_by({})
+
+      expect(result).to contain_exactly(pricing_pending, deprecation_rejected)
+    end
+
+    it 'combines both filters when both are present' do
+      result = described_class.filtered_by(suggestion_type: 'model_deprecation', status: 'rejected')
+
+      expect(result).to contain_exactly(deprecation_rejected)
+    end
+
+    it 'returns nothing when the combination matches no record' do
+      result = described_class.filtered_by(suggestion_type: 'pricing_update', status: 'rejected')
+
+      expect(result).to be_empty
+    end
+  end
 end

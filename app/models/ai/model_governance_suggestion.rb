@@ -23,6 +23,12 @@ module Ai
 
     scope :for_provider_model, ->(provider, model) { where(provider: provider, model: model) }
     scope :recent, -> { order(created_at: :desc) }
+    scope :filtered_by, lambda { |filters|
+      scope = all
+      scope = scope.where(suggestion_type: filters[:suggestion_type]) if filters[:suggestion_type].present?
+      scope = scope.where(status: filters[:status]) if filters[:status].present?
+      scope
+    }
 
     def approve!(user:)
       if suggestion_type_pricing_update?

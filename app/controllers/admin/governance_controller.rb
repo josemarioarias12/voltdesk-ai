@@ -4,14 +4,11 @@ module Admin
   class GovernanceController < BaseController
     def index
       authorize Ai::ModelGovernanceSuggestion
-      suggestions = policy_scope(Ai::ModelGovernanceSuggestion).recent
-
-      suggestions = suggestions.where(suggestion_type: params[:suggestion_type]) if params[:suggestion_type].present?
-      suggestions = suggestions.where(status: params[:status]) if params[:status].present?
+      suggestions = policy_scope(Ai::ModelGovernanceSuggestion).recent.filtered_by(filter_params)
 
       render inertia: 'Admin/Governance', props: {
         suggestions: suggestions.map { |s| serialize(s) },
-        filters: { suggestion_type: params[:suggestion_type], status: params[:status] }
+        filters: filter_params.to_h
       }
     end
 
@@ -49,6 +46,10 @@ module Admin
     end
 
     private
+
+    def filter_params
+      params.permit(:suggestion_type, :status)
+    end
 
     def serialize(suggestion)
       {

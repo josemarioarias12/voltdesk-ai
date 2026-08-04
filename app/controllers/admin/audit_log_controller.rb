@@ -5,24 +5,12 @@ module Admin
     PER_PAGE = 20
 
     def index
-      logs = current_workspace.ai_audit_logs.order(created_at: :desc)
-
-      logs = logs.where(operation: params[:operation]) if params[:operation].present?
-      logs = logs.where(provider:  params[:provider])  if params[:provider].present?
-      logs = logs.where(status:    params[:status])    if params[:status].present?
-      logs = logs.where(created_at: params.expect(:from).to_date..) if params[:from].present?
-      logs = logs.where(created_at: ..params.expect(:to).to_date.end_of_day) if params[:to].present?
-      logs = logs.where(assistant_message_id: params[:assistant_message_id]) if params[:assistant_message_id].present?
-
-      total   = logs.count
-      page    = (params[:page] || 1).to_i
-      entries = logs.limit(PER_PAGE).offset((page - 1) * PER_PAGE)
+      logs = current_workspace.ai_audit_logs.order(created_at: :desc).filtered_by(filter_params)
 
       render inertia: 'Admin/AuditLog', props: {
-        logs: entries.map { |l| serialize_log(l) },
-        pagination: { page: page, per_page: PER_PAGE, total: total },
-        filters: { operation: params[:operation], provider: params[:provider],
-                   status: params[:status], from: params[:from], to: params[:to] },
+        logs: serialize_logs(paginated(logs)),
+        pagination: { page: page, per_page: PER_PAGE, total: logs.count },
+        filters: filter_params.to_h,
         operations: AiAuditLog.operations.keys,
         highlight_id: params[:highlight_id].presence&.to_i,
         providers: AiAuditLog.where.not(provider: nil).distinct.pluck(:provider).compact
@@ -30,6 +18,22 @@ module Admin
     end
 
     private
+
+    def filter_params
+      params.permit(:operation, :provider, :status, :from, :to, :assistant_message_id)
+    end
+
+    def page
+      (params[:page] || 1).to_i
+    end
+
+    def paginated(logs)
+      logs.limit(PER_PAGE).offset((page - 1) * PER_PAGE)
+    end
+
+    def serialize_logs(logs)
+      logs.map { |l| serialize_log(l) }
+    end
 
     def serialize_log(log)
       {

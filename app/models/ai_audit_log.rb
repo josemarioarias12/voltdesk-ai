@@ -37,6 +37,17 @@ class AiAuditLog < ApplicationRecord
             numericality: { greater_than_or_equal_to: 0.0, less_than_or_equal_to: 1.0 },
             allow_nil: true
 
+  scope :filtered_by, lambda { |filters|
+    scope = all
+    scope = scope.where(operation: filters[:operation]) if filters[:operation].present?
+    scope = scope.where(provider: filters[:provider]) if filters[:provider].present?
+    scope = scope.where(status: filters[:status]) if filters[:status].present?
+    scope = scope.where(created_at: filters[:from].to_date..) if filters[:from].present?
+    scope = scope.where(created_at: ..filters[:to].to_date.end_of_day) if filters[:to].present?
+    scope = scope.where(assistant_message_id: filters[:assistant_message_id]) if filters[:assistant_message_id].present?
+    scope
+  }
+
   COST_PER_1K_PROMPT_TOKENS     = 0.005
   COST_PER_1K_COMPLETION_TOKENS = 0.015
 
