@@ -299,6 +299,9 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
   const [selectedPriority, setPriority] = useState(filters.priority ?? '')
   const [selectedDept, setDept] = useState(filters.department_id ?? '')
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+  const [exportMenuOpen, setExportMenuOpen] = useState(false)
+  const exportButtonRef = useRef<HTMLButtonElement>(null)
+  const exportMenuRef = useRef<HTMLDivElement>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isFiltering, setIsFiltering] = useState(false)
   const [patternAlert, setPatternAlert] = useState<PatternAlertPayload | null>(null)
@@ -323,6 +326,18 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
   useEffect(() => {
     setSelectedIds(new Set())
   }, [tickets])
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (
+        exportMenuRef.current && !exportMenuRef.current.contains(e.target as Node) &&
+        exportButtonRef.current && !exportButtonRef.current.contains(e.target as Node)
+      ) {
+        setExportMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
   function applyFilters(overrides: Partial<TicketsFilters> = {}) {
     setIsFiltering(true)
@@ -341,13 +356,15 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
     })
   }
 
-  function handleExport() {
+  function handleExport(formatType: 'csv' | 'pdf' | 'xlsx') {
     const params = new URLSearchParams()
     if (activeTab) params.set('status', activeTab)
     if (selectedPriority) params.set('priority', selectedPriority)
     if (selectedDept) params.set('department_id', selectedDept)
     if (searchQuery) params.set('q', searchQuery)
+    params.set('format_type', formatType)
     window.location.href = `/tickets/export?${params.toString()}`
+    setExportMenuOpen(false)
   }
   function handleTabChange(key: string) {
     setActiveTab(key)
@@ -401,12 +418,38 @@ export default function TicketsIndex({ tickets, departments, assignable_agents, 
             <p style={{ fontSize: 13, color: '#475569', marginTop: 2 }}>{t('subtitle')}</p>
           </div>
           <div style={{ display: 'flex', gap: 12 }}>
-            <button
-              onClick={handleExport}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', border: '1px solid rgba(15,23,42,0.12)', borderRadius: 8, fontSize: 13, color: '#475569', background: '#fff', cursor: 'pointer' }}
-            >
-              {t('export')}
-            </button>
+            <div style={{ position: 'relative' }}>
+              <button
+                ref={exportButtonRef}
+                onClick={() => setExportMenuOpen(prev => !prev)}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', border: '1px solid rgba(15,23,42,0.12)', borderRadius: 8, fontSize: 13, color: '#475569', background: '#fff', cursor: 'pointer' }}
+              >
+                {t('export')}
+              </button>
+              {exportMenuOpen && (
+                <div
+                  ref={exportMenuRef}
+                  style={{
+                    position: 'absolute', top: 'calc(100% + 8px)', left: 0, width: '180px',
+                    background: '#fff', borderRadius: 12, border: '1px solid #E2E8F0',
+                    boxShadow: '0 16px 40px rgba(0,0,0,0.12)', zIndex: 1000, overflow: 'hidden',
+                  }}
+                >
+                  {(['csv', 'pdf', 'xlsx'] as const).map(formatType => (
+                    <button
+                      key={formatType}
+                      onClick={() => handleExport(formatType)}
+                      style={{
+                        width: '100%', textAlign: 'left', padding: '10px 14px', fontSize: 13,
+                        color: '#0F172A', background: 'transparent', border: 'none', cursor: 'pointer',
+                      }}
+                    >
+                      {t(`export${formatType === 'csv' ? 'Csv' : formatType === 'pdf' ? 'Pdf' : 'Xlsx'}`)}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <button
               onClick={() => router.get('/tickets/new')}
               style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: '#028090', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer' }}
