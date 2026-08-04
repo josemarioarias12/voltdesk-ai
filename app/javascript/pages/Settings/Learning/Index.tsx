@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Head, router } from '@inertiajs/react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-import { motion, AnimatePresence } from 'framer-motion'
+import { toast } from 'sonner'
 import AppLayout from '@/components/AppLayout'
 import SettingsTabs from '@/components/SettingsTabs'
 import { useActionCable } from '@/hooks/useActionCable'
@@ -56,7 +56,6 @@ export default function LearningIndex({
   correction_rate_trend,
 }: Props) {
   const [suggestion, setSuggestion] = useState<Suggestion | null>(initialSuggestion)
-  const [toastVisible, setToastVisible] = useState(false)
   const workspaceId = (window as unknown as { workspaceId?: number }).workspaceId ?? 0
   const progress = Math.min((total_corrections / threshold) * 100, 100)
 
@@ -64,8 +63,7 @@ export default function LearningIndex({
     { channel: `workspace_admin:${workspaceId}` },
     (data: Record<string, unknown>) => {
       if (data.event !== 'learning_suggestion_ready') return
-      setToastVisible(true)
-      setTimeout(() => setToastVisible(false), 5000)
+      toast.success('New AI learning suggestion is ready!')
       router.reload({ only: ['learning_suggestion'] })
     }
   )
@@ -86,19 +84,6 @@ export default function LearningIndex({
     <AppLayout title="AI Self-Learning">
       <Head title="AI Self-Learning" />
 
-      <AnimatePresence>
-        {toastVisible && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="fixed top-4 right-4 z-50 px-4 py-3 text-sm"
-            style={{ background: '#028090', color: '#fff', borderRadius: '8px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}
-          >
-            New AI learning suggestion is ready!
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <div className="max-w-4xl space-y-6">
         <SettingsTabs active="learning" />
