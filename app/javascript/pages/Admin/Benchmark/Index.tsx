@@ -1,5 +1,5 @@
 import { Head } from "@inertiajs/react";
-import AppLayout from "@/components/AppLayout";
+import AdminLayout from "@/components/AdminLayout";
 import {
   RadarChart,
   Radar,
@@ -77,14 +77,14 @@ export default function BenchmarkIndex({ benchmark, error }: Props) {
     return (
       <>
         <Head title="Workspace Benchmark" />
-        <AppLayout>
+        <AdminLayout>
           <div className="p-6">
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 text-amber-800">
               <p className="font-semibold">Benchmark unavailable</p>
               <p className="text-sm mt-1">{error ?? "Not enough data to generate benchmark."}</p>
             </div>
           </div>
-        </AppLayout>
+        </AdminLayout>
       </>
     );
   }
@@ -100,7 +100,7 @@ export default function BenchmarkIndex({ benchmark, error }: Props) {
   return (
     <>
       <Head title="Workspace Benchmark" />
-      <AppLayout>
+      <AdminLayout>
         <div className="p-6 space-y-6">
           {/* Header */}
           <div>
@@ -217,7 +217,7 @@ export default function BenchmarkIndex({ benchmark, error }: Props) {
             All benchmark data is fully anonymized. No workspace names or identifiable information are shared.
           </p>
         </div>
-      </AppLayout>
+      </AdminLayout>
     </>
   );
 }

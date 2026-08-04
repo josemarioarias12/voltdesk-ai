@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import * as d3 from "d3";
 import { router } from "@inertiajs/react";
 import { motion, AnimatePresence } from "framer-motion";
-import AppLayout from "@/components/AppLayout";
+import AdminLayout from "@/components/AdminLayout";
 import { useActionCable } from "@/hooks/useActionCable";
 
 interface TicketNode {
@@ -274,7 +274,7 @@ export default function OperationalTwin({
   };
 
   return (
-    <AppLayout title="Operational Twin">
+    <AdminLayout title="Operational Twin">
       <div className="p-6 max-w-7xl mx-auto">
 
         <div className="flex items-center justify-between mb-4">
@@ -411,6 +411,6 @@ export default function OperationalTwin({
           Click any node to open the ticket · Drag to rearrange · Updates in real-time via ActionCable
         </p>
       </div>
-    </AppLayout>
+    </AdminLayout>
   );
 }

@@ -20,6 +20,11 @@ module Admin
       end
     end
 
+    def run_now
+      AnomalyDetectorJob.perform_later(current_workspace.id)
+      redirect_to admin_pattern_alerts_path, notice: 'Anomaly detection queued. Refresh in a moment.'
+    end
+
     private
 
     def serialize_alert(alert)

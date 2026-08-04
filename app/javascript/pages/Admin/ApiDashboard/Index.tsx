@@ -1,4 +1,4 @@
-import AppLayout from '@/components/AppLayout'
+import AdminLayout from '@/components/AdminLayout'
 import {
   LineChart, Line, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip,
@@ -68,7 +68,7 @@ export default function ApiDashboardIndex({ metrics, period }: Props) {
   }))
 
   return (
-    <AppLayout title="API Dashboard">
+    <AdminLayout title="API Dashboard">
       <div className="space-y-6">
 
         {/* Header */}
@@ -187,6 +187,6 @@ export default function ApiDashboardIndex({ metrics, period }: Props) {
         </div>
 
       </div>
-    </AppLayout>
+    </AdminLayout>
   )
 }

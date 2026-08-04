@@ -121,6 +121,7 @@ Rails.application.routes.draw do
     patch '/governance/:id/reject', to: 'governance#reject', as: :governance_reject
     patch '/governance/:id/mark_applied', to: 'governance#mark_applied', as: :governance_mark_applied
     resources :pattern_alerts, only: %i[index update]
+    post '/pattern_alerts/run_now', to: 'pattern_alerts#run_now', as: :pattern_alerts_run_now
     get '/operational-twin', to: 'operational_twin#show', as: :operational_twin
     get '/ai-health', to: 'ai_health#index', as: :ai_health
     get '/benchmark', to: 'benchmark#index', as: :benchmark

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { router } from '@inertiajs/react'
-import AppLayout from '@/components/AppLayout'
+import AdminLayout from '@/components/AdminLayout'
 
 interface UserRow {
   id: number
@@ -69,7 +69,7 @@ export default function UsersIndex({ users, departments, assignable_roles, new_u
   }
 
   return (
-    <AppLayout title="Users">
+    <AdminLayout title="Users">
       <div className="max-w-4xl space-y-6">
 
         <div className="flex items-center justify-between flex-wrap gap-3">
@@ -233,6 +233,6 @@ export default function UsersIndex({ users, departments, assignable_roles, new_u
         )}
 
       </div>
-    </AppLayout>
+    </AdminLayout>
   )
 }

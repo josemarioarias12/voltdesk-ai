@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Head } from '@inertiajs/react'
 import { motion, AnimatePresence } from 'framer-motion'
-import AppLayout from '@/components/AppLayout'
+import AdminLayout from '@/components/AdminLayout'
 import { useActionCable } from '@/hooks/useActionCable'
 
 interface Actor {
@@ -67,7 +67,7 @@ export default function DataAccessLogIndex({ entries: initialEntries, total_coun
   )
 
   return (
-    <AppLayout>
+    <AdminLayout>
       <Head title="Data Access Log" />
       <div className="p-6 max-w-6xl mx-auto">
         <div className="mb-6">
@@ -123,6 +123,6 @@ export default function DataAccessLogIndex({ entries: initialEntries, total_coun
           </table>
         </div>
       </div>
-    </AppLayout>
+    </AdminLayout>
   )
 }

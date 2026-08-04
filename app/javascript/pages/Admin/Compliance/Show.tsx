@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react'
 import { useState } from 'react'
-import AppLayout from '@/components/AppLayout'
+import AdminLayout from '@/components/AdminLayout'
 import { ShieldCheckIcon, DocumentArrowDownIcon, TrashIcon } from '@/components/Icons'
 
 interface RetentionPolicy {
@@ -72,7 +72,7 @@ export default function ComplianceShow({ evidence }: Props) {
   }
 
   return (
-    <AppLayout title="Compliance Report">
+    <AdminLayout title="Compliance Report">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -223,6 +223,6 @@ export default function ComplianceShow({ evidence }: Props) {
           </div>
         </div>
       )}
-    </AppLayout>
+    </AdminLayout>
   )
 }

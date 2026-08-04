@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { router } from '@inertiajs/react'
-import AppLayout from '@/components/AppLayout'
+import AdminLayout from '@/components/AdminLayout'
 
 interface Suggestion {
   id: number
@@ -54,7 +54,7 @@ export default function Governance({ suggestions, filters }: Props) {
   }
 
   return (
-    <AppLayout title="Model Governance">
+    <AdminLayout title="Model Governance">
       <div className="space-y-6">
 
         <div className="flex items-center justify-between">
@@ -193,6 +193,6 @@ export default function Governance({ suggestions, filters }: Props) {
         </div>
 
       </div>
-    </AppLayout>
+    </AdminLayout>
   )
 }

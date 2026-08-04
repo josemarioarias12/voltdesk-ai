@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { router } from '@inertiajs/react'
-import AppLayout from '@/components/AppLayout'
+import AdminLayout from '@/components/AdminLayout'
 import DatePicker from '@/components/DatePicker'
 
 interface LogEntry {
@@ -57,7 +57,7 @@ export default function AuditLog({ logs, pagination, filters, operations, provid
   }
 
   return (
-    <AppLayout title="AI Audit Log">
+    <AdminLayout title="AI Audit Log">
       <div className="space-y-6">
 
         {/* Header */}
@@ -303,7 +303,7 @@ export default function AuditLog({ logs, pagination, filters, operations, provid
         </div>
 
       </div>
-    </AppLayout>
+    </AdminLayout>
   )
 }
 

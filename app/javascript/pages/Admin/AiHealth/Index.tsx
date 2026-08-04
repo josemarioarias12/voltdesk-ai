@@ -1,5 +1,5 @@
 import { Head } from "@inertiajs/react";
-import AppLayout from "@/components/AppLayout";
+import AdminLayout from "@/components/AdminLayout";
 import {
   BarChart,
   Bar,
@@ -91,7 +91,7 @@ export default function AiHealthIndex({ metrics, period_days }: Props) {
   return (
     <>
       <Head title="AI Health Dashboard" />
-      <AppLayout>
+      <AdminLayout>
         <div className="p-6 space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -264,7 +264,7 @@ export default function AiHealthIndex({ metrics, period_days }: Props) {
             </div>
           )}
         </div>
-      </AppLayout>
+      </AdminLayout>
     </>
   );
 }

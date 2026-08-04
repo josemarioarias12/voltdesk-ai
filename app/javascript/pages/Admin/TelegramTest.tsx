@@ -1,6 +1,6 @@
 import React from 'react'
 import { router } from '@inertiajs/react'
-import AppLayout from '@/components/AppLayout'
+import AdminLayout from '@/components/AdminLayout'
 
 interface Props {
   status: 'sent' | 'failed'
@@ -9,7 +9,7 @@ interface Props {
 
 export default function TelegramTest({ status, message }: Props) {
   return (
-    <AppLayout title="Telegram Intelligence Test">
+    <AdminLayout title="Telegram Intelligence Test">
       <div style={{ maxWidth: 600, margin: '40px auto', padding: '0 24px' }}>
         <div style={{
           background: '#fff',
@@ -56,6 +56,6 @@ export default function TelegramTest({ status, message }: Props) {
           </button>
         </div>
       </div>
-    </AppLayout>
+    </AdminLayout>
   )
 }

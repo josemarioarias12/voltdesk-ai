@@ -1,5 +1,5 @@
-import { router } from '@inertiajs/react'
-import AppLayout from '@/components/AppLayout'
+import AdminLayout from '@/components/AdminLayout'
+import { IconBolt } from '@/components/Icons'
 
 interface Stats {
   total_operations: number
@@ -17,60 +17,15 @@ const PROVIDER_COLORS: Record<string, string> = {
 
 export default function AdminOverview({ stats }: { stats: Stats }) {
   return (
-    <AppLayout title="Admin">
+    <AdminLayout title="Admin">
       <div className="space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>Admin Control Center</h1>
-            <p className="text-sm mt-1" style={{ color: '#475569' }}>AI operations overview for this workspace</p>
-          </div>
-          <button
-            onClick={() => router.get('/admin/audit-log')}
-            className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
-            style={{ background: '#028090' }}
-          >
-            View AI Audit Log →
-          </button>
-
-          <button
-            onClick={() => router.get('/admin/compliance')}
-            className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
-            style={{ background: '#02C39A' }}
-          >
-            Compliance Report →
-          </button>
-          <button
-            onClick={() => router.get('/admin/telegram-test')}
-            className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
-            style={{ background: '#0088CC' }}
-          >
-            Telegram Test →
-          </button>
-          <button
-                onClick={() => router.get('/admin/users')}
-                className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
-                style={{ background: '#0D1B2A' }}
-              >
-                Users →
-              </button>
-            <button
-                onClick={() => router.get('/admin/governance')}
-                className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
-                style={{ background: '#8B5CF6' }}
-              >
-                Model Governance →
-              </button>
-            <button
-                onClick={() => router.get('/admin/pattern_alerts')}
-                className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
-                style={{ background: '#F97316' }}
-              >
-                Pattern Alerts →
-              </button>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>Admin Control Center</h1>
+          <p className="text-sm mt-1" style={{ color: '#475569' }}>AI operations overview for this workspace</p>
+        </div>
 
         {/* KPI Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {[
             { label: 'Total Operations', value: stats.total_operations.toLocaleString(), sub: 'all time' },
             { label: 'Total AI Cost', value: `$${stats.total_cost_usd.toFixed(4)}`, sub: 'estimated' },
@@ -79,7 +34,7 @@ export default function AdminOverview({ stats }: { stats: Stats }) {
             { label: 'Success Rate', value: `${stats.success_rate}%`, sub: 'all operations' },
           ].map(({ label, value, sub }) => (
             <div key={label} className="rounded-2xl border p-4" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-              <p className="text-xs uppercase tracking-wide font-semibold" style={{ color: '#94A3B8' }}>{label}</p>
+              <p className="text-xs uppercase tracking-wide font-semibold" style={{ color:'#94A3B8' }}>{label}</p>
               <p className="text-2xl font-bold mt-1" style={{ color: '#0F172A' }}>{value}</p>
               <p className="text-xs mt-0.5" style={{ color: '#94A3B8' }}>{sub}</p>
             </div>
@@ -87,7 +42,7 @@ export default function AdminOverview({ stats }: { stats: Stats }) {
         </div>
 
         {/* Provider Breakdown */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="rounded-2xl border p-6" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
             <h2 className="text-base font-semibold mb-4" style={{ color: '#0F172A' }}>Provider Usage</h2>
             {Object.keys(PROVIDER_COLORS).map(p => {
@@ -119,10 +74,9 @@ export default function AdminOverview({ stats }: { stats: Stats }) {
           </div>
         </div>
 
-
         {/* QR Demo Mode */}
         <div className='rounded-2xl border p-6' style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
             <div>
               <h2 className='text-base font-semibold' style={{ color: '#0F172A' }}>QR Demo Mode</h2>
               <p className='text-sm mt-1' style={{ color: '#475569' }}>Activate a 30-minute guest session for live presentations</p>
@@ -130,13 +84,14 @@ export default function AdminOverview({ stats }: { stats: Stats }) {
             <form method='post' action='/workspace_admin/demo/activate'>
               <input type='hidden' name='authenticity_token' value={document.querySelector('meta[name=csrf-token]')?.getAttribute('content') ?? ''} />
               <button type='submit'
-                style={{ background: '#028090', color: '#fff', border: 'none', borderRadius: 10, padding: '10px 24px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
-                ⚡ Activate Demo Mode
+                style={{ background: '#028090', color: '#fff', border: 'none', borderRadius: 10, padding: '10px 24px', fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <IconBolt size={16} color="#fff" />
+                Activate Demo Mode
               </button>
             </form>
           </div>
         </div>
       </div>
-    </AppLayout>
+    </AdminLayout>
   )
 }
