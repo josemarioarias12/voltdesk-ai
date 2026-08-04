@@ -3,8 +3,9 @@ import { toast } from 'sonner'
 import { IconBolt } from '@/components/Icons'
 import { router } from '@inertiajs/react'
 import ReactMarkdown from 'react-markdown'
-import { X, Send, Loader2, Download, FileSpreadsheet, FileText, FileSpreadsheet as FileCsv, History, Plus, ArrowLeft, Pencil, Trash2, Check, Ticket, Calendar, ChevronRight, Sparkles, Mic, MicOff, Volume2, VolumeX } from 'lucide-react'
+import { X, Send, Loader2, Download, FileSpreadsheet, FileText, FileSpreadsheet as FileCsv, History, Plus, ArrowLeft, Pencil, Trash2, Check, Ticket, Calendar, ChevronRight, Sparkles, Mic, MicOff, Volume2, VolumeX, Maximize2, Minimize2 } from 'lucide-react'
 import { useVoiceTicket } from '@/hooks/useVoiceTicket'
+import { useIsMobile } from '@/hooks/useIsMobile'
 import { useLocale } from '@/hooks/useLocale'
 import { useTranslation } from 'react-i18next'
 import { stripMarkdownForSpeech } from '@/lib/stripMarkdownForSpeech'
@@ -42,6 +43,7 @@ interface AssistantMessage {
 const DEFAULT_WIDTH = 380
 const MIN_WIDTH = 320
 const MAX_WIDTH = 520
+const EXPANDED_WIDTH = 720
 
 const REPORT_KIND_MAP: Record<string, { label: string; color: string; icon: 'pdf' | 'xlsx'| 'csv' }> = {
   'application/pdf': { label: 'PDF Document', color: '#DC2626', icon: 'pdf' },
@@ -146,6 +148,8 @@ export default function VoltCopilotPanel() {
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
   const [width, setWidth] = useState(DEFAULT_WIDTH)
+  const [expanded, setExpanded] = useState(false)
+  const isMobile = useIsMobile()
   const [showPulse, setShowPulse] = useState(true)
   const [voiceOutputEnabled, setVoiceOutputEnabled] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -464,17 +468,20 @@ export default function VoltCopilotPanel() {
       <div
         className="fixed top-0 right-0 bottom-0 z-40 flex flex-col transition-transform duration-300"
         style={{
-          width: `${width}px`, maxWidth: '100vw', background: '#fff',
-          borderLeft: '1px solid rgba(15,23,42,0.08)',
-          boxShadow: '-8px 0 24px rgba(0,0,0,0.08)',
+          width: isMobile ? '100vw' : `${expanded ? EXPANDED_WIDTH : width}px`,
+          maxWidth: '100vw', background: '#fff',
+          borderLeft: isMobile ? 'none' : '1px solid rgba(15,23,42,0.08)',
+          boxShadow: isMobile ? 'none' : '-8px 0 24px rgba(0,0,0,0.08)',
           transform: open ? 'translateX(0)' : 'translateX(100%)',
         }}
       >
-        <div
-          onMouseDown={handleResizeStart}
-          className="hidden sm:block absolute top-0 bottom-0 left-0"
-          style={{ width: '5px', cursor: 'ew-resize', zIndex: 41 }}
-        />
+        {!isMobile && !expanded && (
+          <div
+            onMouseDown={handleResizeStart}
+            className="hidden sm:block absolute top-0 bottom-0 left-0"
+            style={{ width: '5px', cursor: 'ew-resize', zIndex: 41 }}
+          />
+        )}
 
         <div className="flex items-center justify-between px-4 py-4 border-b" style={{ borderColor: 'rgba(15,23,42,0.08)' }}>
           <div className="flex items-center gap-2">
@@ -525,6 +532,16 @@ export default function VoltCopilotPanel() {
                   {voiceOutputEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
                 </button>
               </>
+            )}
+            {!isMobile && (
+              <button
+                onClick={() => setExpanded((prev) => !prev)}
+                aria-label={expanded ? 'Collapse Volt Copilot' : 'Expand Volt Copilot'}
+                title={expanded ? 'Contraer' : 'Expandir'}
+                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex' }}
+              >
+                {expanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+              </button>
             )}
             <button
               onClick={() => setOpen(false)}
