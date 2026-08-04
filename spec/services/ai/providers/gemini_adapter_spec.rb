@@ -30,4 +30,52 @@ RSpec.describe Ai::Providers::GeminiAdapter do
       end
     end
   end
+
+  describe '#chat' do
+    subject(:chat) { described_class.new.chat(prompt: 'Hello', system: 'You are helpful') }
+
+    let(:fake_client) { instance_double(Gemini::Controllers::Client, generate_content: response) }
+
+    before do
+      allow(Gemini).to receive(:new).and_return(fake_client)
+    end
+
+    context 'when Gemini returns a successful response' do
+      let(:response) do
+        {
+          'candidates' => [{ 'content' => { 'parts' => [{ 'text' => 'Hi there' }] } }],
+          'usageMetadata' => {
+            'promptTokenCount' => 10,
+            'candidatesTokenCount' => 5,
+            'totalTokenCount' => 15
+          }
+        }
+      end
+
+      it 'returns the content and token usage' do
+        expect(chat).to eq(
+          content: 'Hi there',
+          tokens: { 'prompt_tokens' => 10, 'completion_tokens' => 5, 'total_tokens' => 15 }
+        )
+      end
+    end
+
+    context 'when usageMetadata is missing from the response' do
+      let(:response) do
+        { 'candidates' => [{ 'content' => { 'parts' => [{ 'text' => 'Hi' }] } }] }
+      end
+
+      it 'defaults token counts to zero' do
+        expect(chat[:tokens]).to eq('prompt_tokens' => 0, 'completion_tokens' => 0, 'total_tokens' => 0)
+      end
+    end
+  end
+
+  describe '#embed' do
+    it 'raises NotImplementedError, since Gemini embeddings are incompatible with the pgvector index' do
+      expect { described_class.new.embed(text: 'anything') }.to raise_error(
+        NotImplementedError, /Gemini embeddings are 768-dim/
+      )
+    end
+  end
 end
