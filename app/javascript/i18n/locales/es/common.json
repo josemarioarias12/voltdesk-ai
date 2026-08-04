@@ -17,6 +17,47 @@
   "auditTrace": {
     "viewLink": "Ver auditoría de esta respuesta"
   },
+  "assistant": {
+    "title": "Volt Copilot",
+    "tooltip": "¿En qué te ayudo?",
+    "openLabel": "Abrir Volt Copilot",
+    "closeLabel": "Cerrar Volt Copilot",
+    "backToChat": "Volver al chat",
+    "newConversation": "Nueva conversación",
+    "conversationHistory": "Historial",
+    "expand": "Expandir Volt Copilot",
+    "collapse": "Contraer Volt Copilot",
+    "voiceOutputEnable": "Activar salida de voz",
+    "voiceOutputDisable": "Desactivar salida de voz",
+    "noConversationsYet": "No hay conversaciones todavía.",
+    "currentConversation": "Conversación actual",
+    "confirmRename": "Confirmar cambio de nombre",
+    "cancelRename": "Cancelar cambio de nombre",
+    "renameConversation": "Renombrar conversación",
+    "archiveConversation": "Archivar conversación",
+    "loadingMore": "Cargando...",
+    "loadOlderMessages": "Ver mensajes anteriores",
+    "emptyState": "Preguntale a Volt Copilot sobre tus tickets, solicitudes de licencia o activos.",
+    "viewDetails": "Ver detalles",
+    "thinking": "Pensando...",
+    "inputPlaceholder": "Preguntale a Volt Copilot...",
+    "startDictation": "Iniciar dictado",
+    "stopDictation": "Detener dictado",
+    "sendMessage": "Enviar mensaje",
+    "toasts": {
+      "loadFailed": "No se pudo cargar Volt Copilot. Intentá de nuevo.",
+      "loadOlderFailed": "No se pudieron cargar mensajes anteriores.",
+      "alreadyNew": "Ya estás en una conversación nueva.",
+      "newStarted": "Nueva conversación iniciada.",
+      "newFailed": "No se pudo iniciar una conversación nueva.",
+      "historyFailed": "No se pudo cargar el historial de conversaciones.",
+      "openFailed": "No se pudo abrir esa conversación.",
+      "renameFailed": "No se pudo renombrar la conversación.",
+      "archiveFailed": "No se pudo archivar la conversación.",
+      "answerFailed": "Volt Copilot no pudo responder eso.",
+      "networkError": "Error de red — Volt Copilot no respondió."
+    }
+  },
   "errorPages": {
     "notFound": {
       "title": "Página no encontrada",

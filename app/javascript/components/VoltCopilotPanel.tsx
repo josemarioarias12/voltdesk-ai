@@ -115,15 +115,16 @@ function csrfToken(): string {
   return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? ''
 }
 
-function formatConversationLabel(conversation: ConversationSummary): string {
+function formatConversationLabel(conversation: ConversationSummary, locale: string): string {
   if (conversation.title) return conversation.title
   const date = new Date(conversation.updated_at)
-  return date.toLocaleDateString('es-CR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+  const intlLocale = locale === 'es' ? 'es-CR' : 'en-US'
+  return date.toLocaleDateString(intlLocale, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 }
 
 export default function VoltCopilotPanel() {
   const { t } = useTranslation('common')
-  const { speechLang } = useLocale()
+  const { speechLang, locale } = useLocale()
   const {
     transcript: voiceTranscript,
     interimTranscript: voiceInterimTranscript,
@@ -202,7 +203,7 @@ export default function VoltCopilotPanel() {
       setHasMore(data.has_more)
       setLoaded(true)
     } catch {
-      toast.error('Could not load Volt Copilot. Please try again.')
+      toast.error(t('assistant.toasts.loadFailed'))
     }
   }
 
@@ -220,7 +221,7 @@ export default function VoltCopilotPanel() {
       setMessages(prev => [...data.messages, ...prev])
       setHasMore(data.has_more)
     } catch {
-      toast.error('Could not load older messages.')
+      toast.error(t('assistant.toasts.loadOlderFailed'))
     } finally {
       setLoadingMore(false)
     }
@@ -228,7 +229,7 @@ export default function VoltCopilotPanel() {
 
   async function handleNewConversation(force = false) {
     if (!force && messages.length === 0) {
-      toast.info('Ya estás en una conversación nueva.')
+      toast.info(t('assistant.toasts.alreadyNew'))
       return
     }
 
@@ -243,9 +244,9 @@ export default function VoltCopilotPanel() {
       setConversationId(data.conversation_id)
       setHasMore(data.has_more)
       setView('chat')
-      toast.success('Nueva conversación iniciada.')
+      toast.success(t('assistant.toasts.newStarted'))
     } catch {
-      toast.error('Could not start a new conversation.')
+      toast.error(t('assistant.toasts.newFailed'))
     }
   }
 
@@ -259,7 +260,7 @@ export default function VoltCopilotPanel() {
         const data = await res.json()
         setConversations(data.conversations)
       } catch {
-        toast.error('Could not load conversation history.')
+        toast.error(t('assistant.toasts.historyFailed'))
       } finally {
         setLoadingConversations(false)
       }
@@ -281,7 +282,7 @@ export default function VoltCopilotPanel() {
       setHasMore(data.has_more)
       setView('chat')
     } catch {
-      toast.error('Could not open that conversation.')
+      toast.error(t('assistant.toasts.openFailed'))
     }
   }
 
@@ -305,7 +306,7 @@ export default function VoltCopilotPanel() {
       const data = await res.json()
       setConversations(prev => prev.map(c => (c.id === id ? { ...c, title: data.title } : c)))
     } catch {
-      toast.error('Could not rename the conversation.')
+      toast.error(t('assistant.toasts.renameFailed'))
     }
   }
 
@@ -320,7 +321,7 @@ export default function VoltCopilotPanel() {
 
       if (id === conversationId) await handleNewConversation(true)
     } catch {
-      toast.error('Could not archive the conversation.')
+      toast.error(t('assistant.toasts.archiveFailed'))
     }
   }
 
@@ -345,7 +346,7 @@ export default function VoltCopilotPanel() {
       const data = await res.json()
 
       if (!res.ok) {
-        toast.error(data.error ?? 'Volt Copilot could not answer that.')
+        toast.error(data.error ?? t('assistant.toasts.answerFailed'))
         return
       }
 
@@ -368,7 +369,7 @@ export default function VoltCopilotPanel() {
         window.speechSynthesis.speak(utterance)
       }
     } catch {
-      toast.error('Network error — Volt Copilot did not respond.')
+      toast.error(t('assistant.toasts.networkError'))
     } finally {
       setSending(false)
     }
@@ -448,11 +449,11 @@ export default function VoltCopilotPanel() {
           display: open ? 'none' : 'block',
         }}
       >
-        <span className="volt-copilot-tooltip">¿En qué te ayudo?</span>
+        <span className="volt-copilot-tooltip">{t('assistant.tooltip')}</span>
         <button
           onClick={() => setOpen(true)}
-          aria-label="Open Volt Copilot"
-          title="Volt Copilot"
+          aria-label={t('assistant.openLabel')}
+          title={t('assistant.title')}
           className={`flex items-center justify-center rounded-full transition-transform hover:scale-105 ${showPulse ? 'volt-copilot-pulse' : ''}`}
           style={{
             width: '52px', height: '52px',
@@ -488,7 +489,7 @@ export default function VoltCopilotPanel() {
             {view === 'history' ? (
               <button
                 onClick={handleToggleHistory}
-                aria-label="Back to chat"
+                aria-label={t('assistant.backToChat')}
                 style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#0D1B2A', display: 'flex' }}
               >
                 <ArrowLeft size={16} />
@@ -499,7 +500,7 @@ export default function VoltCopilotPanel() {
               </div>
             )}
             <span className="font-semibold text-sm" style={{ color: '#0D1B2A' }}>
-              {view === 'history' ? 'Historial' : 'Volt Copilot'}
+              {view === 'history' ? t('assistant.conversationHistory') : t('assistant.title')}
             </span>
           </div>
 
@@ -508,25 +509,25 @@ export default function VoltCopilotPanel() {
               <>
                 <button
                   onClick={() => handleNewConversation()}
-                  aria-label="New conversation"
-                  title="Nueva conversación"
+                  aria-label={t('assistant.newConversation')}
+                  title={t('assistant.newConversation')}
                   style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex' }}
                 >
                   <Plus size={17} />
                 </button>
                 <button
                   onClick={handleToggleHistory}
-                  aria-label="Conversation history"
-                  title="Historial"
+                  aria-label={t('assistant.conversationHistory')}
+                  title={t('assistant.conversationHistory')}
                   style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex' }}
                 >
                   <History size={16} />
                 </button>
                 <button
                   onClick={handleVoiceOutputToggle}
-                  aria-label={voiceOutputEnabled ? 'Disable voice output' : 'Enable voice output'}
+                  aria-label={voiceOutputEnabled ? t('assistant.voiceOutputDisable') : t('assistant.voiceOutputEnable')}
                   aria-pressed={voiceOutputEnabled}
-                  title={voiceOutputEnabled ? 'Voz activada' : 'Voz desactivada'}
+                  title={voiceOutputEnabled ? t('assistant.voiceOutputDisable') : t('assistant.voiceOutputEnable')}
                   style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: voiceOutputEnabled ? '#028090' : '#94A3B8', display: 'flex' }}
                 >
                   {voiceOutputEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
@@ -536,8 +537,8 @@ export default function VoltCopilotPanel() {
             {!isMobile && (
               <button
                 onClick={() => setExpanded((prev) => !prev)}
-                aria-label={expanded ? 'Collapse Volt Copilot' : 'Expand Volt Copilot'}
-                title={expanded ? 'Contraer' : 'Expandir'}
+                aria-label={expanded ? t('assistant.collapse') : t('assistant.expand')}
+                title={expanded ? t('assistant.collapse') : t('assistant.expand')}
                 style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex' }}
               >
                 {expanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
@@ -545,7 +546,7 @@ export default function VoltCopilotPanel() {
             )}
             <button
               onClick={() => setOpen(false)}
-              aria-label="Close Volt Copilot"
+              aria-label={t('assistant.closeLabel')}
               style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex' }}
             >
               <X size={18} />
@@ -562,7 +563,7 @@ export default function VoltCopilotPanel() {
             )}
 
             {!loadingConversations && conversations.length === 0 && (
-              <p className="text-sm" style={{ color: '#94A3B8' }}>No hay conversaciones todavía.</p>
+              <p className="text-sm" style={{ color: '#94A3B8' }}>{t('assistant.noConversationsYet')}</p>
             )}
 
             {conversations.map(conversation => (
@@ -601,10 +602,10 @@ export default function VoltCopilotPanel() {
                       className="text-sm font-medium truncate"
                       style={{ color: conversation.archived ? '#94A3B8' : '#0D1B2A' }}
                     >
-                      {formatConversationLabel(conversation)}
+                      {formatConversationLabel(conversation, locale)}
                     </p>
                     {conversation.id === conversationId && (
-                      <p className="text-xs mt-0.5" style={{ color: '#028090' }}>Conversación actual</p>
+                      <p className="text-xs mt-0.5" style={{ color: '#028090' }}>{t('assistant.currentConversation')}</p>
                     )}
                   </button>
                 )}
@@ -614,14 +615,14 @@ export default function VoltCopilotPanel() {
                     <>
                       <button
                         onClick={e => { e.stopPropagation(); saveEditing(conversation.id) }}
-                        aria-label="Confirm rename"
+                        aria-label={t('assistant.confirmRename')}
                         style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#028090', display: 'flex' }}
                       >
                         <Check size={15} />
                       </button>
                       <button
                         onClick={e => { e.stopPropagation(); setEditingId(null) }}
-                        aria-label="Cancel rename"
+                        aria-label={t('assistant.cancelRename')}
                         style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex' }}
                       >
                         <X size={15} />
@@ -631,14 +632,14 @@ export default function VoltCopilotPanel() {
                     <>
                       <button
                         onClick={e => { e.stopPropagation(); startEditing(conversation) }}
-                        aria-label="Rename conversation"
+                        aria-label={t('assistant.renameConversation')}
                         style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex' }}
                       >
                         <Pencil size={14} />
                       </button>
                       <button
                         onClick={e => { e.stopPropagation(); handleArchiveConversation(conversation.id) }}
-                        aria-label="Archive conversation"
+                        aria-label={t('assistant.archiveConversation')}
                         style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex' }}
                       >
                         <Trash2 size={14} />
@@ -666,14 +667,14 @@ export default function VoltCopilotPanel() {
                     className="text-xs font-medium px-3 py-1.5 rounded-full transition-colors hover:bg-black/[0.02]"
                     style={{ border: '1px solid rgba(15,23,42,0.08)', color: '#028090', background: '#fff', cursor: 'pointer' }}
                   >
-                    {loadingMore ? 'Cargando...' : 'Ver mensajes anteriores'}
+                    {loadingMore ? t('assistant.loadingMore') : t('assistant.loadOlderMessages')}
                   </button>
                 </div>
               )}
 
               {loaded && messages.length === 0 && (
                 <p className="text-sm" style={{ color: '#94A3B8' }}>
-                  Ask Volt Copilot about your tickets, leave requests, or assets.
+                  {t('assistant.emptyState')}
                 </p>
               )}
 
@@ -720,7 +721,7 @@ export default function VoltCopilotPanel() {
                           {message.resource_link.title}
                         </p>
                         <p className="text-xs" style={{ color: '#94A3B8' }}>
-                          View details
+                          {t('assistant.viewDetails')}
                         </p>
                       </div>
                       <ChevronRight size={16} style={{ color: '#028090', flexShrink: 0 }} />
@@ -744,7 +745,7 @@ export default function VoltCopilotPanel() {
                   style={{ background: '#F8FAFC', border: '1px solid rgba(15,23,42,0.08)', color: '#94A3B8' }}
                 >
                   <Loader2 size={14} className="animate-spin" />
-                  Thinking...
+                  {t('assistant.thinking')}
                 </div>
               )}
 
@@ -757,7 +758,7 @@ export default function VoltCopilotPanel() {
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Ask Volt Copilot..."
+                  placeholder={t('assistant.inputPlaceholder')}
                   rows={1}
                   className="flex-1 px-3 py-2 rounded-xl text-sm resize-none"
                   style={{ border: '1px solid rgba(15,23,42,0.08)', outline: 'none', maxHeight: '96px' }}
@@ -766,7 +767,7 @@ export default function VoltCopilotPanel() {
                   onClick={handleVoiceToggle}
                   disabled={!voiceSupported}
                   type="button"
-                  aria-label={voiceState === 'listening' ? 'Stop dictation' : 'Start dictation'}
+                  aria-label={voiceState === 'listening' ? t('assistant.stopDictation') : t('assistant.startDictation')}
                   aria-pressed={voiceState === 'listening'}
                   className="flex items-center justify-center rounded-xl flex-shrink-0"
                   style={{
@@ -782,7 +783,7 @@ export default function VoltCopilotPanel() {
                 <button
                   onClick={handleSend}
                   disabled={sending || !input.trim()}
-                  aria-label="Send message"
+                  aria-label={t('assistant.sendMessage')}
                   className="flex items-center justify-center rounded-xl flex-shrink-0"
                   style={{
                     width: '36px', height: '36px', border: 'none', cursor: 'pointer',

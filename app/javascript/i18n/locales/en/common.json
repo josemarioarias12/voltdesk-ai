@@ -17,6 +17,47 @@
   "auditTrace": {
     "viewLink": "View audit trail for this response"
   },
+  "assistant": {
+    "title": "Volt Copilot",
+    "tooltip": "How can I help?",
+    "openLabel": "Open Volt Copilot",
+    "closeLabel": "Close Volt Copilot",
+    "backToChat": "Back to chat",
+    "newConversation": "New conversation",
+    "conversationHistory": "History",
+    "expand": "Expand Volt Copilot",
+    "collapse": "Collapse Volt Copilot",
+    "voiceOutputEnable": "Enable voice output",
+    "voiceOutputDisable": "Disable voice output",
+    "noConversationsYet": "No conversations yet.",
+    "currentConversation": "Current conversation",
+    "confirmRename": "Confirm rename",
+    "cancelRename": "Cancel rename",
+    "renameConversation": "Rename conversation",
+    "archiveConversation": "Archive conversation",
+    "loadingMore": "Loading...",
+    "loadOlderMessages": "View older messages",
+    "emptyState": "Ask Volt Copilot about your tickets, leave requests, or assets.",
+    "viewDetails": "View details",
+    "thinking": "Thinking...",
+    "inputPlaceholder": "Ask Volt Copilot...",
+    "startDictation": "Start dictation",
+    "stopDictation": "Stop dictation",
+    "sendMessage": "Send message",
+    "toasts": {
+      "loadFailed": "Could not load Volt Copilot. Please try again.",
+      "loadOlderFailed": "Could not load older messages.",
+      "alreadyNew": "You're already in a new conversation.",
+      "newStarted": "New conversation started.",
+      "newFailed": "Could not start a new conversation.",
+      "historyFailed": "Could not load conversation history.",
+      "openFailed": "Could not open that conversation.",
+      "renameFailed": "Could not rename the conversation.",
+      "archiveFailed": "Could not archive the conversation.",
+      "answerFailed": "Volt Copilot could not answer that.",
+      "networkError": "Network error \u2014 Volt Copilot did not respond."
+    }
+  },
   "errorPages": {
     "notFound": {
       "title": "Page not found",
