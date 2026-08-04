@@ -7,7 +7,16 @@ module Ai
 
     MODEL_ID_MAP = {
       'openai/gpt-4o' => 'openai/gpt-4o',
+      'openai/gpt-4o-mini' => 'openai/gpt-4o-mini',
+      'openai/gpt-4.1' => 'openai/gpt-4.1',
+      'openai/gpt-4.1-mini' => 'openai/gpt-4.1-mini',
+      'openai/gpt-5.2' => 'openai/gpt-5.2',
+      'anthropic/claude-sonnet-5' => 'anthropic/claude-sonnet-5',
+      'anthropic/claude-haiku-4-5-20251001' => 'anthropic/claude-haiku-4.5',
       'gemini/gemini-2.0-flash' => 'google/gemini-2.0-flash-001'
+      # gemini-1.5-pro intentionally not mapped: model is being fully
+      # discontinued by Google, mapping it would only add noise via
+      # not_found_in_openrouter without any actionable value.
     }.freeze
 
     def self.call

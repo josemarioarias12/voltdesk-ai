@@ -52,6 +52,11 @@ RSpec.describe Ai::ModelPricing do
       expect(described_class.cost_per_1k('openai', 'gpt-4o')).to eq(0.00625)
     end
 
+    it 'returns a Float, not a BigDecimal, so JSON serialization stays numeric' do
+      pricing.save!
+      expect(described_class.cost_per_1k('openai', 'gpt-4o')).to be_a(Float)
+    end
+
     it 'returns nil when no record exists for that provider/model' do
       expect(described_class.cost_per_1k('openai', 'gpt-4o')).to be_nil
     end

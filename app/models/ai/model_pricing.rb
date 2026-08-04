@@ -17,7 +17,7 @@ module Ai
       pricing = for_provider_model(provider, model)
       return nil unless pricing
 
-      (pricing.input_cost + pricing.output_cost) / 2.0
+      ((pricing.input_cost + pricing.output_cost) / 2.0).to_f
     end
   end
 end
