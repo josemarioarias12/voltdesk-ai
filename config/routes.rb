@@ -38,6 +38,7 @@ Rails.application.routes.draw do
     member do
       post :resolve
       post :start_progress
+      post :suggest_response
     end
     collection do
       get   :export

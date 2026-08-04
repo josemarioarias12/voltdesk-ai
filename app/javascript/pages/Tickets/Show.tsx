@@ -442,6 +442,72 @@ function RagSuggestionCard({ agentAction, onAccept }: { agentAction: AgentAction
   )
 }
 
+// ── Response Suggestion Card (on-demand, Ai::ResponseSuggester) ────────────────
+function ResponseSuggestionCard({
+  suggestion, onAccept,
+}: {
+  suggestion: { found: boolean; suggestion?: string; based_on?: string[] }
+  onAccept: (text: string) => void
+}) {
+  const { t } = useTranslation('tickets')
+  const [dismissed, setDismissed] = useState(false)
+  if (dismissed) return null
+
+  if (!suggestion.found) {
+    return (
+      <motion.div variants={fadeUp} style={{ ...CARD, marginBottom: 10, borderLeft: '3px solid #94A3B8' }}>
+        <div style={{ padding: '14px 20px', fontSize: 13, color: '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span>{t('show.responseSuggestion.notFound')}</span>
+          <button
+            onClick={() => setDismissed(true)}
+            aria-label={t('show.responseSuggestion.dismiss')}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', fontSize: 18, lineHeight: 1, padding: '2px 6px', borderRadius: 4 }}
+          >×</button>
+        </div>
+      </motion.div>
+    )
+  }
+
+  return (
+    <motion.div variants={fadeUp} style={{ ...CARD, marginBottom: 10, borderLeft: '3px solid #028090', overflow: 'hidden' }}>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(15,23,42,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(2,128,144,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <path d="M7.5 1l1.8 3.6 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4L2 5.2l4-.6z" stroke="#028090" strokeWidth="1.3" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>{t('show.responseSuggestion.title')}</p>
+            {suggestion.based_on && suggestion.based_on.length > 0 && (
+              <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>
+                {t('show.responseSuggestion.basedOn', { tickets: suggestion.based_on.join(', ') })}
+              </p>
+            )}
+          </div>
+        </div>
+        <button
+          onClick={() => setDismissed(true)}
+          aria-label={t('show.responseSuggestion.dismiss')}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', fontSize: 18, lineHeight: 1, padding: '2px 6px', borderRadius: 4 }}
+        >×</button>
+      </div>
+      <div style={{ padding: '14px 20px', fontSize: 13, color: '#374151', lineHeight: 1.8, whiteSpace: 'pre-line', background: 'rgba(2,128,144,0.015)' }}>
+        {suggestion.suggestion}
+      </div>
+      <div style={{ padding: '12px 20px', borderTop: '1px solid rgba(15,23,42,0.05)', display: 'flex', gap: 8 }}>
+        <motion.button
+          whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+          onClick={() => onAccept(suggestion.suggestion ?? '')}
+          style={{ padding: '7px 16px', background: '#028090', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#fff', cursor: 'pointer' }}
+        >
+          {t('show.responseSuggestion.accept')}
+        </motion.button>
+      </div>
+    </motion.div>
+  )
+}
+
 // ── Agent Approval Card ───────────────────────────────────────────────────────
 function AgentApprovalCard({ agentAction }: { agentAction: AgentActionPending }) {
   const { t } = useTranslation('tickets')
@@ -575,7 +641,7 @@ function ActivityItem({ activity }: { activity: TicketActivity }) {
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function TicketsShow({
-  ticket, can_resolve, can_start_progress, can_assign, can_change_priority, can_internal, assignable_agents, agent_action,
+  ticket, can_resolve, can_start_progress, can_assign, can_change_priority, can_internal, can_suggest_response, assignable_agents, agent_action,
 }: TicketsShowProps) {
   const { t } = useTranslation('tickets')
   const departmentName = useDepartmentName()
@@ -630,6 +696,14 @@ export default function TicketsShow({
   function acceptRagSuggestion(text: string) {
     setCommentBody(text)
     setTimeout(() => document.querySelector('textarea')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100)
+  }
+  const [suggestingResponse, setSuggestingResponse] = useState(false)
+  function suggestResponse() {
+    setSuggestingResponse(true)
+    router.post(`/tickets/${ticket.id}/suggest_response`, {}, {
+      preserveScroll: true,
+      onFinish: () => setSuggestingResponse(false),
+    })
   }
 
   return (
@@ -759,6 +833,30 @@ export default function TicketsShow({
               <XaiPanel ticket={ticket} />
               <VisionAiCard ticket={ticket} />
               <div style={{ height: 12 }} />
+            </div>
+          )}
+
+          {can_suggest_response && (
+            <div style={{ padding: '12px 28px 0' }}>
+              {ticket.ai_metadata?.response_suggestion ? (
+                <ResponseSuggestionCard
+                  suggestion={ticket.ai_metadata.response_suggestion}
+                  onAccept={acceptRagSuggestion}
+                />
+              ) : (
+                <motion.button
+                  whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                  onClick={suggestResponse}
+                  disabled={suggestingResponse}
+                  style={{
+                    padding: '8px 16px', background: '#fff', border: '1px solid rgba(2,128,144,0.3)',
+                    borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#028090',
+                    cursor: suggestingResponse ? 'default' : 'pointer', marginBottom: 10,
+                  }}
+                >
+                  {suggestingResponse ? t('show.responseSuggestion.generating') : t('show.responseSuggestion.trigger')}
+                </motion.button>
+              )}
             </div>
           )}
 

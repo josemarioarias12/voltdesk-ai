@@ -45,6 +45,12 @@ export interface AiMetadata {
   suggested_agent: string | null
   classified_at: string | null
   image_analysis?: string
+  response_suggestion?: {
+    found: boolean
+    suggestion?: string
+    based_on?: string[]
+    generated_at?: string
+  }
 }
 
 export interface Ticket {
@@ -153,6 +159,7 @@ export interface TicketsShowProps {
   can_assign: boolean
   can_change_priority: boolean
   can_internal: boolean
+  can_suggest_response: boolean
   assignable_agents: Array<{ id: number; full_name: string }>
   agent_action: AgentActionPending | null
 }

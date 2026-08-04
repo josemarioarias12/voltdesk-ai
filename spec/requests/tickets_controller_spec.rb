@@ -190,6 +190,29 @@ RSpec.describe TicketsController, type: :request do
     end
   end
 
+  describe 'POST /tickets/:id/suggest_response' do
+    let(:ticket) { create(:ticket, workspace: workspace, department: department, created_by: employee, assigned_to: agent, status: :in_progress) }
+
+    before { sign_in agent }
+
+    it 'enqueues Ai::GenerateResponseSuggestionJob and redirects' do
+      expect do
+        post suggest_response_ticket_path(ticket)
+      end.to have_enqueued_job(Ai::GenerateResponseSuggestionJob).with(ticket.id)
+
+      expect(response).to have_http_status(:redirect)
+    end
+
+    it 'is forbidden for the employee who owns the ticket' do
+      sign_in employee
+      expect do
+        post suggest_response_ticket_path(ticket)
+      end.not_to have_enqueued_job(Ai::GenerateResponseSuggestionJob)
+
+      expect(flash[:alert]).to eq(I18n.t('errors.unauthorized'))
+    end
+  end
+
   describe 'state machine gating on can_resolve / can_start_progress (GET /tickets/:id)' do
     let(:ticket) { create(:ticket, workspace: workspace, department: department, created_by: employee, assigned_to: agent, status: :open) }
 

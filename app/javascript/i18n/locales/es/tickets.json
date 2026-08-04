@@ -268,6 +268,15 @@
       "editBeforeSending": "Editar Antes de Enviar",
       "dismiss": "Descartar respuesta sugerida"
     },
+    "responseSuggestion": {
+      "trigger": "Sugerir una respuesta",
+      "generating": "Generando...",
+      "title": "Respuesta Sugerida",
+      "basedOn": "Basado en: {{tickets}}",
+      "accept": "Usar Esta Respuesta",
+      "dismiss": "Descartar respuesta sugerida",
+      "notFound": "No se encontraron tickets resueltos similares para basar una sugerencia."
+    },
     "agentApproval": {
       "title": "Agente de IA Esperando Aprobación",
       "humanInTheLoop": "Humano en el proceso · {{time}}",

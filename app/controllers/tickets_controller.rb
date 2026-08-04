@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class TicketsController < ApplicationController
-  before_action :set_ticket, only: %i[show update resolve start_progress]
+  before_action :set_ticket, only: %i[show update resolve start_progress suggest_response]
   ALLOWED_SORT_COLUMNS = %w[priority updated_at].freeze
   def index
     authorize :ticket, :index?
@@ -46,6 +46,7 @@ class TicketsController < ApplicationController
       can_assign:          policy(@ticket).assign?,
       can_change_priority: policy(@ticket).change_priority?,
       can_internal:        policy(@ticket).view_internal_comments?,
+      can_suggest_response: policy(@ticket).resolve_ticket?,
       assignable_agents:   assignable_agents_list,
       agent_action:        serialize_pending_agent_action(@ticket)
     }
@@ -123,6 +124,12 @@ class TicketsController < ApplicationController
     else
       redirect_back_or_to(ticket_path(@ticket), alert: result.error)
     end
+  end
+
+  def suggest_response
+    authorize @ticket, :resolve_ticket?
+    Ai::GenerateResponseSuggestionJob.perform_later(@ticket.id)
+    redirect_to ticket_path(@ticket), notice: 'Generating a suggested response...'
   end
 
   def bulk_update
