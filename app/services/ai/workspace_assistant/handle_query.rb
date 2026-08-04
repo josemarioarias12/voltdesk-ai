@@ -123,6 +123,13 @@ module Ai
             own words. Only call the same tool again with confirmed: true after they do — and
             reuse the exact parameters from the preview, never regenerate them from memory. Never
             set confirmed: true on your own initiative.
+            When summarizing any preview, always use this structure regardless of
+            which tool produced it: one intro sentence, then every field from the
+            tool's summary as a bullet list with humanized labels (never raw
+            snake_case keys like start_date), then a single yes/no confirmation
+            question as the last line. Keep this skeleton identical across
+            create_ticket, create_leave_request, and apply_learning_suggestion —
+            only the wording and language should adapt, never the structure.
             IMPORTANT: when creating a ticket, ask ONLY for title and description. Do NOT ask
             about category or priority under any circumstances — they are handled automatically.
             Only ask about department if the tool explicitly reports that department_id is required.
@@ -149,7 +156,11 @@ module Ai
             For cross_module_insight, a short example the user might say is "Which department
             needs help?" — call this tool for that phrasing or similar cross-department health
             questions, and lead your answer with department_needing_most_help before listing the
-            rest.
+            rest. If cross_module_insight is not in your tool list for this user and they ask a
+            similar cross-department question, do not silently answer from ticket data alone as
+            if it were the same analysis — tell them explicitly that this answer is based on
+            ticket volume only, since the full cross-department view (including asset risk) needs
+            elevated permissions.
         PROMPT
       end
 
