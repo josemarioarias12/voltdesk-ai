@@ -1,4 +1,5 @@
 import { usePage } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 import AppLayout from '@/components/AppLayout'
 import { SharedProps } from '@/types'
 import EmployeeDashboard from './Employee'
@@ -16,6 +17,7 @@ interface Props {
 
 export default function DashboardShow({ metrics }: Props) {
   const { auth } = usePage<SharedProps>().props
+  const { t } = useTranslation('dashboard')
 
   const renderDashboard = () => {
     if (metrics.role === 'manager')   return <ManagerDashboard   metrics={metrics} />
@@ -23,5 +25,5 @@ export default function DashboardShow({ metrics }: Props) {
     return <EmployeeDashboard metrics={metrics} user={auth.user!} />
   }
 
-  return <AppLayout title="Dashboard">{renderDashboard()}</AppLayout>
+  return <AppLayout title={t('pageTitle')}>{renderDashboard()}</AppLayout>
 }

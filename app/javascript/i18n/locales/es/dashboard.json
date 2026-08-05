@@ -1,0 +1,143 @@
+{
+  "pageTitle": "Panel",
+  "days": ["Dom", "Lun", "Mar", "Mi\u00e9", "Jue", "Vie", "S\u00e1b"],
+  "executive": {
+    "title": "Inteligencia del Workspace",
+    "overviewWeekOf": "Resumen Ejecutivo \u00b7 Semana del {{date}}",
+    "riskScorePrefix": "Puntaje de riesgo",
+    "riskScoreSuffix": "esta semana",
+    "slaCompliancePrefix": "Cumplimiento de SLA en",
+    "slaComplianceSuffix": "esta semana",
+    "stats": { "tickets": "Tickets", "sla": "SLA" },
+    "riskLabel": { "high": "Riesgo Alto", "medium": "Riesgo Medio", "low": "Riesgo Bajo" },
+    "kpi": {
+      "totalTickets": "Total de Tickets",
+      "slaCompliance": "Cumplimiento SLA",
+      "avgResolution": "Resoluci\u00f3n Promedio",
+      "aiOpsCost": "Costo Operativo IA",
+      "atRiskTickets": "Tickets en Riesgo",
+      "workspaceRisk": "Riesgo del Workspace"
+    },
+    "riskScoreBar": {
+      "title": "Puntaje de Riesgo del Workspace",
+      "low": "0 \u2014 Bajo",
+      "medium": "40 \u2014 Medio",
+      "high": "70+ \u2014 Alto"
+    },
+    "ticketVolume30d": "Volumen de Tickets \u2014 \u00daltimos 30 D\u00edas",
+    "ticketsByDepartment": "Tickets por Departamento",
+    "totalThisWeek": "{{count}} en total esta semana",
+    "fourWeekTrend": "Tendencia de 4 Semanas",
+    "trendTable": { "period": "Per\u00edodo", "tickets": "Tickets", "resolved": "Resueltos", "slaPct": "% SLA", "breaches": "Incumplimientos", "avgHours": "Horas Prom." },
+    "topBottlenecks": "Principales Cuellos de Botella",
+    "bottlenecksSubtitle": "Departamentos con m\u00e1s horas-persona improductivas",
+    "bottleneckStat": { "open": "Abiertos", "breaches": "Incumplimientos", "avgHrs": "Horas Prom.", "costHrs": "Horas de Costo" },
+    "aiBriefing": {
+      "title": "Reporte de Inteligencia IA v2",
+      "generatedBy": "Generado por GPT-4o \u00b7 {{date}}",
+      "notYetGenerated": "A\u00fan no generado",
+      "schedule": "GPT-4o \u00b7 Todos los lunes 7am",
+      "noContent": "No hay contenido disponible para esta secci\u00f3n.",
+      "noReportYet": "A\u00fan no se gener\u00f3 ning\u00fan reporte de IA. Los reportes se crean todos los lunes a las 7:00 AM."
+    },
+    "sections": {
+      "executiveSummary": "Resumen Ejecutivo",
+      "trendAnalysis": "An\u00e1lisis de Tendencia (4 Semanas)",
+      "topBottlenecksCost": "Principales Cuellos de Botella y Costo",
+      "riskForecast": "Pron\u00f3stico de Riesgo Pr\u00f3xima Semana"
+    }
+  },
+  "manager": {
+    "title": "Panel de Equipo",
+    "operationsWeekOf": "Operaciones \u00b7 Semana del {{date}}",
+    "allWithinSla": "Todos los tickets dentro del SLA. \u00a1Buen trabajo, equipo!",
+    "ticketBreachedSla_one": "{{count}} ticket incumpli\u00f3 el SLA",
+    "ticketBreachedSla_other": "{{count}} tickets incumplieron el SLA",
+    "atRisk": "{{count}} en riesgo",
+    "thisWeek": "esta semana.",
+    "stats": { "breached": "Incumplidos", "atRisk": "En Riesgo" },
+    "kpi": {
+      "openTickets": "Tickets Abiertos",
+      "slaCompliance": "Cumplimiento SLA",
+      "avgResolution": "Resoluci\u00f3n Promedio",
+      "criticalUnassigned": "Cr\u00edticos Sin Asignar",
+      "atRiskTickets": "Tickets en Riesgo",
+      "slaBreached": "SLA Incumplido"
+    },
+    "ticketsAtRisk": "Tickets en Riesgo \u2014 Incumplimiento de SLA Predicho",
+    "aiPredicted": "Predicho por IA \u00b7 P(incumplimiento) \u2265 70%",
+    "slaBreachedTitle": "SLA Incumplido",
+    "pastDeadline_one": "{{count}} ticket venc\u00eddo",
+    "pastDeadline_other": "{{count}} tickets vencidos",
+    "ticketVolume30d": "Volumen de Tickets \u2014 \u00daltimos 30 D\u00edas",
+    "byCategory": "Por Categor\u00eda",
+    "operationalLoad7d": "Carga Operativa \u2014 \u00daltimos 7 D\u00edas",
+    "heatLegend": { "none": "Ninguna", "low": "Baja", "high": "Alta", "critical": "Cr\u00edtica" },
+    "agentPerformance": "Desempe\u00f1o de Agentes",
+    "table": {
+      "agent": "Agente",
+      "open": "Abiertos",
+      "resolved": "Resueltos",
+      "slaMetPct": "% SLA Cumplido",
+      "avgTime": "Tiempo Prom.",
+      "ticket": "Ticket",
+      "title": "T\u00edtulo",
+      "priority": "Prioridad",
+      "department": "Departamento",
+      "assignedTo": "Asignado A",
+      "dueAt": "Vence",
+      "pBreach": "P(Incumpl.)",
+      "breachedAt": "Incumplido El"
+    }
+  },
+  "greetingMorning": "Buenos días, {{name}}.",
+  "greetingAfternoon": "Buenas tardes, {{name}}.",
+  "greetingEvening": "Buenas noches, {{name}}.",
+  "summary": {
+    "allCaughtUp": "Estás al día. ¡Buen trabajo!",
+    "youHave": "Tenés",
+    "and": "y",
+    "todaySuffix": "hoy.",
+    "openTickets_one": "{{count}} ticket abierto",
+    "openTickets_other": "{{count}} tickets abiertos",
+    "pendingRequest_one": "{{count}} solicitud pendiente",
+    "pendingRequest_other": "{{count}} solicitudes pendientes"
+  },
+  "stats": {
+    "tickets": "Tickets",
+    "leave": "Licencias"
+  },
+  "kpi": {
+    "myOpenTickets": "Mis Tickets Abiertos",
+    "pendingLeave": "Licencias Pendientes",
+    "awaitingApproval": "Esperando aprobación",
+    "onboardingProgress": "Progreso de Onboarding",
+    "tasksComplete": "{{completed}}/{{total}} tareas completas"
+  },
+  "sections": {
+    "myTickets": "Mis Tickets",
+    "myLeaveRequests": "Mis Solicitudes de Licencia",
+    "myOnboarding": "Mi Onboarding",
+    "recentNotifications": "Notificaciones Recientes"
+  },
+  "newRequest": "Nueva solicitud",
+  "empty": {
+    "ticketsTitle": "No hay tickets abiertos",
+    "ticketsSub": "Estás al día.",
+    "leaveTitle": "No hay solicitudes de licencia",
+    "leaveSub": "Enviá tu primera solicitud arriba.",
+    "notificationsTitle": "No hay notificaciones",
+    "notificationsSub": "Estás al día."
+  },
+  "sla": {
+    "none": "Sin SLA",
+    "overdue": "Vencido"
+  },
+  "onboarding": {
+    "noPlanAssigned": "Sin plan asignado",
+    "contactHrShort": "Contactá a RRHH para empezar",
+    "noPlanTitle": "Sin plan de onboarding",
+    "noPlanSub": "Contactá a RRHH si creés que esto es un error",
+    "viewFullPlan": "Ver plan completo →"
+  }
+}

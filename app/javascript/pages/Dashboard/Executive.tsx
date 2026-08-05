@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion'
 import { AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { useTranslation } from 'react-i18next'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import { useLocale } from '@/hooks/useLocale'
 
 interface TrendWeek {
   week_label: string
@@ -64,10 +66,10 @@ function riskColor(score: number): string {
   return '#16A34A'
 }
 
-function riskLabel(score: number): string {
-  if (score >= 70) return 'High Risk'
-  if (score >= 40) return 'Medium Risk'
-  return 'Low Risk'
+function riskLabelKey(score: number): 'high' | 'medium' | 'low' {
+  if (score >= 70) return 'high'
+  if (score >= 40) return 'medium'
+  return 'low'
 }
 
 function slaColor(pct: number): string {
@@ -102,6 +104,8 @@ function AnimatedNumber({ value, color, prefix = '', suffix = '', decimals = 0 }
 }
 
 export default function ExecutiveDashboard({ metrics }: Props) {
+  const { t } = useTranslation('dashboard')
+  const { speechLang } = useLocale()
   const [expandedSection, setExpandedSection] = useState<string | null>('executive summary')
   const totalTickets = metrics.tickets_by_department.reduce((sum, dept) => sum + dept.count, 0)
   const pieData      = metrics.tickets_by_department.map((dept) => ({
@@ -117,10 +121,10 @@ export default function ExecutiveDashboard({ metrics }: Props) {
   const bottlenecks  = report?.metrics?.top_bottlenecks ?? []
 
   const REPORT_SECTIONS = [
-    { key: 'executive summary',                    icon: <ClipboardIcon />, label: 'Executive Summary',          alert: false },
-    { key: 'trend analysis (last 4 weeks)',         icon: <TrendIcon />,    label: 'Trend Analysis (4 Weeks)',    alert: false },
-    { key: 'top 3 bottlenecks & estimated cost',    icon: <FlameIcon />,    label: 'Top Bottlenecks & Cost',      alert: true },
-    { key: 'next week risk forecast',               icon: <RadarIcon2 />,  label: 'Next Week Risk Forecast',     alert: false },
+    { key: 'executive summary',                    icon: <ClipboardIcon />, label: t('executive.sections.executiveSummary'),   alert: false },
+    { key: 'trend analysis (last 4 weeks)',         icon: <TrendIcon />,    label: t('executive.sections.trendAnalysis'),       alert: false },
+    { key: 'top 3 bottlenecks & estimated cost',    icon: <FlameIcon />,    label: t('executive.sections.topBottlenecksCost'),  alert: true },
+    { key: 'next week risk forecast',               icon: <RadarIcon2 />,  label: t('executive.sections.riskForecast'),        alert: false },
   ]
 
   return (
@@ -139,18 +143,18 @@ export default function ExecutiveDashboard({ metrics }: Props) {
           >
             <div>
               <p style={{ fontSize: '11px', color: '#028090', letterSpacing: '0.12em', fontWeight: 700, margin: '0 0 6px', textTransform: 'uppercase' }}>
-                Executive Overview · Week of {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-              </p>
-              <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#0F172A', margin: '0 0 6px', letterSpacing: '-0.4px' }}>
-                Workspace Intelligence
-              </h1>
-              <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>
-                {riskScore > 0 ? (
-                  <>Risk score <span style={{ color: riskColor(riskScore), fontWeight: 600 }}>{riskScore}/100</span> · {riskLabel(riskScore)} this week</>
-                ) : (
-                  <>SLA compliance at <span style={{ color: slaColor(metrics.kpis.sla_compliance), fontWeight: 600 }}>{metrics.kpis.sla_compliance}%</span> this week</>
-                )}
-              </p>
+                  {t('executive.overviewWeekOf', { date: new Date().toLocaleDateString(speechLang, { month: 'long', day: 'numeric', year: 'numeric' }) })}
+                </p>
+                <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#0F172A', margin: '0 0 6px', letterSpacing: '-0.4px' }}>
+                  {t('executive.title')}
+                </h1>
+                <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>
+                  {riskScore > 0 ? (
+                    <>{t('executive.riskScoreThisWeek', { score: riskScore, label: t(`executive.riskLabel.${riskLabelKey(riskScore)}`) }).split(String(riskScore))[0]}<span style={{ color: riskColor(riskScore), fontWeight: 600 }}>{riskScore}/100</span>{t('executive.riskScoreThisWeek', { score: riskScore, label: t(`executive.riskLabel.${riskLabelKey(riskScore)}`) }).split('/100')[1]}</>
+                  ) : (
+                    <>{t('executive.slaComplianceThisWeek', { pct: metrics.kpis.sla_compliance }).split(String(metrics.kpis.sla_compliance))[0]}<span style={{ color: slaColor(metrics.kpis.sla_compliance), fontWeight: 600 }}>{metrics.kpis.sla_compliance}%</span>{t('executive.slaComplianceThisWeek', { pct: metrics.kpis.sla_compliance }).split('%')[1]}</>
+                  )}
+                </p>
             </div>
             <div style={{ display: 'flex', gap: '10px' }}>
               <motion.div
@@ -160,7 +164,7 @@ export default function ExecutiveDashboard({ metrics }: Props) {
                 style={{ background: '#F0FDFA', border: '1px solid #99F6E4', borderRadius: '12px', padding: '12px 20px', textAlign: 'center', minWidth: '76px' }}
               >
                 <p style={{ fontSize: '24px', fontWeight: 700, color: '#028090', margin: 0, lineHeight: 1 }}>{metrics.kpis.total_tickets_week}</p>
-                <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Tickets</p>
+                <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('executive.stats.tickets')}</p>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, scale: 0.85 }}
@@ -173,7 +177,7 @@ export default function ExecutiveDashboard({ metrics }: Props) {
                 }}
               >
                 <p style={{ fontSize: '24px', fontWeight: 700, color: slaColor(metrics.kpis.sla_compliance), margin: 0, lineHeight: 1 }}>{metrics.kpis.sla_compliance}%</p>
-                <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>SLA</p>
+                <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('executive.stats.sla')}</p>
               </motion.div>
             </div>
           </motion.div>
@@ -186,11 +190,11 @@ export default function ExecutiveDashboard({ metrics }: Props) {
           style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '20px' }}
         >
           {[
-            { label: 'Total Tickets',   value: metrics.kpis.total_tickets_week, color: '#028090', icon: <TicketsIcon />, prefix: '', suffix: '', decimals: 0 },
-            { label: 'SLA Compliance',  value: metrics.kpis.sla_compliance,     color: slaColor(metrics.kpis.sla_compliance), icon: <ShieldIcon />, prefix: '', suffix: '%', decimals: 1 },
-            { label: 'Avg Resolution',  value: metrics.kpis.avg_resolution_hours, color: '#028090', icon: <ClockIcon />, prefix: '', suffix: 'h', decimals: 1 },
-            { label: 'AI Ops Cost',     value: metrics.kpis.ai_operations_cost, color: '#6B7280', icon: <GearIcon />, prefix: '$', suffix: '', decimals: 2 },
-          ].map((kpi) => (
+              { label: t('executive.kpi.totalTickets'),  value: metrics.kpis.total_tickets_week, color: '#028090', icon: <TicketsIcon />, prefix: '', suffix: '', decimals: 0 },
+              { label: t('executive.kpi.slaCompliance'), value: metrics.kpis.sla_compliance,     color: slaColor(metrics.kpis.sla_compliance), icon: <ShieldIcon />, prefix: '', suffix: '%', decimals: 1 },
+              { label: t('executive.kpi.avgResolution'), value: metrics.kpis.avg_resolution_hours, color: '#028090', icon: <ClockIcon />, prefix: '', suffix: 'h', decimals: 1 },
+              { label: t('executive.kpi.aiOpsCost'),     value: metrics.kpis.ai_operations_cost, color: '#6B7280', icon: <GearIcon />, prefix: '$', suffix: '', decimals: 2 },
+            ].map((kpi) => (
             <motion.div key={kpi.label} variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } } }}>
               <div style={{ ...card, borderTop: `3px solid ${kpi.color}`, padding: '16px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
@@ -204,7 +208,7 @@ export default function ExecutiveDashboard({ metrics }: Props) {
           <motion.div variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } } }}>
             <div style={{ ...card, borderTop: '3px solid #F97316', padding: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-                <p style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>At-Risk Tickets</p>
+                <p style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>{t('executive.kpi.atRiskTickets')}</p>
                 <div style={{ width: '26px', height: '26px', borderRadius: '7px', background: '#FFF7ED', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F97316', flexShrink: 0 }}><WarningIcon /></div>
               </div>
               {report?.metrics?.at_risk_tickets != null ? (
@@ -217,7 +221,7 @@ export default function ExecutiveDashboard({ metrics }: Props) {
           <motion.div variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } } }}>
             <div style={{ ...card, borderTop: `3px solid ${riskScore > 0 ? riskColor(riskScore) : '#CBD5E1'}`, padding: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-                <p style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>Workspace Risk</p>
+                <p style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>{t('executive.kpi.workspaceRisk')}</p>
                 <div style={{ width: '26px', height: '26px', borderRadius: '7px', background: '#F0FDFA', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#028090', flexShrink: 0 }}><RadarIcon /></div>
               </div>
               {riskScore > 0 ? (
@@ -234,9 +238,9 @@ export default function ExecutiveDashboard({ metrics }: Props) {
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.35 }}>
             <div style={{ ...card, marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '20px', borderTop: `3px solid ${riskColor(riskScore)}` }}>
               <div>
-                <p style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 4px' }}>Workspace Risk Score</p>
+                <p style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 4px' }}>{t('executive.riskScoreBar.title')}</p>
                 <p style={{ fontSize: '26px', fontWeight: 700, color: riskColor(riskScore), margin: 0 }}>{riskScore}/100</p>
-                <p style={{ fontSize: '11px', fontWeight: 600, color: riskColor(riskScore), margin: '4px 0 0' }}>{riskLabel(riskScore)}</p>
+                <p style={{ fontSize: '11px', fontWeight: 600, color: riskColor(riskScore), margin: '4px 0 0' }}>{t(`executive.riskLabel.${riskLabelKey(riskScore)}`)}</p>
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ height: '10px', borderRadius: '6px', background: '#F1F5F9', overflow: 'hidden' }}>
@@ -248,9 +252,9 @@ export default function ExecutiveDashboard({ metrics }: Props) {
                   />
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
-                  <span style={{ fontSize: '11px', color: '#94A3B8' }}>0 — Low</span>
-                  <span style={{ fontSize: '11px', color: '#94A3B8' }}>40 — Medium</span>
-                  <span style={{ fontSize: '11px', color: '#94A3B8' }}>70+ — High</span>
+                  <span style={{ fontSize: '11px', color: '#94A3B8' }}>{t('executive.riskScoreBar.low')}</span>
+                    <span style={{ fontSize: '11px', color: '#94A3B8' }}>{t('executive.riskScoreBar.medium')}</span>
+                    <span style={{ fontSize: '11px', color: '#94A3B8' }}>{t('executive.riskScoreBar.high')}</span>
                 </div>
               </div>
             </div>
@@ -261,7 +265,7 @@ export default function ExecutiveDashboard({ metrics }: Props) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '14px', marginBottom: '14px' }}>
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.36, duration: 0.35 }}>
             <div style={{ ...card, borderTop: '3px solid #028090' }}>
-              <h2 style={cardTitle}>Ticket Volume — Last 30 Days</h2>
+              <h2 style={cardTitle}>{t('executive.ticketVolume30d')}</h2>
               <ResponsiveContainer width="100%" height={220}>
                 <AreaChart data={metrics.ticket_volume_30d}>
                   <defs>
@@ -282,8 +286,8 @@ export default function ExecutiveDashboard({ metrics }: Props) {
 
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.35 }}>
             <div style={{ ...card, borderTop: '3px solid #028090' }}>
-              <h2 style={cardTitle}>Tickets by Department</h2>
-              <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 12px' }}>{totalTickets} total this week</p>
+              <h2 style={cardTitle}>{t('executive.ticketsByDepartment')}</h2>
+                <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 12px' }}>{t('executive.totalThisWeek', { count: totalTickets })}</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <ResponsiveContainer width={130} height={130}>
                   <PieChart>
@@ -313,12 +317,12 @@ export default function ExecutiveDashboard({ metrics }: Props) {
         {trendData.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.44, duration: 0.35 }}>
             <div style={{ ...card, marginBottom: '14px', borderTop: '3px solid #028090' }}>
-              <h2 style={{ ...cardTitle, marginBottom: '16px' }}>4-Week Trend</h2>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '500px' }}>
-                  <thead>
-                    <tr>
-                      {['Period', 'Tickets', 'Resolved', 'SLA %', 'Breaches', 'Avg Hours'].map((h) => (
+              <h2 style={{ ...cardTitle, marginBottom: '16px' }}>{t('executive.fourWeekTrend')}</h2>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '500px' }}>
+                    <thead>
+                      <tr>
+                        {[t('executive.trendTable.period'), t('executive.trendTable.tickets'), t('executive.trendTable.resolved'), t('executive.trendTable.slaPct'), t('executive.trendTable.breaches'), t('executive.trendTable.avgHours')].map((h) => (
                         <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: '#94A3B8', fontWeight: 600, padding: '8px 12px', borderBottom: '1px solid #F1F5F9', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{h}</th>
                       ))}
                     </tr>
@@ -347,8 +351,8 @@ export default function ExecutiveDashboard({ metrics }: Props) {
         {bottlenecks.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.35 }}>
             <div style={{ ...card, marginBottom: '14px', borderTop: '3px solid #F97316' }}>
-              <h2 style={{ ...cardTitle, marginBottom: '4px' }}>Top Bottlenecks</h2>
-              <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 16px' }}>Departments with highest unproductive person-hours</p>
+              <h2 style={{ ...cardTitle, marginBottom: '4px' }}>{t('executive.topBottlenecks')}</h2>
+                <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 16px' }}>{t('executive.bottlenecksSubtitle')}</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
                 {bottlenecks.map((dept, idx) => (
                   <motion.div key={dept.department} initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.54 + idx * 0.07 }} style={{ padding: '16px', borderRadius: '12px', background: '#FFF7ED', border: '1px solid #FED7AA' }}>
@@ -357,10 +361,10 @@ export default function ExecutiveDashboard({ metrics }: Props) {
                       <span style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>{dept.department}</span>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                      <Stat label="Open" value={String(dept.open_tickets)} />
-                      <Stat label="Breaches" value={String(dept.sla_breaches)} danger={dept.sla_breaches > 0} />
-                      <Stat label="Avg Hrs" value={`${dept.avg_resolution_hrs}h`} />
-                      <Stat label="Cost Hrs" value={`${dept.estimated_cost_hours}h`} danger />
+                      <Stat label={t('executive.bottleneckStat.open')} value={String(dept.open_tickets)} />
+                        <Stat label={t('executive.bottleneckStat.breaches')} value={String(dept.sla_breaches)} danger={dept.sla_breaches > 0} />
+                        <Stat label={t('executive.bottleneckStat.avgHrs')} value={`${dept.avg_resolution_hrs}h`} />
+                        <Stat label={t('executive.bottleneckStat.costHrs')} value={`${dept.estimated_cost_hours}h`} danger />
                     </div>
                   </motion.div>
                 ))}
@@ -377,14 +381,14 @@ export default function ExecutiveDashboard({ metrics }: Props) {
                 <SparkleIcon />
               </div>
               <div>
-                <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#0F172A', margin: 0 }}>AI Intelligence Briefing v2</h2>
-                <p style={{ fontSize: '12px', color: '#94A3B8', margin: 0 }}>
-                  Generated by GPT-4o · {report ? new Date(report.generated_at).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : 'Not yet generated'}
-                </p>
-              </div>
-              <span style={{ marginLeft: 'auto', padding: '6px 12px', borderRadius: '8px', background: '#F0FDFA', color: '#028090', fontSize: '12px', fontWeight: 600 }}>
-                GPT-4o · Every Monday 7am
-              </span>
+                <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#0F172A', margin: 0 }}>{t('executive.aiBriefing.title')}</h2>
+                  <p style={{ fontSize: '12px', color: '#94A3B8', margin: 0 }}>
+                    {t('executive.aiBriefing.generatedBy', { date: report ? new Date(report.generated_at).toLocaleDateString(speechLang, { weekday: 'long', month: 'long', day: 'numeric' }) : t('executive.aiBriefing.notYetGenerated') })}
+                  </p>
+                </div>
+                <span style={{ marginLeft: 'auto', padding: '6px 12px', borderRadius: '8px', background: '#F0FDFA', color: '#028090', fontSize: '12px', fontWeight: 600 }}>
+                  {t('executive.aiBriefing.schedule')}
+                </span>
             </div>
 
             {report ? (
@@ -406,8 +410,8 @@ export default function ExecutiveDashboard({ metrics }: Props) {
                       {isOpen && (
                         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} transition={{ duration: 0.25 }} style={{ padding: '16px', background: '#fff', borderTop: `1px solid ${sec.alert ? '#FED7AA' : '#E2E8F0'}` }}>
                           <p style={{ fontSize: '13px', color: '#475569', margin: 0, lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
-                            {content || 'No content available for this section.'}
-                          </p>
+                              {content || t('executive.aiBriefing.noContent')}
+                            </p>
                         </motion.div>
                       )}
                     </div>
@@ -416,7 +420,7 @@ export default function ExecutiveDashboard({ metrics }: Props) {
               </div>
             ) : (
               <div style={{ padding: '32px', textAlign: 'center', background: '#F8FAFC', borderRadius: '12px' }}>
-                <p style={{ color: '#94A3B8', fontSize: '14px', margin: 0 }}>No AI report generated yet. Reports are created every Monday at 7:00 AM.</p>
+                <p style={{ color: '#94A3B8', fontSize: '14px', margin: 0 }}>{t('executive.aiBriefing.noReportYet')}</p>
               </div>
             )}
           </div>

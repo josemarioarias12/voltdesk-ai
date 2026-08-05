@@ -2,7 +2,9 @@ import { useEffect, useRef } from 'react'
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion'
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts'
 import { router } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import { useLocale } from '@/hooks/useLocale'
 
 interface KPI {
   open_tickets: number
@@ -30,8 +32,6 @@ interface ManagerMetrics {
   tickets_breached: AtRiskTicket[]
 }
 interface Props { metrics: ManagerMetrics }
-
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 function heatColor(count: number, max: number): string {
   if (count === 0) return '#F8FAFC'
@@ -95,6 +95,10 @@ function AnimatedNumber({ value, color, suffix = '' }: { value: number; color: s
 }
 
 export default function ManagerDashboard({ metrics }: Props) {
+  const { t } = useTranslation('dashboard')
+  const { t: tTickets } = useTranslation('tickets')
+  const { speechLang } = useLocale()
+  const days = t('days', { returnObjects: true }) as string[]
   const maxHeat = Math.max(...metrics.heatmap.map(c => c.count), 1)
 
   return (
@@ -113,25 +117,25 @@ export default function ManagerDashboard({ metrics }: Props) {
         >
           <div>
             <p style={{ fontSize: '11px', color: '#028090', letterSpacing: '0.12em', fontWeight: 700, margin: '0 0 6px', textTransform: 'uppercase' }}>
-              Operations · Week of {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-            </p>
-            <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#0F172A', margin: '0 0 6px', letterSpacing: '-0.4px' }}>
-              Team Dashboard
-            </h1>
-            <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>
-              {metrics.tickets_breached.length > 0 || metrics.tickets_at_risk.length > 0 ? (
-                <>
-                  {metrics.tickets_breached.length > 0 && (
-                    <span style={{ color: '#EF4444', fontWeight: 600 }}>{metrics.tickets_breached.length} ticket{metrics.tickets_breached.length !== 1 ? 's' : ''} breached SLA</span>
-                  )}
-                  {metrics.tickets_breached.length > 0 && metrics.tickets_at_risk.length > 0 ? ', ' : ''}
-                  {metrics.tickets_at_risk.length > 0 && (
-                    <span style={{ color: '#F97316', fontWeight: 600 }}>{metrics.tickets_at_risk.length} at risk</span>
-                  )}
-                  {' this week.'}
-                </>
-              ) : "All tickets within SLA. Great work, team!"}
-            </p>
+                {t('manager.operationsWeekOf', { date: new Date().toLocaleDateString(speechLang, { month: 'long', day: 'numeric', year: 'numeric' }) })}
+              </p>
+              <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#0F172A', margin:'0 0 6px', letterSpacing: '-0.4px' }}>
+                {t('manager.title')}
+              </h1>
+              <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>
+                {metrics.tickets_breached.length > 0 || metrics.tickets_at_risk.length > 0 ? (
+                  <>
+                    {metrics.tickets_breached.length > 0 && (
+                      <span style={{ color: '#EF4444', fontWeight: 600 }}>{t('manager.ticketBreachedSla', { count: metrics.tickets_breached.length })}</span>
+                    )}
+                    {metrics.tickets_breached.length > 0 && metrics.tickets_at_risk.length > 0 ? ', ' : ''}
+                    {metrics.tickets_at_risk.length > 0 && (
+                      <span style={{ color: '#F97316', fontWeight: 600 }}>{t('manager.atRisk', { count: metrics.tickets_at_risk.length })}</span>
+                    )}
+                    {' '}{t('manager.thisWeek')}
+                  </>
+                ) : t('manager.allWithinSla')}
+              </p>
           </div>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <motion.div
@@ -147,7 +151,7 @@ export default function ManagerDashboard({ metrics }: Props) {
               <p style={{ fontSize: '24px', fontWeight: 700, color: metrics.tickets_breached.length > 0 ? '#EF4444' : '#475569', margin: 0, lineHeight: 1 }}>
                 {metrics.tickets_breached.length}
               </p>
-              <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Breached</p>
+              <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('manager.stats.breached')}</p>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, scale: 0.85 }}
@@ -162,7 +166,7 @@ export default function ManagerDashboard({ metrics }: Props) {
               <p style={{ fontSize: '24px', fontWeight: 700, color: metrics.tickets_at_risk.length> 0 ? '#F97316' : '#475569', margin: 0, lineHeight: 1 }}>
                 {metrics.tickets_at_risk.length}
               </p>
-              <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>At Risk</p>
+              <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('manager.stats.atRisk')}</p>
             </motion.div>
           </div>
         </motion.div>
@@ -175,13 +179,13 @@ export default function ManagerDashboard({ metrics }: Props) {
           style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '20px' }}
         >
           {[
-            { label: 'Open Tickets', value: metrics.kpis.open_tickets, color: '#028090', suffix: '' },
-            { label: 'SLA Compliance', value: metrics.kpis.sla_compliance, color: slaColor(metrics.kpis.sla_compliance), suffix: '%' },
-            { label: 'Avg Resolution', value: metrics.kpis.avg_resolution_hours, color: '#028090', suffix: 'h' },
-            { label: 'Critical Unassigned', value: metrics.kpis.critical_unassigned, color: metrics.kpis.critical_unassigned > 0 ? '#EF4444' : '#16A34A', suffix: '' },
-            { label: 'At-Risk Tickets', value: metrics.tickets_at_risk.length, color: metrics.tickets_at_risk.length > 0 ? '#F97316' : '#16A34A', suffix: '' },
-            { label: 'SLA Breached', value: metrics.tickets_breached.length, color: metrics.tickets_breached.length > 0 ? '#EF4444' : '#16A34A', suffix: '' },
-          ].map((kpi) => (
+              { label: t('manager.kpi.openTickets'), value: metrics.kpis.open_tickets, color: '#028090', suffix: '' },
+              { label: t('manager.kpi.slaCompliance'), value: metrics.kpis.sla_compliance, color: slaColor(metrics.kpis.sla_compliance), suffix: '%' },
+              { label: t('manager.kpi.avgResolution'), value: metrics.kpis.avg_resolution_hours, color: '#028090', suffix: 'h' },
+              { label: t('manager.kpi.criticalUnassigned'), value: metrics.kpis.critical_unassigned, color: metrics.kpis.critical_unassigned > 0 ? '#EF4444' : '#16A34A', suffix: '' },
+              { label: t('manager.kpi.atRiskTickets'), value: metrics.tickets_at_risk.length, color:metrics.tickets_at_risk.length > 0 ? '#F97316' : '#16A34A', suffix: '' },
+              { label: t('manager.kpi.slaBreached'), value: metrics.tickets_breached.length, color: metrics.tickets_breached.length > 0 ? '#EF4444' : '#16A34A', suffix: '' },
+            ].map((kpi) => (
             <motion.div
               key={kpi.label}
               variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } } }}
@@ -206,10 +210,10 @@ export default function ManagerDashboard({ metrics }: Props) {
                   transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
                   style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#F97316' }}
                 />
-                <h2 style={{ ...cardTitle, margin: 0 }}>Tickets at Risk — Predicted SLA Breach</h2>
-                <span style={{ marginLeft: 'auto', fontSize: '12px', color: '#94A3B8' }}>
-                  AI predicted · P(breach) ≥ 70%
-                </span>
+                <h2 style={{ ...cardTitle, margin: 0 }}>{t('manager.ticketsAtRisk')}</h2>
+                  <span style={{ marginLeft: 'auto', fontSize: '12px', color: '#94A3B8'}}>
+                    {t('manager.aiPredicted')}
+                  </span>
               </div>
               <AtRiskTable tickets={metrics.tickets_at_risk} showProbability />
             </div>
@@ -222,10 +226,10 @@ export default function ManagerDashboard({ metrics }: Props) {
             <div style={{ ...card, marginBottom: '14px', borderLeft: '4px solid #EF4444' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444' }} />
-                <h2 style={{ ...cardTitle, margin: 0 }}>SLA Breached</h2>
-                <span style={{ marginLeft: 'auto', fontSize: '12px', color: '#EF4444', fontWeight: 600 }}>
-                  {metrics.tickets_breached.length} ticket{metrics.tickets_breached.length !== 1 ? 's' : ''} past deadline
-                </span>
+                <h2 style={{ ...cardTitle, margin: 0 }}>{t('manager.slaBreachedTitle')}</h2>
+                  <span style={{ marginLeft: 'auto', fontSize: '12px', color: '#EF4444', fontWeight: 600 }}>
+                    {t('manager.pastDeadline', { count: metrics.tickets_breached.length })}
+                  </span>
               </div>
               <AtRiskTable tickets={metrics.tickets_breached} showProbability={false} />
             </div>
@@ -236,7 +240,7 @@ export default function ManagerDashboard({ metrics }: Props) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '14px', marginBottom: '14px' }}>
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.38, duration: 0.35 }}>
             <div style={{ ...card, borderTop: '3px solid #028090' }}>
-              <h2 style={cardTitle}>Ticket Volume — Last 30 Days</h2>
+              <h2 style={cardTitle}>{t('manager.ticketVolume30d')}</h2>
               <ResponsiveContainer width="100%" height={220}>
                 <AreaChart data={metrics.ticket_volume_30d}>
                   <defs>
@@ -268,7 +272,7 @@ export default function ManagerDashboard({ metrics }: Props) {
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.42, duration: 0.35 }}>
             <div style={{ ...card, borderTop: '3px solid #028090' }}>
-              <h2 style={cardTitle}>By Category</h2>
+              <h2 style={cardTitle}>{t('manager.byCategory')}</h2>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={metrics.tickets_by_category} layout="vertical" margin={{ right: 28 }}>
                   <defs>
@@ -297,38 +301,43 @@ export default function ManagerDashboard({ metrics }: Props) {
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.46, duration: 0.35 }}>
           <div style={{ ...card, marginBottom: '14px', borderTop: '3px solid #028090' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h2 style={cardTitle}>Operational Load — Last 7 Days</h2>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                {[['#F8FAFC', 'None'], ['#B2E0E5', 'Low'], ['#028090', 'High'], ['#EF4444', 'Critical']].map(([bg, lbl]) => (
-                  <div key={lbl} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '12px', height: '12px', borderRadius: '3px', background: bg, border: '1px solid #E2E8F0' }} />
-                    <span style={{ fontSize: '11px', color: '#94A3B8' }}>{lbl}</span>
-                  </div>
-                ))}
-              </div>
+              <h2 style={cardTitle}>{t('manager.operationalLoad7d')}</h2>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  {[
+                    ['#F8FAFC', t('manager.heatLegend.none')],
+                    ['#B2E0E5', t('manager.heatLegend.low')],
+                    ['#028090', t('manager.heatLegend.high')],
+                    ['#EF4444', t('manager.heatLegend.critical')],
+                  ].map(([bg, lbl]) => (
+                    <div key={lbl} style={{ display: 'flex', alignItems: 'center', gap:'4px' }}>
+                      <div style={{ width: '12px', height: '12px', borderRadius: '3px',background: bg, border: '1px solid #E2E8F0' }} />
+                      <span style={{ fontSize: '11px', color: '#94A3B8' }}>{lbl}</span>
+                    </div>
+                  ))}
+                </div>
             </div>
             <div style={{ overflowX: 'auto' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '32px repeat(7, 1fr)', gap: '2px', minWidth: '480px' }}>
               <div />
-              {DAYS.map(d => (
-                <div key={d} style={{ fontSize: '11px', color: '#94A3B8', textAlign: 'center', paddingBottom: '4px', fontWeight: 600 }}>{d}</div>
-              ))}
-              {Array.from({ length: 24 }, (_, hour) => (
-                <>
-                  <div key={`h${hour}`} style={{ fontSize: '10px', color: '#CBD5E1', textAlign: 'right', paddingRight: '4px', lineHeight: '14px' }}>
-                    {hour === 0 ? '12a' : hour < 12 ? `${hour}a` : hour === 12 ? '12p' : `${hour - 12}p`}
-                  </div>
-                  {DAYS.map((_, dow) => {
-                    const cell    = metrics.heatmap.find(c => c.dow === dow && c.hour === hour)
-                    const count   = cell?.count ?? 0
-                    const isNow   = isCurrentHourCell(dow, hour)
-                    return (
-                      <motion.div
-                        key={`${dow}-${hour}`}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.5 + (hour * 7 + dow) * 0.0015, duration: 0.25 }}
-                        title={`${DAYS[dow]} ${hour}:00 — ${count} tickets${isNow ? ' (current hour)' : ''}`}
+              {days.map(d => (
+                  <div key={d} style={{ fontSize: '11px', color: '#94A3B8', textAlign: 'center', paddingBottom: '4px', fontWeight: 600 }}>{d}</div>
+                ))}
+                {Array.from({ length: 24 }, (_, hour) => (
+                  <>
+                    <div key={`h${hour}`} style={{ fontSize: '10px', color: '#CBD5E1', textAlign: 'right', paddingRight: '4px', lineHeight: '14px' }}>
+                      {hour === 0 ? '12a' : hour < 12 ? `${hour}a` : hour === 12 ? '12p' : `${hour - 12}p`}
+                    </div>
+                    {days.map((_, dow) => {
+                      const cell    = metrics.heatmap.find(c => c.dow === dow && c.hour=== hour)
+                      const count   = cell?.count ?? 0
+                      const isNow   = isCurrentHourCell(dow, hour)
+                      return (
+                        <motion.div
+                          key={`${dow}-${hour}`}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.5 + (hour * 7 + dow) * 0.0015, duration: 0.25 }}
+                          title={`${days[dow]} ${hour}:00 — ${count} tickets${isNow ? '(current hour)' : ''}`}
                         style={{
                           height: '14px',
                           borderRadius: '2px',
@@ -349,12 +358,12 @@ export default function ManagerDashboard({ metrics }: Props) {
         {/* Agent Performance */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.52, duration: 0.35 }}>
           <div style={{ ...card, borderTop: '3px solid #02C39A' }}>
-            <h2 style={{ ...cardTitle, marginBottom: '16px' }}>Agent Performance</h2>
-            <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-              <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr>
-                    {['Agent', 'Open', 'Resolved', 'SLA Met %', 'Avg Time'].map(h => (
+            <h2 style={{ ...cardTitle, marginBottom: '16px' }}>{t('manager.agentPerformance')}</h2>
+              <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr>
+                      {[t('manager.table.agent'), t('manager.table.open'), t('manager.table.resolved'), t('manager.table.slaMetPct'), t('manager.table.avgTime')].map(h => (
                       <th key={h} style={{ textAlign: 'left', fontSize: '11px', color: '#94A3B8', fontWeight: 600, padding: '8px 12px', borderBottom: '1px solid #F1F5F9', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{h}</th>
                     ))}
                   </tr>
@@ -401,9 +410,12 @@ export default function ManagerDashboard({ metrics }: Props) {
 }
 
 function AtRiskTable({ tickets, showProbability }: { tickets: AtRiskTicket[]; showProbability: boolean }) {
+  const { t } = useTranslation('dashboard')
+  const { t: tTickets } = useTranslation('tickets')
+  const { speechLang } = useLocale()
   const headers = showProbability
-    ? ['Ticket', 'Title', 'Priority', 'Department', 'Assigned To', 'Due At', 'P(Breach)']
-    : ['Ticket', 'Title', 'Priority', 'Department', 'Assigned To', 'Breached At']
+    ? [t('manager.table.ticket'), t('manager.table.title'), t('manager.table.priority'), t('manager.table.department'), t('manager.table.assignedTo'), t('manager.table.dueAt'), t('manager.table.pBreach')]
+    : [t('manager.table.ticket'), t('manager.table.title'), t('manager.table.priority'), t('manager.table.department'), t('manager.table.assignedTo'), t('manager.table.breachedAt')]
 
   return (
     <div style={{ overflowX: 'auto' }}>
@@ -431,10 +443,10 @@ function AtRiskTable({ tickets, showProbability }: { tickets: AtRiskTicket[]; sh
               <td style={{ padding: '12px', fontSize: '13px', color: '#0F172A', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tkt.title}</td>
               <td style={{ padding: '12px' }}><span style={priorityBadge(tkt.priority)}>{tkt.priority}</span></td>
               <td style={{ padding: '12px', fontSize: '13px', color: '#475569' }}>{tkt.department ?? '—'}</td>
-              <td style={{ padding: '12px', fontSize: '13px', color: '#475569' }}>{tkt.assigned_to ?? 'Unassigned'}</td>
-              <td style={{ padding: '12px', fontSize: '13px', color: '#475569' }}>
-                {tkt.due_at ? new Date(tkt.due_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}
-              </td>
+              <td style={{ padding: '12px', fontSize: '13px', color: '#475569' }}>{tkt.assigned_to ?? tTickets('table.unassigned')}</td>
+                <td style={{ padding: '12px', fontSize: '13px', color: '#475569' }}>
+                  {tkt.due_at ? new Date(tkt.due_at).toLocaleString(speechLang, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}
+                </td>
               {showProbability && (
                 <td style={{ padding: '12px' }}>
                   {tkt.sla_breach_probability != null ? (

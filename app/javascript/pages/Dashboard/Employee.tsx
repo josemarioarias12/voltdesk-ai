@@ -1,7 +1,9 @@
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion'
 import { useEffect, useRef } from 'react'
 import { Link } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import { useLocale } from '@/hooks/useLocale'
 
 interface Ticket {
   id: number
@@ -105,12 +107,13 @@ function AnimatedNumber({ value, color }: { value: number; color: string }) {
 
 // ── SLA countdown ─────────────────────────────────────────────────────────────
 function SlaCountdown({ dueAt }: { dueAt: string | null }) {
-  if (!dueAt) return <span style={{ color: '#CBD5E1', fontSize: '11px' }}>No SLA</span>
+  const { t } = useTranslation('dashboard')
+  if (!dueAt) return <span style={{ color: '#CBD5E1', fontSize: '11px' }}>{t('sla.none')}</span>
   const diff  = new Date(dueAt).getTime() - Date.now()
   const hours = Math.floor(diff / 3600000)
   const mins  = Math.floor((diff % 3600000) / 60000)
   const color = diff < 0 ? '#EF4444' : diff < 3600000 ? '#F97316' : '#16A34A'
-  const label = diff < 0 ? 'Overdue' : hours > 0 ? `${hours}h ${mins}m` : `${mins}m`
+  const label = diff < 0 ? t('sla.overdue') : hours > 0 ? `${hours}h ${mins}m` : `${mins}m`
   return (
     <span style={{ fontSize: '11px', color, fontWeight: 700, flexShrink: 0, marginLeft: '10px' }}>
       {label}
@@ -120,9 +123,13 @@ function SlaCountdown({ dueAt }: { dueAt: string | null }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function EmployeeDashboard({ metrics, user }: Props) {
-  const hour     = new Date().getHours()
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
-  const dateLabel = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+  const { t } = useTranslation('dashboard')
+  const { t: tHr } = useTranslation('hr')
+  const { t: tTickets } = useTranslation('tickets')
+  const { speechLang } = useLocale()
+  const hour = new Date().getHours()
+  const greetingKey = hour < 12 ? 'greetingMorning' : hour < 18 ? 'greetingAfternoon' : 'greetingEvening'
+  const dateLabel = new Date().toLocaleDateString(speechLang, { weekday: 'long', month: 'long', day: 'numeric' })
 
   return (
     <ErrorBoundary section="Employee Dashboard">
@@ -149,13 +156,19 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
             <p style={{ fontSize: '11px', color: '#028090', letterSpacing: '0.12em', fontWeight: 700, margin: '0 0 6px', textTransform: 'uppercase' }}>
               {dateLabel}
             </p>
-            <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#0F172A', margin: '0 0 6px', letterSpacing: '-0.4px' }}>
-              {greeting}, {user.first_name}.
-            </h1>
+            <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#0F172A', margin:'0 0 6px', letterSpacing: '-0.4px' }}>
+                {t(greetingKey, { name: user.first_name })}
+              </h1>
             <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>
               {metrics.tickets.open > 0
-                ? <>You have <span style={{ color: '#028090', fontWeight: 600 }}>{metrics.tickets.open} open ticket{metrics.tickets.open !== 1 ? 's' : ''}</span>{metrics.leave_requests.pending > 0 ? <> and <span style={{ color: '#F97316', fontWeight: 600 }}>{metrics.leave_requests.pending} pending request</span></> : ''} today.</>
-                : "You're all caught up. Great work!"}
+                ? <>
+                    {t('summary.youHave')} <span style={{ color: '#028090', fontWeight: 600 }}>{t('summary.openTickets', { count: metrics.tickets.open })}</span>
+                    {metrics.leave_requests.pending > 0
+                      ? <> {t('summary.and')} <span style={{ color: '#F97316', fontWeight: 600 }}>{t('summary.pendingRequest', { count: metrics.leave_requests.pending })}</span></>
+                      : ''}
+                    {' '}{t('summary.todaySuffix')}
+                  </>
+                : t('summary.allCaughtUp')}
             </p>
           </div>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
@@ -172,7 +185,7 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
               <p style={{ fontSize: '24px', fontWeight: 700, color: metrics.tickets.open > 0 ? '#028090' : '#475569', margin: 0, lineHeight: 1 }}>
                 {metrics.tickets.open}
               </p>
-              <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Tickets</p>
+              <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('stats.tickets')}</p>
             </motion.div>
 
             <motion.div
@@ -188,7 +201,7 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
               <p style={{ fontSize: '24px', fontWeight: 700, color: metrics.leave_requests.pending> 0 ? '#F97316' : '#475569', margin: 0, lineHeight: 1 }}>
                 {metrics.leave_requests.pending}
               </p>
-              <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Leave</p>
+              <p style={{ fontSize: '10px', color: '#64748B', margin: '5px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('stats.leave')}</p>
             </motion.div>
           </div>
         </motion.div>
@@ -203,31 +216,31 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
           <motion.div variants={fadeUp}>
             <div style={{ ...card, borderTop: '3px solid #028090' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                <p style={label}>My Open Tickets</p>
-                <IconBox color="#028090" bg="#F0FDFA"><TicketIcon /></IconBox>
+                <p style={label}>{t('kpi.myOpenTickets')}</p>
+                  <IconBox color="#028090" bg="#F0FDFA"><TicketIcon /></IconBox>
+                </div>
+                <AnimatedNumber value={metrics.tickets.open} color="#028090" />
+                <Link href="/tickets" style={{ fontSize: '11px', color: '#028090', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                  {t('common:actions.viewAll', { ns: 'common' })} <ArrowRight />
+                </Link>
               </div>
-              <AnimatedNumber value={metrics.tickets.open} color="#028090" />
-              <Link href="/tickets" style={{ fontSize: '11px', color: '#028090', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                View all <ArrowRight />
-              </Link>
-            </div>
           </motion.div>
 
           <motion.div variants={fadeUp}>
             <div style={{ ...card, borderTop: '3px solid #F97316' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                <p style={label}>Pending Leave</p>
+                <p style={label}>{t('kpi.pendingLeave')}</p>
                 <IconBox color="#F97316" bg="#FFF7ED"><CalendarIcon /></IconBox>
               </div>
               <AnimatedNumber value={metrics.leave_requests.pending} color="#F97316" />
-              <span style={{ fontSize: '11px', color: '#94A3B8' }}>Awaiting approval</span>
+              <span style={{ fontSize: '11px', color: '#94A3B8' }}>{t('kpi.awaitingApproval')}</span>
             </div>
           </motion.div>
 
           <motion.div variants={fadeUp}>
             <div style={{ ...card, borderTop: '3px solid #02C39A' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                <p style={label}>Onboarding Progress</p>
+                <p style={label}>{t('kpi.onboardingProgress')}</p>
                 <IconBox color="#02C39A" bg="#F0FDFA"><CheckIcon /></IconBox>
               </div>
               {metrics.onboarding ? (
@@ -244,8 +257,8 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
                     />
                   </div>
                   <p style={{ fontSize: '10px', color: '#94A3B8', margin: 0 }}>
-                    {metrics.onboarding.completed_tasks}/{metrics.onboarding.total_tasks} tasks complete
-                  </p>
+                      {t('kpi.tasksComplete', { completed: metrics.onboarding.completed_tasks, total: metrics.onboarding.total_tasks })}
+                    </p>
                 </>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '4px 0 2px' }}>
@@ -253,8 +266,8 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
                     <DashIcon />
                   </div>
                   <div>
-                    <p style={{ fontSize: '13px', color: '#64748B', margin: '0 0 1px', fontWeight: 500 }}>No plan assigned</p>
-                    <p style={{ fontSize: '10px', color: '#94A3B8', margin: 0 }}>Contact HR to get started</p>
+                    <p style={{ fontSize: '13px', color: '#64748B', margin: '0 0 1px', fontWeight: 500 }}>{t('onboarding.noPlanAssigned')}</p>
+                      <p style={{ fontSize: '10px', color: '#94A3B8', margin: 0 }}>{t('onboarding.contactHrShort')}</p>
                   </div>
                 </div>
               )}
@@ -269,38 +282,38 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.35 }}>
             <div style={{ ...card, borderTop: '3px solid #028090' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                <h2 style={sectionTitle}>My Tickets</h2>
-                <Link href="/tickets" style={{ fontSize: '11px', color: '#028090', textDecoration: 'none', fontWeight: 600 }}>View all →</Link>
-              </div>
-              {metrics.tickets.recent.length === 0 ? (
-                <EmptyState icon={<TicketIcon />} text="No open tickets" sub="You're all caught up." />
+                <h2 style={sectionTitle}>{t('sections.myTickets')}</h2>
+                  <Link href="/tickets" style={{ fontSize: '11px', color: '#028090', textDecoration: 'none', fontWeight: 600 }}>{t('common:actions.viewAll')} →</Link>
+                </div>
+                {metrics.tickets.recent.length === 0 ? (
+                  <EmptyState icon={<TicketIcon />} text={t('empty.ticketsTitle')} sub={t('empty.ticketsSub')} />
               ) : (
-                metrics.tickets.recent.map((t, i) => (
-                  <motion.div
-                    key={t.id}
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 + i * 0.06, duration: 0.25 }}
-                  >
-                    <Link href={`/tickets/${t.id}`} style={{ display: 'block', textDecoration: 'none' }}>
-                      <div
-                        style={{ padding: '10px 0', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', transition: 'opacity 0.15s' }}
-                        onMouseEnter={e => (e.currentTarget.style.opacity = '0.65')}
-                        onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-                      >
-                        <div style={{ flex: 1 }}>
-                          <p style={{ fontSize: '10px', color: '#94A3B8', margin: '0 0 2px', fontFamily: 'monospace', letterSpacing: '0.04em' }}>{t.ticket_number}</p>
-                          <p style={{ fontSize: '13px', color: '#0F172A', margin: '0 0 7px', fontWeight: 500, lineHeight: 1.4 }}>{t.title}</p>
-                          <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
-                            <Badge text={t.status.replace('_', ' ')} bg={STATUS_COLORS[t.status]?.bg ?? '#F8FAFC'} color={STATUS_COLORS[t.status]?.text ?? '#475569'} />
-                            <Badge text={t.priority} bg={PRIORITY_COLORS[t.priority] + '18'} color={PRIORITY_COLORS[t.priority] ?? '#475569'} />
+                metrics.tickets.recent.map((ticket, i) => (
+                    <motion.div
+                      key={ticket.id}
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 + i * 0.06, duration: 0.25 }}
+                    >
+                      <Link href={`/tickets/${ticket.id}`} style={{ display: 'block', textDecoration: 'none' }}>
+                        <div
+                          style={{ padding: '10px 0', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', transition: 'opacity 0.15s' }}
+                          onMouseEnter={e => (e.currentTarget.style.opacity = '0.65')}
+                          onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+                        >
+                          <div style={{ flex: 1 }}>
+                            <p style={{ fontSize: '10px', color: '#94A3B8', margin: '0 0 2px', fontFamily: 'monospace', letterSpacing: '0.04em' }}>{ticket.ticket_number}</p>
+                            <p style={{ fontSize: '13px', color: '#0F172A', margin: '0 0 7px', fontWeight: 500, lineHeight: 1.4 }}>{ticket.title}</p>
+                            <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap'}}>
+                              <Badge text={tTickets('status.' + ticket.status)} bg={STATUS_COLORS[ticket.status]?.bg ?? '#F8FAFC'} color={STATUS_COLORS[ticket.status]?.text ?? '#475569'} />
+                              <Badge text={tTickets('priority.' + ticket.priority)} bg={PRIORITY_COLORS[ticket.priority] + '18'} color={PRIORITY_COLORS[ticket.priority] ?? '#475569'} />
+                            </div>
                           </div>
+                          <SlaCountdown dueAt={ticket.due_at} />
                         </div>
-                        <SlaCountdown dueAt={t.due_at} />
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))
+                      </Link>
+                    </motion.div>
+                  ))
               )}
             </div>
           </motion.div>
@@ -309,13 +322,13 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32, duration: 0.35 }}>
             <div style={{ ...card, borderTop: '3px solid #F97316' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                <h2 style={sectionTitle}>My Leave Requests</h2>
-                <Link href="/hr/leave_requests/new" style={{ fontSize: '11px', color: '#028090', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                  <PlusIcon /> New request
-                </Link>
-              </div>
-              {metrics.leave_requests.recent.length === 0 ? (
-                <EmptyState icon={<CalendarIcon />} text="No leave requests" sub="Submit your first request above." />
+                <h2 style={sectionTitle}>{t('sections.myLeaveRequests')}</h2>
+                  <Link href="/hr/leave_requests/new" style={{ fontSize: '11px', color:'#028090', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                    <PlusIcon /> {t('newRequest')}
+                  </Link>
+                </div>
+                {metrics.leave_requests.recent.length === 0 ? (
+                  <EmptyState icon={<CalendarIcon />} text={t('empty.leaveTitle')} sub={t('empty.leaveSub')} />
               ) : (
                 metrics.leave_requests.recent.map((lr, i) => {
                   const s = lr.status === 'approved' ? { bg: '#F0FDF4', color: '#15803D' }
@@ -331,16 +344,16 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
-                          <p style={{ fontSize: '13px', color: '#0F172A', margin: '0 0 3px', fontWeight: 500, textTransform: 'capitalize' }}>
-                            {lr.leave_type.replace('_', ' ')}
-                          </p>
-                          <p style={{ fontSize: '10px', color: '#94A3B8', margin: 0 }}>
-                            {new Date(lr.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                            {' — '}
-                            {new Date(lr.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                          </p>
-                        </div>
-                        <Badge text={lr.status} bg={s.bg} color={s.color} />
+                          <p style={{ fontSize: '13px', color: '#0F172A', margin: '0 0 3px', fontWeight: 500 }}>
+                              {tHr('leaveType.' + lr.leave_type)}
+                            </p>
+                            <p style={{ fontSize: '10px', color: '#94A3B8', margin: 0 }}>
+                              {new Date(lr.start_date).toLocaleDateString(speechLang, { month: 'short', day: 'numeric' })}
+                              {' — '}
+                              {new Date(lr.end_date).toLocaleDateString(speechLang, { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </p>
+                          </div>
+                          <Badge text={tHr('status.' + lr.status)} bg={s.bg} color={s.color} />
                       </div>
                     </motion.div>
                   )
@@ -358,7 +371,7 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.35 }}>
               <div style={card}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                  <h2 style={sectionTitle}>My Onboarding</h2>
+                  <h2 style={sectionTitle}>{t('sections.myOnboarding')}</h2>
                   <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', background: '#F0FDFA', color: '#028090' }}>
                     {metrics.onboarding.completion_percentage}%
                   </span>
@@ -372,23 +385,23 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
                   />
                 </div>
                 {metrics.onboarding.next_tasks.map((task, i) => (
-                  <motion.div
-                    key={task.id}
-                    initial={{ opacity: 0, x: -6 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.5 + i * 0.07, duration: 0.25 }}
-                    style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 0', borderBottom: '1px solid #F1F5F9' }}
-                  >
-                    <div style={{ width: '15px', height: '15px', borderRadius: '4px', border: '2px solid #CBD5E1', flexShrink: 0 }} />
-                    <div>
-                      <p style={{ fontSize: '13px', color: '#0F172A', margin: 0 }}>{task.title}</p>
-                      <p style={{ fontSize: '10px', color: '#94A3B8', margin: '2px 0 0', textTransform: 'capitalize' }}>{task.category}</p>
-                    </div>
-                  </motion.div>
-                ))}
-                <Link href="/hr/onboarding_plans/1" style={{ display: 'block', textAlign: 'center', fontSize: '11px', color: '#028090', paddingTop: '14px', textDecoration: 'none', fontWeight: 600 }}>
-                  View full plan →
-                </Link>
+                    <motion.div
+                      key={task.id}
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.5 + i * 0.07, duration: 0.25 }}
+                      style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 0', borderBottom: '1px solid #F1F5F9' }}
+                    >
+                      <div style={{ width: '15px', height: '15px', borderRadius: '4px',border: '2px solid #CBD5E1', flexShrink: 0 }} />
+                      <div>
+                        <p style={{ fontSize: '13px', color: '#0F172A', margin: 0 }}>{task.title}</p>
+                        <p style={{ fontSize: '10px', color: '#94A3B8', margin: '2px 0 0' }}>{tHr('onboarding.category.' + task.category)}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                  <Link href="/hr/onboarding_plans/1" style={{ display: 'block', textAlign: 'center', fontSize: '11px', color: '#028090', paddingTop: '14px', textDecoration: 'none',fontWeight: 600 }}>
+                    {t('onboarding.viewFullPlan')}
+                  </Link>
               </div>
             </motion.div>
           )}
@@ -399,8 +412,8 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
                 <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#F8FAFC', border: '1px dashed #CBD5E1', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px' }}>
                   <DashIcon />
                 </div>
-                <p style={{ fontSize: '13px', color: '#64748B', margin: '0 0 2px', fontWeight: 500 }}>No onboarding plan</p>
-                <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>Contact HR if you believe this is an error</p>
+                <p style={{ fontSize: '13px', color: '#64748B', margin: '0 0 2px', fontWeight: 500 }}>{t('onboarding.noPlanTitle')}</p>
+                  <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>{t('onboarding.noPlanSub')}</p>
               </div>
             </motion.div>
           )}
@@ -409,11 +422,11 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.46, duration: 0.35 }}>
             <div style={{ ...card, borderTop: '3px solid #028090' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                <h2 style={sectionTitle}>Recent Notifications</h2>
-                <Link href="/notifications" style={{ fontSize: '11px', color: '#028090', textDecoration: 'none', fontWeight: 600 }}>View all</Link>
-              </div>
-              {metrics.notifications.length === 0 ? (
-                <EmptyState icon={<BellIcon />} text="No notifications" sub="You're up to date." />
+                <h2 style={sectionTitle}>{t('sections.recentNotifications')}</h2>
+                  <Link href="/notifications" style={{ fontSize: '11px', color: '#028090', textDecoration: 'none', fontWeight: 600 }}>{t('common:actions.viewAll')}</Link>
+                </div>
+                {metrics.notifications.length === 0 ? (
+                  <EmptyState icon={<BellIcon />} text={t('empty.notificationsTitle')} sub={t('empty.notificationsSub')} />
               ) : (
                 metrics.notifications.map((n, i) => (
                   <motion.div
@@ -437,8 +450,8 @@ export default function EmployeeDashboard({ metrics, user }: Props) {
                         {n.title}
                       </p>
                       <p style={{ fontSize: '10px', color: '#94A3B8', margin: 0 }}>
-                        {new Date(n.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                      </p>
+                          {new Date(n.created_at).toLocaleDateString(speechLang, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </p>
                     </div>
                   </motion.div>
                 ))

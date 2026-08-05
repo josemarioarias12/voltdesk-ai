@@ -1,7 +1,8 @@
 {
   "actions": {
     "save": "Guardar",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "viewAll": "Ver todo"
   },
   "voice": {
     "errors": {

@@ -1,4 +1,12 @@
 {
+  "onboarding": {
+    "category": {
+      "setup": "Setup",
+      "team": "Team",
+      "systems": "Systems",
+      "contributions": "Contributions"
+    }
+  },
   "status": {
     "pending": "Pending",
     "pendingSecondApproval": "Awaiting Final Approval",
