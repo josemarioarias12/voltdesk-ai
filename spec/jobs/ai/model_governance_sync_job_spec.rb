@@ -30,6 +30,10 @@ RSpec.describe Ai::ModelGovernanceSyncJob do
     expect(Ai::GovernanceNotifier).to have_received(:notify).with([101, 102])
   end
 
+  it 'broadcasts completion with the flagged count' do
+    expect { perform }.to have_broadcasted_to('governance_sync').with(flagged: 2)
+  end
+
   context 'when only one check type is requested' do
     let(:check_types) { ['pricing'] }
 
@@ -56,6 +60,21 @@ RSpec.describe Ai::ModelGovernanceSyncJob do
       perform
 
       expect(Ai::GovernanceNotifier).to have_received(:notify).with([102])
+    end
+  end
+
+  context 'when no suggestions are flagged' do
+    before do
+      allow(Ai::CheckModelPricing).to receive(:call).and_return(
+        ServiceResult.success(checked: 9, flagged: 0, suggestion_ids: [])
+      )
+      allow(Ai::CheckModelDeprecation).to receive(:call).and_return(
+        ServiceResult.success(checked: 9, flagged: 0, suggestion_ids: [])
+      )
+    end
+
+    it 'still broadcasts completion, so the admin who triggered sync sees it finished' do
+      expect { perform }.to have_broadcasted_to('governance_sync').with(flagged: 0)
     end
   end
 end

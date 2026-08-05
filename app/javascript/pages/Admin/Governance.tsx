@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { router } from '@inertiajs/react'
 import AdminLayout from '@/components/AdminLayout'
+import { useActionCable } from '@/hooks/useActionCable'
 
 interface Suggestion {
   id: number
@@ -31,6 +32,10 @@ const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
 
 export default function Governance({ suggestions, filters }: Props) {
   const [localFilters, setLocalFilters] = useState(filters)
+
+  useActionCable({ channel: 'GovernanceChannel' }, () => {
+    router.reload({ only: ['suggestions'] })
+  })
 
   function applyFilters(overrides: Partial<Filters> = {}) {
     const f = { ...localFilters, ...overrides }

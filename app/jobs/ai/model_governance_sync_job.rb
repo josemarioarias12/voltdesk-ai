@@ -9,6 +9,7 @@ module Ai
       suggestion_ids = Array(check_types).flat_map { |type| run_check(type) }
 
       Ai::GovernanceNotifier.notify(suggestion_ids)
+      broadcast_completion(suggestion_ids)
     rescue StandardError => e
       Rails.logger.error("[Ai::ModelGovernanceSyncJob] #{e.class}: #{e.message}")
       raise
@@ -28,6 +29,10 @@ module Ai
         'pricing' => Ai::CheckModelPricing,
         'deprecation' => Ai::CheckModelDeprecation
       }[type]
+    end
+
+    def broadcast_completion(suggestion_ids)
+      ActionCable.server.broadcast('governance_sync', { flagged: suggestion_ids.size })
     end
   end
 end
