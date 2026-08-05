@@ -73,15 +73,24 @@ module Ai
         status: :pending_approval
       )
 
+      verify_url = VERIFY_URLS[provider]
+      warn_if_unreachable(provider, verify_url)
+
       suggestion.result = {
         found: true,
         source: provider,
-        verify_url: VERIFY_URLS[provider],
+        verify_url: verify_url,
         live_model_count: live_ids.size,
         checked_at: Time.current.iso8601
       }
       suggestion.save!
       suggestion.id
+    end
+
+    def warn_if_unreachable(provider, url)
+      return if Ai::UrlReachabilityChecker.reachable?(url)
+
+      Rails.logger.warn("[Ai::CheckModelDeprecation] verify_url unreachable for #{provider}: #{url}")
     end
   end
 end

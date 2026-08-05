@@ -13,6 +13,7 @@ RSpec.describe Ai::CheckModelDeprecation do
     stub_adapter(Ai::Providers::OpenaiAdapter, %w[gpt-4o gpt-4o-mini gpt-4.1 gpt-4.1-mini gpt-5.2])
     stub_adapter(Ai::Providers::AnthropicAdapter, %w[claude-sonnet-5 claude-haiku-4-5-20251001])
     stub_adapter(Ai::Providers::GeminiAdapter, %w[gemini-2.0-flash gemini-1.5-pro])
+    Ai::CheckModelDeprecation::VERIFY_URLS.each_value { |url| stub_request(:head, url).to_return(status: 200) }
   end
 
   context 'when all configured models are live for every provider' do
@@ -93,6 +94,20 @@ RSpec.describe Ai::CheckModelDeprecation do
 
     it 'does not flag the model' do
       expect(result.data[:flagged]).to eq(0)
+    end
+  end
+
+  context 'when the provider docs URL is unreachable' do
+    before do
+      stub_adapter(Ai::Providers::OpenaiAdapter, %w[gpt-4o-mini gpt-4.1 gpt-4.1-mini gpt-5.2])
+      stub_request(:head, 'https://platform.openai.com/docs/models').to_return(status: 404)
+    end
+
+    it 'still creates the suggestion with the original verify_url, no fallback exists' do
+      result
+
+      suggestion = Ai::ModelGovernanceSuggestion.find_by(provider: 'openai', model: 'gpt-4o')
+      expect(suggestion.result['verify_url']).to eq('https://platform.openai.com/docs/models')
     end
   end
 end

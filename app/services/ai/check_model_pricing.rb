@@ -3,6 +3,7 @@
 module Ai
   class CheckModelPricing
     OPENROUTER_MODELS_URL = 'https://openrouter.ai/api/v1/models'
+    OPENROUTER_BASE_URL = 'https://openrouter.ai/models'
     PRICE_CHANGE_THRESHOLD = 0.01
 
     MODEL_ID_MAP = {
@@ -111,7 +112,7 @@ module Ai
       suggestion.result = {
         found: true,
         source: 'openrouter',
-        verify_url: "https://openrouter.ai/#{openrouter_id}",
+        verify_url: verify_url_for(openrouter_id),
         current_input: current[:input],
         current_output: current[:output],
         fetched_input: fetched_input,
@@ -124,6 +125,14 @@ module Ai
 
     def already_reported?(decided, fetched_input, fetched_output)
       decided.result['fetched_input'] == fetched_input && decided.result['fetched_output'] == fetched_output
+    end
+
+    def verify_url_for(openrouter_id)
+      deep_link = "https://openrouter.ai/#{openrouter_id}"
+      return deep_link if Ai::UrlReachabilityChecker.reachable?(deep_link)
+
+      Rails.logger.warn("[Ai::CheckModelPricing] verify_url unreachable, falling back to base: #{deep_link}")
+      OPENROUTER_BASE_URL
     end
   end
 end

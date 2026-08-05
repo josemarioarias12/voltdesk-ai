@@ -7,6 +7,8 @@ RSpec.describe Ai::CheckModelPricing do
 
   let(:openrouter_url) { Ai::CheckModelPricing::OPENROUTER_MODELS_URL }
 
+  before { stub_request(:head, %r{\Ahttps://openrouter\.ai/}).to_return(status: 200) }
+
   def stub_openrouter(body)
     stub_request(:get, openrouter_url).to_return(
       status: 200,
@@ -144,6 +146,24 @@ RSpec.describe Ai::CheckModelPricing do
     it 'succeeds without flagging anything' do
       expect(result).to be_success
       expect(result.data[:flagged]).to eq(0)
+    end
+  end
+
+  context 'when the OpenRouter model page itself is unreachable' do
+    before do
+      stub_openrouter(
+        data: [
+          { 'id' => 'openai/gpt-4o', 'pricing' => { 'prompt' => '0.000002', 'completion' => '0.000002' } }
+        ]
+      )
+      stub_request(:head, 'https://openrouter.ai/openai/gpt-4o').to_return(status: 404)
+    end
+
+    it 'falls back to the OpenRouter base models URL' do
+      result
+
+      suggestion = Ai::ModelGovernanceSuggestion.find_by(provider: 'openai', model: 'gpt-4o')
+      expect(suggestion.result['verify_url']).to eq(Ai::CheckModelPricing::OPENROUTER_BASE_URL)
     end
   end
 end
