@@ -125,6 +125,37 @@ RSpec.describe Ai::ModelGovernanceSuggestion do
     end
   end
 
+  describe '.most_recent_decided' do
+    it 'returns the most recent non-pending suggestion for the same provider/model/type' do
+      described_class.create!(
+        provider: 'openai', model: 'gpt-4o', suggestion_type: :pricing_update,
+        status: :approved, created_at: 2.days.ago
+      )
+      newer = described_class.create!(
+        provider: 'openai', model: 'gpt-4o', suggestion_type: :pricing_update,
+        status: :applied, created_at: 1.day.ago
+      )
+
+      expect(described_class.most_recent_decided('openai', 'gpt-4o', :pricing_update)).to eq(newer)
+    end
+
+    it 'ignores pending suggestions' do
+      described_class.create!(
+        provider: 'openai', model: 'gpt-4o', suggestion_type: :pricing_update, status: :pending_approval
+      )
+
+      expect(described_class.most_recent_decided('openai', 'gpt-4o', :pricing_update)).to be_nil
+    end
+
+    it 'ignores suggestions for a different provider, model, or suggestion_type' do
+      described_class.create!(provider: 'anthropic', model: 'claude-sonnet-5', suggestion_type: :pricing_update, status: :approved)
+      described_class.create!(provider: 'openai', model: 'gpt-4o-mini', suggestion_type: :pricing_update, status: :approved)
+      described_class.create!(provider: 'openai', model: 'gpt-4o', suggestion_type: :model_deprecation, status: :approved)
+
+      expect(described_class.most_recent_decided('openai', 'gpt-4o', :pricing_update)).to be_nil
+    end
+  end
+
   describe '.filtered_by' do
     let!(:pricing_pending) { suggestion.tap(&:save!) }
     let!(:deprecation_rejected) do

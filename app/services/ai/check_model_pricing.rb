@@ -74,6 +74,8 @@ module Ai
 
       suggestion_id = upsert_suggestion(internal_key, openrouter_id, current, fetched_input_per_1k,
                                         fetched_output_per_1k)
+      return { flagged: false } if suggestion_id.nil?
+
       { flagged: true, suggestion_id: suggestion_id }
     end
 
@@ -90,6 +92,14 @@ module Ai
 
     def upsert_suggestion(internal_key, openrouter_id, current, fetched_input, fetched_output)
       provider, model = internal_key.split('/', 2)
+
+      decided = Ai::ModelGovernanceSuggestion.most_recent_decided(provider, model, :pricing_update)
+      if decided && already_reported?(decided, fetched_input, fetched_output)
+        Rails.logger.info(
+          "[Ai::CheckModelPricing] #{internal_key}: change already reviewed (status: #{decided.status})"
+        )
+        return nil
+      end
 
       suggestion = Ai::ModelGovernanceSuggestion.find_or_initialize_by(
         provider: provider,
@@ -110,6 +120,10 @@ module Ai
       }
       suggestion.save!
       suggestion.id
+    end
+
+    def already_reported?(decided, fetched_input, fetched_output)
+      decided.result['fetched_input'] == fetched_input && decided.result['fetched_output'] == fetched_output
     end
   end
 end

@@ -82,6 +82,48 @@ RSpec.describe Ai::CheckModelPricing do
     end
   end
 
+  context 'when a decided suggestion already exists with the same fetched price' do
+    before do
+      stub_openrouter(
+        data: [
+          { 'id' => 'openai/gpt-4o', 'pricing' => { 'prompt' => '0.000002', 'completion' => '0.000002' } }
+        ]
+      )
+      create(
+        :ai_model_governance_suggestion,
+        provider: 'openai', model: 'gpt-4o', suggestion_type: :pricing_update, status: :approved,
+        result: { 'fetched_input' => 0.002, 'fetched_output' => 0.002 }
+      )
+    end
+
+    it 'does not create a new suggestion' do
+      expect { result }.not_to change(Ai::ModelGovernanceSuggestion, :count)
+    end
+
+    it 'does not flag the model' do
+      expect(result.data[:flagged]).to eq(0)
+    end
+  end
+
+  context 'when a decided suggestion exists but the fetched price changed again' do
+    before do
+      stub_openrouter(
+        data: [
+          { 'id' => 'openai/gpt-4o', 'pricing' => { 'prompt' => '0.000002', 'completion' => '0.000002' } }
+        ]
+      )
+      create(
+        :ai_model_governance_suggestion,
+        provider: 'openai', model: 'gpt-4o', suggestion_type: :pricing_update, status: :approved,
+        result: { 'fetched_input' => 0.001, 'fetched_output' => 0.001 }
+      )
+    end
+
+    it 'creates a new pending suggestion for the new price' do
+      expect { result }.to change(Ai::ModelGovernanceSuggestion, :count).by(1)
+    end
+  end
+
   context 'when OpenRouter is unreachable' do
     before { stub_request(:get, openrouter_url).to_timeout }
 

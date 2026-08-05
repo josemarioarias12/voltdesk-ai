@@ -77,4 +77,22 @@ RSpec.describe Ai::CheckModelDeprecation do
       expect { result }.not_to change(Ai::ModelGovernanceSuggestion, :count)
     end
   end
+
+  context 'when a decided suggestion already exists for the same model' do
+    before do
+      stub_adapter(Ai::Providers::OpenaiAdapter, %w[gpt-4o-mini gpt-4.1 gpt-4.1-mini gpt-5.2])
+      create(
+        :ai_model_governance_suggestion,
+        provider: 'openai', model: 'gpt-4o', suggestion_type: :model_deprecation, status: :rejected
+      )
+    end
+
+    it 'does not create a new suggestion' do
+      expect { result }.not_to change(Ai::ModelGovernanceSuggestion, :count)
+    end
+
+    it 'does not flag the model' do
+      expect(result.data[:flagged]).to eq(0)
+    end
+  end
 end

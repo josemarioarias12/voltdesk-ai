@@ -47,6 +47,8 @@ module Ai
       return { flagged: false } if live_ids.include?(model)
 
       suggestion_id = upsert_suggestion(provider, model, live_ids)
+      return { flagged: false } if suggestion_id.nil?
+
       { flagged: true, suggestion_id: suggestion_id }
     end
 
@@ -56,6 +58,14 @@ module Ai
     end
 
     def upsert_suggestion(provider, model, live_ids)
+      decided = Ai::ModelGovernanceSuggestion.most_recent_decided(provider, model, :model_deprecation)
+      if decided
+        Rails.logger.info(
+          "[Ai::CheckModelDeprecation] #{provider}/#{model}: already reviewed (status: #{decided.status})"
+        )
+        return nil
+      end
+
       suggestion = Ai::ModelGovernanceSuggestion.find_or_initialize_by(
         provider: provider,
         model: model,
