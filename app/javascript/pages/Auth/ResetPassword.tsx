@@ -2,6 +2,7 @@ import { SharedProps } from '@/types'
 import { useForm } from 'react-hook-form'
 import { usePage, router } from '@inertiajs/react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { IconBolt, IconLock, IconEye, IconEyeOff } from '@/components/Icons'
 
 interface ResetPasswordForm {
@@ -15,6 +16,7 @@ interface Props extends SharedProps {
 }
 
 export default function AuthResetPassword() {
+  const { t } = useTranslation('auth')
   const { flash, reset_password_token } = usePage<Props>().props
   const { register, handleSubmit } = useForm<ResetPasswordForm>()
   const [showPassword, setShowPassword] = useState(false)
@@ -59,13 +61,13 @@ export default function AuthResetPassword() {
         <a
           href="/"
           style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#94A3B8', fontSize: 12, fontWeight: 600, textDecoration: 'none', fontFamily: 'Inter, system-ui, sans-serif', padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', transition: 'all 0.15s' }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = '#02C39A'; e.currentTarget.style.borderColor = 'rgba(2,195,154,0.3)'; e.currentTarget.style.background = 'rgba(2,195,154,0.05)' }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = '#94A3B8'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = '#02C39A'; e.currentTarget.style.borderColor= 'rgba(2,195,154,0.3)'; e.currentTarget.style.background = 'rgba(2,195,154,0.05)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = '#94A3B8'; e.currentTarget.style.borderColor= 'rgba(255,255,255,0.08)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 5 5 12 12 19"/>
           </svg>
-          Back to home
+          {t('login.backToHome')}
         </a>
       </div>
 
@@ -80,7 +82,7 @@ export default function AuthResetPassword() {
         position: 'relative',
         zIndex: 1,
       }}>
-        <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 300, height: 1, background: 'linear-gradient(90deg, transparent, rgba(2,195,154,0.4), transparent)' }} />
+        <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 300,height: 1, background: 'linear-gradient(90deg, transparent, rgba(2,195,154,0.4), transparent)' }} />
 
         <div style={{ padding: '32px 32px 24px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
@@ -92,16 +94,16 @@ export default function AuthResetPassword() {
             </span>
           </div>
           <p style={{ fontSize: 12, color: '#64748B', margin: 0, fontWeight: 500 }}>
-            Enterprise Operational Intelligence Platform
+            {t('login.pageSubtitle')}
           </p>
         </div>
 
         <div style={{ padding: '28px 32px 32px' }}>
           <p style={{ textAlign: 'center', fontWeight: 700, fontSize: 15, color: '#fff', marginBottom: 6 }}>
-            Choose a new password
+            {t('resetPassword.title')}
           </p>
           <p style={{ textAlign: 'center', fontSize: 13, color: '#64748B', marginBottom: 24 }}>
-            Choose a strong password for your account.
+            {t('resetPassword.subtitle')}
           </p>
 
           {flash?.alert && (
@@ -113,7 +115,7 @@ export default function AuthResetPassword() {
           <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
               <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 8 }}>
-                New password
+                {t('resetPassword.newPassword')}
               </label>
               <div style={{ position: 'relative' }}>
                 <input
@@ -148,7 +150,7 @@ export default function AuthResetPassword() {
 
             <div>
               <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 8 }}>
-                Confirm password
+                {t('resetPassword.confirmPassword')}
               </label>
               <div style={{ position: 'relative' }}>
                 <input
@@ -197,7 +199,7 @@ export default function AuthResetPassword() {
                 boxShadow: '0 4px 16px rgba(2,128,144,0.3)',
               }}
             >
-              Update password
+              {t('resetPassword.submit')}
             </button>
           </form>
 
@@ -215,12 +217,12 @@ export default function AuthResetPassword() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 5 5 12 12 19"/>
             </svg>
-            Back to sign in
+            {t('resetPassword.backToSignIn')}
           </a>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 20, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop:20, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
             <IconLock size={11} color="#64748B" />
-            <p style={{ fontSize: 11, color: '#64748B', margin: 0 }}>256-bit encryption</p>
+            <p style={{ fontSize: 11, color: '#64748B', margin: 0 }}>{t('resetPassword.encryptionNote')}</p>
           </div>
         </div>
       </div>

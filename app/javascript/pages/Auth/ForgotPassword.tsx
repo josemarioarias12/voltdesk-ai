@@ -2,6 +2,7 @@ import { SharedProps } from '@/types'
 import { useForm } from 'react-hook-form'
 import { usePage, router } from '@inertiajs/react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { IconBolt, IconLock } from '@/components/Icons'
 
 interface ForgotPasswordForm {
@@ -10,6 +11,7 @@ interface ForgotPasswordForm {
 }
 
 export default function AuthForgotPassword() {
+  const { t } = useTranslation('auth')
   const { flash } = usePage<SharedProps>().props
   const { register, handleSubmit } = useForm<ForgotPasswordForm>()
   const [emailFocus, setEmailFocus] = useState(false)
@@ -50,13 +52,13 @@ export default function AuthForgotPassword() {
         <a
           href="/"
           style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#94A3B8', fontSize: 12, fontWeight: 600, textDecoration: 'none', fontFamily: 'Inter, system-ui, sans-serif', padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', transition: 'all 0.15s' }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = '#02C39A'; e.currentTarget.style.borderColor = 'rgba(2,195,154,0.3)'; e.currentTarget.style.background = 'rgba(2,195,154,0.05)' }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = '#94A3B8'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = '#02C39A'; e.currentTarget.style.borderColor= 'rgba(2,195,154,0.3)'; e.currentTarget.style.background = 'rgba(2,195,154,0.05)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = '#94A3B8'; e.currentTarget.style.borderColor= 'rgba(255,255,255,0.08)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 5 5 12 12 19"/>
           </svg>
-          Back to home
+          {t('login.backToHome')}
         </a>
       </div>
 
@@ -71,7 +73,7 @@ export default function AuthForgotPassword() {
         position: 'relative',
         zIndex: 1,
       }}>
-        <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 300, height: 1, background: 'linear-gradient(90deg, transparent, rgba(2,195,154,0.4), transparent)' }} />
+        <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 300,height: 1, background: 'linear-gradient(90deg, transparent, rgba(2,195,154,0.4), transparent)' }} />
 
         <div style={{ padding: '32px 32px 24px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
@@ -83,16 +85,16 @@ export default function AuthForgotPassword() {
             </span>
           </div>
           <p style={{ fontSize: 12, color: '#64748B', margin: 0, fontWeight: 500 }}>
-            Enterprise Operational Intelligence Platform
+            {t('login.pageSubtitle')}
           </p>
         </div>
 
         <div style={{ padding: '28px 32px 32px' }}>
           <p style={{ textAlign: 'center', fontWeight: 700, fontSize: 15, color: '#fff', marginBottom: 6 }}>
-            Reset your password
+            {t('forgotPassword.title')}
           </p>
           <p style={{ textAlign: 'center', fontSize: 13, color: '#64748B', marginBottom: 24 }}>
-            Enter your email and we'll send you reset instructions.
+            {t('forgotPassword.subtitle')}
           </p>
 
           {flash?.alert && (
@@ -109,7 +111,7 @@ export default function AuthForgotPassword() {
           <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
               <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 8 }}>
-                Work email
+                {t('forgotPassword.workEmail')}
               </label>
               <input
                 {...register('email')}
@@ -150,7 +152,7 @@ export default function AuthForgotPassword() {
                 boxShadow: '0 4px 16px rgba(2,128,144,0.3)',
               }}
             >
-              Send reset instructions
+              {t('forgotPassword.submit')}
             </button>
           </form>
 
@@ -168,12 +170,12 @@ export default function AuthForgotPassword() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 5 5 12 12 19"/>
             </svg>
-            Back to sign in
+            {t('forgotPassword.backToSignIn')}
           </a>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 20, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop:20, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
             <IconLock size={11} color="#64748B" />
-            <p style={{ fontSize: 11, color: '#64748B', margin: 0 }}>256-bit encryption</p>
+            <p style={{ fontSize: 11, color: '#64748B', margin: 0 }}>{t('forgotPassword.encryptionNote')}</p>
           </div>
         </div>
       </div>

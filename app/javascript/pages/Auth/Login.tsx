@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { usePage } from '@inertiajs/react'
 import { useMemo, useState, useRef } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { useWebAuthn } from '@/hooks/useWebAuthn'
 import { getPlatformAuthenticatorName } from '@/utils/platformAuthLabel'
 import {
@@ -24,6 +25,7 @@ interface LoginForm {
 }
 
 export default function AuthLogin() {
+  const { t } = useTranslation('auth')
   const { flash } = usePage<SharedProps>().props
   const [showPassword, setShowPassword] = useState(false)
   const { register } = useForm<LoginForm>()
@@ -79,7 +81,7 @@ export default function AuthLogin() {
     const email = emailRef.current?.value ?? ''
 
     if (!email) {
-      setFaceIdHint('Escribe tu email arriba primero')
+      setFaceIdHint(t('login.faceIdEnterEmailFirst'))
       emailRef.current?.focus()
       return
     }
@@ -138,7 +140,7 @@ export default function AuthLogin() {
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 5 5 12 12 19"/>
           </svg>
-          Back to home
+          {t('login.backToHome')}
         </motion.a>
         <div />
       </div>
@@ -160,7 +162,7 @@ export default function AuthLogin() {
         }}
       >
         {/* Inner glow top */}
-        <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 300, height: 1, background: 'linear-gradient(90deg, transparent, rgba(2,195,154,0.4), transparent)' }} />
+        <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 300,height: 1, background: 'linear-gradient(90deg, transparent, rgba(2,195,154,0.4), transparent)' }} />
 
         {/* Header */}
         <div style={{ padding: '32px 32px 24px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
@@ -178,7 +180,7 @@ export default function AuthLogin() {
             </span>
           </motion.div>
           <p style={{ fontSize: 12, color: '#64748B', margin: 0, fontWeight: 500 }}>
-            Enterprise Operational Intelligence Platform
+            {t('login.pageSubtitle')}
           </p>
         </div>
 
@@ -205,7 +207,7 @@ export default function AuthLogin() {
           )}
 
           <p style={{ textAlign: 'center', fontWeight: 700, fontSize: 15, color: '#fff', marginBottom: 20 }}>
-            Sign in to your workspace
+            {t('login.signInTitle')}
           </p>
 
           {/* Google OAuth */}
@@ -225,29 +227,29 @@ export default function AuthLogin() {
             }}
           >
             <IconBrandGoogle size={18} />
-            Continue with Google
+            {t('login.continueWithGoogle')}
           </motion.button>
           <p style={{ textAlign: 'center', fontSize: 11, color: '#64748B', marginBottom: 20}}>
-              Use your corporate Google Workspace account
+              {t('login.googleHint')}
             </p>
 
           {/* Divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
             <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
-            <span style={{ fontSize: 11, color: '#64748B', fontWeight: 500 }}>Secure enterprise login</span>
+            <span style={{ fontSize: 11, color: '#64748B', fontWeight: 500 }}>{t('login.secureLoginDivider')}</span>
             <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
           </div>
 
           {/* Trust badges */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 8, marginBottom: 20 }}>
               {[
-                { icon: <IconShieldCheck size={16} color="#02C39A" />, label: 'SOC 2 Type II'},
-                { icon: <IconBuilding size={16} color="#02C39A" />, label: 'Multi-tenant Isolated' },
-                { icon: <IconRobot size={16} color="#02C39A" />, label: 'AI Audit Log' },
+                { icon: <IconShieldCheck size={16} color="#02C39A" />, label: t('login.badges.soc2') },
+                { icon: <IconBuilding size={16} color="#02C39A" />, label: t('login.badges.multiTenant') },
+                { icon: <IconRobot size={16} color="#02C39A" />, label: t('login.badges.aiAuditLog') },
               ].map((badge) => (
                 <div
                   key={badge.label}
-                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '10px 8px', borderRadius: 10, background: 'rgba(2,195,154,0.08)', border: '1px solid rgba(2,195,154,0.25)' }}
+                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding:'10px 8px', borderRadius: 10, background: 'rgba(2,195,154,0.08)', border: '1px solid rgba(2,195,154,0.25)' }}
                 >
                   {badge.icon}
                   <span style={{ fontSize: 10, color: '#94A3B8', fontWeight: 600, textAlign:'center' }}>{badge.label}</span>
@@ -261,7 +263,7 @@ export default function AuthLogin() {
           <form onSubmit={(e) => { e.preventDefault(); onSubmit() }} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div>
               <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 8 }}>
-                Work email
+                {t('login.workEmail')}
               </label>
               <input
                 {...register('email')}
@@ -289,11 +291,11 @@ export default function AuthLogin() {
 
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <label style={{ fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>
-                  Password
+                <label style={{ fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase'as const, letterSpacing: '0.08em' }}>
+                  {t('login.password')}
                 </label>
                 <a href="/users/password/new" style={{ fontSize: 11, color: '#028090', textDecoration: 'none', fontWeight: 500 }}>
-                  Forgot password?
+                  {t('login.forgotPassword')}
                 </a>
               </div>
               <div style={{ position: 'relative' }}>
@@ -348,7 +350,7 @@ export default function AuthLogin() {
                 marginTop: 4,
               }}
             >
-              Sign in
+              {t('login.signIn')}
             </motion.button>
           </form>
 
@@ -373,24 +375,24 @@ export default function AuthLogin() {
                 }}
               >
                 <IconFaceId size={18} color="#02C39A" />
-                {status === 'in_progress' ? 'Verifying…' : `Sign in with ${platformAuthName}`}
+                {status === 'in_progress' ? t('login.faceIdVerifying') : t('login.faceIdSignIn', { authenticator: platformAuthName })}
               </motion.button>
               {(faceIdHint || errorMessage) && (
                 <p style={{ textAlign: 'center', fontSize: 11, color: '#F97316', marginTop: 8 }}>
-                  {faceIdHint ?? 'Could not verify — try again or use your password'}
+                  {faceIdHint ?? t('login.faceIdError')}
                 </p>
               )}
             </div>
           )}
 
           {/* Footer */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 20, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop:20, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
             <IconLock size={11} color="#64748B" />
             <p style={{ fontSize: 11, color: '#64748B', margin: 0 }}>
-              256-bit encryption ·{' '}
-              <a href="#" style={{ color: '#94A3B8', textDecoration: 'none' }}>Terms</a>
+              {t('login.encryptionNote')}{' '}
+              <a href="#" style={{ color: '#94A3B8', textDecoration: 'none' }}>{t('login.terms')}</a>
               {' · '}
-              <a href="#" style={{ color: '#94A3B8', textDecoration: 'none' }}>Privacy</a>
+              <a href="#" style={{ color: '#94A3B8', textDecoration: 'none' }}>{t('login.privacy')}</a>
             </p>
           </div>
         </div>
@@ -403,7 +405,7 @@ export default function AuthLogin() {
         transition={{ delay: 0.4 }}
         style={{ marginTop: 24, fontSize: 12, color: '#64748B', textAlign: 'center', position: 'relative', zIndex: 1 }}
       >
-        Don't have an account? Contact your workspace administrator.
+        {t('login.noAccount')}
       </motion.p>
     </div>
   )

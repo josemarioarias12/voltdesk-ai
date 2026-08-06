@@ -1,6 +1,8 @@
 import { Head, router } from "@inertiajs/react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import AppLayout from "@/components/AppLayout";
+import { useLocale } from "@/hooks/useLocale";
 import {
   ComposedChart,
   Bar,
@@ -74,20 +76,6 @@ const SLATE = "#1E293B";
 const AMBER = "#F59E0B";
 const RED   = "#EF4444";
 
-const PERIODS = [
-  { value: "7d",  label: "7 days" },
-  { value: "30d", label: "30 days" },
-  { value: "90d", label: "90 days" },
-];
-
-function formatPeriod(period: string, interval: string): string {
-  const date = new Date(period);
-  if (interval === "day") {
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  }
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-
 function sentimentColor(delta: number): string {
   if (delta >= 0.05) return MINT;
   if (delta >= -0.05) return TEAL;
@@ -95,16 +83,29 @@ function sentimentColor(delta: number): string {
   return RED;
 }
 
-function sentimentLabel(score: number): string {
-  if (score >= 0.5)  return "Very Positive";
-  if (score >= 0.1)  return "Positive";
-  if (score >= -0.1) return "Neutral";
-  if (score >= -0.5) return "Negative";
-  return "Very Negative";
-}
-
 export default function SentimentTrendingIndex({ data, error, period }: Props) {
+  const { t } = useTranslation("hr");
+  const { speechLang } = useLocale();
   const [activeDept, setActiveDept] = useState<number | null>(null);
+
+  const PERIODS = [
+    { value: "7d", label: t("sentimentTrending.periods.7d") },
+    { value: "30d", label: t("sentimentTrending.periods.30d") },
+    { value: "90d", label: t("sentimentTrending.periods.90d") },
+  ];
+
+  function formatPeriod(pointPeriod: string): string {
+    const date = new Date(pointPeriod);
+    return date.toLocaleDateString(speechLang, { month: "short", day: "numeric" });
+  }
+
+  function sentimentLabel(score: number): string {
+    if (score >= 0.5)  return t("sentimentTrending.sentimentLabel.veryPositive");
+    if (score >= 0.1)  return t("sentimentTrending.sentimentLabel.positive");
+    if (score >= -0.1) return t("sentimentTrending.sentimentLabel.neutral");
+    if (score >= -0.5) return t("sentimentTrending.sentimentLabel.negative");
+    return t("sentimentTrending.sentimentLabel.veryNegative");
+  }
 
   function changePeriod(newPeriod: string) {
     router.get("/hr/sentiment-trending", { period: newPeriod }, { preserveState: false });
@@ -113,12 +114,12 @@ export default function SentimentTrendingIndex({ data, error, period }: Props) {
   if (error || !data) {
     return (
       <>
-        <Head title="Sentiment Trending" />
+        <Head title={t("sentimentTrending.pageTitle")} />
         <AppLayout>
           <div className="p-6">
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 text-amber-800">
-              <p className="font-semibold">No sentiment data available</p>
-              <p className="text-sm mt-1">{error ?? "Submit satisfaction surveys to see trends."}</p>
+              <p className="font-semibold">{t("sentimentTrending.noData.title")}</p>
+              <p className="text-sm mt-1">{error ?? t("sentimentTrending.noData.fallback")}</p>
             </div>
           </div>
         </AppLayout>
@@ -132,17 +133,17 @@ export default function SentimentTrendingIndex({ data, error, period }: Props) {
 
   return (
     <>
-      <Head title="Sentiment Trending" />
+      <Head title={t("sentimentTrending.pageTitle")} />
       <AppLayout>
         <div className="p-6 space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
               <h1 className="text-2xl font-bold" style={{ color: NAVY }}>
-                Sentiment Trending
+                {t("sentimentTrending.header.title")}
               </h1>
               <p className="text-sm text-gray-500 mt-1">
-                Correlated with ticket volume · Last {data.period_days} days
+                {t("sentimentTrending.header.subtitle", { days: data.period_days })}
               </p>
             </div>
             {/* Period selector */}
@@ -229,7 +230,7 @@ export default function SentimentTrendingIndex({ data, error, period }: Props) {
                     {displayedTrend.department_name}
                   </h2>
                   <p className="text-xs text-gray-400 mt-0.5">
-                    Avg sentiment vs ticket volume per {data.interval}
+                    {t("sentimentTrending.chart.subtitle", { interval: data.interval })}
                   </p>
                 </div>
                 {displayedTrend.summary && (
@@ -241,7 +242,7 @@ export default function SentimentTrendingIndex({ data, error, period }: Props) {
                 <ComposedChart
                   data={displayedTrend.series.map((point) => ({
                     ...point,
-                    period: formatPeriod(point.period, data.interval),
+                    period: formatPeriod(point.period),
                   }))}
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
@@ -251,7 +252,7 @@ export default function SentimentTrendingIndex({ data, error, period }: Props) {
                     orientation="left"
                     tick={{ fontSize: 11 }}
                     label={{
-                      value: "Tickets",
+                      value: t("sentimentTrending.chart.ticketsAxis"),
                       angle: -90,
                       position: "insideLeft",
                       offset: 10,
@@ -264,7 +265,7 @@ export default function SentimentTrendingIndex({ data, error, period }: Props) {
                     domain={[-1, 1]}
                     tick={{ fontSize: 11 }}
                     label={{
-                      value: "Sentiment",
+                      value: t("sentimentTrending.chart.sentimentAxis"),
                       angle: 90,
                       position: "insideRight",
                       offset: 10,
@@ -274,7 +275,7 @@ export default function SentimentTrendingIndex({ data, error, period }: Props) {
                   <Tooltip
                     contentStyle={{ borderRadius: 8, fontSize: 12 }}
                     formatter={((value: number, name: string) => {
-                      if (name === "Sentiment Score") return [value.toFixed(3), name];
+                      if (name === t("sentimentTrending.chart.sentimentScore")) return [value.toFixed(3), name];
                       return [value, name];
                     }) as unknown as never}
                   />
@@ -282,7 +283,7 @@ export default function SentimentTrendingIndex({ data, error, period }: Props) {
                   <Bar
                     yAxisId="volume"
                     dataKey="ticket_volume"
-                    name="Ticket Volume"
+                    name={t("sentimentTrending.chart.ticketVolume")}
                     fill={`${TEAL}40`}
                     stroke={TEAL}
                     strokeWidth={1}
@@ -292,7 +293,7 @@ export default function SentimentTrendingIndex({ data, error, period }: Props) {
                     yAxisId="sentiment"
                     type="monotone"
                     dataKey="avg_sentiment"
-                    name="Sentiment Score"
+                    name={t("sentimentTrending.chart.sentimentScore")}
                     stroke={MINT}
                     strokeWidth={2.5}
                     dot={{ fill: MINT, r: 4 }}
@@ -321,6 +322,7 @@ export default function SentimentTrendingIndex({ data, error, period }: Props) {
 }
 
 function SummaryBadge({ summary }: { summary: TrendSummary }) {
+  const { t } = useTranslation("hr");
   const color = sentimentColor(summary.sentiment_delta);
   const sign  = summary.sentiment_delta >= 0 ? "+" : "";
   return (
@@ -328,7 +330,7 @@ function SummaryBadge({ summary }: { summary: TrendSummary }) {
       className="px-3 py-1.5 rounded-lg text-sm font-medium"
       style={{ background: `${color}18`, color }}
     >
-      {sign}{(summary.sentiment_delta * 100).toFixed(1)} pts trend
+      {t("sentimentTrending.trendPts", { sign, value: (summary.sentiment_delta * 100).toFixed(1) })}
     </div>
   );
 }
@@ -342,8 +344,17 @@ function DeptSummaryCard({
   onClick: () => void;
   active: boolean;
 }) {
+  const { t } = useTranslation("hr");
   const { summary } = trend;
   const color = sentimentColor(summary?.sentiment_delta ?? 0);
+
+  function sentimentLabel(score: number): string {
+    if (score >= 0.5)  return t("sentimentTrending.sentimentLabel.veryPositive");
+    if (score >= 0.1)  return t("sentimentTrending.sentimentLabel.positive");
+    if (score >= -0.1) return t("sentimentTrending.sentimentLabel.neutral");
+    if (score >= -0.5) return t("sentimentTrending.sentimentLabel.negative");
+    return t("sentimentTrending.sentimentLabel.veryNegative");
+  }
 
   return (
     <button
@@ -356,7 +367,7 @@ function DeptSummaryCard({
           className="w-2.5 h-2.5 rounded-full"
           style={{ background: trend.department_color || TEAL }}
         />
-        <span className="text-xs text-gray-400">{trend.series.length} periods</span>
+        <span className="text-xs text-gray-400">{t("sentimentTrending.periodsCount", { count: trend.series.length })}</span>
       </div>
       <p className="font-semibold text-sm" style={{ color: NAVY }}>
         {trend.department_name}
@@ -371,10 +382,10 @@ function DeptSummaryCard({
             {sentimentLabel(summary.avg_sentiment)}
           </p>
           <div className="flex gap-3 mt-3 text-xs text-gray-500">
-            <span>{summary.total_ticket_volume} tickets</span>
+            <span>{t("sentimentTrending.ticketsCount", { count: summary.total_ticket_volume })}</span>
             <span style={{ color }}>
               {summary.sentiment_delta >= 0 ? "▲" : "▼"}{" "}
-              {Math.abs(summary.sentiment_delta * 100).toFixed(1)} pts
+              {t("sentimentTrending.ptsAbs", { value: Math.abs(summary.sentiment_delta * 100).toFixed(1) })}
             </span>
           </div>
         </>

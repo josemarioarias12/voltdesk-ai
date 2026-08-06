@@ -1,4 +1,40 @@
 {
+  "sentimentTrending": {
+    "pageTitle": "Tendencia de Sentimiento",
+    "noData": { "title": "No hay datos de sentimiento disponibles", "fallback": "Envi\u00e1 encuestas de satisfacci\u00f3n para ver tendencias." },
+    "header": { "title": "Tendencia de Sentimiento", "subtitle": "Correlacionado con volumen de tickets \u00b7 \u00daltimos {{days}} d\u00edas" },
+    "periods": { "7d": "7 d\u00edas", "30d": "30 d\u00edas", "90d": "90 d\u00edas" },
+    "chart": {
+      "subtitle": "Sentimiento promedio vs volumen de tickets por {{interval}}",
+      "ticketsAxis": "Tickets",
+      "sentimentAxis": "Sentimiento",
+      "ticketVolume": "Volumen de Tickets",
+      "sentimentScore": "Puntaje de Sentimiento"
+    },
+    "trendPts": "{{sign}}{{value}} pts de tendencia",
+    "periodsCount": "{{count}} per\u00edodos",
+    "ticketsCount": "{{count}} tickets",
+    "ptsAbs": "{{value}} pts",
+    "sentimentLabel": {
+      "veryPositive": "Muy Positivo", "positive": "Positivo", "neutral": "Neutral",
+      "negative": "Negativo", "veryNegative": "Muy Negativo"
+    }
+  },
+  "onboardingPlan": {
+    "pageTitle": "Plan de Onboarding",
+    "welcome": "\u00a1Bienvenido/a, {{name}}!",
+    "generatedByGpt": "\u2726 Generado por GPT-4o",
+    "startedTarget": "Comenzado {{started}} \u00b7 Meta: {{target}}",
+    "tbd": "Por definir",
+    "overallProgress": "Progreso General",
+    "kpi": {
+      "tasksCompleted": "Tareas Completadas", "tasksDone": "tareas hechas",
+      "daysSinceStart": "D\u00edas Desde el Inicio", "started": "iniciado",
+      "targetDate": "Fecha Meta", "completion": "finalizaci\u00f3n"
+    },
+    "sectionCompleted": "{{done}}/{{total}} completadas",
+    "dueDate": "\u23f1 Vence {{date}}"
+  },
   "onboarding": {
     "category": {
       "setup": "Configuración",
