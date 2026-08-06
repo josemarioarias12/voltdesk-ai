@@ -1,0 +1,96 @@
+{
+  "nav": { "features": "Funcionalidades", "demo": "Demo", "signIn": "Iniciar sesi\u00f3n", "requestDemo": "Solicitar Demo", "toggleMenu": "Alternar men\u00fa" },
+  "hero": {
+    "badge": "Ahora con Orquestaci\u00f3n de Agentes de IA",
+    "titleLead": "El Sistema Operativo para Empresas",
+    "titleHighlight": "Modernas",
+    "subtitle": "VoltDesk AI unifica soporte, RRHH, activos de IT e instalaciones bajo una sola plataforma inteligente que clasifica, predice y act\u00faa \u2014 autom\u00e1ticamente.",
+    "requestDemo": "Solicitar Demo \u2192",
+    "signIn": "Iniciar sesi\u00f3n \u2192",
+    "badge1": "< 3s de clasificaci\u00f3n IA",
+    "badge2": "IA multi-proveedor \u00b7 GPT-4o + Claude + Gemini",
+    "badge3": "Listo para SOC 2"
+  },
+  "stats": {
+    "ticketsProcessed": "Tickets Procesados por D\u00eda",
+    "avgClassification": "Clasificaci\u00f3n IA Promedio",
+    "slaCompliance": "Tasa de Cumplimiento de SLA",
+    "manualOverhead": "Reducci\u00f3n de Trabajo Manual"
+  },
+  "features": {
+    "sectionTitle": "Todo lo que tu operaci\u00f3n necesita",
+    "sectionSubtitle": "Una plataforma. Cada equipo. IA completa.",
+    "items": [
+      { "title": "Motor Inteligente de Tickets", "description": "Clasific\u00e1, prioriz\u00e1 y enrut\u00e1 tickets en menos de 3 segundos con GPT-4o.", "badge": "< 3s" },
+      { "title": "Orquestador de Agentes de IA", "description": "Dej\u00e1 que la IA resuelva tickets rutinarios autom\u00e1ticamente, con auditor\u00eda completa y aprobaci\u00f3n humana.", "badge": "Piloto Autom\u00e1tico" },
+      { "title": "Motor Predictivo de SLA", "description": "Sab\u00e9 qu\u00e9 tickets van a incumplir el SLA antes de que pase. Actu\u00e1 antes del plazo.", "badge": "Predictivo" },
+      { "title": "Centro de Operaciones de RRHH", "description": "Planes de onboarding generados por IA, flujos de solicitud de licencias, y tendencias de sentimiento en toda tu fuerza laboral.", "badge": "Onboarding IA" },
+      { "title": "Gesti\u00f3n de Activos IT", "description": "Rastre\u00e1 inventario, asign\u00e1 equipos, y detect\u00e1 activos en riesgo antes de que se conviertan en incidentes con scoring de riesgo por IA.", "badge": "Riesgo IA" },
+      { "title": "Inteligencia Ejecutiva y Reportes", "description": "Reportes semanales automatizados en lenguaje simple \u2014 KPIs, cuellos de botella y recomendaciones generadas por GPT-4o cada lunes.", "badge": "Automatizado" },
+      { "title": "Volt Copilot", "description": "Pregunt\u00e1 sobre tus tickets, solicitudes de licencia o activos en lenguaje simple, y gener\u00e1 reportes en PDF, Excel o CSV cuando quieras. Un solo asistente para managers, agentes y empleados por igual.", "badge": "Nuevo" },
+      { "title": "Cumplimiento Empresarial", "description": "Registros de auditor\u00eda listos para SOC 2, derecho al olvido de GDPR, y pol\u00edticas de retenci\u00f3n de datos incorporadas.", "badge": "SOC 2" }
+    ]
+  },
+  "explainability": {
+    "poweredBy": "Impulsado por IA Multi-Proveedor",
+    "titleLead": "IA que",
+    "titleHighlight": "se explica a s\u00ed misma",
+    "subtitle": "Cada decisi\u00f3n es transparente, auditable y reversible. Sin cajas negras. Nunca.",
+    "items": [
+      { "title": "Panel XAI", "desc": "Mir\u00e1 exactamente por qu\u00e9 la IA clasific\u00f3 cada ticket \u2014 se\u00f1al por se\u00f1al. Transparencia total en cada decisi\u00f3n.", "tag": "Explicabilidad" },
+      { "title": "Puntaje de Confianza", "desc": "Alerta cuando la IA no est\u00e1 segura. Sab\u00e9 siempre cu\u00e1ndo revisar manualmente antes de ejecutar.", "tag": "Confianza" },
+      { "title": "Registro Completo de Auditor\u00eda", "desc": "Cada prompt, conteo de tokens, costo y latencia rastreados y exportables. Listo para SOC 2.", "tag": "Cumplimiento" }
+    ]
+  },
+  "trust": {
+    "eyebrow": "\u2726 Construido para la Confianza",
+    "title": "Nivel empresarial por dise\u00f1o",
+    "subtitle": "Lo que la plataforma realmente garantiza.",
+    "items": [
+      { "title": "Registro de auditor\u00eda completo en cada decisi\u00f3n", "description": "Cada clasificaci\u00f3n de IA, acci\u00f3n de agente y acceso a datos queda registrado con modelo, prompt y puntaje de confianza \u2014 exportable para revisi\u00f3n de cumplimiento." },
+      { "title": "IA multi-proveedor, sin dependencia de uno solo", "description": "GPT-4o, Claude Sonnet y Gemini Flash se enrutan autom\u00e1ticamente seg\u00fan la configuraci\u00f3n del workspace, con cadenas de respaldo si un proveedor falla." },
+      { "title": "Construido para aislamiento multi-tenant", "description": "Datos aislados por workspace a nivel de base de datos, verificado en la suite de tests \u2014 un tenant nunca puede ver los registros de otro." }
+    ]
+  },
+  "enterprise": {
+    "eyebrow": "\u2726 Empresarial",
+    "title": "Construido para organizaciones, no asientos individuales",
+    "subtitle": "Cada workspace se despliega y configura a medida para tus departamentos, requisitos de cumplimiento y preferencias de proveedor de IA. Habl\u00e1 con nosotros sobre tu organizaci\u00f3n.",
+    "cta": "Solicitar Demo \u2192"
+  },
+  "techStack": {
+    "eyebrow": "\u2726 Infraestructura",
+    "title": "Construido sobre tecnolog\u00eda en la que conf\u00edas",
+    "subtitle": "Est\u00e1ndares abiertos. Sin dependencia de un proveedor. Confiabilidad de nivel empresarial.",
+    "descriptions": {
+      "Rails": "Framework de backend \u00b7 API y l\u00f3gica de negocio",
+      "PostgreSQL": "Base de datos principal \u00b7 Compatible con ACID",
+      "Redis": "Cach\u00e9 y colas de trabajos \u00b7 Latencia sub-ms",
+      "OpenAI": "GPT-4o \u00b7 Clasificaci\u00f3n y RAG",
+      "Anthropic": "Claude Sonnet \u00b7 An\u00e1lisis complejo",
+      "Google AI": "Gemini Flash \u00b7 Operaciones de alta velocidad",
+      "React": "UI de frontend \u00b7 React 19 + TypeScript",
+      "pgvector": "B\u00fasqueda vectorial \u00b7 Embeddings de 1536 dimensiones"
+    }
+  },
+  "cta": {
+    "titleLine1": "Dej\u00e1 de gestionar el caos.",
+    "titleLine2": "Empez\u00e1 a comandarlo.",
+    "subtitle1": "VoltDesk AI le da a tu equipo la capa de inteligencia",
+    "subtitle2": "para clasificar, predecir y actuar \u2014 autom\u00e1ticamente.",
+    "requestDemo": "Solicitar Demo \u2192",
+    "signIn": "Iniciar sesi\u00f3n \u2192",
+    "badges": [["< 3s", "Clasificaci\u00f3n IA"], ["SOC 2", "Listo"], ["3", "Proveedores IA"], ["Total", "Auditor\u00eda"]]
+  },
+  "footer": {
+    "tagline": "Helpdesk nativo en IA que clasifica, predice y act\u00faa. Construido para equipos que no se pueden dar el lujo de ir lento.",
+    "systemsOperational": "Todos los sistemas operativos",
+    "sections": [
+      { "title": "Producto", "links": [{ "label": "Funcionalidades", "href": "#features" }, { "label": "Novedades", "href": "#" }, { "label": "Roadmap", "href": "#" }] },
+      { "title": "Empresa", "links": [{ "label": "Nosotros", "href": "#" }, { "label": "Blog", "href": "#" }, { "label": "Empleo", "href": "#" }, { "label": "Prensa", "href": "#" }] },
+      { "title": "Recursos", "links": [{ "label": "Documentaci\u00f3n", "href": "#" }, { "label": "Estado", "href": "#" }, { "label": "Soporte", "href": "/login" }] },
+      { "title": "Legal", "links": [{ "label": "Pol\u00edtica de Privacidad", "href": "#" }, { "label": "T\u00e9rminos de Servicio", "href": "#" }, { "label": "GDPR", "href": "#" }, { "label": "Seguridad", "href": "#" }] }
+    ],
+    "copyright": "\u00a9 2026 VoltDesk AI \u00b7 Todos los derechos reservados."
+  }
+}

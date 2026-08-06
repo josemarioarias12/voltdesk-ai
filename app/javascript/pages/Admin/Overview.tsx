@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import AdminLayout from '@/components/AdminLayout'
 import { IconBolt } from '@/components/Icons'
 
@@ -16,23 +17,27 @@ const PROVIDER_COLORS: Record<string, string> = {
 }
 
 export default function AdminOverview({ stats }: { stats: Stats }) {
+  const { t } = useTranslation('admin')
+
+  const kpis = [
+    { label: t('overview.kpi.totalOperations'), value: stats.total_operations.toLocaleString(), sub: t('overview.kpi.allTime') },
+    { label: t('overview.kpi.totalCost'), value: `$${stats.total_cost_usd.toFixed(4)}`, sub: t('overview.kpi.estimated') },
+    { label: t('overview.kpi.avgConfidence'), value: `${(stats.avg_confidence * 100).toFixed(0)}%`, sub: t('overview.kpi.classification') },
+    { label: t('overview.kpi.avgLatency'), value: `${stats.avg_latency_ms}ms`, sub: t('overview.kpi.perOperation') },
+    { label: t('overview.kpi.successRate'), value: `${stats.success_rate}%`, sub: t('overview.kpi.allOperations') },
+  ]
+
   return (
-    <AdminLayout title="Admin">
+    <AdminLayout title={t('overview.pageTitle')}>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>Admin Control Center</h1>
-          <p className="text-sm mt-1" style={{ color: '#475569' }}>AI operations overview for this workspace</p>
+          <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>{t('overview.header.title')}</h1>
+          <p className="text-sm mt-1" style={{ color: '#475569' }}>{t('overview.header.subtitle')}</p>
         </div>
 
         {/* KPI Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          {[
-            { label: 'Total Operations', value: stats.total_operations.toLocaleString(), sub: 'all time' },
-            { label: 'Total AI Cost', value: `$${stats.total_cost_usd.toFixed(4)}`, sub: 'estimated' },
-            { label: 'Avg Confidence', value: `${(stats.avg_confidence * 100).toFixed(0)}%`, sub: 'classification' },
-            { label: 'Avg Latency', value: `${stats.avg_latency_ms}ms`, sub: 'per operation' },
-            { label: 'Success Rate', value: `${stats.success_rate}%`, sub: 'all operations' },
-          ].map(({ label, value, sub }) => (
+          {kpis.map(({ label, value, sub }) => (
             <div key={label} className="rounded-2xl border p-4" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
               <p className="text-xs uppercase tracking-wide font-semibold" style={{ color:'#94A3B8' }}>{label}</p>
               <p className="text-2xl font-bold mt-1" style={{ color: '#0F172A' }}>{value}</p>
@@ -44,7 +49,7 @@ export default function AdminOverview({ stats }: { stats: Stats }) {
         {/* Provider Breakdown */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="rounded-2xl border p-6" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-            <h2 className="text-base font-semibold mb-4" style={{ color: '#0F172A' }}>Provider Usage</h2>
+            <h2 className="text-base font-semibold mb-4" style={{ color: '#0F172A' }}>{t('overview.providerUsage')}</h2>
             {Object.keys(PROVIDER_COLORS).map(p => {
               const count = stats.provider_breakdown[p] || 0
               const total = Object.values(stats.provider_breakdown).reduce((a, b) => a + b, 0) || 1
@@ -53,10 +58,10 @@ export default function AdminOverview({ stats }: { stats: Stats }) {
                 <div key={p} className="mb-3">
                   <div className="flex justify-between text-sm mb-1">
                     <span className="font-medium capitalize" style={{ color: '#0F172A' }}>{p}</span>
-                    <span style={{ color: '#475569' }}>{count} ops · {pct}%</span>
+                    <span style={{ color: '#475569' }}>{count} {t('overview.opsSuffix')} · {pct}%</span>
                   </div>
                   <div className="h-2 rounded-full" style={{ background: '#F1F5F9' }}>
-                    <div className="h-2 rounded-full transition-all" style={{ width: `${pct}%`, background: PROVIDER_COLORS[p] }} />
+                    <div className="h-2 rounded-full transition-all" style={{ width: `${pct}%`, background:PROVIDER_COLORS[p] }} />
                   </div>
                 </div>
               )
@@ -64,7 +69,7 @@ export default function AdminOverview({ stats }: { stats: Stats }) {
           </div>
 
           <div className="rounded-2xl border p-6" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-            <h2 className="text-base font-semibold mb-4" style={{ color: '#0F172A' }}>Operations by Type</h2>
+            <h2 className="text-base font-semibold mb-4" style={{ color: '#0F172A' }}>{t('overview.operationsByType')}</h2>
             {Object.entries(stats.operations_by_type).map(([op, count]) => (
               <div key={op} className="flex justify-between py-2 border-b text-sm" style={{ borderColor: '#F1F5F9' }}>
                 <span style={{ color: '#475569' }}>{op.replace(/_/g, ' ')}</span>
@@ -78,15 +83,15 @@ export default function AdminOverview({ stats }: { stats: Stats }) {
         <div className='rounded-2xl border p-6' style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
             <div>
-              <h2 className='text-base font-semibold' style={{ color: '#0F172A' }}>QR Demo Mode</h2>
-              <p className='text-sm mt-1' style={{ color: '#475569' }}>Activate a 30-minute guest session for live presentations</p>
+              <h2 className='text-base font-semibold' style={{ color: '#0F172A' }}>{t('overview.qrDemo.title')}</h2>
+              <p className='text-sm mt-1' style={{ color: '#475569' }}>{t('overview.qrDemo.subtitle')}</p>
             </div>
             <form method='post' action='/workspace_admin/demo/activate'>
               <input type='hidden' name='authenticity_token' value={document.querySelector('meta[name=csrf-token]')?.getAttribute('content') ?? ''} />
               <button type='submit'
                 style={{ background: '#028090', color: '#fff', border: 'none', borderRadius: 10, padding: '10px 24px', fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <IconBolt size={16} color="#fff" />
-                Activate Demo Mode
+                {t('overview.qrDemo.activate')}
               </button>
             </form>
           </div>

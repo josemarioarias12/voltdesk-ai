@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { router } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 import AppLayout from '@/components/AppLayout'
 import SettingsTabs from '@/components/SettingsTabs'
 import { useWebAuthn } from '@/hooks/useWebAuthn'
 import { IconFaceId } from '@/components/Icons'
+import { useLocale } from '@/hooks/useLocale'
 
 interface PasskeyCredential {
   id: number
@@ -22,14 +24,16 @@ const GRAY   = '#475569'
 const LIGHT  = '#F8FAFC'
 const BORDER = '#E2E8F0'
 
-function formatDate(iso: string | null) {
-  if (!iso) return 'Never'
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
-
 export default function PasskeysIndex({ credentials }: Props) {
+  const { t } = useTranslation('settings')
+  const { speechLang } = useLocale()
   const { isSupported, status, errorMessage, registerPasskey } = useWebAuthn()
   const [nickname, setNickname] = useState('')
+
+  function formatDate(iso: string | null) {
+    if (!iso) return t('passkeys.table.never')
+    return new Date(iso).toLocaleDateString(speechLang, { month: 'short', day: 'numeric', year: 'numeric' })
+  }
 
   async function handleAdd() {
     const label = nickname.trim() || undefined
@@ -42,26 +46,26 @@ export default function PasskeysIndex({ credentials }: Props) {
   }
 
   function handleRevoke(id: number) {
-    if (!confirm('Remove this passkey? You will no longer be able to sign in with this device using Face ID.')) return
+    if (!confirm(t('passkeys.revokeConfirm'))) return
     router.delete(`/settings/passkeys/${id}`)
   }
 
   return (
-    <AppLayout title="Passkeys">
+    <AppLayout title={t('passkeys.pageTitle')}>
       <div className="max-w-4xl space-y-6">
 
         <SettingsTabs active="passkeys" />
 
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: SLATE }}>Passkeys</h1>
-            <p className="text-sm mt-1" style={{ color: GRAY }}>Sign in with Face ID, Touch ID, or Windows Hello instead of your password</p>
+            <h1 className="text-2xl font-bold" style={{ color: SLATE }}>{t('passkeys.header.title')}</h1>
+            <p className="text-sm mt-1" style={{ color: GRAY }}>{t('passkeys.header.subtitle')}</p>
           </div>
         </div>
 
         {!isSupported && (
           <div className="px-4 py-3 rounded-xl text-sm" style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}>
-            This browser or device doesn't support passkeys. Try again from a device with Face ID, Touch ID, or Windows Hello.
+            {t('passkeys.unsupported')}
           </div>
         )}
 
@@ -69,14 +73,14 @@ export default function PasskeysIndex({ credentials }: Props) {
           <div className="rounded-2xl border p-5 space-y-3" style={{ background: '#fff', borderColor: BORDER, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
             <div className="flex items-center gap-2">
               <IconFaceId size={20} color={TEAL} />
-              <h2 className="text-sm font-semibold" style={{ color: SLATE }}>Add a new passkey</h2>
+              <h2 className="text-sm font-semibold" style={{ color: SLATE }}>{t('passkeys.addNew')}</h2>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
                 <input
                   type="text"
                   value={nickname}
                   onChange={e => setNickname(e.target.value)}
-                  placeholder="e.g. My iPhone"
+                  placeholder={t('passkeys.nicknamePlaceholder')}
                   className="flex-1 px-3 py-2 rounded-xl border text-sm"
                   style={{ borderColor: BORDER, color: SLATE }}
                 />
@@ -86,11 +90,11 @@ export default function PasskeysIndex({ credentials }: Props) {
                   className="px-4 py-2 rounded-xl text-sm font-semibold text-white flex-shrink-0"
                   style={{ background: status === 'in_progress' ? '#94A3B8' : TEAL }}
                 >
-                  {status === 'in_progress' ? 'Waiting for Face ID…' : 'Activate Face ID'}
+                  {status === 'in_progress' ? t('passkeys.waiting') : t('passkeys.activate')}
                 </button>
               </div>
             {errorMessage && (
-              <p className="text-xs" style={{ color: '#DC2626' }}>Could not add passkey — try again</p>
+              <p className="text-xs" style={{ color: '#DC2626' }}>{t('passkeys.error')}</p>
             )}
           </div>
         )}
@@ -99,7 +103,7 @@ export default function PasskeysIndex({ credentials }: Props) {
             <table className="w-full text-sm" style={{ minWidth: '480px' }}>
             <thead>
               <tr style={{ background: LIGHT, borderBottom: `1px solid ${BORDER}` }}>
-                {['Device', 'Added', 'Last Used', 'Actions'].map(h => (
+                {[t('passkeys.table.device'), t('passkeys.table.added'), t('passkeys.table.lastUsed'), t('passkeys.table.actions')].map(h => (
                   <th key={h} className="px-4 py-3 text-left font-semibold" style={{ color: GRAY }}>{h}</th>
                 ))}
               </tr>
@@ -108,7 +112,7 @@ export default function PasskeysIndex({ credentials }: Props) {
               {credentials.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-4 py-12 text-center text-sm" style={{ color: GRAY }}>
-                    No passkeys yet. Activate Face ID above to sign in without a password.
+                    {t('passkeys.table.empty')}
                   </td>
                 </tr>
               ) : credentials.map((cred, i) => (
@@ -116,7 +120,7 @@ export default function PasskeysIndex({ credentials }: Props) {
                   <td className="px-4 py-3 font-medium" style={{ color: SLATE }}>
                     <div className="flex items-center gap-2">
                       <IconFaceId size={16} color={TEAL} />
-                      {cred.nickname || 'Unnamed passkey'}
+                      {cred.nickname || t('passkeys.table.unnamed')}
                     </div>
                   </td>
                   <td className="px-4 py-3 text-xs" style={{ color: GRAY }}>{formatDate(cred.created_at)}</td>
@@ -127,7 +131,7 @@ export default function PasskeysIndex({ credentials }: Props) {
                       className="text-xs font-medium px-3 py-1 rounded-lg"
                       style={{ color: '#DC2626', background: '#FEF2F2' }}
                     >
-                      Remove
+                      {t('passkeys.table.remove')}
                     </button>
                   </td>
                 </tr>

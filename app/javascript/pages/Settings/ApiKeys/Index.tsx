@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { router } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 import AppLayout from '@/components/AppLayout'
 import SettingsTabs from '@/components/SettingsTabs'
+import { useLocale } from '@/hooks/useLocale'
 
 interface ApiKey {
   id: number
@@ -35,6 +37,8 @@ const LIGHT = '#F8FAFC'
 const BORDER = '#E2E8F0'
 
 export default function ApiKeysIndex({ api_keys, new_token }: Props) {
+  const { t } = useTranslation('settings')
+  const { speechLang } = useLocale()
   const [showModal, setShowModal]   = useState(false)
   const [name, setName]             = useState('')
   const [scopes, setScopes]         = useState<string[]>(['tickets:read'])
@@ -57,7 +61,7 @@ export default function ApiKeysIndex({ api_keys, new_token }: Props) {
   }
 
   function handleRevoke(id: number) {
-    if (!confirm('Revoke this API key? This action cannot be undone.')) return
+    if (!confirm(t('apiKeys.revokeConfirm'))) return
     router.delete(`/settings/api_keys/${id}`)
   }
 
@@ -68,12 +72,12 @@ export default function ApiKeysIndex({ api_keys, new_token }: Props) {
   }
 
   function formatDate(iso: string | null) {
-    if (!iso) return 'Never'
-    return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    if (!iso) return t('apiKeys.table.never')
+    return new Date(iso).toLocaleDateString(speechLang, { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
   return (
-    <AppLayout title="API Keys">
+    <AppLayout title={t('apiKeys.pageTitle')}>
       <div className="max-w-4xl space-y-6">
 
         <SettingsTabs active="api_keys" />
@@ -81,15 +85,15 @@ export default function ApiKeysIndex({ api_keys, new_token }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: SLATE }}>API Keys</h1>
-            <p className="text-sm mt-1" style={{ color: GRAY }}>Manage external integrations and API access</p>
+            <h1 className="text-2xl font-bold" style={{ color: SLATE }}>{t('apiKeys.header.title')}</h1>
+            <p className="text-sm mt-1" style={{ color: GRAY }}>{t('apiKeys.header.subtitle')}</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
             className="px-4 py-2 rounded-xl text-sm font-semibold text-white"
             style={{ background: TEAL }}
           >
-            + Create API Key
+            {t('apiKeys.createButton')}
           </button>
         </div>
 
@@ -98,9 +102,9 @@ export default function ApiKeysIndex({ api_keys, new_token }: Props) {
           <div className="rounded-2xl border-2 p-5 space-y-3" style={{ borderColor: TEAL, background: '#F0FDFA' }}>
             <div className="flex items-center justify-between">
               <p className="text-sm font-semibold" style={{ color: TEAL }}>
-                ✓ Your new API key — copy it now, it won't be shown again
+                {t('apiKeys.newTokenBanner.title')}
               </p>
-              <button onClick={() => setTokenVisible(false)} className="text-xs" style={{ color: GRAY }}>Dismiss</button>
+              <button onClick={() => setTokenVisible(false)} className="text-xs" style={{ color: GRAY }}>{t('apiKeys.newTokenBanner.dismiss')}</button>
             </div>
             <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: '#fff', border: `1px solid ${TEAL}` }}>
               <code className="flex-1 text-sm font-mono break-all" style={{ color: SLATE }}>{new_token}</code>
@@ -109,18 +113,18 @@ export default function ApiKeysIndex({ api_keys, new_token }: Props) {
                 className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white flex-shrink-0"
                 style={{ background: copied ? '#16A34A' : TEAL }}
               >
-                {copied ? '✓ Copied' : 'Copy'}
+                {copied ? t('apiKeys.newTokenBanner.copied') : t('apiKeys.newTokenBanner.copy')}
               </button>
             </div>
             <p className="text-xs" style={{ color: '#DC2626' }}>
-              ⚠ Store this key securely. You will not be able to see it again.
+              {t('apiKeys.newTokenBanner.storeWarning')}
             </p>
           </div>
         )}
 
         {/* Info banner */}
         <div className="px-4 py-3 rounded-xl text-sm" style={{ background: '#F0FDFA', border: `1px solid #99F6E4`, color: TEAL }}>
-          API keys allow external systems to create tickets and access data. Each key has configurable scopes.
+          {t('apiKeys.infoBanner')}
         </div>
 
         {/* Keys table */}
@@ -128,7 +132,7 @@ export default function ApiKeysIndex({ api_keys, new_token }: Props) {
           <table className="w-full text-sm" style={{ minWidth: '640px' }}>
             <thead>
               <tr style={{ background: LIGHT, borderBottom: `1px solid ${BORDER}` }}>
-                {['Name', 'Key', 'Scopes', 'Last Used', 'Status', 'Actions'].map(h => (
+                {[t('apiKeys.table.name'), t('apiKeys.table.key'), t('apiKeys.table.scopes'), t('apiKeys.table.lastUsed'), t('apiKeys.table.status'), t('apiKeys.table.actions')].map(h => (
                   <th key={h} className="px-4 py-3 text-left font-semibold" style={{ color: GRAY }}>{h}</th>
                 ))}
               </tr>
@@ -137,7 +141,7 @@ export default function ApiKeysIndex({ api_keys, new_token }: Props) {
               {api_keys.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-4 py-12 text-center text-sm" style={{ color: GRAY }}>
-                    No API keys yet. Create one to start integrating.
+                    {t('apiKeys.table.empty')}
                   </td>
                 </tr>
               ) : api_keys.map((key, i) => (
@@ -157,7 +161,7 @@ export default function ApiKeysIndex({ api_keys, new_token }: Props) {
                   <td className="px-4 py-3">
                     <span className="flex items-center gap-1.5 text-xs font-medium">
                       <span className="w-2 h-2 rounded-full" style={{ background: key.active ? '#16A34A' : '#94A3B8' }} />
-                      {key.active ? 'Active' : 'Inactive'}
+                      {key.active ? t('apiKeys.table.active') : t('apiKeys.table.inactive')}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -167,7 +171,7 @@ export default function ApiKeysIndex({ api_keys, new_token }: Props) {
                         className="text-xs font-medium px-3 py-1 rounded-lg"
                         style={{ color: '#DC2626', background: '#FEF2F2' }}
                       >
-                        Revoke
+                        {t('apiKeys.table.revoke')}
                       </button>
                     )}
                   </td>
@@ -182,24 +186,24 @@ export default function ApiKeysIndex({ api_keys, new_token }: Props) {
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: 'rgba(0,0,0,0.4)' }}>
             <div className="rounded-2xl p-6 w-full max-w-md space-y-5" style={{ background: '#fff', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold" style={{ color: SLATE }}>Create API Key</h2>
+                <h2 className="text-lg font-bold" style={{ color: SLATE }}>{t('apiKeys.modal.title')}</h2>
                 <button onClick={() => setShowModal(false)} className="text-lg" style={{ color: GRAY }}>✕</button>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium" style={{ color: SLATE }}>Key Name</label>
+                <label className="text-sm font-medium" style={{ color: SLATE }}>{t('apiKeys.modal.nameLabel')}</label>
                 <input
                   type="text"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  placeholder="e.g. Slack Integration"
+                  placeholder={t('apiKeys.modal.namePlaceholder')}
                   className="w-full px-3 py-2 rounded-xl border text-sm"
                   style={{ borderColor: BORDER, color: SLATE }}
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium" style={{ color: SLATE }}>Scopes</label>
+                <label className="text-sm font-medium" style={{ color: SLATE }}>{t('apiKeys.modal.scopesLabel')}</label>
                 <div className="grid grid-cols-2 gap-2">
                   {AVAILABLE_SCOPES.map(s => (
                     <label key={s} className="flex items-center gap-2 px-3 py-2 rounded-xl border cursor-pointer text-sm"
@@ -216,7 +220,7 @@ export default function ApiKeysIndex({ api_keys, new_token }: Props) {
                 </div>
               </div>
 
-              <p className="text-xs" style={{ color: GRAY }}>Rate limit: 100 requests per minute</p>
+              <p className="text-xs" style={{ color: GRAY }}>{t('apiKeys.modal.rateLimit')}</p>
 
               <button
                 onClick={handleCreate}
@@ -224,7 +228,7 @@ export default function ApiKeysIndex({ api_keys, new_token }: Props) {
                 className="w-full py-2.5 rounded-xl text-sm font-semibold text-white"
                 style={{ background: creating || !name.trim() ? '#94A3B8' : TEAL }}
               >
-                {creating ? 'Creating...' : 'Create Key'}
+                {creating ? t('apiKeys.modal.creating') : t('apiKeys.modal.create')}
               </button>
             </div>
           </div>

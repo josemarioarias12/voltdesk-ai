@@ -1,46 +1,47 @@
 import { ReactNode } from 'react'
 import { Link } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 import AppLayout from '@/components/AppLayout'
 
 interface NavItem {
-  label: string
+  labelKey: string
   path: string
 }
 
 interface NavGroup {
-  label: string | null
+  labelKey: string | null
   items: NavItem[]
 }
 
 const NAV_GROUPS: NavGroup[] = [
   {
-    label: null,
-    items: [{ label: 'Overview', path: '/admin' }],
+    labelKey: null,
+    items: [{ labelKey: 'nav.overview', path: '/admin' }],
   },
   {
-    label: 'AI Operations',
+    labelKey: 'nav.aiOperations',
     items: [
-      { label: 'Audit Log', path: '/admin/audit-log' },
-      { label: 'Model Governance', path: '/admin/governance' },
-      { label: 'Pattern Alerts', path: '/admin/pattern_alerts' },
-      { label: 'AI Health', path: '/admin/ai-health' },
-      { label: 'Benchmark', path: '/admin/benchmark' },
+      { labelKey: 'nav.auditLog', path: '/admin/audit-log' },
+      { labelKey: 'nav.modelGovernance', path: '/admin/governance' },
+      { labelKey: 'nav.patternAlerts', path: '/admin/pattern_alerts' },
+      { labelKey: 'nav.aiHealth', path: '/admin/ai-health' },
+      { labelKey: 'nav.benchmark', path: '/admin/benchmark' },
     ],
   },
   {
-    label: 'Workspace',
+    labelKey: 'nav.workspace',
     items: [
-      { label: 'Users', path: '/admin/users' },
-      { label: 'Compliance', path: '/admin/compliance' },
-      { label: 'Data Access Log', path: '/admin/data_access_log' },
-      { label: 'API Dashboard', path: '/admin/api_dashboard' },
+      { labelKey: 'nav.users', path: '/admin/users' },
+      { labelKey: 'nav.compliance', path: '/admin/compliance' },
+      { labelKey: 'nav.dataAccessLog', path: '/admin/data_access_log' },
+      { labelKey: 'nav.apiDashboard', path: '/admin/api_dashboard' },
     ],
   },
   {
-    label: 'Tools',
+    labelKey: 'nav.tools',
     items: [
-      { label: 'Operational Twin', path: '/admin/operational-twin' },
-      { label: 'Telegram Test', path: '/admin/telegram-test' },
+      { labelKey: 'nav.operationalTwin', path: '/admin/operational-twin' },
+      { labelKey: 'nav.telegramTest', path: '/admin/telegram-test' },
     ],
   },
 ]
@@ -56,6 +57,7 @@ interface Props {
 }
 
 export default function AdminLayout({ children, title }: Props) {
+  const { t } = useTranslation('admin')
   const currentPath = window.location.pathname
 
   return (
@@ -63,13 +65,13 @@ export default function AdminLayout({ children, title }: Props) {
       <div className="flex gap-8 items-start">
         <nav className="w-52 flex-shrink-0 space-y-6">
           {NAV_GROUPS.map((group) => (
-            <div key={group.label ?? 'root'}>
-              {group.label && (
+            <div key={group.labelKey ?? 'root'}>
+              {group.labelKey && (
                 <p
                   className="text-xs font-semibold uppercase tracking-wider px-3 mb-1"
                   style={{ color: '#94A3B8', letterSpacing: '0.05em' }}
                 >
-                  {group.label}
+                  {t(group.labelKey)}
                 </p>
               )}
               <div className="space-y-0.5">
@@ -86,7 +88,7 @@ export default function AdminLayout({ children, title }: Props) {
                           : { color: '#475569', fontWeight: 500 }
                       }
                     >
-                      {item.label}
+                      {t(item.labelKey)}
                     </Link>
                   )
                 })}

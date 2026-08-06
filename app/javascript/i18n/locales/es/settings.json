@@ -80,6 +80,113 @@
     "saveButton": "Guardar Configuraci\u00f3n de Automatizaci\u00f3n",
     "saved": "Configuraci\u00f3n de automatizaci\u00f3n guardada con \u00e9xito"
   },
+  "apiKeys": {
+    "pageTitle": "Claves API",
+    "header": { "title": "Claves API", "subtitle": "Gestion\u00e1 integraciones externas y acceso a la API" },
+    "createButton": "+ Crear Clave API",
+    "newTokenBanner": {
+      "title": "\u2713 Tu nueva clave API \u2014 copiala ahora, no se va a volver a mostrar",
+      "dismiss": "Descartar",
+      "copy": "Copiar",
+      "copied": "\u2713 Copiado",
+      "storeWarning": "\u26a0 Guard\u00e1 esta clave de forma segura. No vas a poder verla de nuevo."
+    },
+    "infoBanner": "Las claves API permiten que sistemas externos creen tickets y accedan a datos. Cada clave tiene alcances configurables.",
+    "table": {
+      "name": "Nombre", "key": "Clave", "scopes": "Alcances", "lastUsed": "\u00daltimo Uso", "status": "Estado", "actions": "Acciones",
+      "empty": "A\u00fan no hay claves API. Cre\u00e1 una para empezar a integrar.",
+      "active": "Activa", "inactive": "Inactiva", "revoke": "Revocar", "never": "Nunca"
+    },
+    "revokeConfirm": "\u00bfRevocar esta clave API? Esta acci\u00f3n no se puede deshacer.",
+    "modal": {
+      "title": "Crear Clave API",
+      "nameLabel": "Nombre de la Clave",
+      "namePlaceholder": "ej. Integraci\u00f3n con Slack",
+      "scopesLabel": "Alcances",
+      "rateLimit": "L\u00edmite: 100 solicitudes por minuto",
+      "creating": "Creando...",
+      "create": "Crear Clave"
+    }
+  },
+  "webhooks": {
+    "pageTitle": "Webhooks",
+    "header": { "title": "Webhooks", "subtitle": "Recib\u00ed notificaciones en tiempo real cuando ocurran eventos en tu workspace" },
+    "addButton": "+ Agregar Webhook",
+    "newSecretBanner": {
+      "title": "\u2713 Secreto del webhook \u2014 copialo ahora, no se va a volver a mostrar",
+      "dismiss": "Descartar",
+      "copy": "Copiar",
+      "copied": "\u2713 Copiado",
+      "signatureNote": "Us\u00e1 este secreto para verificar el header {{header}} en tu endpoint."
+    },
+    "table": {
+      "name": "Nombre", "url": "URL", "events": "Eventos", "lastTriggered": "\u00daltimo Disparo", "status": "Estado", "actions": "Acciones",
+      "empty": "No hay webhooks configurados. Agreg\u00e1 uno para empezar a recibir eventos.",
+      "active": "Activo", "inactive": "Inactivo", "warning": "Advertencia ({{count}} fallos)",
+      "disable": "Deshabilitar", "enable": "Habilitar", "delete": "Eliminar", "never": "Nunca"
+    },
+    "deleteConfirm": "\u00bfEliminar este webhook? Esta acci\u00f3n no se puede deshacer.",
+    "modal": {
+      "title": "Agregar Webhook",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "ej. Notificaciones de Slack",
+      "urlLabel": "URL del Endpoint",
+      "eventsLabel": "Eventos",
+      "creating": "Creando...",
+      "create": "Agregar Webhook"
+    }
+  },
+  "learning": {
+    "pageTitle": "Auto-Aprendizaje de IA",
+    "header": { "title": "Auto-Aprendizaje de IA", "subtitle": "El sistema aprende de las correcciones de los agentes para mejorar la precisi\u00f3n de clasificaci\u00f3n." },
+    "newSuggestionToast": "\u00a1Hay una nueva sugerencia de aprendizaje de IA lista!",
+    "kpi": { "totalCorrections": "Correcciones Totales", "last30Days": "\u00daltimos 30 D\u00edas", "patternsDetected": "Patrones Detectados", "threshold": "Umbral" },
+    "progress": {
+      "label": "Progreso hacia el aprendizaje de IA",
+      "corrections": "{{current}}/{{threshold}} correcciones",
+      "helper": "Segu\u00ed haciendo que los agentes corrijan clasificaciones para desbloquear el aprendizaje de IA"
+    },
+    "trendChart": "Tendencia de Correcciones (\u00daltimas 4 Semanas)",
+    "patternsTable": { "title": "Principales Patrones de Correcci\u00f3n", "from": "De", "to": "A", "count": "Cantidad" },
+    "suggestion": {
+      "title": "Sugerencia de IA",
+      "generated": "Generada {{date}}",
+      "applied": "\u2713 Aplicada el {{date}}",
+      "apply": "Aplicar Sugerencia",
+      "dismiss": "Descartar"
+    },
+    "empty": "A\u00fan no hay sugerencia de IA. Alcanz\u00e1 {{threshold}} correcciones para desbloquear insights de aprendizaje."
+  },
+  "passkeys": {
+    "pageTitle": "Passkeys",
+    "header": { "title": "Passkeys", "subtitle": "Inici\u00e1 sesi\u00f3n con Face ID, Touch ID o Windows Hello en vez de tu contrase\u00f1a" },
+    "unsupported": "Este navegador o dispositivo no soporta passkeys. Intentalo de nuevo desde un dispositivo con Face ID, Touch ID o Windows Hello.",
+    "addNew": "Agregar un passkey nuevo",
+    "nicknamePlaceholder": "ej. Mi iPhone",
+    "waiting": "Esperando Face ID\u2026",
+    "activate": "Activar Face ID",
+    "error": "No se pudo agregar el passkey \u2014 intentalo de nuevo",
+    "table": {
+      "device": "Dispositivo", "added": "Agregado", "lastUsed": "\u00daltimo Uso", "actions": "Acciones",
+      "empty": "A\u00fan no hay passkeys. Activ\u00e1 Face ID arriba para iniciar sesi\u00f3n sin contrase\u00f1a.",
+      "unnamed": "Passkey sin nombre", "remove": "Eliminar", "never": "Nunca"
+    },
+    "revokeConfirm": "\u00bfEliminar este passkey? Ya no vas a poder iniciar sesi\u00f3n con este dispositivo usando Face ID."
+  },
+  "profile": {
+    "pageTitle": "Configuraci\u00f3n de Perfil",
+    "header": { "title": "Configuraci\u00f3n de Perfil", "subtitle": "Gestion\u00e1 tu informaci\u00f3n personal" },
+    "removePhotoConfirm": "\u00bfEliminar tu foto de perfil?",
+    "uploadPhoto": "Subir Foto",
+    "removePhoto": "Eliminar Foto",
+    "photoHint": "JPG, PNG o WEBP. M\u00e1x 10MB.",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "email": "Correo Electr\u00f3nico",
+    "emailManagedNote": "Gestionado v\u00eda Google Workspace",
+    "saving": "Guardando...",
+    "saveChanges": "Guardar Cambios"
+  },
   "models": {
     "gpt-4o": "GPT-4o \u2014 M\u00e1s capaz",
     "gpt-4o-mini": "GPT-4o Mini \u2014 M\u00e1s r\u00e1pido y econ\u00f3mico",

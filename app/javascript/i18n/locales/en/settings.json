@@ -80,6 +80,113 @@
     "saveButton": "Save Automation Settings",
     "saved": "Automation settings saved successfully"
   },
+  "apiKeys": {
+    "pageTitle": "API Keys",
+    "header": { "title": "API Keys", "subtitle": "Manage external integrations and API access" },
+    "createButton": "+ Create API Key",
+    "newTokenBanner": {
+      "title": "\u2713 Your new API key \u2014 copy it now, it won't be shown again",
+      "dismiss": "Dismiss",
+      "copy": "Copy",
+      "copied": "\u2713 Copied",
+      "storeWarning": "\u26a0 Store this key securely. You will not be able to see it again."
+    },
+    "infoBanner": "API keys allow external systems to create tickets and access data. Each key has configurable scopes.",
+    "table": {
+      "name": "Name", "key": "Key", "scopes": "Scopes", "lastUsed": "Last Used", "status": "Status", "actions": "Actions",
+      "empty": "No API keys yet. Create one to start integrating.",
+      "active": "Active", "inactive": "Inactive", "revoke": "Revoke", "never": "Never"
+    },
+    "revokeConfirm": "Revoke this API key? This action cannot be undone.",
+    "modal": {
+      "title": "Create API Key",
+      "nameLabel": "Key Name",
+      "namePlaceholder": "e.g. Slack Integration",
+      "scopesLabel": "Scopes",
+      "rateLimit": "Rate limit: 100 requests per minute",
+      "creating": "Creating...",
+      "create": "Create Key"
+    }
+  },
+  "webhooks": {
+    "pageTitle": "Webhooks",
+    "header": { "title": "Webhooks", "subtitle": "Receive real-time notifications when events occur in your workspace" },
+    "addButton": "+ Add Webhook",
+    "newSecretBanner": {
+      "title": "\u2713 Webhook secret \u2014 copy it now, it won't be shown again",
+      "dismiss": "Dismiss",
+      "copy": "Copy",
+      "copied": "\u2713 Copied",
+      "signatureNote": "Use this secret to verify the {{header}} header in your endpoint."
+    },
+    "table": {
+      "name": "Name", "url": "URL", "events": "Events", "lastTriggered": "Last Triggered", "status": "Status", "actions": "Actions",
+      "empty": "No webhooks configured. Add one to start receiving events.",
+      "active": "Active", "inactive": "Inactive", "warning": "Warning ({{count}} failures)",
+      "disable": "Disable", "enable": "Enable", "delete": "Delete", "never": "Never"
+    },
+    "deleteConfirm": "Delete this webhook? This action cannot be undone.",
+    "modal": {
+      "title": "Add Webhook",
+      "nameLabel": "Name",
+      "namePlaceholder": "e.g. Slack Notifications",
+      "urlLabel": "Endpoint URL",
+      "eventsLabel": "Events",
+      "creating": "Creating...",
+      "create": "Add Webhook"
+    }
+  },
+  "learning": {
+    "pageTitle": "AI Self-Learning",
+    "header": { "title": "AI Self-Learning", "subtitle": "The system learns from agent corrections to improve classification accuracy." },
+    "newSuggestionToast": "New AI learning suggestion is ready!",
+    "kpi": { "totalCorrections": "Total Corrections", "last30Days": "Last 30 Days", "patternsDetected": "Patterns Detected", "threshold": "Threshold" },
+    "progress": {
+      "label": "Progress toward AI learning",
+      "corrections": "{{current}}/{{threshold}} corrections",
+      "helper": "Keep agents correcting classifications to unlock AI learning"
+    },
+    "trendChart": "Correction Trend (Last 4 Weeks)",
+    "patternsTable": { "title": "Top Correction Patterns", "from": "From", "to": "To", "count": "Count" },
+    "suggestion": {
+      "title": "AI Suggestion",
+      "generated": "Generated {{date}}",
+      "applied": "\u2713 Applied on {{date}}",
+      "apply": "Apply Suggestion",
+      "dismiss": "Dismiss"
+    },
+    "empty": "No AI suggestion yet. Reach {{threshold}} corrections to unlock learning insights."
+  },
+  "passkeys": {
+    "pageTitle": "Passkeys",
+    "header": { "title": "Passkeys", "subtitle": "Sign in with Face ID, Touch ID, or Windows Hello instead of your password" },
+    "unsupported": "This browser or device doesn't support passkeys. Try again from a device with Face ID, Touch ID, or Windows Hello.",
+    "addNew": "Add a new passkey",
+    "nicknamePlaceholder": "e.g. My iPhone",
+    "waiting": "Waiting for Face ID\u2026",
+    "activate": "Activate Face ID",
+    "error": "Could not add passkey \u2014 try again",
+    "table": {
+      "device": "Device", "added": "Added", "lastUsed": "Last Used", "actions": "Actions",
+      "empty": "No passkeys yet. Activate Face ID above to sign in without a password.",
+      "unnamed": "Unnamed passkey", "remove": "Remove", "never": "Never"
+    },
+    "revokeConfirm": "Remove this passkey? You will no longer be able to sign in with this device using Face ID."
+  },
+  "profile": {
+    "pageTitle": "Profile Settings",
+    "header": { "title": "Profile Settings", "subtitle": "Manage your personal information" },
+    "removePhotoConfirm": "Remove your profile photo?",
+    "uploadPhoto": "Upload Photo",
+    "removePhoto": "Remove Photo",
+    "photoHint": "JPG, PNG or WEBP. Max 10MB.",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "emailManagedNote": "Managed via Google Workspace",
+    "saving": "Saving...",
+    "saveChanges": "Save Changes"
+  },
   "models": {
     "gpt-4o": "GPT-4o \u2014 Most capable",
     "gpt-4o-mini": "GPT-4o Mini \u2014 Fastest & cheapest",

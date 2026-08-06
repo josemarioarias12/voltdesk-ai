@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { router, useForm } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 import AppLayout from '@/components/AppLayout'
 import SettingsTabs from '@/components/SettingsTabs'
 import Avatar from '@/components/Avatar'
@@ -24,6 +25,7 @@ function csrfToken(): string {
 }
 
 export default function ProfileShow({ user }: Props) {
+  const { t } = useTranslation('settings')
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const { data, setData, patch, processing } = useForm<{
     first_name: string
@@ -43,7 +45,7 @@ export default function ProfileShow({ user }: Props) {
   }
 
   function handleRemoveAvatar() {
-    if (!confirm('Remove your profile photo?')) return
+    if (!confirm(t('profile.removePhotoConfirm'))) return
     setPreviewUrl(null)
     router.patch('/settings/profile', { remove_avatar: true }, {
       headers: { 'X-CSRF-Token': csrfToken() },
@@ -59,13 +61,13 @@ export default function ProfileShow({ user }: Props) {
   }
 
   return (
-    <AppLayout title="Profile Settings">
+    <AppLayout title={t('profile.pageTitle')}>
       <div style={{ maxWidth: '640px', margin: '0 auto' }}>
         <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#0F172A', margin: '0 0 4px' }}>
-          Profile Settings
+          {t('profile.header.title')}
         </h1>
         <p style={{ fontSize: '13px', color: '#94A3B8', margin: '0 0 24px' }}>
-          Manage your personal information
+          {t('profile.header.subtitle')}
         </p>
         <SettingsTabs active="profile" />
 
@@ -78,7 +80,7 @@ export default function ProfileShow({ user }: Props) {
             padding:      '24px',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '28px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '28px', flexWrap:'wrap' }}>
             <label htmlFor="avatar-upload" style={{ cursor: 'pointer' }}>
               <Avatar avatarUrl={previewUrl ?? user.avatar_url} firstName={user.first_name} size={72} />
             </label>
@@ -98,7 +100,7 @@ export default function ProfileShow({ user }: Props) {
                     cursor:       'pointer',
                   }}
                 >
-                  Upload Photo
+                  {t('profile.uploadPhoto')}
                 </label>
                 {(previewUrl ?? user.avatar_url) && (
                   <button
@@ -115,7 +117,7 @@ export default function ProfileShow({ user }: Props) {
                       cursor:       'pointer',
                     }}
                   >
-                    Remove Photo
+                    {t('profile.removePhoto')}
                   </button>
                 )}
               </div>
@@ -127,7 +129,7 @@ export default function ProfileShow({ user }: Props) {
                 style={{ display: 'none' }}
               />
               <p style={{ fontSize: '12px', color: '#94A3B8', margin: '8px 0 0' }}>
-                JPG, PNG or WEBP. Max 10MB.
+                {t('profile.photoHint')}
               </p>
             </div>
           </div>
@@ -135,7 +137,7 @@ export default function ProfileShow({ user }: Props) {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '16px' }}>
             <div style={{ flex: '1 1 200px' }}>
               <label style={{ fontSize: '13px', color: '#475569', display: 'block', marginBottom: '6px' }}>
-                First Name
+                {t('profile.firstName')}
               </label>
               <input
                 type="text"
@@ -152,7 +154,7 @@ export default function ProfileShow({ user }: Props) {
             </div>
             <div style={{ flex: '1 1 200px' }}>
               <label style={{ fontSize: '13px', color: '#475569', display: 'block', marginBottom: '6px' }}>
-                Last Name
+                {t('profile.lastName')}
               </label>
               <input
                 type="text"
@@ -171,7 +173,7 @@ export default function ProfileShow({ user }: Props) {
 
           <div style={{ marginBottom: '24px' }}>
             <label style={{ fontSize: '13px', color: '#475569', display: 'block', marginBottom: '6px' }}>
-              Email
+              {t('profile.email')}
             </label>
             <input
               type="text"
@@ -188,7 +190,7 @@ export default function ProfileShow({ user }: Props) {
               }}
             />
             <p style={{ fontSize: '12px', color: '#94A3B8', margin: '6px 0 0' }}>
-              Managed via Google Workspace
+              {t('profile.emailManagedNote')}
             </p>
           </div>
 
@@ -207,7 +209,7 @@ export default function ProfileShow({ user }: Props) {
               opacity:      processing ? 0.6 : 1,
             }}
           >
-            {processing ? 'Saving...' : 'Save Changes'}
+            {processing ? t('profile.saving') : t('profile.saveChanges')}
           </button>
         </form>
       </div>

@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { Head, router } from '@inertiajs/react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import AppLayout from '@/components/AppLayout'
 import SettingsTabs from '@/components/SettingsTabs'
 import { useActionCable } from '@/hooks/useActionCable'
+import { useLocale } from '@/hooks/useLocale'
 
 interface Pattern {
   from: string
@@ -55,6 +57,8 @@ export default function LearningIndex({
   threshold,
   correction_rate_trend,
 }: Props) {
+  const { t } = useTranslation('settings')
+  const { speechLang } = useLocale()
   const [suggestion, setSuggestion] = useState<Suggestion | null>(initialSuggestion)
   const workspaceId = (window as unknown as { workspaceId?: number }).workspaceId ?? 0
   const progress = Math.min((total_corrections / threshold) * 100, 100)
@@ -63,7 +67,7 @@ export default function LearningIndex({
     { channel: `workspace_admin:${workspaceId}` },
     (data: Record<string, unknown>) => {
       if (data.event !== 'learning_suggestion_ready') return
-      toast.success('New AI learning suggestion is ready!')
+      toast.success(t('learning.newSuggestionToast'))
       router.reload({ only: ['learning_suggestion'] })
     }
   )
@@ -81,25 +85,25 @@ export default function LearningIndex({
   }
 
   return (
-    <AppLayout title="AI Self-Learning">
-      <Head title="AI Self-Learning" />
+    <AppLayout title={t('learning.pageTitle')}>
+      <Head title={t('learning.pageTitle')} />
 
 
       <div className="max-w-4xl space-y-6">
         <SettingsTabs active="learning" />
 
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>AI Self-Learning</h1>
+          <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>{t('learning.header.title')}</h1>
           <p className="mt-1 text-sm" style={{ color: '#475569' }}>
-            The system learns from agent corrections to improve classification accuracy.
+            {t('learning.header.subtitle')}
           </p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <KpiCard label="Total Corrections" value={total_corrections} />
-          <KpiCard label="Last 30 Days" value={corrections_last_30_days} />
-          <KpiCard label="Patterns Detected" value={top_patterns.length} />
-          <KpiCard label="Threshold" value={`${total_corrections}/${threshold}`} />
+          <KpiCard label={t('learning.kpi.totalCorrections')} value={total_corrections} />
+          <KpiCard label={t('learning.kpi.last30Days')} value={corrections_last_30_days} />
+          <KpiCard label={t('learning.kpi.patternsDetected')} value={top_patterns.length} />
+          <KpiCard label={t('learning.kpi.threshold')} value={`${total_corrections}/${threshold}`} />
         </div>
 
         {total_corrections < threshold && (
@@ -108,8 +112,8 @@ export default function LearningIndex({
             style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}
           >
             <div className="flex justify-between text-sm mb-2" style={{ color: '#475569' }}>
-              <span>Progress toward AI learning</span>
-              <span>{total_corrections}/{threshold} corrections</span>
+              <span>{t('learning.progress.label')}</span>
+              <span>{t('learning.progress.corrections', { current: total_corrections, threshold })}</span>
             </div>
             <div className="w-full rounded-full h-3" style={{ background: '#F1F5F9' }}>
               <div
@@ -118,16 +122,16 @@ export default function LearningIndex({
               />
             </div>
             <p className="text-xs mt-2" style={{ color: '#94A3B8' }}>
-              Keep agents correcting classifications to unlock AI learning
+              {t('learning.progress.helper')}
             </p>
           </div>
         )}
 
         <div
           className="p-5"
-          style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}
+          style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', boxShadow: '0 4px24px rgba(0,0,0,0.08)' }}
         >
-          <h2 className="font-semibold mb-4" style={{ color: '#0F172A' }}>Correction Trend (Last 4 Weeks)</h2>
+          <h2 className="font-semibold mb-4" style={{ color: '#0F172A' }}>{t('learning.trendChart')}</h2>
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={correction_rate_trend}>
               <XAxis dataKey="week" tick={{ fontSize: 12 }} />
@@ -144,15 +148,15 @@ export default function LearningIndex({
             style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}
           >
             <div className="px-5 py-4" style={{ borderBottom: '1px solid #F1F5F9' }}>
-              <h2 className="font-semibold" style={{ color: '#0F172A' }}>Top Correction Patterns</h2>
+              <h2 className="font-semibold" style={{ color: '#0F172A' }}>{t('learning.patternsTable.title')}</h2>
             </div>
             <table className="w-full text-sm" style={{ minWidth: '420px' }}>
               <thead style={{ background: '#F8FAFC' }}>
                 <tr>
-                  <th className="text-left px-4 py-3 font-medium" style={{ color: '#475569' }}>From</th>
+                  <th className="text-left px-4 py-3 font-medium" style={{ color: '#475569' }}>{t('learning.patternsTable.from')}</th>
                   <th className="text-left px-4 py-3 font-medium" style={{ color: '#475569' }}></th>
-                  <th className="text-left px-4 py-3 font-medium" style={{ color: '#475569' }}>To</th>
-                  <th className="text-left px-4 py-3 font-medium" style={{ color: '#475569' }}>Count</th>
+                  <th className="text-left px-4 py-3 font-medium" style={{ color: '#475569' }}>{t('learning.patternsTable.to')}</th>
+                  <th className="text-left px-4 py-3 font-medium" style={{ color: '#475569' }}>{t('learning.patternsTable.count')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -175,12 +179,12 @@ export default function LearningIndex({
             style={{ background: '#fff', border: '1px solid #99F6E4', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}
           >
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold" style={{ color: '#0F172A' }}>AI Suggestion</h2>
+              <h2 className="font-semibold" style={{ color: '#0F172A' }}>{t('learning.suggestion.title')}</h2>
               <span
                 className="text-xs px-2 py-1 rounded"
                 style={{ background: '#F0FDFA', color: '#028090', border: '1px solid #99F6E4' }}
               >
-                Generated {new Date(suggestion.generated_at).toLocaleDateString()}
+                {t('learning.suggestion.generated', { date: new Date(suggestion.generated_at).toLocaleDateString(speechLang) })}
               </span>
             </div>
             <p className="text-sm" style={{ color: '#475569' }}>{suggestion.summary}</p>
@@ -191,7 +195,7 @@ export default function LearningIndex({
             </div>
             {suggestion.applied_at ? (
               <p className="text-sm font-medium" style={{ color: '#16A34A' }}>
-                ✓ Applied on {new Date(suggestion.applied_at).toLocaleDateString()}
+                {t('learning.suggestion.applied', { date: new Date(suggestion.applied_at).toLocaleDateString(speechLang) })}
               </p>
             ) : (
               <div className="flex gap-3">
@@ -200,14 +204,14 @@ export default function LearningIndex({
                   className="px-4 py-2 text-sm rounded-lg transition-opacity"
                   style={{ background: '#028090', color: '#fff' }}
                 >
-                  Apply Suggestion
+                  {t('learning.suggestion.apply')}
                 </button>
                 <button
                   onClick={handleDismiss}
                   className="px-4 py-2 text-sm rounded-lg transition-opacity"
                   style={{ background: '#F8FAFC', color: '#475569' }}
                 >
-                  Dismiss
+                  {t('learning.suggestion.dismiss')}
                 </button>
               </div>
             )}
@@ -218,7 +222,7 @@ export default function LearningIndex({
             style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}
           >
             <p className="text-sm" style={{ color: '#94A3B8' }}>
-              No AI suggestion yet. Reach {threshold} corrections to unlock learning insights.
+              {t('learning.empty', { threshold })}
             </p>
           </div>
         )}

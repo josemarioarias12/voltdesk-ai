@@ -1,90 +1,60 @@
+import type { TFunction } from "i18next";
 import type { FeatureCard, TrustMetric, StatItem, NavLink, FooterSection } from "./types";
 
-export const NAV_LINKS: NavLink[] = [
-  { label: "Features", href: "#features" },
-  { label: "Demo", href: "#demo" },
+const FEATURE_ICONS: string[] = [
+  `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+  `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>`,
+  `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>`,
+  `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M2321v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
+  `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
+  `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+  `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
 ];
 
-export const STATS: StatItem[] = [
-  { value: 342, suffix: "+", label: "Tickets Processed Daily" },
-  { value: 3, suffix: "s", label: "Average AI Classification", prefix: "< " },
-  { value: 91, suffix: "%", label: "SLA Compliance Rate" },
-  { value: 60, suffix: "%", label: "Reduction in Manual Overhead" },
+const FEATURE_HREFS: string[] = [
+  "/tickets",
+  "/agent_actions",
+  "/tickets",
+  "/hr",
+  "/inventory",
+  "/admin",
+  "/assistant/conversation",
+  "/admin/compliance",
 ];
 
-export const FEATURES: FeatureCard[] = [
-  {
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
-    title: "Smart Ticket Engine",
-    description: "Auto-classify, prioritize, and route tickets in under 3 seconds with GPT-4o.",
-    badge: "< 3s",
-    href: "/tickets",
-  },
-  {
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>`,
-    title: "AI Agent Orchestrator",
-    description: "Let AI resolve routine tickets automatically with full audit trail and human approval.",
-    badge: "Auto-pilot",
-    href: "/agent_actions",
-  },
-  {
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>`,
-    title: "Predictive SLA Engine",
-    description: "Know which tickets will breach SLA before they do. Act before the deadline.",
-    badge: "Predictive",
-    href: "/tickets",
-  },
-  {
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
-    title: "HR Operations Hub",
-    description: "AI-generated onboarding plans, leave request workflows, and sentiment trending across your workforce.",
-    badge: "AI Onboarding",
-    href: "/hr",
-  },
-  {
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
-    title: "IT Asset Management",
-    description: "Track inventory, assign equipment, and catch at-risk assets before they become incidents with AI risk scoring.",
-    badge: "AI Risk Score",
-    href: "/inventory",
-  },
-  {
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
-    title: "Executive Intelligence & Reports",
-    description: "Automated weekly reports in plain language — KPIs, bottlenecks, and recommendations generated by GPT-4o every Monday.",
-    badge: "Automated",
-    href: "/admin",
-  },
-  {
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
-    title: "Volt Copilot",
-    description: "Ask about your tickets, leave requests, or assets in plain language, and generate reports in PDF, Excel, or CSV on demand. One assistant for managers, agents, and employees alike.",
-    badge: "New",
-    href: "/assistant/conversation",
-  },
-  {
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
-    title: "Enterprise Compliance",
-    description: "SOC 2-ready audit logs, GDPR right to forget, and data retention policies built in.",
-    badge: "SOC 2",
-    href: "/admin/compliance",
-  },
-];
+export function getNavLinks(t: TFunction): NavLink[] {
+  return [
+    { label: t("nav.features"), href: "#features" },
+    { label: t("nav.demo"), href: "#demo" },
+  ];
+}
 
-export const TRUST_METRICS: TrustMetric[] = [
-  {
-    title: "Full audit trail on every decision",
-    description: "Every AI classification, agent action, and data access is logged with model, prompt, and confidence score — exportable for compliance review.",
-  },
-  {
-    title: "Multi-provider AI, no lock-in",
-    description: "GPT-4o, Claude Sonnet, and Gemini Flash route automatically per workspace settings, with fallback chains if one provider fails.",
-  },
-  {
-    title: "Built for multi-tenant isolation",
-    description: "Workspace-scoped data at the database level, verified in the test suite — one tenant can never see another's records.",
-  },
-];
+export function getStats(t: TFunction): StatItem[] {
+  return [
+    { value: 342, suffix: "+", label: t("stats.ticketsProcessed") },
+    { value: 3, suffix: "s", label: t("stats.avgClassification"), prefix: "< " },
+    { value: 91, suffix: "%", label: t("stats.slaCompliance") },
+    { value: 60, suffix: "%", label: t("stats.manualOverhead") },
+  ];
+}
+
+export function getFeatures(t: TFunction): FeatureCard[] {
+  const items = t("features.items", { returnObjects: true }) as { title: string; description: string; badge: string }[];
+  return items.map((item, i) => ({
+    ...item,
+    icon: FEATURE_ICONS[i],
+    href: FEATURE_HREFS[i],
+  }));
+}
+
+export function getTrustMetrics(t: TFunction): TrustMetric[] {
+  return t("trust.items", { returnObjects: true }) as TrustMetric[];
+}
+
+export function getFooterSections(t: TFunction): FooterSection[] {
+  return t("footer.sections", { returnObjects: true }) as FooterSection[];
+}
 
 export const TECH_STACK = [
   {
@@ -104,7 +74,7 @@ export const TECH_STACK = [
   },
   {
     name: "OpenAI",
-    svg: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#000000" d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.032.067L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.676l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0L4.5 14.135a4.504 4.504 0 0 1-2.16-6.24zm16.597 3.855l-5.843-3.374L15.115 7.2a.076.076 0 0 1 .071 0l4.316 2.487a4.5 4.5 0 0 1-.676 8.123v-5.68a.79.79 0 0 0-.389-.68zm2.01-3.023l-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .028-.061l4.316-2.482a4.5 4.5 0 0 1 6.675 4.66zm-12.64 4.135l-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.142.08L8.704 5.46a.795.795 0 0 0-.393.681zm1.097-2.365l2.602-1.5 2.607 1.5v2.993l-2.597 1.5-2.607-1.5z"/></svg>`,
+    svg: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#000000" d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.080 0 1-.032.067L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.676l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0L4.5 14.135a4.504 4.504 0 0 1-2.16-6.24zm16.597 3.855l-5.843-3.374L15.115 7.2a.076.076 0 0 1 .071 0l4.316 2.487a4.5 4.5 0 0 1-.676 8.123v-5.68a.79.79 0 0 0-.389-.68zm2.01-3.023l-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .028-.061l4.316-2.482a4.5 4.5 0 0 1 6.675 4.66zm-12.64 4.135l-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.142.08L8.704 5.46a.795.795 0 0 0-.393.681zm1.097-2.365l2.602-1.5 2.607 1.5v2.993l-2.597 1.5-2.607-1.5z"/></svg>`,
     bg: "rgba(0,0,0,0.06)",
   },
   {
@@ -126,42 +96,5 @@ export const TECH_STACK = [
     name: "pgvector",
     svg: `<svg viewBox="0 0 24 24" fill="none" stroke="#028090" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>`,
     bg: "rgba(2,128,144,0.1)",
-  },
-];
-
-export const FOOTER_SECTIONS: FooterSection[] = [
-  {
-    title: "Product",
-    links: [
-      { label: "Features", href: "#features" },
-      { label: "Changelog", href: "#" },
-      { label: "Roadmap", href: "#" },
-    ],
-  },
-  {
-    title: "Company",
-    links: [
-      { label: "About", href: "#" },
-      { label: "Blog", href: "#" },
-      { label: "Careers", href: "#" },
-      { label: "Press", href: "#" },
-    ],
-  },
-  {
-    title: "Resources",
-    links: [
-      { label: "Documentation", href: "#" },
-      { label: "Status", href: "#" },
-      { label: "Support", href: "/login" },
-    ],
-  },
-  {
-    title: "Legal",
-    links: [
-      { label: "Privacy Policy", href: "#" },
-      { label: "Terms of Service", href: "#" },
-      { label: "GDPR", href: "#" },
-      { label: "Security", href: "#" },
-    ],
   },
 ];

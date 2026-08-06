@@ -1,8 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { NAV_LINKS } from "./constants";
+import { useTranslation } from "react-i18next";
+import { getNavLinks } from "./constants";
+import { useLocale } from "@/hooks/useLocale";
 
 export default function Navbar() {
+  const { t } = useTranslation("landing");
+  const { locale, toggleLocale } = useLocale();
+  const NAV_LINKS = getNavLinks(t);
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -78,14 +83,24 @@ export default function Navbar() {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <a
+            <button
+              onClick={toggleLocale}
+              className="nav-signin"
+              style={{ color: "#94a3b8", fontSize: 13, fontWeight: 600, background: "transparent", cursor: "pointer", padding: "6px 10px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", transition: "color 0.2s, border-color 0.2s, background 0.2s" }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)"; e.currentTarget.style.background = "rgba(255,255,255,0.06)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "#94a3b8"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.background = "transparent"; }}
+              aria-label={t("nav.toggleMenu")}
+            >
+              {locale === "en" ? "ES" : "EN"}
+            </button>
+              <a
               href="/login"
               className="nav-signin"
               style={{ color: "#94a3b8", fontSize: 14, textDecoration: "none", padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", transition: "color 0.2s, border-color 0.2s, background 0.2s" }}
               onMouseEnter={(e) => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)"; e.currentTarget.style.background = "rgba(255,255,255,0.06)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.color = "#94a3b8"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.background = "transparent"; }}
             >
-              Sign in
+              {t("nav.signIn")}
             </a>
             <motion.a
               href="mailto:josemarioarias12@gmail.com?subject=Demo%20Request%20-%20VoltDesk%20AI"
@@ -94,14 +109,14 @@ export default function Navbar() {
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
               style={{ background: "linear-gradient(135deg,#028090,#02C39A)", color: "#fff", fontSize: 14, fontWeight: 600, padding: "8px 20px", borderRadius: 8, textDecoration: "none", whiteSpace: "nowrap" }}
             >
-              Request Demo
+              {t("nav.requestDemo")}
             </motion.a>
 
             <button
               className="nav-hamburger"
               onClick={() => setMobileMenuOpen((v) => !v)}
               style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", width: 36, height: 36, borderRadius: 8, cursor: "pointer", display: "none", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 16 }}
-              aria-label="Toggle menu"
+              aria-label={t("nav.toggleMenu")}
             >
               {mobileMenuOpen ? "✕" : "☰"}
             </button>
@@ -119,7 +134,7 @@ export default function Navbar() {
             >
               <div style={{ padding: "20px 24px 24px", display: "flex", flexDirection: "column", gap: 4 }}>
                 {NAV_LINKS.map((link) => (
-                  <a
+               <a
                     key={link.label}
                     href={link.href}
                     onClick={(e) => handleAnchorClick(e, link.href)}
@@ -131,9 +146,15 @@ export default function Navbar() {
                   </a>
                 ))}
                 <div style={{ height: 1, background: "rgba(255,255,255,0.07)", margin: "8px 0" }} />
-                <a href="/login" style={{ color: "#94a3b8", fontSize: 15, textDecoration: "none", padding: "10px 12px", borderRadius: 8 }}>Sign in</a>
+                <button
+                  onClick={toggleLocale}
+                  style={{ color: "#94a3b8", fontSize: 15, textDecoration: "none", padding: "10px 12px", borderRadius: 8, background: "transparent", border: "none", textAlign: "left", cursor: "pointer" }}
+                >
+                  {locale === "en" ? "Español" : "English"}
+                </button>
+                <a href="/login" style={{ color: "#94a3b8", fontSize: 15, textDecoration: "none", padding: "10px 12px", borderRadius: 8 }}>{t("nav.signIn")}</a>
                 <a href="mailto:josemarioarias12@gmail.com?subject=Demo%20Request%20-%20VoltDesk%20AI" style={{ color: "#fff", fontSize: 15, fontWeight: 600, textDecoration: "none", padding: "10px 12px", borderRadius: 8, background: "linear-gradient(135deg,#028090,#02C39A)", textAlign: "center", marginTop: 4 }}>
-                    Request Demo
+                    {t("nav.requestDemo")}
                   </a>
               </div>
             </motion.div>

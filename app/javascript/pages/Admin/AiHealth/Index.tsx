@@ -1,4 +1,5 @@
 import { Head } from "@inertiajs/react";
+import { useTranslation } from "react-i18next";
 import AdminLayout from "@/components/AdminLayout";
 import {
   BarChart,
@@ -73,6 +74,8 @@ function formatOperation(op: string): string {
 }
 
 export default function AiHealthIndex({ metrics, period_days }: Props) {
+  const { t } = useTranslation("admin");
+
   const distributionData = Object.entries(metrics.confidence_distribution).map(
     ([bucket, count]) => ({ bucket, count })
   );
@@ -90,17 +93,17 @@ export default function AiHealthIndex({ metrics, period_days }: Props) {
 
   return (
     <>
-      <Head title="AI Health Dashboard" />
+      <Head title={t("aiHealth.pageTitle")} />
       <AdminLayout>
         <div className="p-6 space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold" style={{ color: NAVY }}>
-                AI Health Dashboard
+                {t("aiHealth.header.title")}
               </h1>
               <p className="text-sm text-gray-500 mt-1">
-                Last {period_days} days · {metrics.total_operations} operations audited
+                {t("aiHealth.header.subtitle", { days: period_days, count: metrics.total_operations })}
               </p>
             </div>
           </div>
@@ -108,27 +111,27 @@ export default function AiHealthIndex({ metrics, period_days }: Props) {
           {/* KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <KpiCard
-              label="Total Operations"
+              label={t("aiHealth.kpi.totalOperations")}
               value={metrics.total_operations.toLocaleString()}
-              sub="AI calls logged"
+              sub={t("aiHealth.kpi.aiCallsLogged")}
               color={TEAL}
             />
             <KpiCard
-              label="Success Rate"
+              label={t("aiHealth.kpi.successRate")}
               value={`${metrics.success_rate}%`}
-              sub="Non-error responses"
+              sub={t("aiHealth.kpi.nonErrorResponses")}
               color={metrics.success_rate >= 90 ? MINT : RED}
             />
             <KpiCard
-              label="Time Saved"
+              label={t("aiHealth.kpi.timeSaved")}
               value={`${metrics.estimated_time_saved}h`}
-              sub={`vs ${period_days}d manual effort`}
+              sub={t("aiHealth.kpi.vsManualEffort", { days: period_days })}
               color={TEAL}
             />
             <KpiCard
-              label="Ops Below Threshold"
+              label={t("aiHealth.kpi.opsBelowThreshold")}
               value={metrics.operations_below_threshold.length.toString()}
-              sub="Avg confidence < 0.70"
+              sub={t("aiHealth.kpi.avgConfidenceBelow")}
               color={metrics.operations_below_threshold.length > 0 ? AMBER : MINT}
             />
           </div>
@@ -136,7 +139,7 @@ export default function AiHealthIndex({ metrics, period_days }: Props) {
           {/* Confidence Distribution */}
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <h2 className="text-base font-semibold mb-4" style={{ color: SLATE }}>
-              Confidence Score Distribution
+              {t("aiHealth.confidenceDistribution")}
             </h2>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={distributionData} barSize={48}>
@@ -144,7 +147,7 @@ export default function AiHealthIndex({ metrics, period_days }: Props) {
                 <XAxis dataKey="bucket" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip
-                  formatter={((value: number) => [value, "Operations"]) as never}
+                  formatter={((value: number) => [value, t("aiHealth.tooltip.operations")]) as never}
                   contentStyle={{ borderRadius: 8, fontSize: 12 }}
                 />
                 <Bar dataKey="count" radius={[4, 4, 0, 0]}>
@@ -161,7 +164,7 @@ export default function AiHealthIndex({ metrics, period_days }: Props) {
           {metrics.operations_below_threshold.length > 0 && (
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
               <h2 className="text-base font-semibold mb-4" style={{ color: SLATE }}>
-                Operations Below Confidence Threshold (0.70)
+                {t("aiHealth.belowThreshold")}
               </h2>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={belowThresholdData} layout="vertical" barSize={20}>
@@ -169,7 +172,7 @@ export default function AiHealthIndex({ metrics, period_days }: Props) {
                   <XAxis type="number" domain={[0, 1]} tick={{ fontSize: 12 }} />
                   <YAxis dataKey="name" type="category" width={160} tick={{ fontSize: 11 }} />
                   <Tooltip
-                    formatter={((value: number) => [value.toFixed(3), "Avg Confidence"]) as never}
+                    formatter={((value: number) => [value.toFixed(3), t("aiHealth.tooltip.avgConfidence")]) as never}
                     contentStyle={{ borderRadius: 8, fontSize: 12 }}
                   />
                   <Bar dataKey="confidence" radius={[0, 4, 4, 0]}>
@@ -182,7 +185,7 @@ export default function AiHealthIndex({ metrics, period_days }: Props) {
 
               {/* Recommendations */}
               <div className="mt-6 space-y-3">
-                <h3 className="text-sm font-semibold text-gray-600">Automatic Recommendations</h3>
+                <h3 className="text-sm font-semibold text-gray-600">{t("aiHealth.recommendations")}</h3>
                 {metrics.operations_below_threshold.map((op) => (
                   <RecommendationCard key={op.operation} op={op} />
                 ))}
@@ -193,7 +196,7 @@ export default function AiHealthIndex({ metrics, period_days }: Props) {
           {/* Cost per Operation */}
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <h2 className="text-base font-semibold mb-4" style={{ color: SLATE }}>
-              Average Cost per Operation (USD)
+              {t("aiHealth.costPerOperation")}
             </h2>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={costData} barSize={36}>
@@ -201,7 +204,7 @@ export default function AiHealthIndex({ metrics, period_days }: Props) {
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} angle={-20} textAnchor="end" height={50} />
                 <YAxis tick={{ fontSize: 12 }} tickFormatter={(v: number) => `$${v.toFixed(4)}`} />
                 <Tooltip
-                  formatter={((value: number) => [`$${value.toFixed(6)}`, "Avg Cost"]) as never}
+                  formatter={((value: number) => [`$${value.toFixed(6)}`, t("aiHealth.tooltip.avgCost")]) as never}
                   contentStyle={{ borderRadius: 8, fontSize: 12 }}
                 />
                 <Bar dataKey="cost" fill={TEAL} radius={[4, 4, 0, 0]} />
@@ -213,18 +216,18 @@ export default function AiHealthIndex({ metrics, period_days }: Props) {
           {metrics.top_failing_operations.length > 0 && (
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
               <h2 className="text-base font-semibold mb-4" style={{ color: SLATE }}>
-                Top Failing Operations
+                {t("aiHealth.topFailing.title")}
               </h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="text-left text-gray-500 border-b border-gray-100">
-                      <th className="pb-3 font-medium">Operation</th>
-                      <th className="pb-3 font-medium">Total</th>
-                      <th className="pb-3 font-medium">Errors</th>
-                      <th className="pb-3 font-medium">Error Rate</th>
-                      <th className="pb-3 font-medium">Avg Confidence</th>
-                      <th className="pb-3 font-medium">Recommendation</th>
+                      <th className="pb-3 font-medium">{t("aiHealth.topFailing.operation")}</th>
+                      <th className="pb-3 font-medium">{t("aiHealth.topFailing.total")}</th>
+                      <th className="pb-3 font-medium">{t("aiHealth.topFailing.errors")}</th>
+                      <th className="pb-3 font-medium">{t("aiHealth.topFailing.errorRate")}</th>
+                      <th className="pb-3 font-medium">{t("aiHealth.topFailing.avgConfidence")}</th>
+                      <th className="pb-3 font-medium">{t("aiHealth.topFailing.recommendation")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -292,6 +295,7 @@ function KpiCard({
 }
 
 function RecommendationCard({ op }: { op: OperationBelowThreshold }) {
+  const { t } = useTranslation("admin");
   return (
     <div className="flex gap-3 p-4 rounded-lg bg-amber-50 border border-amber-100">
       <div className="mt-0.5">
@@ -308,7 +312,7 @@ function RecommendationCard({ op }: { op: OperationBelowThreshold }) {
         <p className="text-sm font-semibold text-amber-800">
           {formatOperation(op.operation)}{" "}
           <span className="font-normal text-amber-600">
-            — avg confidence {op.avg_confidence.toFixed(3)} ({op.total} ops)
+            — {t("aiHealth.recommendationSuffix", { confidence: op.avg_confidence.toFixed(3), count: op.total })}
           </span>
         </p>
         <p className="text-xs text-amber-700 mt-1">{op.recommendation}</p>

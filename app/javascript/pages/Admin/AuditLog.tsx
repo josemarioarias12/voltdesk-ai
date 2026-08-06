@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { router } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 import AdminLayout from '@/components/AdminLayout'
 import DatePicker from '@/components/DatePicker'
 
@@ -41,7 +42,8 @@ const OPERATION_COLORS: Record<string, string> = {
   onboarding_plan: '#8B5CF6', executive_report: '#0EA5E9', workspace_assistant_query: '#EC4899',
 }
 
-export default function AuditLog({ logs, pagination, filters, operations, providers, highlight_id }: Props) {
+export default function AuditLog({ logs, pagination, filters, operations, providers, highlight_id }: Props){
+  const { t } = useTranslation('admin')
   const [expanded, setExpanded] = useState<number | null>(highlight_id)
   const [localFilters, setLocalFilters] = useState(filters)
 
@@ -57,15 +59,15 @@ export default function AuditLog({ logs, pagination, filters, operations, provid
   }
 
   return (
-    <AdminLayout title="AI Audit Log">
+    <AdminLayout title={t('auditLog.pageTitle')}>
       <div className="space-y-6">
 
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>AI Audit Log</h1>
+            <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>{t('auditLog.header.title')}</h1>
             <p className="text-sm mt-1" style={{ color: '#475569' }}>
-              Every AI decision tracked and auditable
+              {t('auditLog.header.subtitle')}
             </p>
           </div>
           <div className="flex gap-2">
@@ -74,7 +76,7 @@ export default function AuditLog({ logs, pagination, filters, operations, provid
               className="flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium"
               style={{ borderColor: '#E2E8F0', color: '#475569', background: '#fff' }}
             >
-              <RefreshIcon /> Refresh
+              <RefreshIcon /> {t('auditLog.refresh')}
             </button>
           </div>
         </div>
@@ -87,7 +89,7 @@ export default function AuditLog({ logs, pagination, filters, operations, provid
             className="px-3 py-2 rounded-xl border text-sm"
             style={{ borderColor: '#E2E8F0', background: '#fff', color: '#475569' }}
           >
-            <option value="">All Operations</option>
+            <option value="">{t('auditLog.filters.allOperations')}</option>
             {operations.map(op => <option key={op} value={op}>{op.replace(/_/g, ' ')}</option>)}
           </select>
 
@@ -97,7 +99,7 @@ export default function AuditLog({ logs, pagination, filters, operations, provid
             className="px-3 py-2 rounded-xl border text-sm"
             style={{ borderColor: '#E2E8F0', background: '#fff', color: '#475569' }}
           >
-            <option value="">All Providers</option>
+            <option value="">{t('auditLog.filters.allProviders')}</option>
             {providers.map(p => <option key={p} value={p}>{p}</option>)}
             {!providers.includes('openai') && <option value="openai">openai</option>}
             {!providers.includes('anthropic') && <option value="anthropic">anthropic</option>}
@@ -110,21 +112,21 @@ export default function AuditLog({ logs, pagination, filters, operations, provid
             className="px-3 py-2 rounded-xl border text-sm"
             style={{ borderColor: '#E2E8F0', background: '#fff', color: '#475569' }}
           >
-            <option value="">All Status</option>
-            <option value="success">Success</option>
-            <option value="error">Error</option>
+            <option value="">{t('auditLog.filters.allStatus')}</option>
+            <option value="success">{t('auditLog.filters.success')}</option>
+            <option value="error">{t('auditLog.filters.error')}</option>
           </select>
 
           <DatePicker
             value={localFilters.from || ''}
             onChange={v => { setLocalFilters(f => ({ ...f, from: v })); applyFilters({ from: v }) }}
-            placeholder="From"
+            placeholder={t('auditLog.filters.from')}
           />
           <DatePicker
             value={localFilters.to || ''}
             onChange={v => { setLocalFilters(f => ({ ...f, to: v })); applyFilters({ to: v }) }}
             minDate={localFilters.from ? new Date(localFilters.from) : undefined}
-            placeholder="To"
+            placeholder={t('auditLog.filters.to')}
           />
         </div>
 
@@ -133,20 +135,20 @@ export default function AuditLog({ logs, pagination, filters, operations, provid
           <table className="w-full text-sm">
             <thead>
               <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-                {['Timestamp', 'Operation', 'Provider / Model', 'Tokens', 'Cost', 'Duration', 'Confidence', 'Status', ''].map(h => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#475569' }}>{h}</th>
+                {[t('auditLog.table.timestamp'), t('auditLog.table.operation'), t('auditLog.table.providerModel'), t('auditLog.table.tokens'), t('auditLog.table.cost'), t('auditLog.table.duration'), t('auditLog.table.confidence'), t('auditLog.table.status'), ''].map(h => (
+                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide"style={{ color: '#475569' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {logs.length === 0 && (
-                <tr><td colSpan={9} className="px-4 py-12 text-center text-sm" style={{ color: '#94A3B8' }}>No logs found</td></tr>
+                <tr><td colSpan={9} className="px-4 py-12 text-center text-sm" style={{ color: '#94A3B8' }}>{t('auditLog.table.empty')}</td></tr>
               )}
               {logs.map(log => (
                 <>
                   <tr
                     key={log.id}
-                    style={{ borderBottom: '1px solid #F1F5F9', background: expanded === log.id ? '#F8FAFC' : '#fff' }}
+                    style={{ borderBottom: '1px solid #F1F5F9', background: expanded === log.id ? '#F8FAFC': '#fff' }}
                   >
                     <td className="px-4 py-3 text-xs" style={{ color: '#475569' }}>{log.created_at}</td>
 
@@ -218,7 +220,7 @@ export default function AuditLog({ logs, pagination, filters, operations, provid
                           color:      log.status === 'success' ? '#16A34A' : '#EF4444'
                         }}
                       >
-                        {log.status === 'success' ? '● Success' : '● Error'}
+                        {log.status === 'success' ? t('auditLog.table.statusSuccess') : t('auditLog.table.statusError')}
                       </span>
                     </td>
 
@@ -235,12 +237,12 @@ export default function AuditLog({ logs, pagination, filters, operations, provid
 
                   {/* Expanded row */}
                   {expanded === log.id && (
-                    <tr key={`${log.id}-expanded`} style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+                    <tr key={`${log.id}-expanded`} style={{ background: '#F8FAFC', borderBottom: '1px solid#E2E8F0' }}>
                       <td colSpan={9} className="px-6 py-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#475569' }}>
-                              Prompt
+                              {t('auditLog.expanded.prompt')}
                             </p>
                             <div
                               className="rounded-xl p-3 font-mono text-xs leading-relaxed"
@@ -251,7 +253,7 @@ export default function AuditLog({ logs, pagination, filters, operations, provid
                           </div>
                           <div>
                             <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#475569' }}>
-                              Response
+                              {t('auditLog.expanded.response')}
                             </p>
                             <div
                               className="rounded-xl p-3 font-mono text-xs leading-relaxed"
@@ -262,11 +264,11 @@ export default function AuditLog({ logs, pagination, filters, operations, provid
                           </div>
                         </div>
                         <div className="flex gap-6 mt-3 text-xs" style={{ color: '#94A3B8' }}>
-                          <span>Prompt tokens: <strong style={{ color: '#475569' }}>{log.prompt_tokens}</strong></span>
-                          <span>Completion tokens: <strong style={{ color: '#475569' }}>{log.completion_tokens}</strong></span>
-                          <span>Total: <strong style={{ color: '#475569' }}>{log.total_tokens}</strong></span>
-                          <span>Provider: <strong style={{ color: PROVIDER_COLORS[log.provider || ''] || '#475569' }}>{log.provider || 'unknown'}</strong></span>
-                          <span>Model: <strong style={{ color: '#475569' }}>{log.model}</strong></span>
+                          <span>{t('auditLog.expanded.promptTokens')} <strong style={{ color: '#475569' }}>{log.prompt_tokens}</strong></span>
+                          <span>{t('auditLog.expanded.completionTokens')} <strong style={{ color: '#475569' }}>{log.completion_tokens}</strong></span>
+                          <span>{t('auditLog.expanded.total')} <strong style={{ color: '#475569' }}>{log.total_tokens}</strong></span>
+                          <span>{t('auditLog.expanded.provider')} <strong style={{ color: PROVIDER_COLORS[log.provider || ''] || '#475569' }}>{log.provider || t('auditLog.expanded.unknown')}</strong></span>
+                          <span>{t('auditLog.expanded.model')} <strong style={{ color: '#475569' }}>{log.model}</strong></span>
                         </div>
                       </td>
                     </tr>
@@ -280,7 +282,11 @@ export default function AuditLog({ logs, pagination, filters, operations, provid
           {totalPages > 1 && (
             <div className="flex items-center justify-between px-4 py-3 border-t" style={{ borderColor: '#E2E8F0' }}>
               <span className="text-xs" style={{ color: '#475569' }}>
-                Showing {((pagination.page - 1) * pagination.per_page) + 1}–{Math.min(pagination.page * pagination.per_page, pagination.total)} of {pagination.total} entries
+                {t('auditLog.pagination.showing', {
+                  from: ((pagination.page - 1) * pagination.per_page) + 1,
+                  to: Math.min(pagination.page * pagination.per_page, pagination.total),
+                  total: pagination.total,
+                })}
               </span>
               <div className="flex gap-1">
                 {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => i + 1).map(p => (

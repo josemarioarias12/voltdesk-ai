@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { router } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 import AdminLayout from '@/components/AdminLayout'
 import { useActionCable } from '@/hooks/useActionCable'
 
@@ -31,6 +32,7 @@ const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
 }
 
 export default function Governance({ suggestions, filters }: Props) {
+  const { t } = useTranslation('admin')
   const [localFilters, setLocalFilters] = useState(filters)
 
   useActionCable({ channel: 'GovernanceChannel' }, () => {
@@ -59,14 +61,14 @@ export default function Governance({ suggestions, filters }: Props) {
   }
 
   return (
-    <AdminLayout title="Model Governance">
+    <AdminLayout title={t('governance.pageTitle')}>
       <div className="space-y-6">
 
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>Model Governance</h1>
+            <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>{t('governance.header.title')}</h1>
             <p className="text-sm mt-1" style={{ color: '#475569' }}>
-              Pricing and deprecation checks across configured AI models
+              {t('governance.header.subtitle')}
             </p>
           </div>
           <div className="flex gap-2">
@@ -75,14 +77,14 @@ export default function Governance({ suggestions, filters }: Props) {
               className="px-4 py-2 rounded-xl border text-sm font-medium"
               style={{ borderColor: '#E2E8F0', color: '#475569', background: '#fff' }}
             >
-              Sync Pricing
+              {t('governance.syncPricing')}
             </button>
             <button
               onClick={() => syncNow('deprecation')}
               className="px-4 py-2 rounded-xl border text-sm font-medium"
               style={{ borderColor: '#E2E8F0', color: '#475569', background: '#fff' }}
             >
-              Sync Deprecation
+              {t('governance.syncDeprecation')}
             </button>
           </div>
         </div>
@@ -94,9 +96,9 @@ export default function Governance({ suggestions, filters }: Props) {
             className="px-3 py-2 rounded-xl border text-sm"
             style={{ borderColor: '#E2E8F0', background: '#fff', color: '#475569' }}
           >
-            <option value="">All Types</option>
-            <option value="pricing_update">Pricing Update</option>
-            <option value="model_deprecation">Model Deprecation</option>
+            <option value="">{t('governance.filters.allTypes')}</option>
+            <option value="pricing_update">{t('governance.filters.pricingUpdate')}</option>
+            <option value="model_deprecation">{t('governance.filters.modelDeprecation')}</option>
           </select>
 
           <select
@@ -105,11 +107,11 @@ export default function Governance({ suggestions, filters }: Props) {
             className="px-3 py-2 rounded-xl border text-sm"
             style={{ borderColor: '#E2E8F0', background: '#fff', color: '#475569' }}
           >
-            <option value="">All Status</option>
-            <option value="pending_approval">Pending Approval</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-            <option value="applied">Applied</option>
+            <option value="">{t('governance.filters.allStatus')}</option>
+            <option value="pending_approval">{t('governance.filters.statusPendingApproval')}</option>
+            <option value="approved">{t('governance.filters.statusApproved')}</option>
+            <option value="rejected">{t('governance.filters.statusRejected')}</option>
+            <option value="applied">{t('governance.filters.statusApplied')}</option>
           </select>
         </div>
 
@@ -117,19 +119,19 @@ export default function Governance({ suggestions, filters }: Props) {
           <table className="w-full text-sm">
             <thead>
               <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-                {['Type', 'Model', 'Details', 'Status', 'Reviewed By', ''].map(h => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#475569' }}>{h}</th>
+                {[t('governance.table.type'), t('governance.table.model'), t('governance.table.details'), t('governance.table.status'), t('governance.table.reviewedBy'), ''].map(h => (
+                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide"style={{ color: '#475569' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {suggestions.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-12 text-center text-sm" style={{ color: '#94A3B8' }}>No suggestions found</td></tr>
+                <tr><td colSpan={6} className="px-4 py-12 text-center text-sm" style={{ color: '#94A3B8' }}>{t('governance.table.empty')}</td></tr>
               )}
               {suggestions.map(s => (
                 <tr key={s.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
                   <td className="px-4 py-3 text-xs font-medium" style={{ color: '#475569' }}>
-                    {s.suggestion_type === 'pricing_update' ? 'Pricing Update' : 'Model Deprecation'}
+                    {s.suggestion_type === 'pricing_update' ? t('governance.filters.pricingUpdate') : t('governance.filters.modelDeprecation')}
                   </td>
 
                   <td className="px-4 py-3">
@@ -139,21 +141,24 @@ export default function Governance({ suggestions, filters }: Props) {
                   <td className="px-4 py-3 text-xs" style={{ color: '#475569' }}>
                     {s.suggestion_type === 'pricing_update' ? (
                       <>
-                        ${s.result.current_input} / ${s.result.current_output} → ${s.result.fetched_input} / ${s.result.fetched_output}
+                        {t('governance.priceChange', {
+                          oldInput: s.result.current_input, oldOutput: s.result.current_output,
+                          newInput: s.result.fetched_input, newOutput: s.result.fetched_output,
+                        })}
                       </>
                     ) : (
-                      <>Not found in {s.result.source}'s live model list</>
+                      <>{t('governance.notFoundInSource', { source: s.result.source })}</>
                     )}
                     {s.result.verify_url && (
                       <>
                         {' · '}
-                        <a
+                          <a
                           href={String(s.result.verify_url)}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{ color: '#028090', textDecoration: 'underline' }}
                         >
-                          Verify source
+                          {t('governance.verifySource')}
                         </a>
                       </>
                     )}
@@ -164,7 +169,7 @@ export default function Governance({ suggestions, filters }: Props) {
                       className="px-2 py-1 rounded-full text-xs font-medium"
                       style={{ background: STATUS_COLORS[s.status].bg, color: STATUS_COLORS[s.status].fg }}
                     >
-                      {s.status.replace(/_/g, ' ')}
+                      {t(`governance.status.${s.status}`)}
                     </span>
                   </td>
 
@@ -177,16 +182,16 @@ export default function Governance({ suggestions, filters }: Props) {
                       {s.status === 'pending_approval' && (
                         <>
                           <button onClick={() => approve(s.id)} className="text-xs px-2 py-1 rounded-lg font-medium" style={{ color: '#16A34A', background: '#F0FDF4' }}>
-                            Approve
+                            {t('governance.approve')}
                           </button>
                           <button onClick={() => reject(s.id)} className="text-xs px-2 py-1 rounded-lg font-medium" style={{ color: '#EF4444', background: '#FEF2F2' }}>
-                            Reject
+                            {t('governance.reject')}
                           </button>
                         </>
                       )}
                       {s.status === 'approved' && (
                         <button onClick={() => markApplied(s.id)} className="text-xs px-2 py-1 rounded-lg font-medium" style={{ color: '#028090', background: '#F0FDFA' }}>
-                          Mark Applied
+                          {t('governance.markApplied')}
                         </button>
                       )}
                     </div>

@@ -1,5 +1,6 @@
 import React from 'react'
 import { router } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 import AdminLayout from '@/components/AdminLayout'
 
 interface Props {
@@ -8,8 +9,10 @@ interface Props {
 }
 
 export default function TelegramTest({ status, message }: Props) {
+  const { t } = useTranslation('admin')
+
   return (
-    <AdminLayout title="Telegram Intelligence Test">
+    <AdminLayout title={t('telegramTest.pageTitle')}>
       <div style={{ maxWidth: 600, margin: '40px auto', padding: '0 24px' }}>
         <div style={{
           background: '#fff',
@@ -19,10 +22,10 @@ export default function TelegramTest({ status, message }: Props) {
           boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
         }}>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0D1B2A', marginBottom: 8, letterSpacing: '-0.02em' }}>
-            Telegram Intelligence Test
+            {t('telegramTest.header.title')}
           </h1>
           <p style={{ fontSize: 13, color: '#64748B', marginBottom: 24, lineHeight: 1.75 }}>
-            Analyzes the last 24 hours and sends a predictive insight to the VoltDesk AI Telegram group.
+            {t('telegramTest.header.subtitle')}
           </p>
 
           {message && (
@@ -33,8 +36,8 @@ export default function TelegramTest({ status, message }: Props) {
               padding: '12px 16px',
               marginBottom: 24
             }}>
-              <p style={{ fontSize: 13, color: status === 'sent' ? '#028090' : '#DC2626', lineHeight: 1.75, margin: 0 }}>
-                {status === 'sent' ? 'Sent: ' : 'Failed: '}{message}
+              <p style={{ fontSize: 13, color: status === 'sent' ? '#028090' : '#DC2626', lineHeight: 1.75,margin: 0 }}>
+                {status === 'sent' ? t('telegramTest.sentPrefix') : t('telegramTest.failedPrefix')}{message}
               </p>
             </div>
           )}
@@ -52,7 +55,7 @@ export default function TelegramTest({ status, message }: Props) {
               cursor: 'pointer'
             }}
           >
-            Run Intelligence Test
+            {t('telegramTest.runTest')}
           </button>
         </div>
       </div>

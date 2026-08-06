@@ -1,0 +1,130 @@
+{
+  "nav": {
+    "overview": "Overview",
+    "aiOperations": "AI Operations",
+    "auditLog": "Audit Log",
+    "modelGovernance": "Model Governance",
+    "patternAlerts": "Pattern Alerts",
+    "aiHealth": "AI Health",
+    "benchmark": "Benchmark",
+    "workspace": "Workspace",
+    "users": "Users",
+    "compliance": "Compliance",
+    "dataAccessLog": "Data Access Log",
+    "apiDashboard": "API Dashboard",
+    "tools": "Tools",
+    "operationalTwin": "Operational Twin",
+    "telegramTest": "Telegram Test"
+  },
+  "aiHealth": {
+    "pageTitle": "AI Health Dashboard",
+    "header": { "title": "AI Health Dashboard", "subtitle": "Last {{days}} days \u00b7 {{count}} operations audited" },
+    "kpi": {
+      "totalOperations": "Total Operations", "aiCallsLogged": "AI calls logged",
+      "successRate": "Success Rate", "nonErrorResponses": "Non-error responses",
+      "timeSaved": "Time Saved", "vsManualEffort": "vs {{days}}d manual effort",
+      "opsBelowThreshold": "Ops Below Threshold", "avgConfidenceBelow": "Avg confidence < 0.70"
+    },
+    "confidenceDistribution": "Confidence Score Distribution",
+    "tooltip": { "operations": "Operations", "avgConfidence": "Avg Confidence", "avgCost": "Avg Cost" },
+    "belowThreshold": "Operations Below Confidence Threshold (0.70)",
+    "recommendations": "Automatic Recommendations",
+    "recommendationSuffix": "avg confidence {{confidence}} ({{count}} ops)",
+    "costPerOperation": "Average Cost per Operation (USD)",
+    "topFailing": {
+      "title": "Top Failing Operations",
+      "operation": "Operation", "total": "Total", "errors": "Errors",
+      "errorRate": "Error Rate", "avgConfidence": "Avg Confidence", "recommendation": "Recommendation"
+    }
+  },
+  "auditLog": {
+    "pageTitle": "AI Audit Log",
+    "header": { "title": "AI Audit Log", "subtitle": "Every AI decision tracked and auditable" },
+    "refresh": "Refresh",
+    "filters": {
+      "allOperations": "All Operations",
+      "allProviders": "All Providers",
+      "allStatus": "All Status",
+      "success": "Success",
+      "error": "Error",
+      "from": "From",
+      "to": "To"
+    },
+    "table": {
+      "timestamp": "Timestamp", "operation": "Operation", "providerModel": "Provider / Model",
+      "tokens": "Tokens", "cost": "Cost", "duration": "Duration", "confidence": "Confidence", "status": "Status",
+      "empty": "No logs found",
+      "statusSuccess": "\u25cf Success", "statusError": "\u25cf Error"
+    },
+    "expanded": {
+      "prompt": "Prompt", "response": "Response",
+      "promptTokens": "Prompt tokens:", "completionTokens": "Completion tokens:", "total": "Total:",
+      "provider": "Provider:", "model": "Model:", "unknown": "unknown"
+    },
+    "pagination": { "showing": "Showing {{from}}\u2013{{to}} of {{total}} entries" }
+  },
+  "governance": {
+    "pageTitle": "Model Governance",
+    "header": { "title": "Model Governance", "subtitle": "Pricing and deprecation checks across configured AI models" },
+    "syncPricing": "Sync Pricing",
+    "syncDeprecation": "Sync Deprecation",
+    "filters": {
+      "allTypes": "All Types",
+      "pricingUpdate": "Pricing Update",
+      "modelDeprecation": "Model Deprecation",
+      "allStatus": "All Status",
+      "statusPendingApproval": "Pending Approval",
+      "statusApproved": "Approved",
+      "statusRejected": "Rejected",
+      "statusApplied": "Applied"
+    },
+    "table": {
+      "type": "Type", "model": "Model", "details": "Details", "status": "Status", "reviewedBy": "Reviewed By",
+      "empty": "No suggestions found"
+    },
+    "priceChange": "${{oldInput}} / ${{oldOutput}} \u2192 ${{newInput}} / ${{newOutput}}",
+    "notFoundInSource": "Not found in {{source}}'s live model list",
+    "verifySource": "Verify source",
+    "status": { "pending_approval": "pending approval", "approved": "approved", "rejected": "rejected", "applied": "applied" },
+    "approve": "Approve",
+    "reject": "Reject",
+    "markApplied": "Mark Applied"
+  },
+  "patternAlerts": {
+    "pageTitle": "Pattern Alerts",
+    "header": { "title": "Pattern Alerts", "subtitle": "Statistical anomaly detection across departments, run daily at 9am" },
+    "runNow": "Run Now",
+    "active": "Active ({{count}})",
+    "noActive": "No active anomalies detected.",
+    "zscoreLine": "Z={{zscore}}\u03c3 \u00b7 {{count}} tickets vs baseline of {{baseline}}",
+    "resolve": "Resolve",
+    "resolved": "Resolved ({{count}})",
+    "resolvedAt": "Resolved {{date}}"
+  },
+  "telegramTest": {
+    "pageTitle": "Telegram Intelligence Test",
+    "header": { "title": "Telegram Intelligence Test", "subtitle": "Analyzes the last 24 hours and sends a predictive insight to the VoltDesk AI Telegram group." },
+    "sentPrefix": "Sent: ",
+    "failedPrefix": "Failed: ",
+    "runTest": "Run Intelligence Test"
+  },
+  "overview": {
+    "pageTitle": "Admin",
+    "header": { "title": "Admin Control Center", "subtitle": "AI operations overview for this workspace" },
+    "kpi": {
+      "totalOperations": "Total Operations", "allTime": "all time",
+      "totalCost": "Total AI Cost", "estimated": "estimated",
+      "avgConfidence": "Avg Confidence", "classification": "classification",
+      "avgLatency": "Avg Latency", "perOperation": "per operation",
+      "successRate": "Success Rate", "allOperations": "all operations"
+    },
+    "providerUsage": "Provider Usage",
+    "opsSuffix": "ops",
+    "operationsByType": "Operations by Type",
+    "qrDemo": {
+      "title": "QR Demo Mode",
+      "subtitle": "Activate a 30-minute guest session for live presentations",
+      "activate": "Activate Demo Mode"
+    }
+  }
+}

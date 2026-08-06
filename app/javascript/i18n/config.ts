@@ -16,6 +16,10 @@ import dashboardEn from './locales/en/dashboard.json'
 import dashboardEs from './locales/es/dashboard.json'
 import settingsEn from './locales/en/settings.json'
 import settingsEs from './locales/es/settings.json'
+import adminEn from './locales/en/admin.json'
+import adminEs from './locales/es/admin.json'
+import landingEn from './locales/en/landing.json'
+import landingEs from './locales/es/landing.json'
 
 export const STORAGE_KEY = 'voltdesk_locale'
 export const defaultNS = 'common'
@@ -29,6 +33,8 @@ export const resources = {
     hr: hrEn,
     dashboard: dashboardEn,
     settings: settingsEn,
+    admin: adminEn,
+    landing: landingEn,
   },
   es: {
     common: commonEs,
@@ -38,6 +44,8 @@ export const resources = {
     hr: hrEs,
     dashboard: dashboardEs,
     settings: settingsEs,
+    admin: adminEs,
+    landing: landingEs,
   },
 } as const
 

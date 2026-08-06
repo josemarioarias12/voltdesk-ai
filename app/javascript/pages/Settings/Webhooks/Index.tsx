@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { router } from '@inertiajs/react'
+import { Trans, useTranslation } from 'react-i18next'
 import AppLayout from '@/components/AppLayout'
 import SettingsTabs from '@/components/SettingsTabs'
+import { useLocale } from '@/hooks/useLocale'
 
 interface Webhook {
   id: number
@@ -34,6 +36,8 @@ const EVENT_LABELS: Record<string, string> = {
 }
 
 export default function WebhooksIndex({ webhooks, supported_events, new_secret }: Props) {
+  const { t } = useTranslation('settings')
+  const { speechLang } = useLocale()
   const [showModal, setShowModal]       = useState(false)
   const [name, setName]                 = useState('')
   const [url, setUrl]                   = useState('')
@@ -57,7 +61,7 @@ export default function WebhooksIndex({ webhooks, supported_events, new_secret }
   }
 
   function handleDelete(id: number) {
-    if (!confirm('Delete this webhook? This action cannot be undone.')) return
+    if (!confirm(t('webhooks.deleteConfirm'))) return
     router.delete(`/settings/webhooks/${id}`)
   }
 
@@ -72,8 +76,8 @@ export default function WebhooksIndex({ webhooks, supported_events, new_secret }
   }
 
   function formatDate(iso: string | null) {
-    if (!iso) return 'Never'
-    return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+    if (!iso) return t('webhooks.table.never')
+    return new Date(iso).toLocaleDateString(speechLang, { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })
   }
 
   function statusColor(webhook: Webhook) {
@@ -83,13 +87,13 @@ export default function WebhooksIndex({ webhooks, supported_events, new_secret }
   }
 
   function statusLabel(webhook: Webhook) {
-    if (!webhook.active) return 'Inactive'
-    if (webhook.failure_count >= 2) return `Warning (${webhook.failure_count} failures)`
-    return 'Active'
+    if (!webhook.active) return t('webhooks.table.inactive')
+    if (webhook.failure_count >= 2) return t('webhooks.table.warning', { count: webhook.failure_count })
+    return t('webhooks.table.active')
   }
 
   return (
-    <AppLayout title="Webhooks">
+    <AppLayout title={t('webhooks.pageTitle')}>
       <div className="max-w-4xl space-y-6">
 
         <SettingsTabs active="webhooks" />
@@ -97,9 +101,9 @@ export default function WebhooksIndex({ webhooks, supported_events, new_secret }
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: SLATE }}>Webhooks</h1>
+            <h1 className="text-2xl font-bold" style={{ color: SLATE }}>{t('webhooks.header.title')}</h1>
             <p className="text-sm mt-1" style={{ color: GRAY }}>
-              Receive real-time notifications when events occur in your workspace
+              {t('webhooks.header.subtitle')}
             </p>
           </div>
           <button
@@ -107,7 +111,7 @@ export default function WebhooksIndex({ webhooks, supported_events, new_secret }
             className="px-4 py-2 rounded-xl text-sm font-semibold text-white"
             style={{ background: TEAL }}
           >
-            + Add Webhook
+            {t('webhooks.addButton')}
           </button>
         </div>
 
@@ -116,9 +120,9 @@ export default function WebhooksIndex({ webhooks, supported_events, new_secret }
           <div className="rounded-2xl border-2 p-5 space-y-3" style={{ borderColor: TEAL, background: '#F0FDFA' }}>
             <div className="flex items-center justify-between">
               <p className="text-sm font-semibold" style={{ color: TEAL }}>
-                ✓ Webhook secret — copy it now, it won't be shown again
+                {t('webhooks.newSecretBanner.title')}
               </p>
-              <button onClick={() => setSecretVisible(false)} className="text-xs" style={{ color: GRAY }}>Dismiss</button>
+              <button onClick={() => setSecretVisible(false)} className="text-xs" style={{ color: GRAY }}>{t('webhooks.newSecretBanner.dismiss')}</button>
             </div>
             <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: '#fff', border: `1px solid ${TEAL}` }}>
               <code className="flex-1 text-sm font-mono break-all" style={{ color: SLATE }}>{new_secret}</code>
@@ -127,11 +131,16 @@ export default function WebhooksIndex({ webhooks, supported_events, new_secret }
                 className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white flex-shrink-0"
                 style={{ background: copied ? '#16A34A' : TEAL }}
               >
-                {copied ? '✓ Copied' : 'Copy'}
+                {copied ? t('webhooks.newSecretBanner.copied') : t('webhooks.newSecretBanner.copy')}
               </button>
             </div>
             <p className="text-xs" style={{ color: GRAY }}>
-              Use this secret to verify the <code className="font-mono">X-VoltDesk-Signature</code> header in your endpoint.
+              <Trans
+                t={t}
+                i18nKey="webhooks.newSecretBanner.signatureNote"
+                values={{ header: 'X-VoltDesk-Signature' }}
+                components={{ 1: <code className="font-mono" /> }}
+              />
             </p>
           </div>
         )}
@@ -141,7 +150,7 @@ export default function WebhooksIndex({ webhooks, supported_events, new_secret }
           <table className="w-full text-sm" style={{ minWidth: '720px' }}>
             <thead>
               <tr style={{ background: LIGHT, borderBottom: `1px solid ${BORDER}` }}>
-                {['Name', 'URL', 'Events', 'Last Triggered', 'Status', 'Actions'].map(h => (
+                {[t('webhooks.table.name'), t('webhooks.table.url'), t('webhooks.table.events'), t('webhooks.table.lastTriggered'), t('webhooks.table.status'), t('webhooks.table.actions')].map(h => (
                   <th key={h} className="px-4 py-3 text-left font-semibold" style={{ color: GRAY }}>{h}</th>
                 ))}
               </tr>
@@ -150,7 +159,7 @@ export default function WebhooksIndex({ webhooks, supported_events, new_secret }
               {webhooks.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-4 py-12 text-center text-sm" style={{ color: GRAY }}>
-                    No webhooks configured. Add one to start receiving events.
+                    {t('webhooks.table.empty')}
                   </td>
                 </tr>
               ) : webhooks.map((wh, i) => (
@@ -180,14 +189,14 @@ export default function WebhooksIndex({ webhooks, supported_events, new_secret }
                         className="text-xs font-medium px-3 py-1 rounded-lg"
                         style={{ color: wh.active ? GRAY : TEAL, background: wh.active ? LIGHT : '#F0FDFA' }}
                       >
-                        {wh.active ? 'Disable' : 'Enable'}
+                        {wh.active ? t('webhooks.table.disable') : t('webhooks.table.enable')}
                       </button>
                       <button
                         onClick={() => handleDelete(wh.id)}
                         className="text-xs font-medium px-3 py-1 rounded-lg"
                         style={{ color: '#DC2626', background: '#FEF2F2' }}
                       >
-                        Delete
+                        {t('webhooks.table.delete')}
                       </button>
                     </div>
                   </td>
@@ -202,24 +211,24 @@ export default function WebhooksIndex({ webhooks, supported_events, new_secret }
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: 'rgba(0,0,0,0.4)' }}>
             <div className="rounded-2xl p-6 w-full max-w-md space-y-5" style={{ background: '#fff', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold" style={{ color: SLATE }}>Add Webhook</h2>
+                <h2 className="text-lg font-bold" style={{ color: SLATE }}>{t('webhooks.modal.title')}</h2>
                 <button onClick={() => setShowModal(false)} className="text-lg" style={{ color: GRAY }}>✕</button>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium" style={{ color: SLATE }}>Name</label>
+                <label className="text-sm font-medium" style={{ color: SLATE }}>{t('webhooks.modal.nameLabel')}</label>
                 <input
                   type="text"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  placeholder="e.g. Slack Notifications"
+                  placeholder={t('webhooks.modal.namePlaceholder')}
                   className="w-full px-3 py-2 rounded-xl border text-sm"
                   style={{ borderColor: BORDER, color: SLATE }}
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium" style={{ color: SLATE }}>Endpoint URL</label>
+                <label className="text-sm font-medium" style={{ color: SLATE }}>{t('webhooks.modal.urlLabel')}</label>
                 <input
                   type="url"
                   value={url}
@@ -231,7 +240,7 @@ export default function WebhooksIndex({ webhooks, supported_events, new_secret }
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium" style={{ color: SLATE }}>Events</label>
+                <label className="text-sm font-medium" style={{ color: SLATE }}>{t('webhooks.modal.eventsLabel')}</label>
                 <div className="space-y-2">
                   {supported_events.map(e => (
                     <label key={e} className="flex items-center gap-3 px-3 py-2 rounded-xl border cursor-pointer text-sm"
@@ -256,7 +265,7 @@ export default function WebhooksIndex({ webhooks, supported_events, new_secret }
                 className="w-full py-2.5 rounded-xl text-sm font-semibold text-white"
                 style={{ background: creating || !name.trim() || !url.trim() ? '#94A3B8' : TEAL }}
               >
-                {creating ? 'Creating...' : 'Add Webhook'}
+                {creating ? t('webhooks.modal.creating') : t('webhooks.modal.create')}
               </button>
             </div>
           </div>
