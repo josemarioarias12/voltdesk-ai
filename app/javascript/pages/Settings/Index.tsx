@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { router } from '@inertiajs/react'
 import { ExternalLink } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import AppLayout from '@/components/AppLayout'
 import SettingsTabs from '@/components/SettingsTabs'
 
@@ -52,29 +53,11 @@ const PROVIDER_DOCS_URL: Record<string, string> = {
   gemini:    'https://ai.google.dev/pricing',
 }
 
-const MODEL_LABELS: Record<string, string> = {
-  'gpt-4o':                    'GPT-4o — Most capable',
-  'gpt-4o-mini':               'GPT-4o Mini — Fastest & cheapest',
-  'gpt-4.1':                   'GPT-4.1 — Latest generation',
-  'gpt-4.1-mini':              'GPT-4.1 Mini — Latest, fast',
-  'gpt-5.2':                   'GPT-5.2 — Best tool-calling accuracy',
-  'claude-sonnet-5':           'Claude Sonnet 5 — Balanced',
-  'claude-haiku-4-5-20251001': 'Claude Haiku 4.5 — Ultra fast',
-  'gemini-2.0-flash':          'Gemini 2.0 Flash — Fastest',
-  'gemini-1.5-pro':            'Gemini 1.5 Pro — Most capable',
-}
-
-const CATEGORY_LABELS: Record<string, string> = {
-  general:    'General',
-  it:         'IT',
-  hr:         'HR',
-  facilities: 'Facilities',
-  finance:    'Finance',
-  operations: 'Operations',
-  support:    'Support',
-}
-
 export default function SettingsIndex({ workspace, provider_models, cost_table, automation, ticket_categories }: Props) {
+  const { t } = useTranslation('settings')
+  const { t: tTickets } = useTranslation('tickets')
+  const modelLabels = t('models', { returnObjects: true }) as Record<string, string>
+
   const [activeTab, setActiveTab] = useState<'ai_provider' | 'ai_automation'>('ai_provider')
 
   const [mode, setMode]         = useState(workspace.ai_selection_mode)
@@ -171,14 +154,14 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
   }
 
   return (
-    <AppLayout title="Settings">
+    <AppLayout title={t('pageTitle')}>
       <div className="max-w-4xl space-y-6">
 
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>Settings</h1>
+          <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>{t('header.title')}</h1>
           <p className="text-sm mt-1" style={{ color: '#475569' }}>
-            Configure the AI behavior, automation rules, and integrations for your workspace.
+            {t('header.subtitle')}
           </p>
         </div>
 
@@ -188,9 +171,9 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
           <>
             {/* Selection Mode */}
             <div className="rounded-2xl border p-6" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-              <h2 className="text-base font-semibold mb-1" style={{ color: '#0F172A' }}>AI Selection Mode</h2>
+              <h2 className="text-base font-semibold mb-1" style={{ color: '#0F172A' }}>{t('selectionMode.title')}</h2>
               <p className="text-sm mb-4" style={{ color: '#475569' }}>
-                Automatic lets VoltDesk pick the best model. Manual gives you full control.
+                {t('selectionMode.subtitle')}
               </p>
               <div className="flex gap-3">
                 {(['automatic', 'manual'] as const).map(m => (
@@ -204,9 +187,9 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
                       color:       mode === m ? '#028090' : '#475569',
                     }}
                   >
-                    {m === 'automatic' ? 'Automatic' : 'Manual'}
+                    {m === 'automatic' ? t('selectionMode.automatic') : t('selectionMode.manual')}
                     <p className="text-xs font-normal mt-0.5" style={{ color: mode === m ? '#028090' : '#94A3B8' }}>
-                      {m === 'automatic' ? 'Best model selected per operation' : 'You choose provider and model'}
+                      {m === 'automatic' ? t('selectionMode.automaticHelper') : t('selectionMode.manualHelper')}
                     </p>
                   </button>
                 ))}
@@ -216,9 +199,9 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
             {/* Provider Selector */}
             <div className="rounded-2xl border p-6 space-y-5" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
               <div>
-                <h2 className="text-base font-semibold mb-1" style={{ color: '#0F172A' }}>AI Provider</h2>
+                <h2 className="text-base font-semibold mb-1" style={{ color: '#0F172A' }}>{t('provider.title')}</h2>
                 <p className="text-sm" style={{ color: '#475569' }}>
-                  Primary provider used for ticket classification, RAG suggestions, and reports.
+                  {t('provider.subtitle')}
                 </p>
               </div>
 
@@ -246,7 +229,7 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
                       </div>
                       <p className="text-sm font-medium" style={{ color: '#0F172A', pointerEvents: 'none' }}>{label}</p>
                       <p className="text-xs mt-1" style={{ color: '#94A3B8', pointerEvents: 'none' }}>
-                        {modelCount} models available
+                        {t('provider.modelsAvailable', { count: modelCount })}
                       </p>
                     </button>
                   )
@@ -256,7 +239,8 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
               {/* Model Selector */}
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: '#0F172A' }}>
-                  Model — {provider} has {availableModels.length} models</label>
+                  {t('provider.modelSelectorLabel', { provider, count: availableModels.length })}
+                </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {availableModels.map(m => (
                     <button
@@ -271,7 +255,7 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
                         pointerEvents: 'auto'
                       }}
                     >
-                      {MODEL_LABELS[m] || m}
+                      {modelLabels[m] || m}
                     </button>
                   ))}
                 </div>
@@ -285,10 +269,10 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
                 >
                   <div>
                     <p className="text-sm font-medium" style={{ color: '#028090' }}>
-                      Estimated cost per 1,000 classifications
+                      {t('costEstimator.title')}
                     </p>
                     <p className="text-xs mt-0.5" style={{ color: '#475569' }}>
-                      Based on ~800 tokens avg per ticket
+                      {t('costEstimator.subtitle')}
                     </p>
                   </div>
                   <p className="text-2xl font-bold" style={{ color: '#028090' }}>
@@ -300,9 +284,9 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
 
             {/* Fallback Provider */}
             <div className="rounded-2xl border p-6" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-              <h2 className="text-base font-semibold mb-1" style={{ color: '#0F172A' }}>Fallback Provider</h2>
+              <h2 className="text-base font-semibold mb-1" style={{ color: '#0F172A' }}>{t('fallback.title')}</h2>
               <p className="text-sm mb-4" style={{ color: '#475569' }}>
-                If the primary provider fails after 3 retries, VoltDesk automatically switches to this provider.
+                {t('fallback.subtitle')}
               </p>
               <select
                 value={fallback}
@@ -317,16 +301,16 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
                   ))}
               </select>
               <p className="text-xs mt-2" style={{ color: '#94A3B8' }}>
-                Embeddings always use OpenAI regardless of this setting — pgvector requires 1536-dim vectors.
+                {t('fallback.embeddingsNote')}
               </p>
             </div>
 
             {/* Assistant Model Override */}
             <div className="rounded-2xl border p-6 space-y-5" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
               <div>
-                <h2 className="text-base font-semibold mb-1" style={{ color: '#0F172A' }}>Volt Copilot Model</h2>
+                <h2 className="text-base font-semibold mb-1" style={{ color: '#0F172A' }}>{t('assistant.title')}</h2>
                 <p className="text-sm" style={{ color: '#475569' }}>
-                  Optional override for the workspace assistant. Leave unset to reuse the model above.
+                  {t('assistant.subtitle')}
                 </p>
               </div>
 
@@ -341,9 +325,9 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
                     color:       !assistantProvider ? '#028090' : '#475569',
                   }}
                 >
-                  Use general model
+                  {t('assistant.useGeneral')}
                   <p className="text-xs font-normal mt-0.5" style={{ color: !assistantProvider ? '#028090' : '#94A3B8' }}>
-                    Same as above ({MODEL_LABELS[model] || model})
+                    {t('assistant.useGeneralHelper', { model: modelLabels[model] || model })}
                   </p>
                 </button>
                 <button
@@ -356,9 +340,9 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
                     color:       assistantProvider ? '#028090' : '#475569',
                   }}
                 >
-                  Custom model
-                  <p className="text-xs font-normal mt-0.5" style={{ color: assistantProvider ? '#028090' : '#94A3B8' }}>
-                    Choose a different model for the assistant
+                  {t('assistant.custom')}
+                  <p className="text-xs font-normal mt-0.5" style={{ color: assistantProvider ? '#028090' :'#94A3B8' }}>
+                    {t('assistant.customHelper')}
                   </p>
                 </button>
               </div>
@@ -383,11 +367,11 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
                         >
                           <div className="flex items-center gap-2 mb-2" style={{ pointerEvents: 'none' }}>
                             <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: dot }} />
-                            <span className="text-xs font-bold uppercase tracking-wide" style={{ color: dot }}>{p}</span>
+                            <span className="text-xs font-bold uppercase tracking-wide" style={{ color: dot}}>{p}</span>
                           </div>
                           <p className="text-sm font-medium" style={{ color: '#0F172A', pointerEvents: 'none' }}>{label}</p>
                           <p className="text-xs mt-1" style={{ color: '#94A3B8', pointerEvents: 'none' }}>
-                            {modelCount} models available
+                            {t('provider.modelsAvailable', { count: modelCount })}
                           </p>
                         </button>
                       )
@@ -396,7 +380,7 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
 
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: '#0F172A' }}>
-                      Assistant model
+                      {t('assistant.modelLabel')}
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {assistantAvailableModels.map(m => (
@@ -411,7 +395,7 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
                             color:       assistantModel === m ? '#028090' : '#475569',
                           }}
                         >
-                          {MODEL_LABELS[m] || m}
+                          {modelLabels[m] || m}
                         </button>
                       ))}
                     </div>
@@ -422,14 +406,14 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
 
             {/* Cost Comparison Table */}
             <div className="rounded-2xl border p-6" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-              <h2 className="text-base font-semibold mb-4" style={{ color: '#0F172A' }}>Cost Comparison — All Models</h2>
+              <h2 className="text-base font-semibold mb-4" style={{ color: '#0F172A' }}>{t('costTable.title')}</h2>
               <div className="overflow-x-auto rounded-xl border" style={{ borderColor: '#E2E8F0' }}>
                 <table className="w-full text-sm">
                   <thead>
                     <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-                      <th className="px-4 py-3 text-left font-semibold" style={{ color: '#475569' }}>Provider</th>
-                      <th className="px-4 py-3 text-left font-semibold" style={{ color: '#475569' }}>Model</th>
-                      <th className="px-4 py-3 text-right font-semibold" style={{ color: '#475569' }}>Cost / 1k tickets</th>
+                      <th className="px-4 py-3 text-left font-semibold" style={{ color: '#475569' }}>{t('costTable.provider')}</th>
+                      <th className="px-4 py-3 text-left font-semibold" style={{ color: '#475569' }}>{t('costTable.model')}</th>
+                      <th className="px-4 py-3 text-right font-semibold" style={{ color: '#475569' }}>{t('costTable.costPer1k')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -453,7 +437,7 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}
-                                aria-label={`${PROVIDER_LABELS[row.provider]} pricing documentation`}
+                                aria-label={t('costTable.docsLabel', { provider: PROVIDER_LABELS[row.provider] })}
                                 style={{ color: '#94A3B8', display: 'inline-flex' }}
                               >
                                 <ExternalLink size={13} />
@@ -461,13 +445,13 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
                             </div>
                           </td>
                           <td className="px-4 py-3" style={{ color: '#0F172A' }}>
-                            {MODEL_LABELS[row.model] || row.model}
+                            {modelLabels[row.model] || row.model}
                             {isSelected && (
                               <span
                                 className="ml-2 text-xs px-2 py-0.5 rounded-full font-medium"
                                 style={{ background: '#028090', color: '#fff' }}
                               >
-                                Active
+                                {t('costTable.active')}
                               </span>
                             )}
                           </td>
@@ -486,7 +470,7 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
             <div className="flex items-center justify-between py-2">
               {saved ? (
                 <span className="text-sm font-medium" style={{ color: '#16A34A' }}>
-                  ✓ Configuration saved successfully
+                  ✓ {t('savedAiConfig')}
                 </span>
               ) : <span />}
               <button
@@ -495,7 +479,7 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
                 className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity"
                 style={{ background: saving ? '#94A3B8' : '#028090' }}
               >
-                {saving ? 'Saving...' : 'Save AI Configuration'}
+                {saving ? t('saving') : t('saveAiConfig')}
               </button>
             </div>
           </>
@@ -505,14 +489,14 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
           <>
             {/* Automation Thresholds */}
             <div className="rounded-2xl border p-6" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-              <h2 className="text-base font-semibold mb-1" style={{ color: '#0F172A' }}>Automation thresholds</h2>
+              <h2 className="text-base font-semibold mb-1" style={{ color: '#0F172A' }}>{t('automation.thresholds.title')}</h2>
               <p className="text-sm mb-5" style={{ color: '#475569' }}>
-                Both conditions must be met before the AI agent attempts to resolve a ticket on its own.
+                {t('automation.thresholds.subtitle')}
               </p>
 
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm font-medium" style={{ color: '#0F172A' }}>Minimum urgency score</label>
+                  <label className="text-sm font-medium" style={{ color: '#0F172A' }}>{t('automation.thresholds.minUrgency')}</label>
                   <span className="text-sm font-semibold" style={{ color: '#028090' }}>{urgencyThreshold}</span>
                 </div>
                 <input
@@ -522,13 +506,13 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
                   className="w-full accent-teal-600"
                 />
                 <p className="text-xs mt-1.5" style={{ color: '#94A3B8' }}>
-                  Tickets below this urgency score are always routed to a human agent, regardless of category.
+                  {t('automation.thresholds.minUrgencyHelper')}
                 </p>
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm font-medium" style={{ color: '#0F172A' }}>Minimum match confidence</label>
+                  <label className="text-sm font-medium" style={{ color: '#0F172A' }}>{t('automation.thresholds.minConfidence')}</label>
                   <span className="text-sm font-semibold" style={{ color: '#028090' }}>{similarityPercent}%</span>
                 </div>
                 <input
@@ -538,7 +522,7 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
                   className="w-full accent-teal-600"
                 />
                 <p className="text-xs mt-1.5" style={{ color: '#94A3B8' }}>
-                  Cosine similarity against past resolved tickets — higher means stricter precedent matching.
+                  {t('automation.thresholds.minConfidenceHelper')}
                 </p>
               </div>
             </div>
@@ -547,9 +531,9 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
             <div className="rounded-2xl border p-6" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="text-base font-semibold mb-1" style={{ color: '#0F172A' }}>Human-in-the-loop</h2>
+                  <h2 className="text-base font-semibold mb-1" style={{ color: '#0F172A' }}>{t('automation.hitl.title')}</h2>
                   <p className="text-sm" style={{ color: '#475569', maxWidth: '460px' }}>
-                    Require agent approval before the AI executes an automated resolution.
+                    {t('automation.hitl.subtitle')}
                   </p>
                 </div>
                 <button
@@ -570,18 +554,18 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
               </div>
               <div className="mt-4 px-4 py-3 rounded-xl text-sm" style={{ background: '#F8FAFC', color: '#475569' }}>
                 {humanInLoop ? (
-                  <><strong style={{ color: '#0F172A' }}>Approval required —</strong> the agent prepares the resolution and waits for a human agent to approve or reject it before executing.</>
+                  <><strong style={{ color: '#0F172A' }}>{t('automation.hitl.onLabel')}</strong> {t('automation.hitl.onDescription')}</>
                 ) : (
-                  <><strong style={{ color: '#0F172A' }}>Autonomous mode —</strong> the agent resolves matching tickets immediately, no approval needed.</>
+                  <><strong style={{ color: '#0F172A' }}>{t('automation.hitl.offLabel')}</strong> {t('automation.hitl.offDescription')}</>
                 )}
               </div>
             </div>
 
             {/* Automatable Categories */}
             <div className="rounded-2xl border p-6" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-              <h2 className="text-base font-semibold mb-1" style={{ color: '#0F172A' }}>Automatable categories</h2>
+              <h2 className="text-base font-semibold mb-1" style={{ color: '#0F172A' }}>{t('automation.categories.title')}</h2>
               <p className="text-sm mb-4" style={{ color: '#475569' }}>
-                Only tickets in selected categories are eligible for AI auto-resolution.
+                {t('automation.categories.subtitle')}
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {ticket_categories.map(cat => {
@@ -598,7 +582,7 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
                         color:       isSelected ? '#028090' : '#475569',
                       }}
                     >
-                      {CATEGORY_LABELS[cat] ?? cat}
+                      {tTickets('category.' + cat) !== 'category.' + cat ? tTickets('category.' + cat) : cat}
                     </button>
                   )
                 })}
@@ -609,7 +593,7 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
             <div className="flex items-center justify-between py-2">
               {savedAutomation ? (
                 <span className="text-sm font-medium" style={{ color: '#16A34A' }}>
-                  ✓ Automation settings saved successfully
+                  ✓ {t('automation.saved')}
                 </span>
               ) : <span />}
               <button
@@ -618,7 +602,7 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
                 className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity"
                 style={{ background: savingAutomation ? '#94A3B8' : '#028090' }}
               >
-                {savingAutomation ? 'Saving...' : 'Save Automation Settings'}
+                {savingAutomation ? t('saving') : t('automation.saveButton')}
               </button>
             </div>
           </>

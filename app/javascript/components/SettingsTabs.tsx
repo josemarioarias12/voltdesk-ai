@@ -1,10 +1,11 @@
 import { router } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 
 export type SettingsTabKey = 'ai_provider' | 'ai_automation' | 'api_keys' | 'webhooks' | 'learning' | 'profile' | 'passkeys'
 
 interface TabDef {
   key: SettingsTabKey
-  label: string
+  labelKey: string
   path?: string
 }
 
@@ -14,13 +15,13 @@ interface Props {
 }
 
 const TABS: TabDef[] = [
-  { key: 'ai_provider', label: 'AI Provider' },
-  { key: 'ai_automation', label: 'AI Automation' },
-  { key: 'api_keys', label: 'API Keys', path: '/settings/api_keys' },
-  { key: 'webhooks', label: 'Webhooks', path: '/settings/webhooks' },
-  { key: 'learning', label: 'Learning', path: '/settings/learning' },
-  { key: 'passkeys', label: 'Passkeys', path: '/settings/passkeys' },
-  { key: 'profile', label: 'Profile', path: '/settings/profile' },
+  { key: 'ai_provider', labelKey: 'tabs.aiProvider' },
+  { key: 'ai_automation', labelKey: 'tabs.aiAutomation' },
+  { key: 'api_keys', labelKey: 'tabs.apiKeys', path: '/settings/api_keys' },
+  { key: 'webhooks', labelKey: 'tabs.webhooks', path: '/settings/webhooks' },
+  { key: 'learning', labelKey: 'tabs.learning', path: '/settings/learning' },
+  { key: 'passkeys', labelKey: 'tabs.passkeys', path: '/settings/passkeys' },
+  { key: 'profile', labelKey: 'tabs.profile', path: '/settings/profile' },
 ]
 
 const TEAL  = '#028090'
@@ -28,6 +29,8 @@ const MUTED = '#94A3B8'
 const BORDER = '#E2E8F0'
 
 export default function SettingsTabs({ active, onLocalTabChange }: Props) {
+  const { t } = useTranslation('settings')
+
   function handleClick(tab: TabDef) {
     if (tab.path) {
       router.get(tab.path)
@@ -52,7 +55,7 @@ export default function SettingsTabs({ active, onLocalTabChange }: Props) {
               marginBottom: '-1px',
             }}
           >
-            {tab.label}
+            {t(tab.labelKey)}
           </button>
         )
       })}

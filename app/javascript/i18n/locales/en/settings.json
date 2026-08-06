@@ -1,0 +1,94 @@
+{
+  "pageTitle": "Settings",
+  "tabs": {
+    "aiProvider": "AI Provider",
+    "aiAutomation": "AI Automation",
+    "apiKeys": "API Keys",
+    "webhooks": "Webhooks",
+    "learning": "Learning",
+    "passkeys": "Passkeys",
+    "profile": "Profile"
+  },
+  "header": {
+    "title": "Settings",
+    "subtitle": "Configure the AI behavior, automation rules, and integrations for your workspace."
+  },
+  "selectionMode": {
+    "title": "AI Selection Mode",
+    "subtitle": "Automatic lets VoltDesk pick the best model. Manual gives you full control.",
+    "automatic": "Automatic",
+    "automaticHelper": "Best model selected per operation",
+    "manual": "Manual",
+    "manualHelper": "You choose provider and model"
+  },
+  "provider": {
+    "title": "AI Provider",
+    "subtitle": "Primary provider used for ticket classification, RAG suggestions, and reports.",
+    "modelsAvailable": "{{count}} models available",
+    "modelSelectorLabel": "Model \u2014 {{provider}} has {{count}} models"
+  },
+  "costEstimator": {
+    "title": "Estimated cost per 1,000 classifications",
+    "subtitle": "Based on ~800 tokens avg per ticket"
+  },
+  "fallback": {
+    "title": "Fallback Provider",
+    "subtitle": "If the primary provider fails after 3 retries, VoltDesk automatically switches to this provider.",
+    "embeddingsNote": "Embeddings always use OpenAI regardless of this setting \u2014 pgvector requires 1536-dim vectors."
+  },
+  "assistant": {
+    "title": "Volt Copilot Model",
+    "subtitle": "Optional override for the workspace assistant. Leave unset to reuse the model above.",
+    "useGeneral": "Use general model",
+    "useGeneralHelper": "Same as above ({{model}})",
+    "custom": "Custom model",
+    "customHelper": "Choose a different model for the assistant",
+    "modelLabel": "Assistant model"
+  },
+  "costTable": {
+    "title": "Cost Comparison \u2014 All Models",
+    "provider": "Provider",
+    "model": "Model",
+    "costPer1k": "Cost / 1k tickets",
+    "active": "Active",
+    "docsLabel": "{{provider}} pricing documentation"
+  },
+  "saveAiConfig": "Save AI Configuration",
+  "saving": "Saving...",
+  "savedAiConfig": "Configuration saved successfully",
+  "automation": {
+    "thresholds": {
+      "title": "Automation thresholds",
+      "subtitle": "Both conditions must be met before the AI agent attempts to resolve a ticket on its own.",
+      "minUrgency": "Minimum urgency score",
+      "minUrgencyHelper": "Tickets below this urgency score are always routed to a human agent, regardless of category.",
+      "minConfidence": "Minimum match confidence",
+      "minConfidenceHelper": "Cosine similarity against past resolved tickets \u2014 higher means stricter precedent matching."
+    },
+    "hitl": {
+      "title": "Human-in-the-loop",
+      "subtitle": "Require agent approval before the AI executes an automated resolution.",
+      "onLabel": "Approval required \u2014",
+      "onDescription": "the agent prepares the resolution and waits for a human agent to approve or reject it before executing.",
+      "offLabel": "Autonomous mode \u2014",
+      "offDescription": "the agent resolves matching tickets immediately, no approval needed."
+    },
+    "categories": {
+      "title": "Automatable categories",
+      "subtitle": "Only tickets in selected categories are eligible for AI auto-resolution."
+    },
+    "saveButton": "Save Automation Settings",
+    "saved": "Automation settings saved successfully"
+  },
+  "models": {
+    "gpt-4o": "GPT-4o \u2014 Most capable",
+    "gpt-4o-mini": "GPT-4o Mini \u2014 Fastest & cheapest",
+    "gpt-4.1": "GPT-4.1 \u2014 Latest generation",
+    "gpt-4.1-mini": "GPT-4.1 Mini \u2014 Latest, fast",
+    "gpt-5.2": "GPT-5.2 \u2014 Best tool-calling accuracy",
+    "claude-sonnet-5": "Claude Sonnet 5 \u2014 Balanced",
+    "claude-haiku-4-5-20251001": "Claude Haiku 4.5 \u2014 Ultra fast",
+    "gemini-2.0-flash": "Gemini 2.0 Flash \u2014 Fastest",
+    "gemini-1.5-pro": "Gemini 1.5 Pro \u2014 Most capable"
+  }
+}
