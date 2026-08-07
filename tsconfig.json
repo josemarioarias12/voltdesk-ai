@@ -19,7 +19,8 @@
     "paths": {
       "@/*": ["app/javascript/*"]
     },
-    "types": ["@inertiajs/react", "dom-speech-recognition"]
+    "types": ["@inertiajs/react", "dom-speech-recognition"],
+    "skipLibCheck": true
   },
   "include": [
     "app/javascript/**/*"

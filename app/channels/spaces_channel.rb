@@ -30,6 +30,40 @@ class SpacesChannel < ApplicationCable::Channel
     )
   end
 
+  def self.broadcast_avatar_position(workspace, reservation)
+    ActionCable.server.broadcast(
+      "spaces:#{workspace.id}",
+      {
+        type: 'avatar_positioned',
+        reservation: {
+          space_id: reservation.space_id,
+          user_id: reservation.user_id,
+          user_name: reservation.user.full_name,
+          user_avatar_url: avatar_url_for(reservation.user),
+          start_at: reservation.start_at,
+          end_at: reservation.end_at
+        }
+      }
+    )
+  end
+
+  def self.broadcast_avatar_removed(workspace, reservation)
+    ActionCable.server.broadcast(
+      "spaces:#{workspace.id}",
+      {
+        type: 'avatar_removed',
+        space_id: reservation.space_id,
+        user_id: reservation.user_id
+      }
+    )
+  end
+
+  def self.avatar_url_for(user)
+    return nil unless user.avatar.attached?
+
+    Rails.application.routes.url_helpers.url_for(user.avatar)
+  end
+
   def self.compute_utilization(_workspace, space)
     today_reservations = space.space_reservations
                               .active

@@ -3,8 +3,6 @@
 module Facilities
   class CheckAvailability
     SLOT_DURATION_MINUTES = 30
-    BUSINESS_HOURS_START = 8
-    BUSINESS_HOURS_END = 20
 
     def initialize(space:, date:)
       @space = space
@@ -24,11 +22,11 @@ module Facilities
     private
 
     def day_start
-      @date.in_time_zone.change(hour: BUSINESS_HOURS_START)
+      @date.in_time_zone.beginning_of_day
     end
 
     def day_end
-      @date.in_time_zone.change(hour: BUSINESS_HOURS_END)
+      @date.in_time_zone.end_of_day
     end
 
     def build_slots(reservations)
@@ -36,15 +34,15 @@ module Facilities
       current = day_start
 
       while current < day_end
-        slot_end = current + SLOT_DURATION_MINUTES.minutes
-        reserved = reservations.any? do |res|
-          res.start_at < slot_end && res.end_at > current
-        end
+        slot_end = [current + SLOT_DURATION_MINUTES.minutes, day_end].min
+        reserved = reservations.select { |res| res.start_at < slot_end && res.end_at > current }
+                               .sum(&:attendees_count)
 
         slots << {
           start_at: current.iso8601,
           end_at: slot_end.iso8601,
-          available: !reserved
+          available: reserved < @space.capacity,
+          remaining: [@space.capacity - reserved, 0].max
         }
 
         current = slot_end

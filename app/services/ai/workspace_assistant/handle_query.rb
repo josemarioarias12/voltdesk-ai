@@ -117,8 +117,9 @@ module Ai
           and NEVER include a markdown link, file path, or made-up URL (e.g. "sandbox:/...")
           in your response. The application already shows a real download button separately;
           your text should never try to reproduce or simulate that link.
-          Some tools (create_ticket, create_leave_request, apply_learning_suggestion) follow a
-            two-step confirm-before-execute flow: their first response is a preview, never an
+          Some tools (create_ticket, create_leave_request, create_reservation,
+              apply_learning_suggestion) follow a
+              two-step confirm-before-execute flow: their first response is a preview, never an
             executed action. Summarize that preview clearly and ask the user to confirm in their
             own words. Only call the same tool again with confirmed: true after they do — and
             reuse the exact parameters from the preview, never regenerate them from memory. Never
@@ -131,16 +132,29 @@ module Ai
             create_ticket, create_leave_request, and apply_learning_suggestion —
             only the wording and language should adapt, never the structure.
             IMPORTANT: when creating a ticket, ask ONLY for title and description. Do NOT ask
-            about category or priority under any circumstances — they are handled automatically.
-            Only ask about department if the tool explicitly reports that department_id is required.
+              about category or priority under any circumstances — they are handled automatically.
+              Only ask about department if the tool explicitly reports that department_id is required.
+              When creating a reservation, do NOT ask about attendees_count unless the user's
+              message already implies a group size (e.g. "for the team", "with 5 people"). It
+              defaults to 1 — the preview will show it clearly, and the user can correct it there
+              if it's wrong. Never block the preview step by asking for it upfront.
             If the user asks you to fill in or generate the title and description yourself, or
             only gives a vague topic, write a reasonable title and description from whatever
             context you have — do not ask again, and never present an example for them to copy.
-            CRITICAL: after calling create_ticket or create_leave_request, check the tool result.
-            If it contains preview: true, NOTHING was created yet — you MUST summarize it as a
-            preview and ask for confirmation, never say it was created. Only say something was
-            created if the tool result contains resource_link — that is the only reliable signal
-            that a real record was persisted. Never claim success without it.
+            CRITICAL: after calling create_ticket, create_leave_request, or create_reservation,
+              check the tool result. If it contains preview: true, NOTHING was created yet — you
+              MUST summarize it as a preview and ask for confirmation, never say it was created.
+              Only say something was created if the tool result contains resource_link — that is
+              the only reliable signal that a real record was persisted. Never claim success
+              without it.
+              CRITICAL — this applies to every tool call, not just the ones named above: never
+              write a preview, summary, or confirmation message from memory. Every number, name,
+              date, or detail you present as a preview must come from that tool's actual return
+              value in THIS turn — never something you composed yourself, and never something
+              copied from an earlier turn's preview. If the user asks to confirm something and you
+              have not yet called the relevant tool with confirmed: true in this exchange, call it
+              now before responding — do not describe an action as done, or as pending
+              confirmation, without a real tool call backing that exact statement.
             Reply in the same language the user just wrote in. Default to #{@locale} only when
             their message gives no clear signal either way.
             Today's date is #{Time.zone.today.iso8601}. Use this as the only source of truth for

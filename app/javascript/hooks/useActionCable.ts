@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { cable } from '@/entrypoints/inertia'
+import { cable } from '@/lib/cable'
 
 interface UseActionCableOptions {
   channel: string

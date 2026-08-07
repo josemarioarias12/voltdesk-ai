@@ -172,6 +172,7 @@ Rails.application.routes.draw do
     resources :reservations, only: [] do
       member do
         patch :cancel
+        patch :reschedule
       end
     end
   end

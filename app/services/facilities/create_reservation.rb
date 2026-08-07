@@ -10,17 +10,9 @@ module Facilities
 
     def call
       space = @workspace.spaces.find_by(id: @params[:space_id])
-      return ServiceResult.failure('Space not found') unless space
+      return ServiceResult.failure(unknown_space_message) unless space
 
       return ServiceResult.failure('Space is not available') unless space.status_available?
-
-      conflict = find_conflict(space, @params[:start_at], @params[:end_at])
-      if conflict
-        return ServiceResult.failure(
-          "Space is already reserved from #{conflict.start_at.strftime('%H:%M')} " \
-          "to #{conflict.end_at.strftime('%H:%M')} by #{conflict.user.full_name}"
-        )
-      end
 
       reservation = @workspace.space_reservations.build(
         space: space,
@@ -34,6 +26,7 @@ module Facilities
 
       if reservation.save
         broadcast_update(space)
+        broadcast_avatar_position(reservation)
         ServiceResult.success(reservation)
       else
         ServiceResult.failure(reservation.errors.full_messages.join(', '))
@@ -42,16 +35,17 @@ module Facilities
 
     private
 
-    def find_conflict(space, start_at, end_at)
-      space.space_reservations
-           .active
-           .overlapping(start_at, end_at)
-           .includes(:user)
-           .first
+    def unknown_space_message
+      valid = @workspace.spaces.order(:id).map { |s| "#{s.id}: #{s.name}" }.join(', ')
+      "No space has id #{@params[:space_id]}. Valid space ids are — #{valid}."
     end
 
     def broadcast_update(space)
       SpacesChannel.broadcast_space_update(@workspace, space)
+    end
+
+    def broadcast_avatar_position(reservation)
+      SpacesChannel.broadcast_avatar_position(@workspace, reservation)
     end
   end
 end

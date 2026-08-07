@@ -1,11 +1,11 @@
 import '@/i18n/config'
-
 import { createInertiaApp } from '@inertiajs/react'
+export { cable } from '@/lib/cable'
 
 void createInertiaApp({
   pages: "../pages",
 
-  strictMode: true,
+  strictMode: false,
 
   defaults: {
     form: {
@@ -30,7 +30,3 @@ void createInertiaApp({
     )
   }
 })
-
-import * as ActionCable from '@rails/actioncable'
-ActionCable.logger.enabled = true
-export const cable = ActionCable.createConsumer('/cable')

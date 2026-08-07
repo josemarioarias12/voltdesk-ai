@@ -1,5 +1,6 @@
 import { Head, router, useForm } from "@inertiajs/react";
 import AppLayout from "@/components/AppLayout";
+import DatePicker from "@/components/DatePicker";
 
 interface Slot {
   start_at: string;
@@ -54,7 +55,7 @@ export default function ReservationNew({ space, slots, date }: Props) {
   return (
     <AppLayout>
       <Head title={`Reserve ${space.name}`} />
-      <div className="max-w-2xl mx-auto px-6 py-8">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
         <button
           onClick={() => router.visit(`/facilities/spaces/${space.id}`)}
           className="text-sm text-slate-500 hover:text-slate-700 mb-4 flex items-center gap-1"
@@ -67,15 +68,13 @@ export default function ReservationNew({ space, slots, date }: Props) {
           Floor {space.floor} · Capacity: {space.capacity} people
         </p>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-6">
+        <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Date</label>
-            <input
-              type="date"
+            <DatePicker
+              label="Date"
               value={date}
-              min={new Date().toISOString().split("T")[0]}
-              onChange={(e) => handleDateChange(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              onChange={handleDateChange}
+              minDate={new Date()}
             />
           </div>
 
@@ -110,7 +109,7 @@ export default function ReservationNew({ space, slots, date }: Props) {
             <label className="block text-sm font-medium text-slate-700 mb-2">
               Available Slots <span className="text-slate-400">({availableSlots.length} available)</span>
             </label>
-            <div className="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto pr-1">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 max-h-64 overflow-y-auto pr-1">
               {slots.map((slot) => {
                 const isSelected = data.start_at === slot.start_at;
                 return (

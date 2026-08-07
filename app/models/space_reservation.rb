@@ -27,6 +27,15 @@ class SpaceReservation < ApplicationRecord
     )
   }
 
+  def self.capacity_conflict_for(space:, start_at:, end_at:, attendees_count:, exclude_id: nil)
+    scope = space.space_reservations.active.overlapping(start_at, end_at)
+    scope = scope.where.not(id: exclude_id) if exclude_id
+    reserved = scope.sum(:attendees_count)
+    return nil if reserved + attendees_count <= space.capacity
+
+    { reserved: reserved, capacity: space.capacity, remaining: [space.capacity - reserved, 0].max }
+  end
+
   private
 
   def end_after_start
@@ -36,10 +45,15 @@ class SpaceReservation < ApplicationRecord
   end
 
   def capacity_not_exceeded
-    return unless space && attendees_count
+    return unless space && attendees_count && start_at && end_at
 
-    return unless attendees_count > space.capacity
+    conflict = self.class.capacity_conflict_for(
+      space: space, start_at: start_at, end_at: end_at, attendees_count: attendees_count, exclude_id: id
+    )
+    return unless conflict
 
-    errors.add(:attendees_count, "exceeds space capacity of #{space.capacity}")
+    errors.add(:attendees_count,
+               "would exceed capacity — only #{conflict[:remaining]} seat(s) available " \
+               "(#{conflict[:reserved]}/#{conflict[:capacity]} already booked for that time)")
   end
 end

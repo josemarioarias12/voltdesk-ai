@@ -38,9 +38,26 @@ module Facilities
 
       if reservation.update(status: :cancelled)
         SpacesChannel.broadcast_space_update(current_workspace, reservation.space)
+        SpacesChannel.broadcast_avatar_removed(current_workspace, reservation)
         redirect_back_or_to(facilities_spaces_path, notice: 'Reservation cancelled.')
       else
         redirect_back_or_to(facilities_spaces_path, alert: 'Could not cancel reservation.')
+      end
+    end
+
+    def reschedule
+      reservation = policy_scope(SpaceReservation).find(params.expect(:id))
+      authorize reservation, :cancel?
+      result = Facilities::RescheduleReservation.new(
+        reservation: reservation,
+        start_at: params.expect(:start_at),
+        end_at: params.expect(:end_at)
+      ).call
+
+      if result.success?
+        redirect_back_or_to(facilities_spaces_path, notice: 'Reservation rescheduled.')
+      else
+        redirect_back_or_to(facilities_spaces_path, alert: result.error)
       end
     end
 

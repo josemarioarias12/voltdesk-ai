@@ -3,9 +3,12 @@
 module Facilities
   class SpacesController < ApplicationController
     def index
-      spaces = policy_scope(Space)
+      spaces = policy_scope(Space).order(:id)
       render inertia: 'Facilities/Spaces/Index', props: {
-        spaces: spaces.includes(:space_reservations).map { |space| serialize_space(space) }
+        spaces: spaces.includes(:space_reservations).map { |space| serialize_space(space) },
+        panel_slots: panel_slots_prop,
+        active_presences: active_presences_prop,
+        my_panel_reservation: my_panel_reservation_prop
       }
     end
 
@@ -45,14 +48,61 @@ module Facilities
 
     private
 
+    def panel_slots_prop
+      return nil if params[:panel_space_id].blank?
+
+      space = policy_scope(Space).find_by(id: params[:panel_space_id])
+      return nil unless space
+
+      Facilities::CheckAvailability.new(space: space, date: Date.current).call.data
+    end
+
+    def active_presences_prop
+      current_workspace.space_reservations
+                       .active
+                       .includes(:user)
+                       .where('end_at > ? AND start_at <= ?', Time.current, Time.current.end_of_day)
+                       .map do |res|
+        {
+          space_id: res.space_id,
+          user_id: res.user_id,
+          user_name: res.user.full_name,
+          avatar_url: SpacesChannel.avatar_url_for(res.user),
+          end_at: res.end_at.iso8601
+        }
+      end
+    end
+
+    def my_panel_reservation_prop
+      return nil if params[:panel_space_id].blank?
+
+      res = policy_scope(SpaceReservation)
+            .active
+            .where(space_id: params[:panel_space_id], user_id: current_user.id)
+            .where('end_at > ?', Time.current)
+            .order(:start_at)
+            .first
+      return nil unless res
+
+      { id: res.id, start_at: res.start_at.iso8601, end_at: res.end_at.iso8601 }
+    end
+
     def serialize_space(space)
       today = space.space_reservations.active.where(start_at: Time.current.all_day).count
       {
         id: space.id, name: space.name, floor: space.floor,
         capacity: space.capacity, status: space.status,
         space_type: space.space_type, equipment: space.equipment,
-        reservations_today: today
+        reservations_today: today,
+        reserved_soon: reserved_soon?(space)
       }
+    end
+
+    def reserved_soon?(space)
+      now = Time.current
+      space.space_reservations.any? do |res|
+        res.status != 'cancelled' && res.start_at > now && res.start_at <= now + 1.hour
+      end
     end
 
     def serialize_reservation(res)
