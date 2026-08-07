@@ -9,6 +9,7 @@ Rails.application.configure do
     else
       policy.script_src :self
     end
+    policy.worker_src :self, :blob
     policy.style_src  :self, :unsafe_inline, 'https://fonts.googleapis.com'
     policy.font_src   :self, :data, 'https://fonts.gstatic.com'
     policy.img_src    :self, :data, :blob, 'https://i.pravatar.cc', 'https://avatars.githubusercontent.com'
