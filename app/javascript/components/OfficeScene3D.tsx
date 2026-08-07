@@ -186,17 +186,23 @@ function nextExpiryMs(map: Map<number, Presence[]>): number | null {
 }
 
 function PillLabel({
-  text, position, fontSize = 0.13, edgeAnchor,
+  text, position, fontSize = 0.13, edgeAnchor, avatarUrl,
 }: {
   text: string
   position: [number, number, number]
   fontSize?: number
   edgeAnchor?: { halfDepth: number }
+  avatarUrl?: string | null
 }) {
   const groupRef = useRef<THREE.Group>(null)
   const anchorRef = useRef<THREE.Group>(null)
   const worldPos = useMemo(() => new THREE.Vector3(), [])
-  const width = Math.max(0.5, text.length * fontSize * 0.58)
+  const textWidth = Math.max(0.5, text.length * fontSize * 0.58)
+  const avatarDiameter = avatarUrl ? fontSize * 1.3 : 0
+  const avatarGap = avatarUrl ? fontSize * 0.3 : 0
+  const totalWidth = textWidth + avatarDiameter + avatarGap
+  const textOffsetX = (avatarDiameter + avatarGap) / 2
+  const avatarOffsetX = -totalWidth / 2 + avatarDiameter / 2
 
   useFrame(({ camera }) => {
     const group = groupRef.current
@@ -222,12 +228,28 @@ function PillLabel({
       <Billboard>
         <group ref={groupRef}>
           <mesh position={[0, 0, -0.005]}>
-            <planeGeometry args={[width + 0.16, fontSize + 0.14]} />
+            <planeGeometry args={[totalWidth + 0.16, fontSize + 0.14]} />
             <meshBasicMaterial color="#ffffff" transparent opacity={0.92} />
           </mesh>
-          <Text font={LABEL_FONT_URL} fontSize={fontSize} color={NAVY} anchorX="center" anchorY="middle">
-          {text}
-        </Text>
+          <Text
+            font={LABEL_FONT_URL}
+            fontSize={fontSize}
+            color={NAVY}
+            anchorX="center"
+            anchorY="middle"
+            position={[textOffsetX, 0, 0]}
+          >
+            {text}
+          </Text>
+          {avatarUrl && (
+            <group position={[avatarOffsetX, 0, 0.002]}>
+              <PhotoErrorBoundary>
+                <Suspense fallback={null}>
+                  <PhotoDisc url={avatarUrl} radius={avatarDiameter / 2} />
+                </Suspense>
+              </PhotoErrorBoundary>
+            </group>
+          )}
         </group>
       </Billboard>
     </group>
@@ -517,29 +539,13 @@ function PhotoDisc({ url, radius = 0.05 }: { url: string; radius?: number }) {
   )
 }
 
-function PhotoBillboard({
-  url, position, radius = 0.05,
-}: { url: string | null; position: [number, number, number]; radius?: number }) {
-  if (!url) return null
-
-  return (
-    <Billboard position={position}>
-      <PhotoErrorBoundary>
-        <Suspense fallback={null}>
-          <PhotoDisc url={url} radius={radius} />
-        </Suspense>
-      </PhotoErrorBoundary>
-    </Billboard>
-  )
-}
 
 function SeatedPerson({
-  seatHeight = SEAT_HEIGHT_CHAIR, bodyColor, variant = AVATAR_VARIANTS[0], photoUrl = null,
+  seatHeight = SEAT_HEIGHT_CHAIR, bodyColor, variant = AVATAR_VARIANTS[0],
 }: {
   seatHeight?: number
   bodyColor?: string
   variant?: typeof AVATAR_VARIANTS[number]
-  photoUrl?: string | null
 }) {
   const shirtColor = bodyColor ?? variant.shirtColor
   const hipY = seatHeight + 0.022
@@ -607,7 +613,6 @@ function SeatedPerson({
         <meshStandardMaterial color={SKIN} roughness={0.6} />
       </mesh>
       <Hair hipY={hipY} />
-      <PhotoBillboard url={photoUrl} position={[0, hipY + 0.285, 0.05]} />
     </group>
   )
 }
@@ -635,8 +640,13 @@ function AvatarMarker({
 
   return (
     <group ref={groupRef} position={position} rotation={[0, seat.rotationY, 0]}>
-      <SeatedPerson seatHeight={seat.seatHeight} variant={variant} photoUrl={avatarUrl} />
-      <PillLabel text={userName} position={[0, seat.seatHeight + 0.46, 0]} fontSize={0.11} />
+      <SeatedPerson seatHeight={seat.seatHeight} variant={variant} />
+      <PillLabel
+        text={userName}
+        position={[0, seat.seatHeight + 0.46, 0]}
+        fontSize={0.11}
+        avatarUrl={avatarUrl}
+      />
     </group>
   )
 }
