@@ -43,7 +43,7 @@ const IDLE_ORBIT_DELAY_MS = 6000
 const IDLE_ORBIT_SPEED = 0.5
 const FLOOR_FADE_MS = 220
 
-const LABEL_FONT_URL = '/fonts/inter-regular.woff2'
+const LABEL_FONT_URL = '/fonts/inter-regular.woff'
 
 interface SceneSpace extends SpaceLike {
   name: string
