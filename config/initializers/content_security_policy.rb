@@ -5,9 +5,9 @@ Rails.application.configure do
   config.content_security_policy do |policy|
     policy.default_src :self
     if Rails.env.development?
-      policy.script_src :self, :unsafe_eval, "http://#{ViteRuby.config.host_with_port}"
+      policy.script_src :self, :unsafe_eval, :blob, "http://#{ViteRuby.config.host_with_port}"
     else
-      policy.script_src :self
+      policy.script_src :self, :blob
     end
     policy.worker_src :self, :blob
     policy.style_src  :self, :unsafe_inline, 'https://fonts.googleapis.com'
