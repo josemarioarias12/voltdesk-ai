@@ -22,7 +22,7 @@ const NAV_ITEMS = [
   { label: 'Tickets',   path: '/tickets',    icon: TicketIcon, badge: true },
   { label: 'HR',        path: '/hr',         icon: HrIcon },
   { label: 'Assets',    path: '/inventory',     icon: AssetIcon },
-  { label: 'Analytics', path: '/analytics',  icon: ChartIcon },
+  { label: 'Facilities', path: '/facilities/spaces', icon: FacilitiesIcon },
   { label: 'Admin',     path: '/admin',      icon: AdminIcon },
   { label: 'Settings',  path: '/settings',   icon: GearIcon },
 ]
@@ -249,8 +249,8 @@ function HrIcon({ active }: { active?: boolean }) {
 function AssetIcon({ active }: { active?: boolean }) {
   return <svg width="16" height="16" fill="none" stroke={active ? '#fff' : '#94A3B8'} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
 }
-function ChartIcon({ active }: { active?: boolean }) {
-  return <svg width="16" height="16" fill="none" stroke={active ? '#fff' : '#94A3B8'} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+function FacilitiesIcon({ active }: { active?: boolean }) {
+  return <svg width="16" height="16" fill="none" stroke={active ? '#fff' : '#94A3B8'} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21h18M5 21V7a2 2 0 012-2h10a2 2 0 012 2v14M9 21v-4a1 1 0 011-1h4a1 1 0 011 1v4M9 9h1m4 0h1M9 13h1m4 0h1" /></svg>
 }
 function AdminIcon({ active }: { active?: boolean }) {
   return <svg width="16" height="16" fill="none" stroke={active ? '#fff' : '#94A3B8'} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
