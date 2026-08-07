@@ -43,6 +43,8 @@ const IDLE_ORBIT_DELAY_MS = 6000
 const IDLE_ORBIT_SPEED = 0.5
 const FLOOR_FADE_MS = 220
 
+const LABEL_FONT_URL = '/fonts/inter-regular.woff2'
+
 interface SceneSpace extends SpaceLike {
   name: string
   status: string
@@ -223,9 +225,9 @@ function PillLabel({
             <planeGeometry args={[width + 0.16, fontSize + 0.14]} />
             <meshBasicMaterial color="#ffffff" transparent opacity={0.92} />
           </mesh>
-          <Text fontSize={fontSize} color={NAVY} anchorX="center" anchorY="middle">
-            {text}
-          </Text>
+          <Text font={LABEL_FONT_URL} fontSize={fontSize} color={NAVY} anchorX="center" anchorY="middle">
+          {text}
+        </Text>
         </group>
       </Billboard>
     </group>
