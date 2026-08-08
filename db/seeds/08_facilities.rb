@@ -5,9 +5,9 @@ Rails.logger.debug '  Creating spaces and reservations...'
 SPACES = [
   { name: 'Main Boardroom',            floor: '5', capacity: 20, space_type: :conference_room,
     equipment: { 'projector' => true, 'video_conferencing' => true, 'whiteboard' => true } },
-  { name: 'Client Meeting Room A',     floor: '3', capacity: 8,  space_type: :meeting_room,
+  { name: 'Client Meeting Room A',     floor: '3', capacity: 4,  space_type: :meeting_room,
     equipment: { 'tv_screen' => true, 'video_conferencing' => true } },
-  { name: 'Client Meeting Room B',     floor: '3', capacity: 8,  space_type: :meeting_room,
+  { name: 'Client Meeting Room B',     floor: '3', capacity: 4,  space_type: :meeting_room,
     equipment: { 'tv_screen' => true } },
   { name: 'Compliance War Room',       floor: '4', capacity: 10, space_type: :meeting_room,
     equipment: { 'whiteboard' => true, 'secure_document_storage' => true } },
