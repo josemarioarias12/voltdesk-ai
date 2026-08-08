@@ -22,7 +22,6 @@ const MINT = '#02C39A'
 const AMBER = '#f59e0b'
 const SKIN = '#e8b48c'
 const HAIR = '#3b3430'
-const AMBIENT_BODY = '#94a3b8'
 const WARM_LIGHT = '#ffd9a0'
 
 const SEAT_HEIGHT_CHAIR = 0.1
@@ -406,14 +405,6 @@ function OpenDeskArea({ occupiedSeats }: { occupiedSeats: number }) {
           <Chair position={[x, 0, z > 0 ? z + 0.18 : z - 0.18]} rotation={z > 0 ? Math.PI : 0} />
         </group>
       ))}
-      {occupiedSeats === 0 && (
-        <group position={[-0.5, 0, -0.4]}>
-          <SeatedPerson bodyColor={AMBIENT_BODY} />
-        </group>
-      )}
-      <group position={[0.5, 0, 0.4]} rotation={[0, Math.PI, 0]}>
-        <SeatedPerson bodyColor={AMBIENT_BODY} />
-      </group>
       <Mug position={[-0.5, 0.166, -0.18]} />
       <Laptop position={[0.5, 0.15, 0.24]} rotation={Math.PI} />
     </group>
