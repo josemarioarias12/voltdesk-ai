@@ -2,6 +2,8 @@
 
 module Facilities
   class ReservationsController < ApplicationController
+    wrap_parameters :space_reservation, include: %i[space_id title start_at end_at attendees_count]
+
     def new
       space = policy_scope(Space).find(params.expect(:space_id))
       authorize SpaceReservation.new(workspace: current_workspace), :create?
@@ -28,7 +30,7 @@ module Facilities
         redirect_to facilities_space_path(reservation_params[:space_id]),
                     notice: 'Reservation confirmed successfully.'
       else
-        redirect_back_or_to(new_facilities_reservation_path, alert: result.error)
+        redirect_back_or_to(new_facilities_space_reservation_path(reservation_params[:space_id]), alert: result.error)
       end
     end
 
