@@ -1,6 +1,7 @@
 import { Head, router, useForm } from "@inertiajs/react";
 import AppLayout from "@/components/AppLayout";
 import DatePicker from "@/components/DatePicker";
+import { IconChevronLeft } from "@/components/Icons";
 
 interface Slot {
   start_at: string;
@@ -58,8 +59,9 @@ export default function ReservationNew({ space, slots, date }: Props) {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
         <button
           onClick={() => router.visit(`/facilities/spaces/${space.id}`)}
-          className="text-sm text-slate-500 hover:text-slate-700 mb-4 flex items-center gap-1"
+          className="text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 mb-4 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors -ml-3"
         >
+          <IconChevronLeft size={14} />
           Back to {space.name}
         </button>
 

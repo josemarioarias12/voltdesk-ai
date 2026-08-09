@@ -1,5 +1,6 @@
 import { Head, router } from "@inertiajs/react";
 import AppLayout from "@/components/AppLayout";
+import { IconChevronLeft } from "@/components/Icons";
 
 interface Reservation {
   id: number;
@@ -44,8 +45,9 @@ export default function SpaceShow({ space, reservations }: Props) {
           <div>
             <button
               onClick={() => router.visit("/facilities/spaces")}
-              className="text-sm text-slate-500 hover:text-slate-700 mb-2 flex items-center gap-1"
+              className="text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 mb-2 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors -ml-3"
             >
+              <IconChevronLeft size={14} />
               Back to Spaces
             </button>
             <h1 className="text-2xl font-bold text-slate-800">{space.name}</h1>

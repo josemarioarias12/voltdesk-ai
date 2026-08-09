@@ -119,3 +119,11 @@ export function IconFaceId({ size = 18, color = 'currentColor' }: { size?: numbe
     </svg>
   )
 }
+
+export function IconChevronLeft({ size = 16, color = 'currentColor' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M15 18l-6-6 6-6" />
+    </svg>
+  )
+}
