@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useActionCable } from "@/hooks/useActionCable";
+import { slugify } from "@/utils/slugify";
 
 interface SpaceData {
   id: number;
@@ -26,10 +27,9 @@ interface FloorMapProps {
 }
 
 const COLS = 4;
-const RECT_W = 160;
-const RECT_H = 90;
-const GAP_X = 40;
-const GAP_Y = 40;
+const CARD_SIZE = 150;
+const GAP_X = 32;
+const GAP_Y = 32;
 const PADDING = 32;
 
 function utilizationColor(pct: number, status: string): string {
@@ -70,11 +70,23 @@ export function FloorMap({ spaces, workspaceId, onSpaceClick }: FloorMapProps) {
     const floorSpaces = liveSpaces.filter((sp) => sp.floor === floor);
     const rows = Math.ceil(floorSpaces.length / COLS);
     floorLayouts.push({ floor, y: totalHeight, spaces: floorSpaces });
-    totalHeight += 28 + rows * (RECT_H + GAP_Y) + GAP_Y;
+    totalHeight += 28 + rows * (CARD_SIZE + GAP_Y) + GAP_Y;
   });
 
-  const svgWidth = COLS * (RECT_W + GAP_X) - GAP_X + PADDING * 2;
+  const svgWidth = COLS * (CARD_SIZE + GAP_X) - GAP_X + PADDING * 2;
   const svgHeight = totalHeight + PADDING;
+
+  const cards = floorLayouts.flatMap(({ spaces: floorSpaces, y }) =>
+    floorSpaces.map((space, idx) => {
+      const col = idx % COLS;
+      const row = Math.floor(idx / COLS);
+      const rx = PADDING + col * (CARD_SIZE + GAP_X);
+      const ry = y + 28 + row * (CARD_SIZE + GAP_Y);
+      const pct = utilizationPct(space);
+      const fill = utilizationColor(pct, space.status);
+      return { space, rx, ry, pct, fill };
+    })
+  );
 
   return (
     <div className="relative w-full overflow-x-auto">
@@ -84,50 +96,60 @@ export function FloorMap({ spaces, workspaceId, onSpaceClick }: FloorMapProps) {
         className="w-full h-auto"
         style={{ minWidth: 600 }}
       >
-        {floorLayouts.map(({ floor, y, spaces: floorSpaces }) =>
-          floorSpaces.map((space, idx) => {
-            const col = idx % COLS;
-            const row = Math.floor(idx / COLS);
-            const rx = PADDING + col * (RECT_W + GAP_X);
-            const ry = y + 28 + row * (RECT_H + GAP_Y);
-            const pct = utilizationPct(space);
-            const fill = utilizationColor(pct, space.status);
+        <defs>
+          <linearGradient id="cardScrim" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#000000" stopOpacity="0" />
+            <stop offset="1" stopColor="#000000" stopOpacity="0.7" />
+          </linearGradient>
+          {cards.map(({ space, rx, ry }) => (
+            <clipPath id={`clip-${space.id}`} key={space.id}>
+              <rect x={rx} y={ry} width={CARD_SIZE} height={CARD_SIZE} rx={10} />
+            </clipPath>
+          ))}
+        </defs>
 
-            return (
-              <g
-                key={space.id}
-                style={{ cursor: "pointer" }}
-                onClick={() => onSpaceClick?.(space)}
-                onMouseEnter={(evt) => {
-                  const svg = svgRef.current;
-                  if (!svg) return;
-                  const rect = svg.getBoundingClientRect();
-                  setTooltip({
-                    visible: true,
-                    x: evt.clientX - rect.left,
-                    y: evt.clientY - rect.top,
-                    space,
-                  });
-                }}
-                onMouseLeave={() => setTooltip((prev) => ({ ...prev, visible: false }))}
-              >
-                <rect x={rx} y={ry} width={RECT_W} height={RECT_H} rx={8} fill={fill} opacity={0.9} />
-                <text x={rx + RECT_W / 2} y={ry + 28} textAnchor="middle" fill="#ffffff"
-                  fontSize={13} fontWeight="600" style={{ pointerEvents: "none" }}>
-                  {space.name.length > 18 ? space.name.slice(0, 16) + "…" : space.name}
-                </text>
-                <text x={rx + RECT_W / 2} y={ry + 48} textAnchor="middle" fill="#ffffff"
-                  fontSize={11} opacity={0.85} style={{ pointerEvents: "none" }}>
-                  Cap: {space.capacity}
-                </text>
-                <text x={rx + RECT_W / 2} y={ry + 66} textAnchor="middle" fill="#ffffff"
-                  fontSize={12} fontWeight="700" style={{ pointerEvents: "none" }}>
-                  {pct.toFixed(0)}% occupied
-                </text>
-              </g>
-            );
-          })
-        )}
+        {cards.map(({ space, rx, ry, pct, fill }) => (
+          <g
+            key={space.id}
+            style={{ cursor: "pointer" }}
+            onClick={() => onSpaceClick?.(space)}
+            onMouseEnter={(evt) => {
+              const svg = svgRef.current;
+              if (!svg) return;
+              const rect = svg.getBoundingClientRect();
+              setTooltip({
+                visible: true,
+                x: evt.clientX - rect.left,
+                y: evt.clientY - rect.top,
+                space,
+              });
+            }}
+            onMouseLeave={() => setTooltip((prev) => ({ ...prev, visible: false }))}
+          >
+            <g clipPath={`url(#clip-${space.id})`}>
+              <rect x={rx} y={ry} width={CARD_SIZE} height={CARD_SIZE} fill="#eef2f7" />
+              <image
+                href={`/images/spaces/${slugify(space.name)}.png`}
+                x={rx}
+                y={ry}
+                width={CARD_SIZE}
+                height={CARD_SIZE}
+                preserveAspectRatio="xMidYMid slice"
+                style={{ pointerEvents: "none" }}
+              />
+              <rect x={rx} y={ry + CARD_SIZE - 56} width={CARD_SIZE} height={56} fill="url(#cardScrim)" style={{ pointerEvents: "none" }} />
+            </g>
+            <circle cx={rx + CARD_SIZE - 14} cy={ry + 14} r={6} fill={fill} stroke="#ffffff" strokeWidth={1.5} style={{ pointerEvents: "none" }} />
+            <text x={rx + 10} y={ry + CARD_SIZE - 30} fill="#ffffff"
+              fontSize={13} fontWeight="700" style={{ pointerEvents: "none" }}>
+              {space.name.length > 18 ? space.name.slice(0, 16) + "…" : space.name}
+            </text>
+            <text x={rx + 10} y={ry + CARD_SIZE - 14} fill="#ffffff"
+              fontSize={11} opacity={0.9} style={{ pointerEvents: "none" }}>
+              {pct.toFixed(0)}% occupied
+            </text>
+          </g>
+        ))}
 
         {floorLayouts.map(({ floor, y }) => (
           <text key={`label-${floor}`} x={PADDING} y={y + 18}
@@ -153,16 +175,16 @@ export function FloorMap({ spaces, workspaceId, onSpaceClick }: FloorMapProps) {
 
       <div className="flex gap-4 mt-3 text-xs text-slate-500">
         <span className="flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded-sm" style={{ background: "#02C39A" }} /> &lt;50% — Available
+          <span className="inline-block w-3 h-3 rounded-full" style={{ background: "#02C39A" }} /> &lt;50% — Available
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded-sm" style={{ background: "#f59e0b" }} /> 50–80% — Busy
+          <span className="inline-block w-3 h-3 rounded-full" style={{ background: "#f59e0b" }} /> 50–80% — Busy
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded-sm" style={{ background: "#ef4444" }} /> &gt;80% — Full
+          <span className="inline-block w-3 h-3 rounded-full" style={{ background: "#ef4444" }} /> &gt;80% — Full
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded-sm" style={{ background: "#94a3b8" }} /> Unavailable
+          <span className="inline-block w-3 h-3 rounded-full" style={{ background: "#94a3b8" }} /> Unavailable
         </span>
       </div>
     </div>
