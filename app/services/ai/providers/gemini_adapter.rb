@@ -19,7 +19,11 @@ module Ai
       end
 
       # Returns { content: String, tokens: Hash }
-      def chat(prompt:, system:, model: 'gemini-2.0-flash')
+      # NOTE: max_tokens accepted for interface parity with the other adapters,
+      # but not yet wired into the request — this gem's generate_content call
+      # currently has no token cap, so behavior is unchanged either way.
+      # rubocop:disable Lint/UnusedMethodArgument
+      def chat(prompt:, system:, model: 'gemini-2.0-flash', max_tokens: 500)
         @client = Gemini.new(
           credentials: {
             service: 'generative-language-api',
@@ -47,6 +51,7 @@ module Ai
           }
         }
       end
+      # rubocop:enable Lint/UnusedMethodArgument
 
       # Gemini embeddings are 768-dim — not compatible with our 1536-dim pgvector index.
       # Always delegate embed() to OpenAI. This is by design, not a limitation.

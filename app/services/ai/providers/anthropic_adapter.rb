@@ -10,12 +10,12 @@ module Ai
       end
 
       # Returns { content: String, tokens: Hash }
-      def chat(prompt:, system:, model: 'claude-sonnet-5')
+      def chat(prompt:, system:, model: 'claude-sonnet-5', max_tokens: 500)
         response = @client.messages(
           parameters: {
             model: model,
             system: system,
-            max_tokens: 500,
+            max_tokens: max_tokens,
             messages: [{ role: 'user', content: prompt }]
           }
         )

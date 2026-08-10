@@ -8,7 +8,7 @@ module Ai
 
     def initialize(workspace:, requested_by:)
       @workspace = workspace
-      @requested_by = requested_by
+      @user = requested_by
     end
 
     def call
@@ -24,13 +24,9 @@ module Ai
       prompt = build_prompt(utilization_data)
 
       response = with_ai_audit(
-        workspace: @workspace,
-        user: @requested_by,
         operation: :space_optimization,
         model: 'gpt-4o',
-        provider: 'openai',
-        confidence: 0.85,
-        status: 'success'
+        provider: 'openai'
       ) do |ctx|
         adapter, model, _provider = Ai::ModelRouter.for(
           workspace: @workspace,
@@ -40,10 +36,14 @@ module Ai
         result = adapter.chat(
           prompt: prompt,
           system: system_prompt,
-          model: model
+          model: model,
+          max_tokens: 1800
         )
-        ctx[:response] = result
-        result
+        ctx[:prompt] = prompt
+        ctx[:response] = result[:content]
+        ctx[:tokens] = result[:tokens]
+        ctx[:confidence] = 0.85
+        result[:content]
       end
 
       recommendations = parse_recommendations(response)

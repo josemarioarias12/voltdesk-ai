@@ -12,13 +12,13 @@ module Ai
       end
 
       # Returns { content: String, tokens: Hash }
-      def chat(prompt:, system:, model: 'gpt-4o', messages: nil)
+      def chat(prompt:, system:, model: 'gpt-4o', messages: nil, max_tokens: 500)
         user_messages = messages || [{ role: 'user', content: prompt }]
         response = @client.chat(
           parameters: {
             model:       model,
             temperature: 0.2,
-            max_tokens:  500,
+            max_tokens:  max_tokens,
             messages:    [{ role: 'system', content: system }] + user_messages
           }
         )
