@@ -1,6 +1,7 @@
 import { Head, router } from "@inertiajs/react";
 import { useState } from "react";
 import AppLayout from "@/components/AppLayout";
+import { IconChevronLeft } from "@/components/Icons";
 
 interface UtilizationData {
   space_id: number;
@@ -81,11 +82,12 @@ export default function SpaceUtilization({ utilization }: Props) {
     <AppLayout>
       <Head title="Space Utilization" />
       <div className="max-w-6xl mx-auto px-6 py-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
           <div>
             <button onClick={() => router.visit("/facilities/spaces")}
-              className="text-sm text-slate-500 hover:text-slate-700 mb-2 flex items-center gap-1">
-              ← Back to Spaces
+              className="text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 mb-2 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors -ml-3">
+              <IconChevronLeft size={14} />
+              Back to Spaces
             </button>
             <h1 className="text-2xl font-bold text-slate-800">Space Utilization</h1>
             <p className="text-slate-500 text-sm mt-1">Last 90 days · {utilization.length} spaces analyzed</p>
@@ -100,7 +102,7 @@ export default function SpaceUtilization({ utilization }: Props) {
         </div>
 
         {/* Summary stat */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-xl border border-slate-200 p-4">
             <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Avg Utilization</p>
             <p className="text-2xl font-bold text-slate-800">{avgUtilization}%</p>
@@ -120,7 +122,7 @@ export default function SpaceUtilization({ utilization }: Props) {
         </div>
 
         {/* Utilization table */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mb-8">
+        <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto mb-8">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>

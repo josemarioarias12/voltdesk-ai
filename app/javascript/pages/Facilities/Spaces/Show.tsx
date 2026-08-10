@@ -63,7 +63,7 @@ export default function SpaceShow({ space, reservations }: Props) {
           </button>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           {[
             { label: "Status", value: space.status, accent: space.status === "available" ? "text-emerald-600" : "text-amber-600" },
             { label: "Reservations Today", value: space.reservations_today, accent: "text-slate-800" },
