@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useActionCable } from "@/hooks/useActionCable";
 import { slugify } from "@/utils/slugify";
 
@@ -44,6 +45,7 @@ function utilizationPct(space: SpaceData): number {
 }
 
 export function FloorMap({ spaces, workspaceId, onSpaceClick }: FloorMapProps) {
+  const { t } = useTranslation(["facilities", "common"]);
   const [liveSpaces, setLiveSpaces] = useState<SpaceData[]>(spaces);
   const [tooltip, setTooltip] = useState<TooltipState>({ visible: false, x: 0, y: 0, space: null });
   const svgRef = useRef<SVGSVGElement>(null);
@@ -146,7 +148,7 @@ export function FloorMap({ spaces, workspaceId, onSpaceClick }: FloorMapProps) {
             </text>
             <text x={rx + 10} y={ry + CARD_SIZE - 14} fill="#ffffff"
               fontSize={11} opacity={0.9} style={{ pointerEvents: "none" }}>
-              {pct.toFixed(0)}% occupied
+              {t("floorMap.occupied", { pct: pct.toFixed(0) })}
             </text>
           </g>
         ))}
@@ -154,7 +156,7 @@ export function FloorMap({ spaces, workspaceId, onSpaceClick }: FloorMapProps) {
         {floorLayouts.map(({ floor, y }) => (
           <text key={`label-${floor}`} x={PADDING} y={y + 18}
             fill="#0D1B2A" fontSize={14} fontWeight="700">
-            Floor {floor}
+            {t("index.list.floorLabel", { floor })}
           </text>
         ))}
       </svg>
@@ -165,26 +167,26 @@ export function FloorMap({ spaces, workspaceId, onSpaceClick }: FloorMapProps) {
           style={{ left: tooltip.x + 12, top: tooltip.y - 10, minWidth: 180 }}
         >
           <p className="font-semibold text-slate-800 mb-1">{tooltip.space.name}</p>
-          <p className="text-slate-500">Type: {tooltip.space.space_type.replace("_", " ")}</p>
-          <p className="text-slate-500">Capacity: {tooltip.space.capacity}</p>
-          <p className="text-slate-500">Status: {tooltip.space.status}</p>
-          <p className="text-slate-500">Reservations today: {tooltip.space.reservations_today}</p>
-          <p className="text-slate-500">Utilization: {utilizationPct(tooltip.space).toFixed(1)}%</p>
+          <p className="text-slate-500">{t("floorMap.tooltip.type", { type: t(`spaceType.${tooltip.space.space_type}`) })}</p>
+          <p className="text-slate-500">{t("floorMap.tooltip.capacity", { count: tooltip.space.capacity })}</p>
+          <p className="text-slate-500">{t("floorMap.tooltip.status", { status: t(`spaceStatus.${tooltip.space.status}`) })}</p>
+          <p className="text-slate-500">{t("floorMap.tooltip.reservationsToday", { count: tooltip.space.reservations_today })}</p>
+          <p className="text-slate-500">{t("floorMap.tooltip.utilization", { pct: utilizationPct(tooltip.space).toFixed(1) })}</p>
         </div>
       )}
 
       <div className="flex gap-4 mt-3 text-xs text-slate-500">
         <span className="flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded-full" style={{ background: "#02C39A" }} /> &lt;50% — Available
+          <span className="inline-block w-3 h-3 rounded-full" style={{ background: "#02C39A" }} /> {t("floorMap.legend.available")}
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded-full" style={{ background: "#f59e0b" }} /> 50–80% — Busy
+          <span className="inline-block w-3 h-3 rounded-full" style={{ background: "#f59e0b" }} /> {t("floorMap.legend.busy")}
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded-full" style={{ background: "#ef4444" }} /> &gt;80% — Full
+          <span className="inline-block w-3 h-3 rounded-full" style={{ background: "#ef4444" }} /> {t("floorMap.legend.full")}
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded-full" style={{ background: "#94a3b8" }} /> Unavailable
+          <span className="inline-block w-3 h-3 rounded-full" style={{ background: "#94a3b8" }} /> {t("floorMap.legend.unavailable")}
         </span>
       </div>
     </div>

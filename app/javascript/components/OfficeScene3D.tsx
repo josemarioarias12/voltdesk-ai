@@ -1,4 +1,5 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Billboard, ContactShadows, OrbitControls, RoundedBox, Text, useTexture } from '@react-three/drei'
 import * as THREE from 'three'
@@ -811,6 +812,7 @@ function FloorAmbience({ slab }: { slab: SlabRect }) {
 export default function OfficeScene3D({
   spaces, workspaceId, initialPresences = [], onSpaceClick,
 }: OfficeScene3DProps) {
+  const { t } = useTranslation(['facilities', 'common'])
   const layout = useMemo(() => computeSpaceFloorLayout(spaces), [spaces])
   const floors = useMemo(() => [...new Set(spaces.map((sp) => sp.floor))].sort(), [spaces])
   const [selectedFloor, setSelectedFloor] = useState(floors[0] ?? '')
@@ -954,7 +956,7 @@ export default function OfficeScene3D({
               cursor: 'pointer',
             }}
           >
-            Floor {floor}
+            {t('index.list.floorLabel', { floor })}
           </button>
         ))}
       </div>
@@ -1099,11 +1101,11 @@ export default function OfficeScene3D({
       <div style={{ display: 'flex', gap: 16, marginTop: 10, fontSize: 12, color: '#64748b' }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ width: 10, height: 10, borderRadius: 3, background: MINT, display: 'inline-block' }} />
-          Occupied now
+          {t('threeD.legend.occupiedNow')}
         </span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ width: 10, height: 10, borderRadius: 3, background: AMBER, display: 'inline-block' }} />
-          Reserved soon
+          {t('threeD.legend.reservedSoon')}
         </span>
       </div>
     </div>

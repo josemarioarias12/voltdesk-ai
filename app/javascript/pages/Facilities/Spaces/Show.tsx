@@ -1,4 +1,5 @@
 import { Head, router } from "@inertiajs/react";
+import { useTranslation } from "react-i18next";
 import AppLayout from "@/components/AppLayout";
 import { IconChevronLeft } from "@/components/Icons";
 
@@ -37,6 +38,8 @@ function formatDate(iso: string) {
 }
 
 export default function SpaceShow({ space, reservations }: Props) {
+  const { t } = useTranslation(["facilities", "common"]);
+
   return (
     <AppLayout>
       <Head title={space.name} />
@@ -48,26 +51,34 @@ export default function SpaceShow({ space, reservations }: Props) {
               className="text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 mb-2 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors -ml-3"
             >
               <IconChevronLeft size={14} />
-              Back to Spaces
+              {t("show.backToSpaces")}
             </button>
             <h1 className="text-2xl font-bold text-slate-800">{space.name}</h1>
             <p className="text-slate-500 text-sm mt-1">
-              Floor {space.floor} · {space.space_type.replace(/_/g, " ")} · Capacity: {space.capacity}
+              {t("show.floorTypeCapacity", {
+                floor: space.floor,
+                type: t(`spaceType.${space.space_type}`),
+                count: space.capacity,
+              })}
             </p>
           </div>
           <button
             onClick={() => router.visit(`/facilities/spaces/${space.id}/reservations/new`)}
             className="px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 transition-colors"
           >
-            Reserve Space
+            {t("show.reserveSpace")}
           </button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           {[
-            { label: "Status", value: space.status, accent: space.status === "available" ? "text-emerald-600" : "text-amber-600" },
-            { label: "Reservations Today", value: space.reservations_today, accent: "text-slate-800" },
-            { label: "Upcoming", value: reservations.length, accent: "text-slate-800" },
+            {
+              label: t("show.stats.status"),
+              value: t(`spaceStatus.${space.status}`),
+              accent: space.status === "available" ? "text-emerald-600" : "text-amber-600",
+            },
+            { label: t("show.stats.reservationsToday"), value: space.reservations_today, accent: "text-slate-800" },
+            { label: t("show.stats.upcoming"), value: reservations.length, accent: "text-slate-800" },
           ].map((stat) => (
             <div key={stat.label} className="bg-white rounded-xl border border-slate-200 p-4">
               <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">{stat.label}</p>
@@ -78,12 +89,12 @@ export default function SpaceShow({ space, reservations }: Props) {
 
         <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100">
-            <h2 className="text-sm font-semibold text-slate-700">Upcoming Reservations</h2>
+            <h2 className="text-sm font-semibold text-slate-700">{t("show.upcomingReservations")}</h2>
           </div>
           <div className="divide-y divide-slate-100">
             {reservations.length === 0 && (
               <div className="px-6 py-12 text-center text-slate-400 text-sm">
-                No upcoming reservations for this space.
+                {t("show.noUpcoming")}
               </div>
             )}
             {reservations.map((res) => (
@@ -94,13 +105,13 @@ export default function SpaceShow({ space, reservations }: Props) {
                     {formatDate(res.start_at)} · {formatTime(res.start_at)} – {formatTime(res.end_at)}
                   </p>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    {res.user.name} · {res.attendees_count} attendees
+                    {t("show.attendeesLine", { name: res.user.name, count: res.attendees_count })}
                   </p>
                 </div>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${
                   res.status === "confirmed" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"
                 }`}>
-                  {res.status}
+                  {t(`reservationStatus.${res.status}`)}
                 </span>
               </div>
             ))}

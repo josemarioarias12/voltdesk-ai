@@ -1,0 +1,147 @@
+{
+  "index": {
+    "pageTitle": "Spaces",
+    "heading": "Facilities & Spaces",
+    "subtitle": "{{count}} spaces across all floors",
+    "toggle": {
+      "floorMap": "Floor Map",
+      "list": "List",
+      "threeD": "3D View"
+    },
+    "aiOptimizer": "AI Optimizer",
+    "floorMapSection": {
+      "heading": "Live Floor Map — updates in real time"
+    },
+    "threeDSection": {
+      "heading": "Live 3D Office — updates in real time",
+      "loading": "Loading 3D scene…"
+    },
+    "list": {
+      "floorLabel": "Floor {{floor}}",
+      "empty": "No spaces configured yet.",
+      "reservationsToday": "{{count}} reservations today",
+      "capacityLabel": "Capacity {{count}}"
+    },
+    "panel": {
+      "closeLabel": "Close availability panel",
+      "capacityLine": "Floor {{floor}} · {{count}} people",
+      "yourReservation": "Your reservation",
+      "changeTime": "Change time",
+      "pickNewSlot": "Pick a new slot below",
+      "cancel": "Cancel",
+      "todaysAvailability": "Today's availability",
+      "loadingAvailability": "Loading availability…",
+      "noSlots": "No slots for today.",
+      "available": "Available",
+      "reserved": "Reserved",
+      "moveHere": "Move here",
+      "reserveThisSpace": "Reserve this space"
+    }
+  },
+  "show": {
+    "backToSpaces": "Back to Spaces",
+    "floorTypeCapacity": "Floor {{floor}} · {{type}} · Capacity: {{count}}",
+    "reserveSpace": "Reserve Space",
+    "stats": {
+      "status": "Status",
+      "reservationsToday": "Reservations Today",
+      "upcoming": "Upcoming"
+    },
+    "upcomingReservations": "Upcoming Reservations",
+    "noUpcoming": "No upcoming reservations for this space.",
+    "attendeesLine": "{{name}} · {{count}} attendees"
+  },
+  "utilization": {
+    "backToSpaces": "Back to Spaces",
+    "heading": "Space Utilization",
+    "subtitle": "Last {{days}} days · {{count}} spaces analyzed",
+    "generateButton": "✨ Generate AI Recommendations",
+    "analyzing": "Analyzing…",
+    "stats": {
+      "avgUtilization": "Avg Utilization",
+      "underutilized": "Underutilized",
+      "overdemanded": "Overdemanded"
+    },
+    "table": {
+      "space": "Space",
+      "floor": "Floor",
+      "type": "Type",
+      "capacity": "Capacity",
+      "reservations": "Reservations",
+      "utilization": "Utilization",
+      "status": "Status"
+    },
+    "errorFallback": "Failed to generate optimization report.",
+    "recommendations": {
+      "heading": "AI Space Optimizer Recommendations",
+      "underutilizedSpaces": "Underutilized Spaces",
+      "overdemandedSpaces": "Overdemanded Spaces",
+      "quickWins": "Quick Wins",
+      "impact": "Impact: {{impact}}",
+      "projectedImprovement": "Projected Improvement"
+    }
+  },
+  "reservations": {
+    "new": {
+      "backTo": "Back to {{name}}",
+      "heading": "Reserve {{name}}",
+      "floorCapacity": "Floor {{floor}} · Capacity: {{count}} people",
+      "dateLabel": "Date",
+      "meetingTitleLabel": "Meeting Title",
+      "meetingTitlePlaceholder": "e.g. Q3 Planning Session",
+      "attendeesLabel": "Attendees",
+      "attendeesMax": "(max {{count}})",
+      "availableSlots": "Available Slots",
+      "availableCount": "({{count}} available)",
+      "confirmButton": "Confirm Reservation",
+      "confirming": "Confirming…",
+      "selectedLabel": "Selected:"
+    }
+  },
+  "floorMap": {
+    "tooltip": {
+      "type": "Type: {{type}}",
+      "capacity": "Capacity: {{count}}",
+      "status": "Status: {{status}}",
+      "reservationsToday": "Reservations today: {{count}}",
+      "utilization": "Utilization: {{pct}}%"
+    },
+    "legend": {
+      "available": "<50% — Available",
+      "busy": "50–80% — Busy",
+      "full": ">80% — Full",
+      "unavailable": "Unavailable"
+    },
+    "occupied": "{{pct}}% occupied"
+  },
+  "threeD": {
+    "floorLabel": "Floor {{floor}}",
+    "legend": {
+      "occupiedNow": "Occupied now",
+      "reservedSoon": "Reserved soon"
+    }
+  },
+  "spaceType": {
+    "meeting_room": "Meeting Room",
+    "conference_room": "Conference Room",
+    "open_desk": "Open Desk",
+    "phone_booth": "Phone Booth",
+    "event_hall": "Event Hall",
+    "lounge": "Lounge"
+  },
+  "spaceStatus": {
+    "available": "Available",
+    "maintenance": "Maintenance",
+    "inactive": "Inactive"
+  },
+  "reservationStatus": {
+    "confirmed": "Confirmed",
+    "cancelled": "Cancelled",
+    "completed": "Completed"
+  },
+  "utilizationStatus": {
+    "underutilized": "Underutilized",
+    "optimal": "Optimal",
+    "overdemanded": "Overdemanded"
+  }
+}

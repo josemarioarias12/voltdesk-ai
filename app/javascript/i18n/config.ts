@@ -22,6 +22,8 @@ import landingEn from './locales/en/landing.json'
 import landingEs from './locales/es/landing.json'
 import authEn from './locales/en/auth.json'
 import authEs from './locales/es/auth.json'
+import facilitiesEn from './locales/en/facilities.json'
+import facilitiesEs from './locales/es/facilities.json'
 
 export const STORAGE_KEY = 'voltdesk_locale'
 export const defaultNS = 'common'
@@ -38,6 +40,7 @@ export const resources = {
     admin: adminEn,
     landing: landingEn,
     auth: authEn,
+    facilities: facilitiesEn,
   },
   es: {
     common: commonEs,
@@ -50,6 +53,7 @@ export const resources = {
     admin: adminEs,
     landing: landingEs,
     auth: authEs,
+    facilities: facilitiesEs,
   },
 } as const
 

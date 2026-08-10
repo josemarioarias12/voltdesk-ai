@@ -1,0 +1,147 @@
+{
+  "index": {
+    "pageTitle": "Espacios",
+    "heading": "Instalaciones y Espacios",
+    "subtitle": "{{count}} espacios en todos los pisos",
+    "toggle": {
+      "floorMap": "Mapa de Piso",
+      "list": "Lista",
+      "threeD": "Vista 3D"
+    },
+    "aiOptimizer": "Optimizador IA",
+    "floorMapSection": {
+      "heading": "Mapa de Piso en Vivo — se actualiza en tiempo real"
+    },
+    "threeDSection": {
+      "heading": "Oficina 3D en Vivo — se actualiza en tiempo real",
+      "loading": "Cargando escena 3D…"
+    },
+    "list": {
+      "floorLabel": "Piso {{floor}}",
+      "empty": "Todavía no hay espacios configurados.",
+      "reservationsToday": "{{count}} reservas hoy",
+      "capacityLabel": "Capacidad {{count}}"
+    },
+    "panel": {
+      "closeLabel": "Cerrar panel de disponibilidad",
+      "capacityLine": "Piso {{floor}} · {{count}} personas",
+      "yourReservation": "Tu reserva",
+      "changeTime": "Cambiar horario",
+      "pickNewSlot": "Elegí un nuevo horario abajo",
+      "cancel": "Cancelar",
+      "todaysAvailability": "Disponibilidad de hoy",
+      "loadingAvailability": "Cargando disponibilidad…",
+      "noSlots": "No hay horarios disponibles hoy.",
+      "available": "Disponible",
+      "reserved": "Reservado",
+      "moveHere": "Mover acá",
+      "reserveThisSpace": "Reservar este espacio"
+    }
+  },
+  "show": {
+    "backToSpaces": "Volver a Espacios",
+    "floorTypeCapacity": "Piso {{floor}} · {{type}} · Capacidad: {{count}}",
+    "reserveSpace": "Reservar Espacio",
+    "stats": {
+      "status": "Estado",
+      "reservationsToday": "Reservas Hoy",
+      "upcoming": "Próximas"
+    },
+    "upcomingReservations": "Próximas Reservas",
+    "noUpcoming": "No hay próximas reservas para este espacio.",
+    "attendeesLine": "{{name}} · {{count}} asistentes"
+  },
+  "utilization": {
+    "backToSpaces": "Volver a Espacios",
+    "heading": "Utilización de Espacios",
+    "subtitle": "Últimos {{days}} días · {{count}} espacios analizados",
+    "generateButton": "✨ Generar Recomendaciones con IA",
+    "analyzing": "Analizando…",
+    "stats": {
+      "avgUtilization": "Utilización Promedio",
+      "underutilized": "Subutilizado",
+      "overdemanded": "Sobredemandado"
+    },
+    "table": {
+      "space": "Espacio",
+      "floor": "Piso",
+      "type": "Tipo",
+      "capacity": "Capacidad",
+      "reservations": "Reservas",
+      "utilization": "Utilización",
+      "status": "Estado"
+    },
+    "errorFallback": "No se pudo generar el informe de optimización.",
+    "recommendations": {
+      "heading": "Recomendaciones del Optimizador de Espacios IA",
+      "underutilizedSpaces": "Espacios Subutilizados",
+      "overdemandedSpaces": "Espacios Sobredemandados",
+      "quickWins": "Mejoras Rápidas",
+      "impact": "Impacto: {{impact}}",
+      "projectedImprovement": "Mejora Proyectada"
+    }
+  },
+  "reservations": {
+    "new": {
+      "backTo": "Volver a {{name}}",
+      "heading": "Reservar {{name}}",
+      "floorCapacity": "Piso {{floor}} · Capacidad: {{count}} personas",
+      "dateLabel": "Fecha",
+      "meetingTitleLabel": "Título de la Reunión",
+      "meetingTitlePlaceholder": "ej. Planificación Q3",
+      "attendeesLabel": "Asistentes",
+      "attendeesMax": "(máx {{count}})",
+      "availableSlots": "Horarios Disponibles",
+      "availableCount": "({{count}} disponibles)",
+      "confirmButton": "Confirmar Reserva",
+      "confirming": "Confirmando…",
+      "selectedLabel": "Seleccionado:"
+    }
+  },
+  "floorMap": {
+    "tooltip": {
+      "type": "Tipo: {{type}}",
+      "capacity": "Capacidad: {{count}}",
+      "status": "Estado: {{status}}",
+      "reservationsToday": "Reservas hoy: {{count}}",
+      "utilization": "Utilización: {{pct}}%"
+    },
+    "legend": {
+      "available": "<50% — Disponible",
+      "busy": "50–80% — Ocupado",
+      "full": ">80% — Lleno",
+      "unavailable": "No disponible"
+    },
+    "occupied": "{{pct}}% ocupado"
+  },
+  "threeD": {
+    "floorLabel": "Piso {{floor}}",
+    "legend": {
+      "occupiedNow": "Ocupado ahora",
+      "reservedSoon": "Reservado pronto"
+    }
+  },
+  "spaceType": {
+    "meeting_room": "Sala de Reuniones",
+    "conference_room": "Sala de Conferencias",
+    "open_desk": "Escritorio Abierto",
+    "phone_booth": "Cabina Telefónica",
+    "event_hall": "Salón de Eventos",
+    "lounge": "Lounge"
+  },
+  "spaceStatus": {
+    "available": "Disponible",
+    "maintenance": "Mantenimiento",
+    "inactive": "Inactivo"
+  },
+  "reservationStatus": {
+    "confirmed": "Confirmada",
+    "cancelled": "Cancelada",
+    "completed": "Completada"
+  },
+  "utilizationStatus": {
+    "underutilized": "Subutilizado",
+    "optimal": "Óptimo",
+    "overdemanded": "Sobredemandado"
+  }
+}

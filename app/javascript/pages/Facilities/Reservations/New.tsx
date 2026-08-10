@@ -1,4 +1,5 @@
 import { Head, router, useForm } from "@inertiajs/react";
+import { useTranslation } from "react-i18next";
 import AppLayout from "@/components/AppLayout";
 import DatePicker from "@/components/DatePicker";
 import { IconChevronLeft } from "@/components/Icons";
@@ -23,6 +24,7 @@ interface Props {
 }
 
 export default function ReservationNew({ space, slots, date }: Props) {
+  const { t } = useTranslation(["facilities", "common"]);
   const { data, setData, post, processing, errors } = useForm({
     space_id: space.id,
     title: "",
@@ -55,25 +57,27 @@ export default function ReservationNew({ space, slots, date }: Props) {
 
   return (
     <AppLayout>
-      <Head title={`Reserve ${space.name}`} />
+      <Head title={t("reservations.new.heading", { name: space.name })} />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
         <button
           onClick={() => router.visit(`/facilities/spaces/${space.id}`)}
           className="text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 mb-4 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors -ml-3"
         >
           <IconChevronLeft size={14} />
-          Back to {space.name}
+          {t("reservations.new.backTo", { name: space.name })}
         </button>
 
-        <h1 className="text-2xl font-bold text-slate-800 mb-1">Reserve {space.name}</h1>
+        <h1 className="text-2xl font-bold text-slate-800 mb-1">
+          {t("reservations.new.heading", { name: space.name })}
+        </h1>
         <p className="text-slate-500 text-sm mb-6">
-          Floor {space.floor} · Capacity: {space.capacity} people
+          {t("reservations.new.floorCapacity", { floor: space.floor, count: space.capacity })}
         </p>
 
         <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 space-y-6">
           <div>
             <DatePicker
-              label="Date"
+              label={t("reservations.new.dateLabel")}
               value={date}
               onChange={handleDateChange}
               minDate={new Date()}
@@ -81,12 +85,14 @@ export default function ReservationNew({ space, slots, date }: Props) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Meeting Title</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              {t("reservations.new.meetingTitleLabel")}
+            </label>
             <input
               type="text"
               value={data.title}
               onChange={(e) => setData("title", e.target.value)}
-              placeholder="e.g. Q3 Planning Session"
+              placeholder={t("reservations.new.meetingTitlePlaceholder")}
               className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
             {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
@@ -94,7 +100,8 @@ export default function ReservationNew({ space, slots, date }: Props) {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              Attendees <span className="text-slate-400">(max {space.capacity})</span>
+              {t("reservations.new.attendeesLabel")}{" "}
+              <span className="text-slate-400">{t("reservations.new.attendeesMax", { count: space.capacity })}</span>
             </label>
             <input
               type="number"
@@ -109,7 +116,8 @@ export default function ReservationNew({ space, slots, date }: Props) {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Available Slots <span className="text-slate-400">({availableSlots.length} available)</span>
+              {t("reservations.new.availableSlots")}{" "}
+              <span className="text-slate-400">{t("reservations.new.availableCount", { count: availableSlots.length })}</span>
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 max-h-64 overflow-y-auto pr-1">
               {slots.map((slot) => {
@@ -138,7 +146,8 @@ export default function ReservationNew({ space, slots, date }: Props) {
 
           {selectedSlot && (
             <div className="bg-teal-50 border border-teal-200 rounded-lg px-4 py-3 text-sm text-teal-700">
-              Selected: <strong>{formatTime(selectedSlot.start_at)} – {formatTime(selectedSlot.end_at)}</strong>
+              {t("reservations.new.selectedLabel")}{" "}
+              <strong>{formatTime(selectedSlot.start_at)} – {formatTime(selectedSlot.end_at)}</strong>
             </div>
           )}
 
@@ -148,7 +157,7 @@ export default function ReservationNew({ space, slots, date }: Props) {
             disabled={processing || !data.title || !data.start_at}
             className="w-full py-3 bg-teal-600 text-white font-medium rounded-lg hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {processing ? "Confirming…" : "Confirm Reservation"}
+            {processing ? t("reservations.new.confirming") : t("reservations.new.confirmButton")}
           </button>
         </div>
       </div>

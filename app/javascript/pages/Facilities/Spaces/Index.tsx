@@ -1,5 +1,6 @@
 import { Head, router, usePage } from "@inertiajs/react";
 import { lazy, Suspense, useState } from "react";
+import { useTranslation } from "react-i18next";
 import AppLayout from "@/components/AppLayout";
 import { FloorMap } from "@/components/FloorMap";
 import { IconBuilding } from "@/components/Icons";
@@ -59,6 +60,7 @@ function slotTime(iso: string) {
 }
 
 export default function SpacesIndex({ spaces, panel_slots, active_presences, my_panel_reservation }: Props) {
+  const { t } = useTranslation(["facilities", "common"]);
   const [view, setView] = useState<"list" | "map" | "3d">("map");
   const [panelSpaceId, setPanelSpaceId] = useState<number | null>(null);
   const [rescheduling, setRescheduling] = useState(false);
@@ -115,12 +117,12 @@ export default function SpacesIndex({ spaces, panel_slots, active_presences, my_
 
   return (
     <AppLayout>
-      <Head title="Spaces" />
+      <Head title={t("index.pageTitle")} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">Facilities & Spaces</h1>
-            <p className="text-slate-500 text-sm mt-1">{spaces.length} spaces across all floors</p>
+            <h1 className="text-2xl font-bold text-slate-800">{t("index.heading")}</h1>
+            <p className="text-slate-500 text-sm mt-1">{t("index.subtitle", { count: spaces.length })}</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex rounded-lg border border-slate-200 overflow-hidden">
@@ -128,26 +130,26 @@ export default function SpacesIndex({ spaces, panel_slots, active_presences, my_
                 onClick={() => setView("map")}
                 className={`px-4 py-2 text-sm font-medium transition-colors ${view === "map" ? "bg-teal-600 text-white" : "bg-white text-slate-600 hover:bg-slate-50"}`}
               >
-                Floor Map
+                {t("index.toggle.floorMap")}
               </button>
               <button
                 onClick={() => setView("list")}
                 className={`px-4 py-2 text-sm font-medium transition-colors ${view === "list" ? "bg-teal-600 text-white" : "bg-white text-slate-600 hover:bg-slate-50"}`}
               >
-                List
+                {t("index.toggle.list")}
               </button>
               <button
                 onClick={() => setView("3d")}
                 className={`px-4 py-2 text-sm font-medium transition-colors ${view === "3d" ? "bg-teal-600 text-white" : "bg-white text-slate-600 hover:bg-slate-50"}`}
               >
-                3D View
+                {t("index.toggle.threeD")}
               </button>
             </div>
             <button
               onClick={() => router.visit("/facilities/spaces/utilization")}
               className="px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 transition-colors"
             >
-              AI Optimizer
+              {t("index.aiOptimizer")}
             </button>
           </div>
         </div>
@@ -155,7 +157,7 @@ export default function SpacesIndex({ spaces, panel_slots, active_presences, my_
         {view === "map" && (
           <div className="bg-white rounded-xl border border-slate-200 p-6">
             <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-4">
-              Live Floor Map — updates in real time
+              {t("index.floorMapSection.heading")}
             </h2>
             <FloorMap spaces={spaces} workspaceId={workspaceId} onSpaceClick={handleSpaceClick} />
           </div>
@@ -164,14 +166,14 @@ export default function SpacesIndex({ spaces, panel_slots, active_presences, my_
         {view === "3d" && (
           <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6">
             <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-4">
-              Live 3D Office — updates in real time
+              {t("index.threeDSection.heading")}
             </h2>
             <div className="relative">
               <Suspense
                 fallback={
                   <div className="flex items-center justify-center h-[420px] sm:h-[600px] text-slate-400 gap-2">
                     <IconBuilding size={20} />
-                    Loading 3D scene…
+                    {t("index.threeDSection.loading")}
                   </div>
                 }
               >
@@ -189,12 +191,12 @@ export default function SpacesIndex({ spaces, panel_slots, active_presences, my_
                     <div>
                       <h3 className="font-semibold text-slate-800">{panelSpace.name}</h3>
                       <p className="text-xs text-slate-500 mt-0.5">
-                        Floor {panelSpace.floor} · {panelSpace.capacity} people
+                        {t("index.panel.capacityLine", { floor: panelSpace.floor, count: panelSpace.capacity })}
                       </p>
                     </div>
                     <button
                       onClick={closePanel}
-                      aria-label="Close availability panel"
+                      aria-label={t("index.panel.closeLabel")}
                       className="text-slate-400 hover:text-slate-600 text-lg leading-none px-1"
                     >
                       ×
@@ -204,7 +206,7 @@ export default function SpacesIndex({ spaces, panel_slots, active_presences, my_
                   {my_panel_reservation && (
                     <div className="px-4 py-3 bg-teal-50 border-b border-teal-100">
                       <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide">
-                        Your reservation
+                        {t("index.panel.yourReservation")}
                       </p>
                       <p className="text-sm text-teal-800 mt-0.5">
                         {slotTime(my_panel_reservation.start_at)} – {slotTime(my_panel_reservation.end_at)}
@@ -214,28 +216,28 @@ export default function SpacesIndex({ spaces, panel_slots, active_presences, my_
                           onClick={() => setRescheduling((r) => !r)}
                           className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${rescheduling ? "bg-teal-600 text-white border-teal-600" : "bg-white text-teal-700 border-teal-300 hover:bg-teal-50"}`}
                         >
-                          {rescheduling ? "Pick a new slot below" : "Change time"}
+                          {rescheduling ? t("index.panel.pickNewSlot") : t("index.panel.changeTime")}
                         </button>
                         <button
                           onClick={handleCancelReservation}
                           className="px-3 py-1.5 text-xs font-medium rounded-lg border border-red-200 text-red-600 bg-white hover:bg-red-50 transition-colors"
                         >
-                          Cancel
+                          {t("index.panel.cancel")}
                         </button>
                       </div>
                     </div>
                   )}
 
                   <div className="px-4 pt-3 pb-1 text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                    Today's availability
+                    {t("index.panel.todaysAvailability")}
                   </div>
 
                   <div className="flex-1 overflow-y-auto px-4 pb-2">
                     {panel_slots == null && (
-                      <p className="text-sm text-slate-400 py-4">Loading availability…</p>
+                      <p className="text-sm text-slate-400 py-4">{t("index.panel.loadingAvailability")}</p>
                     )}
                     {panel_slots != null && panel_slots.length === 0 && (
-                      <p className="text-sm text-slate-400 py-4">No slots for today.</p>
+                      <p className="text-sm text-slate-400 py-4">{t("index.panel.noSlots")}</p>
                     )}
                     {panel_slots != null &&
                       panel_slots.map((slot) => (
@@ -251,13 +253,13 @@ export default function SpacesIndex({ spaces, panel_slots, active_presences, my_
                               onClick={() => handleRescheduleTo(slot)}
                               className="px-2 py-0.5 rounded-full text-xs font-medium bg-teal-600 text-white hover:bg-teal-700 transition-colors"
                             >
-                              Move here
+                              {t("index.panel.moveHere")}
                             </button>
                           ) : (
                             <span
                               className={`px-2 py-0.5 rounded-full text-xs font-medium ${slot.available ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-400"}`}
                             >
-                              {slot.available ? "Available" : "Reserved"}
+                              {slot.available ? t("index.panel.available") : t("index.panel.reserved")}
                             </span>
                           )}
                         </div>
@@ -269,7 +271,7 @@ export default function SpacesIndex({ spaces, panel_slots, active_presences, my_
                       onClick={() => router.visit(`/facilities/spaces/${panelSpace.id}/reservations/new`)}
                       className="w-full px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 transition-colors"
                     >
-                      Reserve this space
+                      {t("index.panel.reserveThisSpace")}
                     </button>
                   </div>
                 </div>
@@ -282,13 +284,13 @@ export default function SpacesIndex({ spaces, panel_slots, active_presences, my_
           <div>
             {spaces.length === 0 && (
               <div className="bg-white rounded-xl border border-slate-200 px-4 py-12 text-center text-slate-400">
-                No spaces configured yet.
+                {t("index.list.empty")}
               </div>
             )}
             {[...new Set(spaces.map((sp) => sp.floor))].sort().map((floor) => (
               <div key={floor} className="mb-6 last:mb-0">
                 <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 px-1">
-                  Floor {floor}
+                  {t("index.list.floorLabel", { floor })}
                 </h3>
                 <div className="space-y-2">
                   {spaces.filter((sp) => sp.floor === floor).map((space) => (
@@ -311,7 +313,7 @@ export default function SpacesIndex({ spaces, panel_slots, active_presences, my_
                       <div className="flex-1 min-w-0">
                         <p className="font-medium truncate" style={{ color: "#0D1B2A" }}>{space.name}</p>
                         <p className="text-xs text-slate-500 capitalize mt-0.5">
-                          {space.space_type.replace("_", " ")} · Capacity {space.capacity}
+                          {t(`spaceType.${space.space_type}`)} · {t("index.list.capacityLabel", { count: space.capacity })}
                         </p>
                       </div>
                       <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
@@ -319,9 +321,9 @@ export default function SpacesIndex({ spaces, panel_slots, active_presences, my_
                           className="px-2 py-1 rounded-full text-xs font-medium capitalize"
                           style={statusBadgeStyle(space.status)}
                         >
-                          {space.status}
+                          {t(`spaceStatus.${space.status}`)}
                         </span>
-                        <span className="text-xs text-slate-400">{space.reservations_today} reservations today</span>
+                        <span className="text-xs text-slate-400">{t("index.list.reservationsToday", { count: space.reservations_today })}</span>
                       </div>
                     </div>
                   ))}

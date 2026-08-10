@@ -1,5 +1,6 @@
 import { Head, router } from "@inertiajs/react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import AppLayout from "@/components/AppLayout";
 import { IconChevronLeft } from "@/components/Icons";
 
@@ -46,6 +47,7 @@ function barColor(pct: number) {
 }
 
 export default function SpaceUtilization({ utilization }: Props) {
+  const { t } = useTranslation(["facilities", "common"]);
   const [optimization, setOptimization] = useState<OptimizationResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +70,7 @@ export default function SpaceUtilization({ utilization }: Props) {
         setOptimization(json.recommendations);
       }
     } catch {
-      setError("Failed to generate optimization report.");
+      setError(t("utilization.errorFallback"));
     } finally {
       setLoading(false);
     }
@@ -78,43 +80,55 @@ export default function SpaceUtilization({ utilization }: Props) {
     ? (utilization.reduce((sum, sp) => sum + sp.utilization_percentage, 0) / utilization.length).toFixed(1)
     : "0";
 
+  const tableColumns: Array<{ key: string; labelKey: string }> = [
+    { key: "space", labelKey: "utilization.table.space" },
+    { key: "floor", labelKey: "utilization.table.floor" },
+    { key: "type", labelKey: "utilization.table.type" },
+    { key: "capacity", labelKey: "utilization.table.capacity" },
+    { key: "reservations", labelKey: "utilization.table.reservations" },
+    { key: "utilization", labelKey: "utilization.table.utilization" },
+    { key: "status", labelKey: "utilization.table.status" },
+  ];
+
   return (
     <AppLayout>
-      <Head title="Space Utilization" />
+      <Head title={t("utilization.heading")} />
       <div className="max-w-6xl mx-auto px-6 py-8">
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
           <div>
             <button onClick={() => router.visit("/facilities/spaces")}
               className="text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 mb-2 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors -ml-3">
               <IconChevronLeft size={14} />
-              Back to Spaces
+              {t("utilization.backToSpaces")}
             </button>
-            <h1 className="text-2xl font-bold text-slate-800">Space Utilization</h1>
-            <p className="text-slate-500 text-sm mt-1">Last 90 days · {utilization.length} spaces analyzed</p>
+            <h1 className="text-2xl font-bold text-slate-800">{t("utilization.heading")}</h1>
+            <p className="text-slate-500 text-sm mt-1">
+              {t("utilization.subtitle", { days: 90, count: utilization.length })}
+            </p>
           </div>
           <button
             onClick={runOptimizer}
             disabled={loading}
             className="px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 disabled:opacity-50 transition-colors"
           >
-            {loading ? "Analyzing…" : "✨ Generate AI Recommendations"}
+            {loading ? t("utilization.analyzing") : t("utilization.generateButton")}
           </button>
         </div>
 
         {/* Summary stat */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-xl border border-slate-200 p-4">
-            <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Avg Utilization</p>
+            <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">{t("utilization.stats.avgUtilization")}</p>
             <p className="text-2xl font-bold text-slate-800">{avgUtilization}%</p>
           </div>
           <div className="bg-white rounded-xl border border-slate-200 p-4">
-            <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Underutilized</p>
+            <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">{t("utilization.stats.underutilized")}</p>
             <p className="text-2xl font-bold text-blue-600">
               {utilization.filter((s) => s.status === "underutilized").length}
             </p>
           </div>
           <div className="bg-white rounded-xl border border-slate-200 p-4">
-            <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Overdemanded</p>
+            <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">{t("utilization.stats.overdemanded")}</p>
             <p className="text-2xl font-bold text-red-600">
               {utilization.filter((s) => s.status === "overdemanded").length}
             </p>
@@ -126,8 +140,8 @@ export default function SpaceUtilization({ utilization }: Props) {
           <table className="w-full text-sm">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                {["Space", "Floor", "Type", "Capacity", "Reservations", "Utilization", "Status"].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{h}</th>
+                {tableColumns.map((col) => (
+                  <th key={col.key} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{t(col.labelKey)}</th>
                 ))}
               </tr>
             </thead>
@@ -135,8 +149,8 @@ export default function SpaceUtilization({ utilization }: Props) {
               {utilization.map((sp) => (
                 <tr key={sp.space_id} className="hover:bg-slate-50">
                   <td className="px-4 py-3 font-medium text-slate-800">{sp.space_name}</td>
-                  <td className="px-4 py-3 text-slate-500">Floor {sp.floor}</td>
-                  <td className="px-4 py-3 text-slate-500 capitalize">{sp.space_type.replace(/_/g, " ")}</td>
+                  <td className="px-4 py-3 text-slate-500">{t("utilization.table.floor")} {sp.floor}</td>
+                  <td className="px-4 py-3 text-slate-500 capitalize">{t(`spaceType.${sp.space_type}`)}</td>
                   <td className="px-4 py-3 text-slate-500">{sp.capacity}</td>
                   <td className="px-4 py-3 text-slate-500">{sp.total_reservations}</td>
                   <td className="px-4 py-3 w-40">
@@ -152,7 +166,7 @@ export default function SpaceUtilization({ utilization }: Props) {
                   </td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${statusColor(sp.status)}`}>
-                      {sp.status}
+                      {t(`utilizationStatus.${sp.status}`)}
                     </span>
                   </td>
                 </tr>
@@ -168,18 +182,18 @@ export default function SpaceUtilization({ utilization }: Props) {
 
         {optimization && (
           <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-6">
-            <h2 className="text-lg font-semibold text-slate-800">AI Space Optimizer Recommendations</h2>
+            <h2 className="text-lg font-semibold text-slate-800">{t("utilization.recommendations.heading")}</h2>
             <p className="text-slate-600 text-sm">{optimization.summary}</p>
 
             {optimization.underutilized.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-blue-700 mb-3">Underutilized Spaces</h3>
+                <h3 className="text-sm font-semibold text-blue-700 mb-3">{t("utilization.recommendations.underutilizedSpaces")}</h3>
                 <div className="space-y-3">
                   {optimization.underutilized.map((rec, idx) => (
                     <div key={idx} className="bg-blue-50 border border-blue-100 rounded-lg p-4">
                       <p className="font-medium text-slate-800">{rec.space} <span className="text-blue-600 text-xs">({rec.current_utilization})</span></p>
                       <p className="text-sm text-slate-600 mt-1">{rec.recommendation}</p>
-                      <p className="text-xs text-blue-600 mt-1">Impact: {rec.estimated_impact}</p>
+                      <p className="text-xs text-blue-600 mt-1">{t("utilization.recommendations.impact", { impact: rec.estimated_impact })}</p>
                     </div>
                   ))}
                 </div>
@@ -188,13 +202,13 @@ export default function SpaceUtilization({ utilization }: Props) {
 
             {optimization.overdemanded.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-red-700 mb-3">Overdemanded Spaces</h3>
+                <h3 className="text-sm font-semibold text-red-700 mb-3">{t("utilization.recommendations.overdemandedSpaces")}</h3>
                 <div className="space-y-3">
                   {optimization.overdemanded.map((rec, idx) => (
                     <div key={idx} className="bg-red-50 border border-red-100 rounded-lg p-4">
                       <p className="font-medium text-slate-800">{rec.space} <span className="text-red-600 text-xs">({rec.current_utilization})</span></p>
                       <p className="text-sm text-slate-600 mt-1">{rec.recommendation}</p>
-                      <p className="text-xs text-red-600 mt-1">Impact: {rec.estimated_impact}</p>
+                      <p className="text-xs text-red-600 mt-1">{t("utilization.recommendations.impact", { impact: rec.estimated_impact })}</p>
                     </div>
                   ))}
                 </div>
@@ -203,7 +217,7 @@ export default function SpaceUtilization({ utilization }: Props) {
 
             {optimization.quick_wins.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-slate-700 mb-2">Quick Wins</h3>
+                <h3 className="text-sm font-semibold text-slate-700 mb-2">{t("utilization.recommendations.quickWins")}</h3>
                 <ul className="space-y-1">
                   {optimization.quick_wins.map((win, idx) => (
                     <li key={idx} className="text-sm text-slate-600 flex items-start gap-2">
@@ -215,7 +229,7 @@ export default function SpaceUtilization({ utilization }: Props) {
             )}
 
             <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
-              <p className="text-sm font-medium text-teal-800">Projected Improvement</p>
+              <p className="text-sm font-medium text-teal-800">{t("utilization.recommendations.projectedImprovement")}</p>
               <p className="text-sm text-teal-700 mt-1">{optimization.projected_improvement}</p>
             </div>
           </div>
