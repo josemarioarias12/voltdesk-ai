@@ -169,7 +169,7 @@ export default function SpacesIndex({ spaces, panel_slots, active_presences, my_
             <div className="relative">
               <Suspense
                 fallback={
-                  <div className="flex items-center justify-center h-[600px] text-slate-400 gap-2">
+                  <div className="flex items-center justify-center h-[420px] sm:h-[600px] text-slate-400 gap-2">
                     <IconBuilding size={20} />
                     Loading 3D scene…
                   </div>

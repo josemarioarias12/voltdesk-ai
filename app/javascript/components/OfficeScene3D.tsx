@@ -649,11 +649,18 @@ function CameraRig({
   distance: number
   controlsRef: React.RefObject<React.ComponentRef<typeof OrbitControls> | null>
 }) {
-  const { camera } = useThree()
+  const { camera, size } = useThree()
 
   useEffect(() => {
+    // On narrow/tall viewports (mobile portrait), the fixed vertical FOV
+    // yields a much narrower horizontal FOV than on desktop, clipping room
+    // content at the screen edges. Pulling the camera back proportionally
+    // to how narrow the aspect ratio is compensates for this without
+    // changing anything for aspect >= 1 (desktop, unchanged behavior).
+    const aspect = size.width / size.height
+    const adjustedDistance = aspect < 1 ? distance / aspect : distance
     const [tx, ty, tz] = target
-    camera.position.set(tx + distance * 0.7, distance * 0.55, tz + distance * 0.7)
+    camera.position.set(tx + adjustedDistance * 0.7, adjustedDistance * 0.55, tz + adjustedDistance * 0.7)
     camera.lookAt(tx, ty, tz)
 
     const controls = controlsRef.current
@@ -662,7 +669,7 @@ function CameraRig({
       controls.update()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target[0], target[1], target[2], distance, camera])
+  }, [target[0], target[1], target[2], distance, camera, size.width, size.height])
 
   return null
 }
@@ -953,9 +960,9 @@ export default function OfficeScene3D({
       </div>
 
       <div
+        className="h-[420px] sm:h-[600px]"
         style={{
           width: '100%',
-          height: '600px',
           borderRadius: 12,
           overflow: 'hidden',
           opacity: floorOpacity,
