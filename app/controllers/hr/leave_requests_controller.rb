@@ -147,7 +147,8 @@ module Hr
         approved_by: serialize_lr_approver(leave_req.approved_by),
         can_approve: leave_policy.approve?,
         can_reject: leave_policy.reject?,
-        can_final_approve: leave_policy.final_approve?
+        can_final_approve: leave_policy.final_approve?,
+        coverage_conflicts: coverage_conflicts_for(leave_req)
       }
 
       sensitive = mask(leave_req, {
@@ -156,6 +157,22 @@ module Hr
                        }, current_user)
 
       base.merge(sensitive)
+    end
+
+    def coverage_conflicts_for(leave_req)
+      return [] unless leave_req.pending? || leave_req.pending_second_approval?
+
+      result = Hr::CheckLeaveCoverage.call(leave_request: leave_req)
+      result.data.map { |conflict| serialize_conflict(conflict) }
+    end
+
+    def serialize_conflict(conflict)
+      {
+        id: conflict.id,
+        user_name: conflict.user.full_name,
+        start_date: conflict.start_date,
+        end_date: conflict.end_date
+      }
     end
 
     def serialize_lr_user(usr)

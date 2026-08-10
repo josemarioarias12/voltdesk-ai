@@ -119,6 +119,26 @@ RSpec.describe Hr::LeaveRequestsController, type: :request do
         expect(json['props']['leave_request']['can_approve']).to be(false)
       end
     end
+
+    context 'when other department members have overlapping approved leave' do
+      let(:department) { create(:department, workspace: workspace) }
+      let(:leave_request) do
+        create(:leave_request, user: employee, workspace: workspace, department: department,
+                                start_date: 10.days.from_now, end_date: 15.days.from_now)
+      end
+
+      before do
+        colleague = create(:user, workspace: workspace, department: department)
+        create(:leave_request, user: colleague, workspace: workspace, department: department,
+                                status: :approved, start_date: 12.days.from_now, end_date: 20.days.from_now)
+      end
+
+      it 'includes the conflict in coverage_conflicts' do
+        get hr_leave_request_path(leave_request), headers: inertia_headers
+        json = response.parsed_body
+        expect(json['props']['leave_request']['coverage_conflicts'].length).to eq(1)
+      end
+    end
   end
 
   describe 'POST /hr/leave_requests/:id/approve' do
