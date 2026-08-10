@@ -78,6 +78,12 @@ export interface LeaveRequest {
   can_approve: boolean
   can_reject: boolean
   can_final_approve: boolean
+  coverage_conflicts: Array<{
+    id: number
+    user_name: string
+    start_date: string
+    end_date: string
+  }>
 }
 
 export interface OnboardingTask {

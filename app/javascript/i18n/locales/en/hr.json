@@ -180,7 +180,13 @@
       "awaitingFinalNote": "Awaiting final approval from an admin",
       "quickActions": "Quick Actions",
       "viewAll": "View all requests",
-      "newRequest": "New request"
+      "newRequest": "New request",
+      "coverageWarning": {
+        "title": "Coverage overlap",
+        "description_one": "{{count}} other person in {{department}} already has approved time off during this period:",
+        "description_other": "{{count}} other people in {{department}} already have approved time off during this period:",
+        "dateRange": "{{start}} – {{end}}"
+      }
     }
   },
   "climateSurveys": {

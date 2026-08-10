@@ -180,7 +180,13 @@
       "awaitingFinalNote": "Esperando aprobación final de un administrador",
       "quickActions": "Acciones Rápidas",
       "viewAll": "Ver todas las solicitudes",
-      "newRequest": "Nueva solicitud"
+      "newRequest": "Nueva solicitud",
+      "coverageWarning": {
+        "title": "Solapamiento de cobertura",
+        "description_one": "{{count}} persona más de {{department}} ya tiene tiempo libre aprobado durante este período:",
+        "description_other": "{{count}} personas más de {{department}} ya tienen tiempo libre aprobado durante este período:",
+        "dateRange": "{{start}} – {{end}}"
+      }
     }
   },
   "climateSurveys": {

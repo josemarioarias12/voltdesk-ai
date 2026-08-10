@@ -299,6 +299,30 @@ export default function LeaveRequestsShow({ leave_request: lr }: Props) {
                   <span style={{ ...BADGE, color: WARNING, background: WARNING_BG }}>{t('hr:leaveRequests.show.actionRequired')}</span>
                 </div>
 
+                {lr.coverage_conflicts.length > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 16, padding: '10px 14px', background: WARNING_BG, borderRadius: 10 }}>
+                    <AlertIcon />
+                    <div>
+                      <p style={{ fontSize: 13, fontWeight: 600, color: WARNING, margin: '0 0 4px' }}>
+                        {t('hr:leaveRequests.show.coverageWarning.title')}
+                      </p>
+                      <p style={{ fontSize: 13, color: SLATE[600], margin: '0 0 6px' }}>
+                        {t('hr:leaveRequests.show.coverageWarning.description', {
+                          count: lr.coverage_conflicts.length,
+                          department: lr.user.department ?? 'General',
+                        })}
+                      </p>
+                      <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: SLATE[600] }}>
+                        {lr.coverage_conflicts.map(conflict => (
+                          <li key={conflict.id}>
+                            {conflict.user_name} — {t('hr:leaveRequests.show.coverageWarning.dateRange', { start: conflict.start_date, end: conflict.end_date })}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+
                 {isFinalStage && (
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 16, padding: '10px 14px', background: '#F5F3FF', borderRadius: 10 }}>
                     <AlertIcon color="#7C3AED" />
