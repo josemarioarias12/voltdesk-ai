@@ -65,6 +65,43 @@ RSpec.describe Ai::Tools::LogAssetMaintenance do
       end
     end
 
+    context 'em dash normalization (real production naming pattern)' do
+      let!(:em_dash_asset) do
+        create(:asset, workspace: workspace, name: 'Core Banking Server — Primary')
+      end
+
+      it 'resolves a real em-dash name when the user types a regular hyphen' do
+        result = tool.call(asset_identifier: 'Core Banking Server - Primary', status: 'in_maintenance')
+
+        expect(result).to be_success
+        expect(result.data[:summary][:asset_name]).to eq('Core Banking Server — Primary')
+      end
+
+      it 'resolves a partial match across the dash regardless of spacing' do
+        result = tool.call(asset_identifier: 'banking server - primary', status: 'in_maintenance')
+
+        expect(result).to be_success
+        expect(result.data[:summary][:asset_name]).to eq('Core Banking Server — Primary')
+      end
+
+      it 'still resolves the real em dash exactly as typed' do
+        result = tool.call(asset_identifier: 'Core Banking Server — Primary', status: 'in_maintenance')
+
+        expect(result).to be_success
+      end
+    end
+
+    context 'no-match error message' do
+      it 'suggests real asset numbers from this workspace, not a hardcoded example' do
+        asset
+        result = tool.call(asset_identifier: 'Nonexistent Device', status: 'in_maintenance')
+
+        expect(result).to be_failure
+        expect(result.error).to include(asset.asset_number)
+        expect(result.error).not_to include('AST-00142')
+      end
+    end
+
     context 'invalid input' do
       it 'fails without raising on an out-of-range status' do
         result = tool.call(asset_identifier: asset.asset_number, status: 'retired')

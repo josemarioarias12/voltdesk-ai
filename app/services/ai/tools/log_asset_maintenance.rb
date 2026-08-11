@@ -5,6 +5,9 @@ module Ai
     class LogAssetMaintenance < Base
       ALLOWED_STATUSES = %w[active in_maintenance].freeze
 
+      NORMALIZE_SQL = "REPLACE(REPLACE(LOWER(name), '—', '-'), '–', '-')"
+      private_constant :NORMALIZE_SQL
+
       def self.tool_name = 'log_asset_maintenance'
 
       def self.description
@@ -87,23 +90,29 @@ module Ai
       private
 
       def resolve_asset(identifier)
+        normalized = normalize(identifier)
         scope = @workspace.assets
-        by_number = scope.where('LOWER(asset_number) = ?', identifier.to_s.downcase).first
+        by_number = scope.where('LOWER(asset_number) = ?', normalized).first
         return by_number if by_number
 
-        by_name = scope.where('LOWER(name) = ?', identifier.to_s.downcase).first
+        by_name = scope.where("#{NORMALIZE_SQL} = ?", normalized).first
         return by_name if by_name
 
-        matches = scope.where('LOWER(name) LIKE ?', "%#{identifier.to_s.downcase}%").to_a
+        matches = scope.where("#{NORMALIZE_SQL} LIKE ?", "%#{normalized}%").to_a
         return matches.first if matches.size == 1
 
         ServiceResult.failure(no_match_message(identifier, matches))
       end
 
+      def normalize(value)
+        value.to_s.downcase.gsub(/[—–]/, '-').squeeze(' ').strip
+      end
+
       def no_match_message(identifier, matches)
         if matches.empty?
-          "No asset matches \"#{identifier}\". Ask the user for the asset number " \
-            '(e.g. AST-00142) or a more specific name.'
+          sample_numbers = @workspace.assets.order(:asset_number).limit(3).pluck(:asset_number).join(', ')
+          "No asset matches \"#{identifier}\". Ask the user for the exact asset number " \
+            "(e.g. #{sample_numbers}) or a more specific name."
         else
           sample = matches.first(5).map { |a| "#{a.name} (#{a.asset_number})" }.join(', ')
           extra = matches.size > 5 ? " and #{matches.size - 5} more" : ''
