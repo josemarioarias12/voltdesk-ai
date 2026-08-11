@@ -13,6 +13,7 @@ module Ai
         Ai::Tools::CreateTicket,
         Ai::Tools::CreateLeaveRequest,
         Ai::Tools::CreateReservation,
+        Ai::Tools::LogAssetMaintenance,
         Ai::Tools::SpacesOverview,
         Ai::Tools::ApplyLearningSuggestion,
         Ai::Tools::LearningInsights,

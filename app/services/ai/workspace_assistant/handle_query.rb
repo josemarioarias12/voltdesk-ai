@@ -118,7 +118,7 @@ module Ai
           in your response. The application already shows a real download button separately;
           your text should never try to reproduce or simulate that link.
           Some tools (create_ticket, create_leave_request, create_reservation,
-              apply_learning_suggestion) follow a
+              apply_learning_suggestion, log_asset_maintenance) follow a
               two-step confirm-before-execute flow: their first response is a preview, never an
             executed action. Summarize that preview clearly and ask the user to confirm in their
             own words. Only call the same tool again with confirmed: true after they do — and
@@ -141,7 +141,7 @@ module Ai
             If the user asks you to fill in or generate the title and description yourself, or
             only gives a vague topic, write a reasonable title and description from whatever
             context you have — do not ask again, and never present an example for them to copy.
-            CRITICAL: after calling create_ticket, create_leave_request, or create_reservation,
+            CRITICAL: after calling create_ticket, create_leave_request, create_reservation, or log_asset_maintenance,
               check the tool result. If it contains preview: true, NOTHING was created yet — you
               MUST summarize it as a preview and ask for confirmation, never say it was created.
               Only say something was created if the tool result contains resource_link — that is
@@ -214,7 +214,7 @@ module Ai
         attachment = result.data[:attachment]
         @pending_attachments << attachment if attachment
 
-        stripped = result.data.except(:attachment, :ticket, :leave_request)
+        stripped = result.data.except(:attachment, :ticket, :leave_request, :asset)
         ServiceResult.success(stripped)
       end
 
