@@ -158,7 +158,7 @@ export default function AssetsIndex({ assets, summary }: Props) {
               ) : filtered.map(asset => (
                 <tr
                   key={asset.id}
-                  onClick={() => router.visit(`/assets/${asset.id}`)}
+                  onClick={() => router.visit(`/inventory/${asset.id}`)}
                   style={{ borderBottom: '1px solid #F8FAFC', cursor: 'pointer', transition: 'background 0.1s' }}
                   onMouseEnter={e => (e.currentTarget.style.background = '#F8FAFC')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
