@@ -42,7 +42,7 @@ class AiAuditLog < ApplicationRecord
     scope = scope.where(operation: filters[:operation]) if filters[:operation].present?
     scope = scope.where(provider: filters[:provider]) if filters[:provider].present?
     scope = scope.where(status: filters[:status]) if filters[:status].present?
-    scope = scope.where(created_at: filters[:from].to_date..) if filters[:from].present?
+    scope = scope.where(created_at: filters[:from].to_date.beginning_of_day..) if filters[:from].present?
     scope = scope.where(created_at: ..filters[:to].to_date.end_of_day) if filters[:to].present?
     scope = scope.where(assistant_message_id: filters[:assistant_message_id]) if filters[:assistant_message_id].present?
     scope
