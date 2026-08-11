@@ -103,7 +103,7 @@
   },
   "telegramTest": {
     "pageTitle": "Prueba de Inteligencia de Telegram",
-    "header": { "title": "Prueba de Inteligencia de Telegram", "subtitle": "Analiza las \u00faltimas 24 horas y env\u00eda un insight predictivo al grupo de Telegram de VoltDesk AI." },
+    "header": { "title": "Prueba de Inteligencia de Telegram", "subtitle": "Analiza los \u00faltimos 90 d\u00edas y env\u00eda un insight predictivo al grupo de Telegram de VoltDesk AI." },
     "sentPrefix": "Enviado: ",
     "failedPrefix": "Fall\u00f3: ",
     "runTest": "Ejecutar Prueba de Inteligencia"

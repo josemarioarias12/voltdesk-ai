@@ -103,7 +103,7 @@
   },
   "telegramTest": {
     "pageTitle": "Telegram Intelligence Test",
-    "header": { "title": "Telegram Intelligence Test", "subtitle": "Analyzes the last 24 hours and sends a predictive insight to the VoltDesk AI Telegram group." },
+    "header": { "title": "Telegram Intelligence Test", "subtitle": "Analyzes the last 90 days and sends a predictive insight to the VoltDesk AI Telegram group." },
     "sentPrefix": "Sent: ",
     "failedPrefix": "Failed: ",
     "runTest": "Run Intelligence Test"

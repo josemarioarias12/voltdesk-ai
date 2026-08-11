@@ -16,6 +16,8 @@ en:
     pattern_alerts:
       resolved: "Alert resolved"
       resolve_failed: "Could not resolve alert"
+    telegram_test:
+      insufficient_data: "Not enough recent activity to generate a prediction. Try again later."
 
   hr:
     leave_requests:
