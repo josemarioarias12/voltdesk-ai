@@ -101,7 +101,7 @@ export default function LeaveRequestsNew({ leave_types }: Props) {
     other:      { label: t('hr:leaveType.other'),      color: SLATE[600], border: 'rgba(15,23,42,0.14)', Icon: FileText },
   }
 
-  const { data, setData, post, processing, errors } = useForm<{
+  const { data, setData, post, processing, errors, transform } = useForm<{
     leave_type: string
     start_date: string
     end_date: string
@@ -152,6 +152,7 @@ export default function LeaveRequestsNew({ leave_types }: Props) {
     e.preventDefault()
     if (locked) return
     setLocked(true)
+    transform(formData => ({ leave_request: formData }))
     post('/hr/leave_requests', { forceFormData: true, onError: () => setLocked(false) })
   }
 
