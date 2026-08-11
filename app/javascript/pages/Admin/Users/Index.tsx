@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { router } from '@inertiajs/react'
 import { useTranslation } from 'react-i18next'
 import AdminLayout from '@/components/AdminLayout'
@@ -46,6 +46,10 @@ export default function UsersIndex({ users, departments, assignable_roles, new_u
   const [creating, setCreating]   = useState(false)
   const [copied, setCopied]       = useState(false)
   const [passwordVisible, setPasswordVisible] = useState(!!new_user_password)
+
+  useEffect(() => {
+    if (new_user_password) setPasswordVisible(true)
+  }, [new_user_password])
 
   function handleCreate() {
     if (!firstName.trim() || !lastName.trim() || !email.trim() || !role) return
