@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { router } from '@inertiajs/react'
 import { useTranslation } from 'react-i18next'
 import AppLayout from '@/components/AppLayout'
+import { toast } from 'sonner'
 import { LeaveRequest } from '@/types'
 import { CARD, LABEL, BADGE, SLATE, NAVY, TEAL, DANGER, DANGER_BG, WARNING, WARNING_BG, SUCCESS, SUCCESS_BG } from '@/styles/tokens'
 
@@ -192,14 +193,21 @@ export default function LeaveRequestsShow({ leave_request: lr }: Props) {
 
   const handleApprove = () => {
     setSubmitting(true)
-    router.post(`/hr/leave_requests/${lr.id}/approve`, {}, { onFinish: () => setSubmitting(false) })
+    const isFinal = lr.status === 'pending_second_approval'
+    router.post(`/hr/leave_requests/${lr.id}/approve`, {}, {
+      onSuccess: () => toast.success(isFinal ? t('hr:leaveRequests.index.toast.finalApproved', { name: lr.user.full_name }) : t('hr:leaveRequests.index.toast.approved', { name: lr.user.full_name })),
+      onError:   () => toast.error(t('hr:leaveRequests.index.toast.approveFailed')),
+      onFinish:  () => setSubmitting(false),
+    })
   }
 
   const handleReject = () => {
     if (!rejectionReason.trim()) return
     setSubmitting(true)
     router.post(`/hr/leave_requests/${lr.id}/reject`, { rejection_reason: rejectionReason }, {
-      onFinish: () => setSubmitting(false),
+      onSuccess: () => toast.error(t('hr:leaveRequests.index.toast.rejected', { name: lr.user.full_name })),
+      onError:   () => toast.error(t('hr:leaveRequests.index.toast.rejectFailed')),
+      onFinish:  () => setSubmitting(false),
     })
   }
 

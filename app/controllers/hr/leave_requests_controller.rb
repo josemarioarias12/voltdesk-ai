@@ -63,9 +63,9 @@ module Hr
 
       if result.success?
         log_leave_decision(:approved)
-        redirect_to hr_leave_requests_path, notice: approval_notice(@leave_request.reload)
+        redirect_to hr_leave_requests_path
       else
-        redirect_back_or_to(hr_leave_request_path(@leave_request), alert: result.error)
+        redirect_back_or_to(hr_leave_request_path(@leave_request))
       end
     end
 
@@ -83,9 +83,9 @@ module Hr
       )
       if result.success?
         log_leave_decision(:rejected)
-        redirect_to hr_leave_requests_path, notice: t('hr.leave_requests.rejected')
+        redirect_to hr_leave_requests_path
       else
-        redirect_back_or_to(hr_leave_request_path(@leave_request), alert: result.error)
+        redirect_back_or_to(hr_leave_request_path(@leave_request))
       end
     end
 
@@ -98,14 +98,6 @@ module Hr
     def leave_request_params
       params.expect(leave_request: %i[leave_type start_date end_date reason coverage_plan
                                       medical_notes doctor_certificate])
-    end
-
-    def approval_notice(leave_request)
-      if leave_request.pending_second_approval?
-        t('hr.leave_requests.pending_second_approval')
-      else
-        t('hr.leave_requests.approved')
-      end
     end
 
     def log_leave_decision(decision)
