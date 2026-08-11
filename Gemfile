@@ -65,7 +65,7 @@ group :test do
   gem 'webmock'
 end
 
-gem 'inertia_rails', '~> 3.21'
+gem 'inertia_rails', '~> 3.22'
 gem 'pundit', '~> 2.5'
 gem 'vite_rails', '~> 3.11'
 
