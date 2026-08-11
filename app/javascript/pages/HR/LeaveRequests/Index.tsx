@@ -342,7 +342,7 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
                 const status    = STATUS_STYLES[lr.status] ?? STATUS_STYLES.pending
                 const leaveType = LEAVE_TYPE_STYLES[lr.leave_type] ?? { bg: SLATE[50], color: SLATE[600] }
                 return (
-                  <div key={lr.id} style={{ ...CARD, padding: 16 }}>
+                  <div key={lr.id} onClick={() => router.get(`/hr/leave_requests/${lr.id}`)} style={{ ...CARD, padding: 16, cursor: 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
                         <Avatar avatarUrl={lr.user.avatar_url} firstName={lr.user.full_name} size={34} />
                         <div style={{ flex: 1, minWidth: 0 }}>
@@ -389,9 +389,10 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
                       const status    = STATUS_STYLES[lr.status] ?? STATUS_STYLES.pending
                       const leaveType = LEAVE_TYPE_STYLES[lr.leave_type] ?? { bg: SLATE[50], color: SLATE[600] }
                       return (
-                        <tr key={lr.id} style={{
+                        <tr key={lr.id} onClick={() => router.get(`/hr/leave_requests/${lr.id}`)} style={{
                           borderBottom: i < filtered.length - 1 ? '1px solid rgba(15,23,42,0.04)' : 'none',
                           borderLeft: lr.status === 'pending' || lr.status === 'pending_second_approval' ? `3px solid ${status.color}` : '3px solid transparent',
+                          cursor: 'pointer',
                         }}>
                           <td style={{ padding: '14px 16px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -451,7 +452,7 @@ function RowActions({ lr, onApprove, onReject, submitting, fullWidth, t }: {
     return (
       <div style={containerStyle}>
         <button
-          onClick={() => onApprove(lr.id, lr.user.full_name, true)}
+          onClick={e => { e.stopPropagation(); onApprove(lr.id, lr.user.full_name, true) }}
           disabled={submitting}
           style={{ flex: fullWidth ? 1 : undefined, background: '#7C3AED', color: '#fff', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}
         >
@@ -459,7 +460,7 @@ function RowActions({ lr, onApprove, onReject, submitting, fullWidth, t }: {
         </button>
         {lr.can_reject && (
           <button
-            onClick={() => onReject(lr.id, lr.user.full_name)}
+            onClick={e => { e.stopPropagation(); onReject(lr.id, lr.user.full_name) }}
             style={{ flex: fullWidth ? 1 : undefined, background: 'transparent', color: DANGER, border: `1px solid ${DANGER}`, borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
           >
             {t('hr:leaveRequests.index.table.reject')}
@@ -473,7 +474,7 @@ function RowActions({ lr, onApprove, onReject, submitting, fullWidth, t }: {
     return (
       <div style={containerStyle}>
         <button
-          onClick={() => onApprove(lr.id, lr.user.full_name, false)}
+          onClick={e => { e.stopPropagation(); onApprove(lr.id, lr.user.full_name, false) }}
           disabled={submitting}
           style={{ flex: fullWidth ? 1 : undefined, background: SUCCESS, color: '#fff', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}
         >
@@ -481,7 +482,7 @@ function RowActions({ lr, onApprove, onReject, submitting, fullWidth, t }: {
         </button>
         {lr.can_reject && (
           <button
-            onClick={() => onReject(lr.id, lr.user.full_name)}
+            onClick={e => { e.stopPropagation(); onReject(lr.id, lr.user.full_name) }}
             style={{ flex: fullWidth ? 1 : undefined, background: 'transparent', color: DANGER, border: `1px solid ${DANGER}`, borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}
           >
             <XIcon /> {t('hr:leaveRequests.index.table.reject')}
@@ -493,7 +494,7 @@ function RowActions({ lr, onApprove, onReject, submitting, fullWidth, t }: {
 
   return (
     <button
-      onClick={() => router.get(`/hr/leave_requests/${lr.id}`)}
+      onClick={e => { e.stopPropagation(); router.get(`/hr/leave_requests/${lr.id}`) }}
       style={{ background: 'transparent', color: SLATE[600], border: '1px solid rgba(15,23,42,0.14)', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, width: fullWidth ? '100%' : undefined }}
     >
       <EyeIcon /> {t('hr:leaveRequests.index.table.view')}
