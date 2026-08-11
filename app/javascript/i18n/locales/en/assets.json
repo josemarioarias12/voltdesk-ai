@@ -1,0 +1,120 @@
+{
+  "status": {
+    "active": "Active",
+    "in_maintenance": "In Maintenance",
+    "retired": "Retired",
+    "lost": "Lost"
+  },
+  "assetType": {
+    "laptop": "Laptop",
+    "desktop": "Desktop",
+    "server": "Server",
+    "monitor": "Monitor",
+    "phone": "Phone",
+    "software": "Software",
+    "other": "Other"
+  },
+  "condition": {
+    "excellent": "Excellent",
+    "good": "Good",
+    "fair": "Fair",
+    "poor": "Poor"
+  },
+  "index": {
+    "pageTitle": "Asset Inventory",
+    "subtitle": "Track and manage all company hardware and software",
+    "addAsset": "Add Asset",
+    "kpis": {
+      "totalAssets": "Total Assets",
+      "highRisk": "High Risk (score >70)",
+      "inMaintenance": "In Maintenance",
+      "warrantyExpiring": "Warranties Expiring (30d)"
+    },
+    "searchPlaceholder": "Search assets...",
+    "filters": {
+      "assetType": "Asset Type",
+      "status": "Status",
+      "riskLevel": "Risk Level"
+    },
+    "table": {
+      "asset": "Asset",
+      "serialNumber": "Serial Number",
+      "assignedTo": "Assigned To",
+      "department": "Department",
+      "status": "Status",
+      "riskScore": "Risk Score",
+      "warranty": "Warranty",
+      "lastUpdated": "Last Updated",
+      "unassigned": "Unassigned"
+    },
+    "empty": {
+      "title": "No assets found",
+      "description": "Try adjusting your filters or register a new asset."
+    }
+  },
+  "new": {
+    "pageTitle": "Add Asset",
+    "subtitle": "Register a new asset to the inventory",
+    "assetTypeLabel": "Asset Type",
+    "fields": {
+      "assetName": "Asset Name *",
+      "modelSpec": "Model / Specification",
+      "serialNumber": "Serial Number",
+      "purchaseDate": "Purchase Date",
+      "purchasePrice": "Purchase Price",
+      "warrantyExpiryDate": "Warranty Expiry Date",
+      "warrantyHint": "Warranty alerts will be sent 30, 15, and 7 days before expiry",
+      "assignTo": "Assign To",
+      "selectEmployee": "Select employee...",
+      "department": "Department",
+      "selectDepartment": "Select department...",
+      "initialCondition": "Initial Condition",
+      "notes": "Notes (optional)",
+      "notesPlaceholder": "Any additional notes..."
+    },
+    "submit": "Add to Inventory",
+    "submitting": "Adding to Inventory...",
+    "cancel": "Cancel"
+  },
+  "show": {
+    "back": "Assets",
+    "assetInformation": "Asset Information",
+    "info": {
+      "serialNumber": "Serial Number",
+      "model": "Model",
+      "purchaseDate": "Purchase Date",
+      "assignedTo": "Assigned To",
+      "unassigned": "Unassigned",
+      "assignmentDate": "Assignment Date",
+      "conditionAtAssignment": "Condition at Assignment"
+    },
+    "riskScoreLabel": "AI Risk Score",
+    "riskLevel": {
+      "high": "High Risk — Action Required",
+      "medium": "Medium Risk",
+      "low": "Low Risk"
+    },
+    "xai": {
+      "poweredByGpt": "AI Risk Assessment — Powered by GPT-4o",
+      "riskFactors": "Risk Factors",
+      "recommendation": "Recommendation: "
+    },
+    "warranty": {
+      "title": "Warranty",
+      "expiringSoon": "Warranty expiring soon!",
+      "expires": "Expires",
+      "days": "({{count}} days)",
+      "renewWarranty": "Renew Warranty"
+    },
+    "incidentHistory": "Incident History ({{count}})",
+    "noIncidents": "No incidents recorded",
+    "resolved": "Resolved",
+    "quickActions": {
+      "title": "Quick Actions",
+      "reportIncident": "Report Incident",
+      "scheduleMaintenance": "Schedule Maintenance",
+      "reassignAsset": "Reassign Asset",
+      "retireAsset": "Retire Asset"
+    }
+  }
+}

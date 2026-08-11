@@ -1,0 +1,120 @@
+{
+  "status": {
+    "active": "Activo",
+    "in_maintenance": "En Mantenimiento",
+    "retired": "Retirado",
+    "lost": "Perdido"
+  },
+  "assetType": {
+    "laptop": "Laptop",
+    "desktop": "Escritorio",
+    "server": "Servidor",
+    "monitor": "Monitor",
+    "phone": "Teléfono",
+    "software": "Software",
+    "other": "Otro"
+  },
+  "condition": {
+    "excellent": "Excelente",
+    "good": "Bueno",
+    "fair": "Regular",
+    "poor": "Malo"
+  },
+  "index": {
+    "pageTitle": "Inventario de Activos",
+    "subtitle": "Rastrea y gestiona todo el hardware y software de la empresa",
+    "addAsset": "Agregar Activo",
+    "kpis": {
+      "totalAssets": "Total de Activos",
+      "highRisk": "Alto Riesgo (score >70)",
+      "inMaintenance": "En Mantenimiento",
+      "warrantyExpiring": "Garantías por Vencer (30d)"
+    },
+    "searchPlaceholder": "Buscar activos...",
+    "filters": {
+      "assetType": "Tipo de Activo",
+      "status": "Estado",
+      "riskLevel": "Nivel de Riesgo"
+    },
+    "table": {
+      "asset": "Activo",
+      "serialNumber": "Número de Serie",
+      "assignedTo": "Asignado a",
+      "department": "Departamento",
+      "status": "Estado",
+      "riskScore": "Puntaje de Riesgo",
+      "warranty": "Garantía",
+      "lastUpdated": "Última Actualización",
+      "unassigned": "Sin asignar"
+    },
+    "empty": {
+      "title": "No se encontraron activos",
+      "description": "Ajusta tus filtros o registra un nuevo activo."
+    }
+  },
+  "new": {
+    "pageTitle": "Agregar Activo",
+    "subtitle": "Registra un nuevo activo en el inventario",
+    "assetTypeLabel": "Tipo de Activo",
+    "fields": {
+      "assetName": "Nombre del Activo *",
+      "modelSpec": "Modelo / Especificación",
+      "serialNumber": "Número de Serie",
+      "purchaseDate": "Fecha de Compra",
+      "purchasePrice": "Precio de Compra",
+      "warrantyExpiryDate": "Fecha de Vencimiento de Garantía",
+      "warrantyHint": "Se enviarán alertas de garantía 30, 15 y 7 días antes del vencimiento",
+      "assignTo": "Asignar a",
+      "selectEmployee": "Seleccionar empleado...",
+      "department": "Departamento",
+      "selectDepartment": "Seleccionar departamento...",
+      "initialCondition": "Condición Inicial",
+      "notes": "Notas (opcional)",
+      "notesPlaceholder": "Notas adicionales..."
+    },
+    "submit": "Agregar al Inventario",
+    "submitting": "Agregando al Inventario...",
+    "cancel": "Cancelar"
+  },
+  "show": {
+    "back": "Activos",
+    "assetInformation": "Información del Activo",
+    "info": {
+      "serialNumber": "Número de Serie",
+      "model": "Modelo",
+      "purchaseDate": "Fecha de Compra",
+      "assignedTo": "Asignado a",
+      "unassigned": "Sin asignar",
+      "assignmentDate": "Fecha de Asignación",
+      "conditionAtAssignment": "Condición al Asignar"
+    },
+    "riskScoreLabel": "Puntaje de Riesgo IA",
+    "riskLevel": {
+      "high": "Alto Riesgo — Acción Requerida",
+      "medium": "Riesgo Medio",
+      "low": "Riesgo Bajo"
+    },
+    "xai": {
+      "poweredByGpt": "AI Risk Assessment — Powered by GPT-4o",
+      "riskFactors": "Risk Factors",
+      "recommendation": "Recommendation: "
+    },
+    "warranty": {
+      "title": "Garantía",
+      "expiringSoon": "¡La garantía vence pronto!",
+      "expires": "Vence",
+      "days": "({{count}} días)",
+      "renewWarranty": "Renovar Garantía"
+    },
+    "incidentHistory": "Historial de Incidentes ({{count}})",
+    "noIncidents": "No hay incidentes registrados",
+    "resolved": "Resuelto",
+    "quickActions": {
+      "title": "Acciones Rápidas",
+      "reportIncident": "Reportar Incidente",
+      "scheduleMaintenance": "Programar Mantenimiento",
+      "reassignAsset": "Reasignar Activo",
+      "retireAsset": "Retirar Activo"
+    }
+  }
+}
