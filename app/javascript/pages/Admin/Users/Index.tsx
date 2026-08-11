@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { router } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 import AdminLayout from '@/components/AdminLayout'
 
 interface UserRow {
@@ -29,11 +30,13 @@ const GRAY   = '#475569'
 const LIGHT  = '#F8FAFC'
 const BORDER = '#E2E8F0'
 
-function roleLabel(role: string) {
-  return role.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' ')
-}
-
 export default function UsersIndex({ users, departments, assignable_roles, new_user_password }: Props) {
+  const { t } = useTranslation(['common'])
+
+  function roleLabel(role: string) {
+    return t(`common:roles.${role}`, { defaultValue: role.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' ') })
+  }
+
   const [showModal, setShowModal] = useState(false)
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName]   = useState('')

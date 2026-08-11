@@ -212,6 +212,10 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
     return t(`hr:leaveType.${type}`, { defaultValue: humanize(type) })
   }
 
+  function roleLabel(role: string) {
+    return t(`common:roles.${role}`, { defaultValue: humanize(role) })
+  }
+
   return (
     <AppLayout title={t('hr:leaveRequests.index.title')}>
       {rejectModal && (
@@ -394,7 +398,7 @@ export default function LeaveRequestsIndex({ leave_requests, stats }: Props) {
                                 <Avatar avatarUrl={lr.user.avatar_url} firstName={lr.user.full_name} size={34} />
                                 <div>
                                 <p style={{ fontSize: 13, fontWeight: 600, color: NAVY, margin: 0 }}>{lr.user.full_name}</p>
-                                <p style={{ fontSize: 12, color: SLATE[400], margin: 0 }}>{humanize(lr.user.role)} · {lr.user.department ?? 'General'}</p>
+                                <p style={{ fontSize: 12, color: SLATE[400], margin: 0 }}>{roleLabel(lr.user.role)} · {lr.user.department ?? 'General'}</p>
                               </div>
                             </div>
                           </td>

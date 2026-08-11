@@ -59,6 +59,18 @@
       "networkError": "Error de red — Volt Copilot no respondió."
     }
   },
+  "roles": {
+    "super_admin": "Super Administrador",
+    "workspace_admin": "Administrador del Workspace",
+    "hr_manager": "Gerente de RRHH",
+    "it_manager": "Gerente de TI",
+    "facilities_manager": "Gerente de Instalaciones",
+    "operations_manager": "Gerente de Operaciones",
+    "department_manager": "Gerente de Departamento",
+    "agent": "Agente",
+    "employee": "Empleado",
+    "guest": "Invitado"
+  },
   "errorPages": {
     "notFound": {
       "title": "Página no encontrada",

@@ -186,6 +186,10 @@ export default function LeaveRequestsShow({ leave_request: lr }: Props) {
     return t(`hr:leaveType.${type}`, { defaultValue: type })
   }
 
+  function roleLabel(role: string) {
+    return t(`common:roles.${role}`, { defaultValue: role.replace(/_/g, ' ') })
+  }
+
   const handleApprove = () => {
     setSubmitting(true)
     router.post(`/hr/leave_requests/${lr.id}/approve`, {}, { onFinish: () => setSubmitting(false) })
@@ -238,7 +242,7 @@ export default function LeaveRequestsShow({ leave_request: lr }: Props) {
                   </div>
                   <div>
                     <p style={{ fontSize: 15, fontWeight: 700, color: NAVY, margin: 0 }}>{lr.user.full_name}</p>
-                    <p style={{ fontSize: 13, color: SLATE[400], margin: 0 }}>{(lr.user.role ?? '').replace(/_/g, ' ')} · {lr.user.department ?? 'General'}</p>
+                    <p style={{ fontSize: 13, color: SLATE[400], margin: 0 }}>{roleLabel(lr.user.role ?? '')} · {lr.user.department ?? 'General'}</p>
                   </div>
                 </div>
                 <span style={{ ...BADGE, color: '#2563EB', background: '#EFF6FF' }}>

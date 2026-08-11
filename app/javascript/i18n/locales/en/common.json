@@ -59,6 +59,18 @@
       "networkError": "Network error \u2014 Volt Copilot did not respond."
     }
   },
+  "roles": {
+    "super_admin": "Super Admin",
+    "workspace_admin": "Workspace Admin",
+    "hr_manager": "HR Manager",
+    "it_manager": "IT Manager",
+    "facilities_manager": "Facilities Manager",
+    "operations_manager": "Operations Manager",
+    "department_manager": "Department Manager",
+    "agent": "Agent",
+    "employee": "Employee",
+    "guest": "Guest"
+  },
   "errorPages": {
     "notFound": {
       "title": "Page not found",
