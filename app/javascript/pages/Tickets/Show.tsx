@@ -213,7 +213,9 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
   const meta = ticket.ai_metadata
   if (!meta?.reasoning) return null
 
-  const { category_signals, priority_signals, confidence } = meta.reasoning
+  const { category_signals, priority_signals, confidence: rawConfidence } = meta.reasoning
+  const hasConfidence = typeof rawConfidence === 'number'
+  const confidence = rawConfidence ?? 0
   const confidencePct = Math.round(confidence * 100)
   const isHigh = confidence >= 0.70
 
@@ -233,12 +235,12 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
           </div>
           <div style={{ textAlign: 'left' }}>
             <p style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>{t('show.xai.title')}</p>
-            <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>GPT-4o · {confidencePct}% {t('show.xai.confidenceSuffix')}</p>
+            <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>GPT-4o · {hasConfidence ? `${confidencePct}% ${t('show.xai.confidenceSuffix')}` : t('show.xai.notEvaluated')}</p>
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: isHigh ? '#F0FDF4' : '#FEF2F2', color: isHigh ? '#15803D' : '#DC2626', border: `1px solid ${isHigh ? 'rgba(21,128,61,0.15)' : 'rgba(220,38,38,0.15)'}` }}>
-            {t('show.xai.confBadge', { value: confidence.toFixed(2) })}
+          <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: !hasConfidence ? '#F8FAFC' : isHigh ? '#F0FDF4' : '#FEF2F2', color: !hasConfidence ? '#94A3B8' : isHigh ? '#15803D' : '#DC2626', border: `1px solid ${!hasConfidence ? 'rgba(148,163,184,0.25)' : isHigh ? 'rgba(21,128,61,0.15)' : 'rgba(220,38,38,0.15)'}` }}>
+            {hasConfidence ? t('show.xai.confBadge', { value: confidence.toFixed(2) }) : t('show.xai.confidenceUnavailable')}
           </span>
           <motion.div animate={{ rotate: collapsed ? 0 : 180 }} transition={{ duration: 0.2 }}>
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -312,7 +314,7 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
               </div>
 
               {/* Right — confidence box (Banani style) */}
-              <div style={{ padding: '16px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: isHigh ? 'rgba(21,128,61,0.02)' : 'rgba(220,38,38,0.02)' }}>
+              <div style={{ padding: '16px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: !hasConfidence ? 'rgba(148,163,184,0.04)' : isHigh ? 'rgba(21,128,61,0.02)' : 'rgba(220,38,38,0.02)' }}>
                 <p style={{ ...LABEL, marginBottom: 12, textAlign: 'center' }}>{t('show.xai.confidence')}</p>
 
                 {/* Big number */}
@@ -322,11 +324,11 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
                   transition={{ type: 'spring', stiffness: 280, damping: 18, delay: 0.1 }}
                   style={{ textAlign: 'center', marginBottom: 10 }}
                 >
-                  <p style={{ fontSize: 36, fontWeight: 700, color: isHigh ? '#15803D' : '#DC2626', letterSpacing: '-0.03em', lineHeight: 1 }}>
-                    {confidence.toFixed(2)}
+                  <p style={{ fontSize: 36, fontWeight: 700, color: !hasConfidence ? '#94A3B8' : isHigh ? '#15803D' : '#DC2626', letterSpacing: '-0.03em', lineHeight: 1 }}>
+                    {hasConfidence ? confidence.toFixed(2) : '—'}
                   </p>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: isHigh ? '#15803D' : '#DC2626', marginTop: 4 }}>
-                    {isHigh ? t('show.xai.highConfidence') : t('show.xai.lowConfidence')}
+                  <p style={{ fontSize: 11, fontWeight: 600, color: !hasConfidence ? '#94A3B8' : isHigh ? '#15803D' : '#DC2626', marginTop: 4 }}>
+                    {!hasConfidence ? t('show.xai.notEvaluated') : isHigh ? t('show.xai.highConfidence') : t('show.xai.lowConfidence')}
                   </p>
                 </motion.div>
 
@@ -334,17 +336,19 @@ function XaiPanel({ ticket }: { ticket: Ticket }) {
                 <div style={{ width: '100%', height: 5, background: 'rgba(15,23,42,0.06)', borderRadius: 3, overflow: 'hidden', marginBottom: 8 }}>
                   <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: `${confidencePct}%` }}
+                    animate={{ width: hasConfidence ? `${confidencePct}%` : '0%' }}
                     transition={{ duration: 1.2, ease: 'easeOut', delay: 0.15 }}
-                    style={{ height: '100%', background: isHigh ? '#22C55E' : '#EF4444', borderRadius: 3 }}
+                    style={{ height: '100%', background: !hasConfidence ? '#CBD5E1' : isHigh ? '#22C55E' : '#EF4444', borderRadius: 3 }}
                   />
                 </div>
 
                 <p style={{ fontSize: 10.5, color: '#94A3B8', textAlign: 'center' }}>
-                  {confidencePct}% · {isHigh ? t('show.xai.autoRouting') : t('show.xai.reviewRecommended')}
+                  {hasConfidence
+                    ? `${confidencePct}% · ${isHigh ? t('show.xai.autoRouting') : t('show.xai.reviewRecommended')}`
+                    : t('show.xai.confidenceUnavailableHint')}
                 </p>
 
-                {!isHigh && (
+                {hasConfidence && !isHigh && (
                   <motion.div
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
                     style={{ marginTop: 10, padding: '7px 10px', borderRadius: 7, background: '#FEF2F2', border: '1px solid rgba(220,38,38,0.15)', textAlign: 'center' }}
