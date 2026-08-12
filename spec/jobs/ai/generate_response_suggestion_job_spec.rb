@@ -71,5 +71,29 @@ RSpec.describe Ai::GenerateResponseSuggestionJob, type: :job do
         expect { described_class.perform_now(0) }.not_to raise_error
       end
     end
+
+    context 'when a user_id is given' do
+      let(:agent) { create(:user, workspace:, role: :agent) }
+
+      before do
+        allow(Ai::ResponseSuggester).to receive(:call).and_return(ServiceResult.success(nil))
+      end
+
+      it 'resolves the user and passes it to ResponseSuggester' do
+        described_class.perform_now(ticket.id, agent.id)
+        expect(Ai::ResponseSuggester).to have_received(:call).with(ticket: ticket, user: agent)
+      end
+    end
+
+    context 'when no user_id is given' do
+      before do
+        allow(Ai::ResponseSuggester).to receive(:call).and_return(ServiceResult.success(nil))
+      end
+
+      it 'passes user: nil to ResponseSuggester' do
+        described_class.perform_now(ticket.id)
+        expect(Ai::ResponseSuggester).to have_received(:call).with(ticket: ticket, user: nil)
+      end
+    end
   end
 end

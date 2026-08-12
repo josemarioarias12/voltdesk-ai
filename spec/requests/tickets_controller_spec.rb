@@ -198,7 +198,7 @@ RSpec.describe TicketsController, type: :request do
     it 'enqueues Ai::GenerateResponseSuggestionJob and redirects' do
       expect do
         post suggest_response_ticket_path(ticket)
-      end.to have_enqueued_job(Ai::GenerateResponseSuggestionJob).with(ticket.id)
+      end.to have_enqueued_job(Ai::GenerateResponseSuggestionJob).with(ticket.id, agent.id)
 
       expect(response).to have_http_status(:redirect)
     end

@@ -89,8 +89,13 @@ module Ai
         - Is professional, concise, and empathetic
         - References specific ticket numbers when you borrow from them (e.g. "as resolved in TK-00043")
         - Does NOT hallucinate solutions not supported by the precedents
+        - Signs off with the agent's real name: #{agent_name} — never a placeholder like "[Your Name]"
         Write in the first person as the support agent, not as "AI".
       PROMPT
+    end
+
+    def agent_name
+      @user&.full_name.presence || 'the Support Team'
     end
 
     def build_rag_context(tickets)

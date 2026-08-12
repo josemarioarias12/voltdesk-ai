@@ -128,7 +128,7 @@ class TicketsController < ApplicationController
 
   def suggest_response
     authorize @ticket, :resolve_ticket?
-    Ai::GenerateResponseSuggestionJob.perform_later(@ticket.id)
+    Ai::GenerateResponseSuggestionJob.perform_later(@ticket.id, current_user.id)
     redirect_to ticket_path(@ticket), notice: 'Generating a suggested response...'
   end
 
