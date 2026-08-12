@@ -115,7 +115,16 @@ module Ai
         provider:  provider
       ) do |ctx|
         ctx[:prompt] = prompt
-        raw = adapter.chat(prompt:, system: 'You are a helpdesk AI agent that resolves IT tickets.', model:)
+        raw = adapter.chat(
+          prompt:,
+          system: 'You are a professional IT support specialist responding to a support ' \
+                  'ticket. Write in a clear, empathetic, and concise tone appropriate for ' \
+                  'enterprise communication. Never use markdown formatting (no asterisks, ' \
+                  'no bullet symbols) -- write in plain paragraphs or simple numbered steps ' \
+                  'using plain text. Prioritize the specific details and urgency of the ' \
+                  'current ticket over generic advice from past cases.',
+          model:
+        )
         text = raw.is_a?(Hash) ? raw[:content].to_s : raw.to_s
         ctx[:response]   = text
         ctx[:confidence] = top_similarity
@@ -154,13 +163,14 @@ module Ai
     def build_rag_prompt(similar_descriptions)
       context = similar_descriptions.join("\n---\n")
       <<~PROMPT
-        You are a helpdesk AI agent. Based on similar resolved tickets, generate a resolution response.
+        Based on similar resolved tickets, write a resolution response for this ticket.
         Ticket: #{@ticket.title}
         Description: #{@ticket.description}
         Category: #{@ticket.category}
-        Similar resolutions:
+        Similar past resolutions for reference:
         #{context}
-        Respond with a concise, actionable resolution message for the user.
+        Write a concise, professional response addressing this specific situation.
+        Do not use markdown formatting.
       PROMPT
     end
 
