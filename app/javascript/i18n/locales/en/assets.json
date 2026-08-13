@@ -117,7 +117,9 @@
       "retireAsset": "Retire Asset",
       "markActive": "Mark as Active",
       "confirmScheduleMaintenance": "Schedule maintenance for this asset?",
-      "confirmMarkActive": "Mark this asset as active again?"
+      "confirmMarkActive": "Mark this asset as active again?",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
     }
   }
 }

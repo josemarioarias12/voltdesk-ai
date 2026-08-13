@@ -117,7 +117,9 @@
       "retireAsset": "Retirar Activo",
       "markActive": "Marcar como Activo",
       "confirmScheduleMaintenance": "¿Programar mantenimiento para este activo?",
-      "confirmMarkActive": "¿Marcar este activo como activo nuevamente?"
+      "confirmMarkActive": "¿Marcar este activo como activo nuevamente?",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar"
     }
   }
 }

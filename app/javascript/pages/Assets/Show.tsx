@@ -1,9 +1,11 @@
+import { useEffect, useRef, useState } from 'react'
 import { router } from '@inertiajs/react'
 import { useTranslation } from 'react-i18next'
 import { Bot, AlertTriangle } from 'lucide-react'
 import AppLayout from '@/components/AppLayout'
 import { useLocale } from '@/hooks/useLocale'
 import { useActionCable } from '@/hooks/useActionCable'
+import { CARD, NAVY, SLATE, TEAL } from '@/styles/tokens'
 import type { TFunction } from 'i18next'
 
 interface RiskFactor {
@@ -85,18 +87,84 @@ export default function AssetsShow({ asset }: Props) {
     router.reload({ only: ['asset'] })
   })
 
+  const [confirmModal, setConfirmModal] = useState(false)
+  const modalRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!confirmModal) return
+
+    const focusable = modalRef.current?.querySelectorAll<HTMLElement>(
+      'button, [href], input, [tabindex]:not([tabindex="-1"])'
+    )
+    focusable?.[0]?.focus()
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') { setConfirmModal(false); return }
+      if (e.key !== 'Tab' || !focusable || focusable.length === 0) return
+
+      const first = focusable[0]
+      const last  = focusable[focusable.length - 1]
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [confirmModal])
+
   function scheduleMaintenanceToggle() {
+    setConfirmModal(true)
+  }
+
+  function confirmToggle() {
     const goingToMaintenance = asset.status !== 'in_maintenance'
-    const confirmMsg = goingToMaintenance
-      ? t('assets:show.quickActions.confirmScheduleMaintenance')
-      : t('assets:show.quickActions.confirmMarkActive')
-    if (!window.confirm(confirmMsg)) return
     router.patch(`/inventory/${asset.id}`, { asset: { status: goingToMaintenance ? 'in_maintenance' : 'active' } }, { preserveScroll: true })
+    setConfirmModal(false)
   }
   const warrantyUrgent = asset.days_until_warranty !== null && asset.days_until_warranty <= 30
 
   return (
     <AppLayout title={asset.name}>
+      {confirmModal && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: 16 }}
+          onClick={() => setConfirmModal(false)}
+        >
+          <div
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="maintenance-modal-title"
+            onClick={e => e.stopPropagation()}
+            style={{ ...CARD, padding: 28, width: '100%', maxWidth: 420, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}
+          >
+            <h2 id="maintenance-modal-title" style={{ fontSize: 18, fontWeight: 700, color: NAVY, margin: '0 0 6px' }}>
+              {asset.status === 'in_maintenance'
+                ? t('assets:show.quickActions.markActive')
+                : t('assets:show.quickActions.scheduleMaintenance')}
+            </h2>
+            <p style={{ fontSize: 14, color: SLATE[600], margin: '0 0 20px' }}>
+              {asset.status === 'in_maintenance'
+                ? t('assets:show.quickActions.confirmMarkActive')
+                : t('assets:show.quickActions.confirmScheduleMaintenance')}
+            </p>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button
+                onClick={() => setConfirmModal(false)}
+                style={{ flex: 1, padding: 11, borderRadius: 10, background: 'transparent', border: '1px solid rgba(15,23,42,0.14)', fontSize: 14, fontWeight: 600, color: SLATE[600], cursor: 'pointer' }}
+              >
+                {t('assets:show.quickActions.cancel')}
+              </button>
+              <button
+                onClick={confirmToggle}
+                style={{ flex: 1, padding: 11, borderRadius: 10, background: TEAL, border: 'none', fontSize: 14, fontWeight: 600, color: '#fff', cursor: 'pointer' }}
+              >
+                {t('assets:show.quickActions.confirm')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <style>{`
         .asset-columns { grid-template-columns: 60% 1fr; }
         @media (max-width: 900px) {
