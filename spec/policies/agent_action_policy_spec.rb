@@ -40,6 +40,16 @@ RSpec.describe AgentActionPolicy do
     it { is_expected.to forbid_action(:reject) }
   end
 
+  %i[hr_manager it_manager facilities_manager operations_manager department_manager].each do |manager_role|
+    context "when user is #{manager_role}" do
+      let(:user) { create(:user, workspace: workspace, role: manager_role) }
+
+      it { is_expected.to permit_action(:index) }
+      it { is_expected.to permit_action(:approve) }
+      it { is_expected.to permit_action(:reject) }
+    end
+  end
+
   describe 'Scope' do
     let(:user) { create(:user, workspace: workspace, role: :agent) }
     let(:other_workspace) { create(:workspace) }
