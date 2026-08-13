@@ -20,7 +20,7 @@ RSpec.describe Ai::WorkspaceLearner do
   end
 
   before do
-    allow(Ai::ModelRouter).to receive(:for).with(workspace: workspace, operation: :analysis).and_return(router)
+    allow(Ai::ModelRouter).to receive(:for).with(workspace: workspace, operation: :workspace_learning).and_return(router)
     allow(router).to receive(:resolve).and_return([adapter, model, provider])
     allow(adapter).to receive(:chat).and_return(
       content: valid_ai_response,
@@ -72,6 +72,12 @@ RSpec.describe Ai::WorkspaceLearner do
           hash_including(event: 'learning_suggestion_ready')
         )
         described_class.call(workspace: workspace)
+      end
+
+      it 'writes a real AiAuditLog entry with a valid operation' do
+        expect { described_class.call(workspace: workspace) }.to change(AiAuditLog, :count).by(1)
+        expect(AiAuditLog.last).to be_op_workspace_learning
+        expect(AiAuditLog.last).to be_status_success
       end
     end
 

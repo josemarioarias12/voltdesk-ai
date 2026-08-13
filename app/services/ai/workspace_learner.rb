@@ -31,9 +31,9 @@ module Ai
       patterns = build_patterns(corrections)
       prompt   = build_prompt(patterns, corrections.count)
 
-      adapter, model, provider = Ai::ModelRouter.for(workspace: @workspace, operation: :analysis).resolve
+      adapter, model, provider = Ai::ModelRouter.for(workspace: @workspace, operation: :workspace_learning).resolve
 
-      response = with_ai_audit(operation: :analysis, model: model, provider: provider) do |ctx|
+      response = with_ai_audit(operation: :workspace_learning, model: model, provider: provider) do |ctx|
         result = adapter.chat(prompt: prompt, system: SYSTEM_PROMPT, model: model)
         ctx[:confidence] = 0.8
         ctx[:prompt]     = prompt
