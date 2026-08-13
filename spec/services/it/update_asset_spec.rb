@@ -42,5 +42,9 @@ RSpec.describe It::UpdateAsset do
     it 'broadcasts the new status to the asset channel' do
       expect { result }.to have_broadcasted_to("asset_#{asset.id}").with(status: 'in_maintenance')
     end
+
+    it 'broadcasts the new status to the workspace-wide assets channel' do
+      expect { result }.to have_broadcasted_to("assets_workspace_#{workspace.id}").with(status: 'in_maintenance')
+    end
   end
 end

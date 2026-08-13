@@ -5,6 +5,7 @@ import { Laptop, Monitor, Server, Smartphone, Package } from 'lucide-react'
 import AppLayout from '@/components/AppLayout'
 import EmptyState from '@/components/EmptyState'
 import { useLocale } from '@/hooks/useLocale'
+import { useActionCable } from '@/hooks/useActionCable'
 
 interface Asset {
   id: number
@@ -79,6 +80,10 @@ function WarrantyCell({ date, speechLang }: { date: string | null; speechLang: s
 export default function AssetsIndex({ assets, summary }: Props) {
   const { t } = useTranslation(['assets', 'common'])
   const { speechLang } = useLocale()
+
+  useActionCable({ channel: 'AssetsWorkspaceChannel' }, () => {
+    router.reload({ only: ['assets', 'summary'] })
+  })
   const [search, setSearch]         = useState('')
   const [typeFilter, setTypeFilter] = useState('')
   const [statusFilter, setStatus]   = useState('')
