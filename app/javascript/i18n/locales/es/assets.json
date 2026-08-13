@@ -114,7 +114,10 @@
       "reportIncident": "Reportar Incidente",
       "scheduleMaintenance": "Programar Mantenimiento",
       "reassignAsset": "Reasignar Activo",
-      "retireAsset": "Retirar Activo"
+      "retireAsset": "Retirar Activo",
+      "markActive": "Marcar como Activo",
+      "confirmScheduleMaintenance": "¿Programar mantenimiento para este activo?",
+      "confirmMarkActive": "¿Marcar este activo como activo nuevamente?"
     }
   }
 }

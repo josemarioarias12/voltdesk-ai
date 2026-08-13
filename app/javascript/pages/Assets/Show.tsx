@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Bot, AlertTriangle } from 'lucide-react'
 import AppLayout from '@/components/AppLayout'
 import { useLocale } from '@/hooks/useLocale'
+import { useActionCable } from '@/hooks/useActionCable'
 import type { TFunction } from 'i18next'
 
 interface RiskFactor {
@@ -79,6 +80,19 @@ export default function AssetsShow({ asset }: Props) {
   const { speechLang } = useLocale()
   const ra     = asset.risk_assessment
   const isHigh = asset.risk_score > 70
+
+  useActionCable({ channel: 'AssetsChannel', asset_id: asset.id }, () => {
+    router.reload({ only: ['asset'] })
+  })
+
+  function scheduleMaintenanceToggle() {
+    const goingToMaintenance = asset.status !== 'in_maintenance'
+    const confirmMsg = goingToMaintenance
+      ? t('assets:show.quickActions.confirmScheduleMaintenance')
+      : t('assets:show.quickActions.confirmMarkActive')
+    if (!window.confirm(confirmMsg)) return
+    router.patch(`/inventory/${asset.id}`, { asset: { status: goingToMaintenance ? 'in_maintenance' : 'active' } }, { preserveScroll: true })
+  }
   const warrantyUrgent = asset.days_until_warranty !== null && asset.days_until_warranty <= 30
 
   return (
@@ -225,12 +239,17 @@ export default function AssetsShow({ asset }: Props) {
             {/* Quick Actions */}
             <Card title={t('assets:show.quickActions.title')}>
               {[
-                { label: t('assets:show.quickActions.reportIncident'),      color: '#EF4444', bg: '#FEF2F2' },
-                { label: t('assets:show.quickActions.scheduleMaintenance'), color: '#F97316', bg: '#FFF7ED' },
-                { label: t('assets:show.quickActions.reassignAsset'),       color: '#028090', bg: '#F0FDFA' },
-                { label: t('assets:show.quickActions.retireAsset'),         color: '#475569', bg: '#F8FAFC' },
-              ].map(({ label, color, bg }) => (
-                <button key={label} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 14px', borderRadius: '10px', border: `1px solid ${color}20`, background: bg, color, fontSize: '13px', fontWeight: 600, cursor: 'pointer', marginBottom: '8px' }}>
+                { label: t('assets:show.quickActions.reportIncident'), color: '#EF4444', bg: '#FEF2F2' },
+                {
+                  label: asset.status === 'in_maintenance'
+                    ? t('assets:show.quickActions.markActive')
+                    : t('assets:show.quickActions.scheduleMaintenance'),
+                  color: '#F97316', bg: '#FFF7ED', onClick: scheduleMaintenanceToggle,
+                },
+                { label: t('assets:show.quickActions.reassignAsset'), color: '#028090', bg: '#F0FDFA' },
+                { label: t('assets:show.quickActions.retireAsset'),   color: '#475569', bg: '#F8FAFC' },
+              ].map(({ label, color, bg, onClick }) => (
+                <button key={label} onClick={onClick} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 14px', borderRadius: '10px', border: `1px solid ${color}20`, background: bg, color, fontSize: '13px', fontWeight: 600, cursor: 'pointer', marginBottom: '8px' }}>
                   {label}
                 </button>
               ))}

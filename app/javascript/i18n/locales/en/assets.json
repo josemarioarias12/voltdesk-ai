@@ -114,7 +114,10 @@
       "reportIncident": "Report Incident",
       "scheduleMaintenance": "Schedule Maintenance",
       "reassignAsset": "Reassign Asset",
-      "retireAsset": "Retire Asset"
+      "retireAsset": "Retire Asset",
+      "markActive": "Mark as Active",
+      "confirmScheduleMaintenance": "Schedule maintenance for this asset?",
+      "confirmMarkActive": "Mark this asset as active again?"
     }
   }
 }

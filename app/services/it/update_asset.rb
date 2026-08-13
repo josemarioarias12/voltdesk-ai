@@ -14,6 +14,7 @@ module It
       return ServiceResult.failure(@asset.errors.full_messages.join(', ')) unless @asset.update(@params)
 
       It::CalculateAssetRisk.call(asset: @asset, user: @user)
+      ActionCable.server.broadcast("asset_#{@asset.id}", { status: @asset.status })
 
       ServiceResult.success(@asset)
     rescue StandardError => e

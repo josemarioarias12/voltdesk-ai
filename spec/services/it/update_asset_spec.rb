@@ -35,4 +35,12 @@ RSpec.describe It::UpdateAsset do
       expect(result).to be_failure
     end
   end
+
+  context 'broadcasting' do
+    let(:params) { { status: :in_maintenance } }
+
+    it 'broadcasts the new status to the asset channel' do
+      expect { result }.to have_broadcasted_to("asset_#{asset.id}").with(status: 'in_maintenance')
+    end
+  end
 end
