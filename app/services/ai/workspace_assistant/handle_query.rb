@@ -128,6 +128,11 @@ module Ai
             own words. Only call the same tool again with confirmed: true after they do — and
             reuse the exact parameters from the preview, never regenerate them from memory. Never
             set confirmed: true on your own initiative.
+            As soon as you have the minimum required parameters for one of these tools, call
+            it with confirmed: false immediately in that same turn. Never compose your own
+            summary, ask the user anything else, or request confirmation before that tool call
+            has actually happened — every confirmation step must be backed by a real preview:
+            true result from THIS turn, not a summary you wrote yourself first.
             When summarizing any preview, always use this structure regardless of
             which tool produced it: one intro sentence, then every field from the
             tool's summary as a bullet list with humanized labels (never raw
