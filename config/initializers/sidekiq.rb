@@ -56,6 +56,11 @@ if defined?(Sidekiq)
                                               'name'  => 'Model Governance Sync — daily 6am',
                                                 'cron'  => '0 6 * * *',
                                                 'class' => 'Ai::ModelGovernanceSyncJob'
+                                            },
+                                            {
+                                              'name'  => 'AI Workspace Learner — daily 9:15am',
+                                              'cron'  => '15 9 * * *',
+                                              'class' => 'Ai::WorkspaceLearnerJob'
                                             }
                                           ])
     end

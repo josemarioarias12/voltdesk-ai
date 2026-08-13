@@ -5,14 +5,17 @@ module Ai
     queue_as :default
     sidekiq_options retry: 3
 
-    def perform(workspace_id)
-      workspace = Workspace.find(workspace_id)
-      result = Ai::WorkspaceLearner.call(workspace: workspace)
+    def perform
+      Workspace.active.find_each do |workspace|
+        result = Ai::WorkspaceLearner.call(workspace: workspace)
 
-      if result.success?
-        Rails.logger.info("[WorkspaceLearnerJob] Suggestion generated for workspace #{workspace_id}")
-      else
-        Rails.logger.warn("[WorkspaceLearnerJob] Failed for workspace #{workspace_id}: #{result.error}")
+        if result.success?
+          Rails.logger.info("[WorkspaceLearnerJob] Suggestion generated for workspace #{workspace.id}")
+        else
+          Rails.logger.warn("[WorkspaceLearnerJob] Failed for workspace #{workspace.id}: #{result.error}")
+        end
+      rescue StandardError => e
+        Rails.logger.error("[WorkspaceLearnerJob] failed for workspace #{workspace.id}: #{e.message}")
       end
     end
   end
