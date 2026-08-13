@@ -94,7 +94,8 @@ module Facilities
         capacity: space.capacity, status: space.status,
         space_type: space.space_type, equipment: space.equipment,
         reservations_today: today,
-        reserved_soon: reserved_soon?(space)
+        reserved_soon: reserved_soon?(space),
+        utilization_today: SpacesChannel.compute_utilization(current_workspace, space)
       }
     end
 

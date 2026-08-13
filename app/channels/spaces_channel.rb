@@ -75,5 +75,4 @@ class SpacesChannel < ApplicationCable::Channel
 
     { reserved_slots: today_reservations, percentage: reserved_pct }
   end
-  private_class_method :compute_utilization
 end
