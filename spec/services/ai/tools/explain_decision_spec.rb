@@ -34,7 +34,7 @@ RSpec.describe Ai::Tools::ExplainDecision do
     subject(:tool) { described_class.new(user: admin, workspace: workspace, locale: 'en') }
 
     it 'fails when the ticket does not exist in this workspace' do
-      result = tool.call(ticket_id: -1)
+      result = tool.call(ticket_number: 'TK-99999')
 
       expect(result).to be_failure
       expect(result.error).to include('No ticket found')
@@ -45,7 +45,7 @@ RSpec.describe Ai::Tools::ExplainDecision do
       ticket = create(:ticket, workspace: workspace, department: department, ai_metadata: ai_metadata)
 
       result = described_class.new(user: other_workspace_user, workspace: workspace, locale: 'en')
-                              .call(ticket_id: ticket.id)
+                              .call(ticket_number: ticket.ticket_number)
 
       expect(result).to be_failure
       expect(result.error).to include('do not have access')
@@ -54,7 +54,7 @@ RSpec.describe Ai::Tools::ExplainDecision do
     it 'fails when the ticket has not been classified yet' do
       ticket = create(:ticket, workspace: workspace, department: department, ai_metadata: {})
 
-      result = tool.call(ticket_id: ticket.id)
+      result = tool.call(ticket_number: ticket.ticket_number)
 
       expect(result).to be_failure
       expect(result.error).to include('not been classified')
@@ -64,7 +64,7 @@ RSpec.describe Ai::Tools::ExplainDecision do
       it 'returns the classification reasoning with audit_trail_found: false and no cost data' do
         ticket = create(:ticket, workspace: workspace, department: department, ai_metadata: ai_metadata)
 
-        result = tool.call(ticket_id: ticket.id)
+        result = tool.call(ticket_number: ticket.ticket_number)
 
         expect(result).to be_success
         expect(result.data[:category]).to eq('billing')
@@ -86,7 +86,7 @@ RSpec.describe Ai::Tools::ExplainDecision do
                total_tokens: 150,
                duration_ms: 820)
 
-        result = tool.call(ticket_id: ticket.id)
+        result = tool.call(ticket_number: ticket.ticket_number)
 
         expect(result.data[:audit_trail_found]).to be(true)
         expect(result.data[:audit_trail]).to include(total_tokens: 150, duration_ms: 820)
@@ -94,14 +94,14 @@ RSpec.describe Ai::Tools::ExplainDecision do
 
       it 'never matches an audit log from a different workspace with a colliding ticket_number' do
         other_workspace = create(:workspace)
-        ticket = create(:ticket, workspace: workspace, department: department,
-                         ticket_number: 'TK-00001', ai_metadata: ai_metadata)
+        create(:ticket, workspace: workspace, department: department,
+               ticket_number: 'TK-00001', ai_metadata: ai_metadata)
         create(:ai_audit_log,
                workspace: other_workspace,
                operation: :ticket_classification,
                prompt: "Ticket #TK-00001\nTitle: Some unrelated ticket in another workspace\n")
 
-        result = tool.call(ticket_id: ticket.id)
+        result = tool.call(ticket_number: 'TK-00001')
 
         expect(result.data[:audit_trail_found]).to be(false)
       end

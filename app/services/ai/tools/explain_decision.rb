@@ -7,23 +7,23 @@ module Ai
 
       def self.description
         'Explains why the AI classified a specific ticket the way it did — category, priority, ' \
-          'urgency_score, and the signals behind that decision. Requires the numeric ticket_id ' \
-          '(not the TK-NNNNN display number). If a matching audit log entry is found, also ' \
-          'includes real cost, token, and latency data; if not, audit_trail_found will be false ' \
-          '— in that case explain using only the classification reasoning, and do not mention or ' \
-          'invent cost, tokens, or duration.'
+          'urgency_score, and the signals behind that decision. Takes the ticket_number the user ' \
+          'refers to it by (e.g. TK-00191) — never look up or guess a database id. If a matching ' \
+          'audit log entry is found, also includes real cost, token, and latency data; if not, ' \
+          'audit_trail_found will be false — in that case explain using only the classification ' \
+          'reasoning, and do not mention or invent cost, tokens, or duration.'
       end
 
       def self.parameters_schema
         {
           type: 'object',
           properties: {
-            ticket_id: {
-              type: 'integer',
-              description: 'The numeric database id of the ticket, not its TK-NNNNN display number.'
+            ticket_number: {
+              type: 'string',
+              description: 'The ticket display number, e.g. "TK-00191", as the user refers to it.'
             }
           },
-          required: %w[ticket_id]
+          required: %w[ticket_number]
         }
       end
 
@@ -31,9 +31,9 @@ module Ai
         !user.role_guest?
       end
 
-      def call(ticket_id:)
-        ticket = @workspace.tickets.find_by(id: ticket_id)
-        return ServiceResult.failure("No ticket found with id #{ticket_id} in this workspace.") unless ticket
+      def call(ticket_number:)
+        ticket = @workspace.tickets.find_by(ticket_number: normalize_ticket_number(ticket_number))
+        return ServiceResult.failure("No ticket found with number #{ticket_number} in this workspace.") unless ticket
         return ServiceResult.failure('You do not have access to this ticket.') unless TicketPolicy.new(@user,
                                                                                                        ticket).show?
         return ServiceResult.failure('This ticket has not been classified by AI yet.') if ticket.ai_metadata.blank?
@@ -57,6 +57,13 @@ module Ai
       end
 
       private
+
+      def normalize_ticket_number(value)
+        digits = value.to_s.gsub(/\D/, '')
+        return value.to_s.strip.upcase if digits.blank?
+
+        "TK-#{digits.rjust(5, '0')}"
+      end
 
       def find_audit_log(ticket)
         AiAuditLog
