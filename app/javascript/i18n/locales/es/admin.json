@@ -14,7 +14,8 @@
     "apiDashboard": "Panel de API",
     "tools": "Herramientas",
     "operationalTwin": "Gemelo Operacional",
-    "telegramTest": "Informe de Inteligencia"
+    "telegramTest": "Informe de Inteligencia",
+    "learning": "Auto-Aprendizaje"
   },
   "aiHealth": {
     "pageTitle": "Panel de Salud de IA",
@@ -182,5 +183,39 @@
       "subtitle": "Activá una sesión de invitado de 30 minutos para presentaciones en vivo",
       "activate": "Activar Modo Demo"
     }
+  },
+  "learning": {
+    "pageTitle": "Auto-Aprendizaje de IA",
+    "header": {
+      "title": "Auto-Aprendizaje de IA",
+      "subtitle": "El sistema aprende de las correcciones de los agentes para mejorar la precisión de clasificación."
+    },
+    "newSuggestionToast": "¡Hay una nueva sugerencia de aprendizaje de IA lista!",
+    "kpi": {
+      "totalCorrections": "Correcciones Totales",
+      "last30Days": "Últimos 30 Días",
+      "patternsDetected": "Patrones Detectados",
+      "threshold": "Umbral"
+    },
+    "progress": {
+      "label": "Progreso hacia el aprendizaje de IA",
+      "corrections": "{{current}}/{{threshold}} correcciones",
+      "helper": "Seguí haciendo que los agentes corrijan clasificaciones para desbloquear el aprendizaje de IA"
+    },
+    "trendChart": "Tendencia de Correcciones (Últimas 4 Semanas)",
+    "patternsTable": {
+      "title": "Principales Patrones de Corrección",
+      "from": "De",
+      "to": "A",
+      "count": "Cantidad"
+    },
+    "suggestion": {
+      "title": "Sugerencia de IA",
+      "generated": "Generada {{date}}",
+      "applied": "✓ Aplicada el {{date}}",
+      "apply": "Aplicar Sugerencia",
+      "dismiss": "Descartar"
+    },
+    "empty": "Aún no hay sugerencia de IA. Alcanzá {{threshold}} correcciones para desbloquear insights de aprendizaje."
   }
 }

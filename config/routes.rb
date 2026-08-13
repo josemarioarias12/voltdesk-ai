@@ -131,6 +131,12 @@ Rails.application.routes.draw do
     post '/compliance/purge',    to: 'compliance#purge_user',   as: :compliance_purge
     get  '/telegram-test',       to: 'telegram_test#show',      as: :telegram_test
     post '/telegram-test',       to: 'telegram_test#create',    as: :telegram_test_create
+    resources :learning, only: [:index] do
+      collection do
+        post :apply
+        post :dismiss
+      end
+    end
     resources :users, only: %i[index create]
   end
 
@@ -191,12 +197,6 @@ Rails.application.routes.draw do
     resources :api_keys,  only: %i[index create destroy]
     resources :webhooks,  only: %i[index create destroy] do
       member { patch :toggle }
-    end
-    resources :learning, only: [:index] do
-      collection do
-        post :apply
-        post :dismiss
-      end
     end
     resource :profile, only: %i[show update], controller: 'profile'
   end

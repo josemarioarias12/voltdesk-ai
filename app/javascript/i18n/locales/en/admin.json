@@ -14,7 +14,8 @@
     "apiDashboard": "API Dashboard",
     "tools": "Tools",
     "operationalTwin": "Operational Twin",
-    "telegramTest": "Intelligence Brief"
+    "telegramTest": "Intelligence Brief",
+    "learning": "AI Self-Learning"
   },
   "aiHealth": {
     "pageTitle": "AI Health Dashboard",
@@ -182,5 +183,39 @@
       "subtitle": "Activate a 30-minute guest session for live presentations",
       "activate": "Activate Demo Mode"
     }
+  },
+  "learning": {
+    "pageTitle": "AI Self-Learning",
+    "header": {
+      "title": "AI Self-Learning",
+      "subtitle": "The system learns from agent corrections to improve classification accuracy."
+    },
+    "newSuggestionToast": "New AI learning suggestion is ready!",
+    "kpi": {
+      "totalCorrections": "Total Corrections",
+      "last30Days": "Last 30 Days",
+      "patternsDetected": "Patterns Detected",
+      "threshold": "Threshold"
+    },
+    "progress": {
+      "label": "Progress toward AI learning",
+      "corrections": "{{current}}/{{threshold}} corrections",
+      "helper": "Keep agents correcting classifications to unlock AI learning"
+    },
+    "trendChart": "Correction Trend (Last 4 Weeks)",
+    "patternsTable": {
+      "title": "Top Correction Patterns",
+      "from": "From",
+      "to": "To",
+      "count": "Count"
+    },
+    "suggestion": {
+      "title": "AI Suggestion",
+      "generated": "Generated {{date}}",
+      "applied": "✓ Applied on {{date}}",
+      "apply": "Apply Suggestion",
+      "dismiss": "Dismiss"
+    },
+    "empty": "No AI suggestion yet. Reach {{threshold}} corrections to unlock learning insights."
   }
 }

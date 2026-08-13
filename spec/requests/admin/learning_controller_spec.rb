@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Settings::LearningController, type: :request do
+RSpec.describe Admin::LearningController, type: :request do
   let(:workspace)       { create(:workspace) }
   let(:workspace_admin) { create(:user, workspace: workspace, role: :workspace_admin) }
   let(:employee)        { create(:user, workspace: workspace, role: :employee) }
@@ -19,16 +19,16 @@ RSpec.describe Settings::LearningController, type: :request do
     }
   end
 
-  describe 'GET /settings/learning' do
+  describe 'GET /admin/learning' do
     before { sign_in workspace_admin }
 
     it 'returns 200' do
-      get settings_learning_index_path, headers: inertia_headers
+      get admin_learning_index_path, headers: inertia_headers
       expect(response).to have_http_status(:ok)
     end
 
     it 'returns total_corrections, corrections_last_30_days, top_patterns, learning_suggestion, threshold, and correction_rate_trend props' do
-      get settings_learning_index_path, headers: inertia_headers
+      get admin_learning_index_path, headers: inertia_headers
       json = response.parsed_body
       expect(json['props']).to include(
         'total_corrections', 'corrections_last_30_days', 'top_patterns',
@@ -39,12 +39,12 @@ RSpec.describe Settings::LearningController, type: :request do
 
     it 'redirects employee' do
       sign_in employee
-      get settings_learning_index_path, headers: inertia_headers
+      get admin_learning_index_path, headers: inertia_headers
       expect(response).to have_http_status(:redirect)
     end
   end
 
-  describe 'POST /settings/learning/apply' do
+  describe 'POST /admin/learning/apply' do
     before { sign_in workspace_admin }
 
     context 'with a learning_suggestion present' do
@@ -53,25 +53,25 @@ RSpec.describe Settings::LearningController, type: :request do
       end
 
       it 'appends suggested_prompt_addition to custom_prompt_context' do
-        post apply_settings_learning_index_path
+        post apply_admin_learning_index_path
         expect(workspace.reload.settings['custom_prompt_context'])
           .to include('If the issue involves payment or invoices, classify as billing.')
       end
 
       it 'marks applied_at on the learning_suggestion' do
-        post apply_settings_learning_index_path
+        post apply_admin_learning_index_path
         expect(workspace.reload.settings['learning_suggestion']['applied_at']).to be_present
       end
 
       it 'redirects to the index with a success notice' do
-        post apply_settings_learning_index_path
-        expect(response).to redirect_to(settings_learning_index_path)
+        post apply_admin_learning_index_path
+        expect(response).to redirect_to(admin_learning_index_path)
         expect(flash[:notice]).to eq('Suggestion applied successfully.')
       end
 
       it 'preserves existing custom_prompt_context instead of overwriting it' do
         workspace.update!(settings: workspace.settings.merge('custom_prompt_context' => 'Existing context line.'))
-        post apply_settings_learning_index_path
+        post apply_admin_learning_index_path
         context = workspace.reload.settings['custom_prompt_context']
         expect(context).to include('Existing context line.')
         expect(context).to include('If the issue involves payment or invoices, classify as billing.')
@@ -80,37 +80,37 @@ RSpec.describe Settings::LearningController, type: :request do
 
     context 'without a learning_suggestion' do
       it 'redirects with an alert and does not raise' do
-        post apply_settings_learning_index_path
-        expect(response).to redirect_to(settings_learning_index_path)
+        post apply_admin_learning_index_path
+        expect(response).to redirect_to(admin_learning_index_path)
         expect(flash[:alert]).to eq('No suggestion available.')
       end
     end
 
     it 'redirects employee with unauthorized error' do
       sign_in employee
-      post apply_settings_learning_index_path
+      post apply_admin_learning_index_path
       expect(response).to have_http_status(:redirect)
     end
   end
 
-  describe 'POST /settings/learning/dismiss' do
+  describe 'POST /admin/learning/dismiss' do
     before { sign_in workspace_admin }
 
     it 'removes the learning_suggestion from workspace settings' do
       workspace.update!(settings: workspace.settings.merge('learning_suggestion' => learning_suggestion))
-      post dismiss_settings_learning_index_path
+      post dismiss_admin_learning_index_path
       expect(workspace.reload.settings['learning_suggestion']).to be_nil
     end
 
     it 'redirects to the index with a success notice' do
-      post dismiss_settings_learning_index_path
-      expect(response).to redirect_to(settings_learning_index_path)
+      post dismiss_admin_learning_index_path
+      expect(response).to redirect_to(admin_learning_index_path)
       expect(flash[:notice]).to eq('Suggestion dismissed.')
     end
 
     it 'redirects employee with unauthorized error' do
       sign_in employee
-      post dismiss_settings_learning_index_path
+      post dismiss_admin_learning_index_path
       expect(response).to have_http_status(:redirect)
     end
   end

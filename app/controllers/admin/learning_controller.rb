@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
-module Settings
-  class LearningController < ApplicationController
+module Admin
+  class LearningController < Admin::BaseController
     def index
-      authorize current_workspace, :manage_learning?
-
       corrections = ClassificationCorrection.for_workspace(current_workspace)
       last_30_days = corrections.where(created_at: 30.days.ago..)
 
-      render inertia: 'Settings/Learning/Index', props: {
+      render inertia: 'Admin/Learning/Index', props: {
         total_corrections:       corrections.count,
         corrections_last_30_days: last_30_days.count,
         top_patterns:            build_top_patterns(corrections),
@@ -19,24 +17,20 @@ module Settings
     end
 
     def apply
-      authorize current_workspace, :manage_learning?
-
       result = Settings::ApplyLearningSuggestion.call(workspace: current_workspace)
 
       if result.success?
-        redirect_to settings_learning_index_path, notice: 'Suggestion applied successfully.'
+        redirect_to admin_learning_index_path, notice: 'Suggestion applied successfully.'
       else
-        redirect_to settings_learning_index_path, alert: result.error
+        redirect_to admin_learning_index_path, alert: result.error
       end
     end
 
     def dismiss
-      authorize current_workspace, :manage_learning?
-
       current_workspace.settings.delete('learning_suggestion')
       current_workspace.save!
 
-      redirect_to settings_learning_index_path, notice: 'Suggestion dismissed.'
+      redirect_to admin_learning_index_path, notice: 'Suggestion dismissed.'
     end
 
     private

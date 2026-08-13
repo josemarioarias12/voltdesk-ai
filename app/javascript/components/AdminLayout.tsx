@@ -24,6 +24,7 @@ const NAV_GROUPS: NavGroup[] = [
       { labelKey: 'nav.auditLog', path: '/admin/audit-log' },
       { labelKey: 'nav.modelGovernance', path: '/admin/governance' },
       { labelKey: 'nav.patternAlerts', path: '/admin/pattern_alerts' },
+      { labelKey: 'nav.learning', path: '/admin/learning' },
       { labelKey: 'nav.aiHealth', path: '/admin/ai-health' },
       { labelKey: 'nav.benchmark', path: '/admin/benchmark' },
     ],

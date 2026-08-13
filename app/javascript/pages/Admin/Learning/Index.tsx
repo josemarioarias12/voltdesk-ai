@@ -3,22 +3,18 @@ import { Head, router } from '@inertiajs/react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
-import AppLayout from '@/components/AppLayout'
-import SettingsTabs from '@/components/SettingsTabs'
+import AdminLayout from '@/components/AdminLayout'
 import { useActionCable } from '@/hooks/useActionCable'
 import { useLocale } from '@/hooks/useLocale'
-
 interface Pattern {
   from: string
   to: string
   count: number
 }
-
 interface TrendPoint {
   week: string
   count: number
 }
-
 interface Suggestion {
   summary: string
   suggested_prompt_addition: string
@@ -27,7 +23,6 @@ interface Suggestion {
   generated_at: string
   applied_at?: string
 }
-
 interface Props {
   total_corrections: number
   corrections_last_30_days: number
@@ -36,7 +31,6 @@ interface Props {
   threshold: number
   correction_rate_trend: TrendPoint[]
 }
-
 function KpiCard({ label, value }: { label: string; value: number | string }) {
   return (
     <div
@@ -48,7 +42,6 @@ function KpiCard({ label, value }: { label: string; value: number | string }) {
     </div>
   )
 }
-
 export default function LearningIndex({
   total_corrections,
   corrections_last_30_days,
@@ -57,12 +50,11 @@ export default function LearningIndex({
   threshold,
   correction_rate_trend,
 }: Props) {
-  const { t } = useTranslation('settings')
+  const { t } = useTranslation('admin')
   const { speechLang } = useLocale()
   const [suggestion, setSuggestion] = useState<Suggestion | null>(initialSuggestion)
   const workspaceId = (window as unknown as { workspaceId?: number }).workspaceId ?? 0
   const progress = Math.min((total_corrections / threshold) * 100, 100)
-
   useActionCable(
     { channel: `workspace_admin:${workspaceId}` },
     (data: Record<string, unknown>) => {
@@ -71,27 +63,20 @@ export default function LearningIndex({
       router.reload({ only: ['learning_suggestion'] })
     }
   )
-
   function handleApply() {
-    router.post('/settings/learning/apply', {}, {
+    router.post('/admin/learning/apply', {}, {
       onSuccess: () => router.reload()
     })
   }
-
   function handleDismiss() {
-    router.post('/settings/learning/dismiss', {}, {
+    router.post('/admin/learning/dismiss', {}, {
       onSuccess: () => setSuggestion(null)
     })
   }
-
   return (
-    <AppLayout title={t('learning.pageTitle')}>
+    <AdminLayout title={t('learning.pageTitle')}>
       <Head title={t('learning.pageTitle')} />
-
-
       <div className="max-w-4xl space-y-6">
-        <SettingsTabs active="learning" />
-
         <div>
           <h1 className="text-2xl font-bold" style={{ color: '#0F172A' }}>{t('learning.header.title')}</h1>
           <p className="mt-1 text-sm" style={{ color: '#475569' }}>
@@ -129,7 +114,7 @@ export default function LearningIndex({
 
         <div
           className="p-5"
-          style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', boxShadow: '0 4px24px rgba(0,0,0,0.08)' }}
+          style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}
         >
           <h2 className="font-semibold mb-4" style={{ color: '#0F172A' }}>{t('learning.trendChart')}</h2>
           <ResponsiveContainer width="100%" height={180}>
@@ -227,6 +212,6 @@ export default function LearningIndex({
           </div>
         )}
       </div>
-    </AppLayout>
+    </AdminLayout>
   )
 }

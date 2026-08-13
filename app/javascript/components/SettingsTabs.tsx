@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react'
 import { useTranslation } from 'react-i18next'
 
-export type SettingsTabKey = 'ai_provider' | 'ai_automation' | 'api_keys' | 'webhooks' | 'learning' | 'profile' | 'passkeys'
+export type SettingsTabKey = 'ai_provider' | 'ai_automation' | 'api_keys' | 'webhooks' | 'profile' | 'passkeys'
 
 interface TabDef {
   key: SettingsTabKey
@@ -19,7 +19,6 @@ const TABS: TabDef[] = [
   { key: 'ai_automation', labelKey: 'tabs.aiAutomation' },
   { key: 'api_keys', labelKey: 'tabs.apiKeys', path: '/settings/api_keys' },
   { key: 'webhooks', labelKey: 'tabs.webhooks', path: '/settings/webhooks' },
-  { key: 'learning', labelKey: 'tabs.learning', path: '/settings/learning' },
   { key: 'passkeys', labelKey: 'tabs.passkeys', path: '/settings/passkeys' },
   { key: 'profile', labelKey: 'tabs.profile', path: '/settings/profile' },
 ]

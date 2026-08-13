@@ -1,31 +1,30 @@
 {
-  "pageTitle": "Configuraci\u00f3n",
+  "pageTitle": "Configuración",
   "tabs": {
     "aiProvider": "Proveedor de IA",
-    "aiAutomation": "Automatizaci\u00f3n de IA",
+    "aiAutomation": "Automatización de IA",
     "apiKeys": "Claves API",
     "webhooks": "Webhooks",
-    "learning": "Aprendizaje",
     "passkeys": "Passkeys",
     "profile": "Perfil"
   },
   "header": {
-    "title": "Configuraci\u00f3n",
-    "subtitle": "Configur\u00e1 el comportamiento de la IA, las reglas de automatizaci\u00f3n y las integraciones de tu workspace."
+    "title": "Configuración",
+    "subtitle": "Configurá el comportamiento de la IA, las reglas de automatización y las integraciones de tu workspace."
   },
   "selectionMode": {
-    "title": "Modo de Selecci\u00f3n de IA",
-    "subtitle": "Autom\u00e1tico deja que VoltDesk elija el mejor modelo. Manual te da control total.",
-    "automatic": "Autom\u00e1tico",
-    "automaticHelper": "Mejor modelo seleccionado por operaci\u00f3n",
+    "title": "Modo de Selección de IA",
+    "subtitle": "Automático deja que VoltDesk elija el mejor modelo. Manual te da control total.",
+    "automatic": "Automático",
+    "automaticHelper": "Mejor modelo seleccionado por operación",
     "manual": "Manual",
-    "manualHelper": "Vos eleg\u00eds proveedor y modelo"
+    "manualHelper": "Vos elegís proveedor y modelo"
   },
   "provider": {
     "title": "Proveedor de IA",
-    "subtitle": "Proveedor principal usado para clasificaci\u00f3n de tickets, sugerencias RAG y reportes.",
+    "subtitle": "Proveedor principal usado para clasificación de tickets, sugerencias RAG y reportes.",
     "modelsAvailable": "{{count}} modelos disponibles",
-    "modelSelectorLabel": "Modelo \u2014 {{provider}} tiene {{count}} modelos"
+    "modelSelectorLabel": "Modelo — {{provider}} tiene {{count}} modelos"
   },
   "costEstimator": {
     "title": "Costo estimado por 1.000 clasificaciones",
@@ -33,8 +32,8 @@
   },
   "fallback": {
     "title": "Proveedor de Respaldo",
-    "subtitle": "Si el proveedor principal falla despu\u00e9s de 3 reintentos, VoltDesk cambia autom\u00e1ticamente a este proveedor.",
-    "embeddingsNote": "Los embeddings siempre usan OpenAI sin importar esta configuraci\u00f3n \u2014 pgvector requiere vectores de 1536 dimensiones."
+    "subtitle": "Si el proveedor principal falla después de 3 reintentos, VoltDesk cambia automáticamente a este proveedor.",
+    "embeddingsNote": "Los embeddings siempre usan OpenAI sin importar esta configuración — pgvector requiere vectores de 1536 dimensiones."
   },
   "assistant": {
     "title": "Modelo de Volt Copilot",
@@ -42,90 +41,114 @@
     "useGeneral": "Usar modelo general",
     "useGeneralHelper": "Igual que arriba ({{model}})",
     "custom": "Modelo personalizado",
-    "customHelper": "Eleg\u00ed un modelo distinto para el asistente",
+    "customHelper": "Elegí un modelo distinto para el asistente",
     "modelLabel": "Modelo del asistente"
   },
   "costTable": {
-    "title": "Comparaci\u00f3n de Costos \u2014 Todos los Modelos",
+    "title": "Comparación de Costos — Todos los Modelos",
     "provider": "Proveedor",
     "model": "Modelo",
     "costPer1k": "Costo / 1k tickets",
     "active": "Activo",
-    "docsLabel": "Documentaci\u00f3n de precios de {{provider}}"
+    "docsLabel": "Documentación de precios de {{provider}}"
   },
-  "saveAiConfig": "Guardar Configuraci\u00f3n de IA",
+  "saveAiConfig": "Guardar Configuración de IA",
   "saving": "Guardando...",
-  "savedAiConfig": "Configuraci\u00f3n guardada con \u00e9xito",
+  "savedAiConfig": "Configuración guardada con éxito",
   "automation": {
     "thresholds": {
-      "title": "Umbrales de automatizaci\u00f3n",
+      "title": "Umbrales de automatización",
       "subtitle": "Ambas condiciones deben cumplirse antes de que el agente de IA intente resolver un ticket por su cuenta.",
-      "minUrgency": "Puntaje m\u00ednimo de urgencia",
-      "minUrgencyHelper": "Los tickets por debajo de este puntaje de urgencia siempre se enrutan a un agente humano, sin importar la categor\u00eda.",
-      "minConfidence": "Confianza m\u00ednima de coincidencia",
-      "minConfidenceHelper": "Similitud coseno contra tickets resueltos anteriormente \u2014 m\u00e1s alto significa coincidencia de precedentes m\u00e1s estricta."
+      "minUrgency": "Puntaje mínimo de urgencia",
+      "minUrgencyHelper": "Los tickets por debajo de este puntaje de urgencia siempre se enrutan a un agente humano, sin importar la categoría.",
+      "minConfidence": "Confianza mínima de coincidencia",
+      "minConfidenceHelper": "Similitud coseno contra tickets resueltos anteriormente — más alto significa coincidencia de precedentes más estricta."
     },
     "hitl": {
       "title": "Humano en el Circuito",
-      "subtitle": "Requerir aprobaci\u00f3n de un agente antes de que la IA ejecute una resoluci\u00f3n automatizada.",
-      "onLabel": "Aprobaci\u00f3n requerida \u2014",
-      "onDescription": "el agente prepara la resoluci\u00f3n y espera que un agente humano la apruebe o rechace antes de ejecutarla.",
-      "offLabel": "Modo aut\u00f3nomo \u2014",
-      "offDescription": "el agente resuelve los tickets coincidentes de inmediato, sin necesidad de aprobaci\u00f3n."
+      "subtitle": "Requerir aprobación de un agente antes de que la IA ejecute una resolución automatizada.",
+      "onLabel": "Aprobación requerida —",
+      "onDescription": "el agente prepara la resolución y espera que un agente humano la apruebe o rechace antes de ejecutarla.",
+      "offLabel": "Modo autónomo —",
+      "offDescription": "el agente resuelve los tickets coincidentes de inmediato, sin necesidad de aprobación."
     },
     "categories": {
-      "title": "Categor\u00edas automatizables",
-      "subtitle": "Solo los tickets en las categor\u00edas seleccionadas son elegibles para auto-resoluci\u00f3n por IA."
+      "title": "Categorías automatizables",
+      "subtitle": "Solo los tickets en las categorías seleccionadas son elegibles para auto-resolución por IA."
     },
-    "saveButton": "Guardar Configuraci\u00f3n de Automatizaci\u00f3n",
-    "saved": "Configuraci\u00f3n de automatizaci\u00f3n guardada con \u00e9xito"
+    "saveButton": "Guardar Configuración de Automatización",
+    "saved": "Configuración de automatización guardada con éxito"
   },
   "apiKeys": {
     "pageTitle": "Claves API",
-    "header": { "title": "Claves API", "subtitle": "Gestion\u00e1 integraciones externas y acceso a la API" },
+    "header": {
+      "title": "Claves API",
+      "subtitle": "Gestioná integraciones externas y acceso a la API"
+    },
     "createButton": "+ Crear Clave API",
     "newTokenBanner": {
-      "title": "\u2713 Tu nueva clave API \u2014 copiala ahora, no se va a volver a mostrar",
+      "title": "✓ Tu nueva clave API — copiala ahora, no se va a volver a mostrar",
       "dismiss": "Descartar",
       "copy": "Copiar",
-      "copied": "\u2713 Copiado",
-      "storeWarning": "\u26a0 Guard\u00e1 esta clave de forma segura. No vas a poder verla de nuevo."
+      "copied": "✓ Copiado",
+      "storeWarning": "⚠ Guardá esta clave de forma segura. No vas a poder verla de nuevo."
     },
     "infoBanner": "Las claves API permiten que sistemas externos creen tickets y accedan a datos. Cada clave tiene alcances configurables.",
     "table": {
-      "name": "Nombre", "key": "Clave", "scopes": "Alcances", "lastUsed": "\u00daltimo Uso", "status": "Estado", "actions": "Acciones",
-      "empty": "A\u00fan no hay claves API. Cre\u00e1 una para empezar a integrar.",
-      "active": "Activa", "inactive": "Inactiva", "revoke": "Revocar", "never": "Nunca"
+      "name": "Nombre",
+      "key": "Clave",
+      "scopes": "Alcances",
+      "lastUsed": "Último Uso",
+      "status": "Estado",
+      "actions": "Acciones",
+      "empty": "Aún no hay claves API. Creá una para empezar a integrar.",
+      "active": "Activa",
+      "inactive": "Inactiva",
+      "revoke": "Revocar",
+      "never": "Nunca"
     },
-    "revokeConfirm": "\u00bfRevocar esta clave API? Esta acci\u00f3n no se puede deshacer.",
+    "revokeConfirm": "¿Revocar esta clave API? Esta acción no se puede deshacer.",
     "modal": {
       "title": "Crear Clave API",
       "nameLabel": "Nombre de la Clave",
-      "namePlaceholder": "ej. Integraci\u00f3n con Slack",
+      "namePlaceholder": "ej. Integración con Slack",
       "scopesLabel": "Alcances",
-      "rateLimit": "L\u00edmite: 100 solicitudes por minuto",
+      "rateLimit": "Límite: 100 solicitudes por minuto",
       "creating": "Creando...",
       "create": "Crear Clave"
     }
   },
   "webhooks": {
     "pageTitle": "Webhooks",
-    "header": { "title": "Webhooks", "subtitle": "Recib\u00ed notificaciones en tiempo real cuando ocurran eventos en tu workspace" },
+    "header": {
+      "title": "Webhooks",
+      "subtitle": "Recibí notificaciones en tiempo real cuando ocurran eventos en tu workspace"
+    },
     "addButton": "+ Agregar Webhook",
     "newSecretBanner": {
-      "title": "\u2713 Secreto del webhook \u2014 copialo ahora, no se va a volver a mostrar",
+      "title": "✓ Secreto del webhook — copialo ahora, no se va a volver a mostrar",
       "dismiss": "Descartar",
       "copy": "Copiar",
-      "copied": "\u2713 Copiado",
-      "signatureNote": "Us\u00e1 este secreto para verificar el header {{header}} en tu endpoint."
+      "copied": "✓ Copiado",
+      "signatureNote": "Usá este secreto para verificar el header {{header}} en tu endpoint."
     },
     "table": {
-      "name": "Nombre", "url": "URL", "events": "Eventos", "lastTriggered": "\u00daltimo Disparo", "status": "Estado", "actions": "Acciones",
-      "empty": "No hay webhooks configurados. Agreg\u00e1 uno para empezar a recibir eventos.",
-      "active": "Activo", "inactive": "Inactivo", "warning": "Advertencia ({{count}} fallos)",
-      "disable": "Deshabilitar", "enable": "Habilitar", "delete": "Eliminar", "never": "Nunca"
+      "name": "Nombre",
+      "url": "URL",
+      "events": "Eventos",
+      "lastTriggered": "Último Disparo",
+      "status": "Estado",
+      "actions": "Acciones",
+      "empty": "No hay webhooks configurados. Agregá uno para empezar a recibir eventos.",
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "warning": "Advertencia ({{count}} fallos)",
+      "disable": "Deshabilitar",
+      "enable": "Habilitar",
+      "delete": "Eliminar",
+      "never": "Nunca"
     },
-    "deleteConfirm": "\u00bfEliminar este webhook? Esta acci\u00f3n no se puede deshacer.",
+    "deleteConfirm": "¿Eliminar este webhook? Esta acción no se puede deshacer.",
     "modal": {
       "title": "Agregar Webhook",
       "nameLabel": "Nombre",
@@ -136,66 +159,56 @@
       "create": "Agregar Webhook"
     }
   },
-  "learning": {
-    "pageTitle": "Auto-Aprendizaje de IA",
-    "header": { "title": "Auto-Aprendizaje de IA", "subtitle": "El sistema aprende de las correcciones de los agentes para mejorar la precisi\u00f3n de clasificaci\u00f3n." },
-    "newSuggestionToast": "\u00a1Hay una nueva sugerencia de aprendizaje de IA lista!",
-    "kpi": { "totalCorrections": "Correcciones Totales", "last30Days": "\u00daltimos 30 D\u00edas", "patternsDetected": "Patrones Detectados", "threshold": "Umbral" },
-    "progress": {
-      "label": "Progreso hacia el aprendizaje de IA",
-      "corrections": "{{current}}/{{threshold}} correcciones",
-      "helper": "Segu\u00ed haciendo que los agentes corrijan clasificaciones para desbloquear el aprendizaje de IA"
-    },
-    "trendChart": "Tendencia de Correcciones (\u00daltimas 4 Semanas)",
-    "patternsTable": { "title": "Principales Patrones de Correcci\u00f3n", "from": "De", "to": "A", "count": "Cantidad" },
-    "suggestion": {
-      "title": "Sugerencia de IA",
-      "generated": "Generada {{date}}",
-      "applied": "\u2713 Aplicada el {{date}}",
-      "apply": "Aplicar Sugerencia",
-      "dismiss": "Descartar"
-    },
-    "empty": "A\u00fan no hay sugerencia de IA. Alcanz\u00e1 {{threshold}} correcciones para desbloquear insights de aprendizaje."
-  },
   "passkeys": {
     "pageTitle": "Passkeys",
-    "header": { "title": "Passkeys", "subtitle": "Inici\u00e1 sesi\u00f3n con Face ID, Touch ID o Windows Hello en vez de tu contrase\u00f1a" },
+    "header": {
+      "title": "Passkeys",
+      "subtitle": "Iniciá sesión con Face ID, Touch ID o Windows Hello en vez de tu contraseña"
+    },
     "unsupported": "Este navegador o dispositivo no soporta passkeys. Intentalo de nuevo desde un dispositivo con Face ID, Touch ID o Windows Hello.",
     "addNew": "Agregar un passkey nuevo",
     "nicknamePlaceholder": "ej. Mi iPhone",
-    "waiting": "Esperando Face ID\u2026",
+    "waiting": "Esperando Face ID…",
     "activate": "Activar Face ID",
-    "error": "No se pudo agregar el passkey \u2014 intentalo de nuevo",
+    "error": "No se pudo agregar el passkey — intentalo de nuevo",
     "table": {
-      "device": "Dispositivo", "added": "Agregado", "lastUsed": "\u00daltimo Uso", "actions": "Acciones",
-      "empty": "A\u00fan no hay passkeys. Activ\u00e1 Face ID arriba para iniciar sesi\u00f3n sin contrase\u00f1a.",
-      "unnamed": "Passkey sin nombre", "remove": "Eliminar", "never": "Nunca"
+      "device": "Dispositivo",
+      "added": "Agregado",
+      "lastUsed": "Último Uso",
+      "actions": "Acciones",
+      "empty": "Aún no hay passkeys. Activá Face ID arriba para iniciar sesión sin contraseña.",
+      "unnamed": "Passkey sin nombre",
+      "remove": "Eliminar",
+      "never": "Nunca"
     },
-    "revokeConfirm": "\u00bfEliminar este passkey? Ya no vas a poder iniciar sesi\u00f3n con este dispositivo usando Face ID."
+    "revokeConfirm": "¿Eliminar este passkey? Ya no vas a poder iniciar sesión con este dispositivo usando Face ID."
   },
   "profile": {
-    "pageTitle": "Configuraci\u00f3n de Perfil",
-    "header": { "title": "Configuraci\u00f3n de Perfil", "subtitle": "Gestion\u00e1 tu informaci\u00f3n personal" },
-    "removePhotoConfirm": "\u00bfEliminar tu foto de perfil?",
+    "pageTitle": "Configuración de Perfil",
+    "header": {
+      "title": "Configuración de Perfil",
+      "subtitle": "Gestioná tu información personal"
+    },
+    "removePhotoConfirm": "¿Eliminar tu foto de perfil?",
     "uploadPhoto": "Subir Foto",
     "removePhoto": "Eliminar Foto",
-    "photoHint": "JPG, PNG o WEBP. M\u00e1x 10MB.",
+    "photoHint": "JPG, PNG o WEBP. Máx 10MB.",
     "firstName": "Nombre",
     "lastName": "Apellido",
-    "email": "Correo Electr\u00f3nico",
-    "emailManagedNote": "Gestionado v\u00eda Google Workspace",
+    "email": "Correo Electrónico",
+    "emailManagedNote": "Gestionado vía Google Workspace",
     "saving": "Guardando...",
     "saveChanges": "Guardar Cambios"
   },
   "models": {
-    "gpt-4o": "GPT-4o \u2014 M\u00e1s capaz",
-    "gpt-4o-mini": "GPT-4o Mini \u2014 M\u00e1s r\u00e1pido y econ\u00f3mico",
-    "gpt-4.1": "GPT-4.1 \u2014 \u00daltima generaci\u00f3n",
-    "gpt-4.1-mini": "GPT-4.1 Mini \u2014 \u00daltima generaci\u00f3n, r\u00e1pido",
-    "gpt-5.2": "GPT-5.2 \u2014 Mejor precisi\u00f3n en tool-calling",
-    "claude-sonnet-5": "Claude Sonnet 5 \u2014 Equilibrado",
-    "claude-haiku-4-5-20251001": "Claude Haiku 4.5 \u2014 Ultra r\u00e1pido",
-    "gemini-2.0-flash": "Gemini 2.0 Flash \u2014 M\u00e1s r\u00e1pido",
-    "gemini-1.5-pro": "Gemini 1.5 Pro \u2014 M\u00e1s capaz"
+    "gpt-4o": "GPT-4o — Más capaz",
+    "gpt-4o-mini": "GPT-4o Mini — Más rápido y económico",
+    "gpt-4.1": "GPT-4.1 — Última generación",
+    "gpt-4.1-mini": "GPT-4.1 Mini — Última generación, rápido",
+    "gpt-5.2": "GPT-5.2 — Mejor precisión en tool-calling",
+    "claude-sonnet-5": "Claude Sonnet 5 — Equilibrado",
+    "claude-haiku-4-5-20251001": "Claude Haiku 4.5 — Ultra rápido",
+    "gemini-2.0-flash": "Gemini 2.0 Flash — Más rápido",
+    "gemini-1.5-pro": "Gemini 1.5 Pro — Más capaz"
   }
 }
