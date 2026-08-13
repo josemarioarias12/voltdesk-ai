@@ -2,7 +2,7 @@
   "nav": {
     "overview": "Resumen",
     "aiOperations": "Operaciones de IA",
-    "auditLog": "Registro de Auditor\u00eda",
+    "auditLog": "Registro de Auditoría",
     "modelGovernance": "Gobernanza de Modelos",
     "patternAlerts": "Alertas de Patrones",
     "aiHealth": "Salud de IA",
@@ -14,116 +14,172 @@
     "apiDashboard": "Panel de API",
     "tools": "Herramientas",
     "operationalTwin": "Gemelo Operacional",
-    "telegramTest": "Prueba de Telegram"
+    "telegramTest": "Informe de Inteligencia"
   },
   "aiHealth": {
     "pageTitle": "Panel de Salud de IA",
-    "header": { "title": "Panel de Salud de IA", "subtitle": "\u00daltimos {{days}} d\u00edas \u00b7 {{count}} operaciones auditadas" },
-    "kpi": {
-      "totalOperations": "Operaciones Totales", "aiCallsLogged": "Llamadas de IA registradas",
-      "successRate": "Tasa de \u00c9xito", "nonErrorResponses": "Respuestas sin error",
-      "timeSaved": "Tiempo Ahorrado", "vsManualEffort": "vs {{days}}d de esfuerzo manual",
-      "opsBelowThreshold": "Ops Bajo el Umbral", "avgConfidenceBelow": "Confianza promedio < 0.70"
+    "header": {
+      "title": "Panel de Salud de IA",
+      "subtitle": "Últimos {{days}} días · {{count}} operaciones auditadas"
     },
-    "confidenceDistribution": "Distribuci\u00f3n de Puntaje de Confianza",
-    "tooltip": { "operations": "Operaciones", "avgConfidence": "Confianza Promedio", "avgCost": "Costo Promedio" },
+    "kpi": {
+      "totalOperations": "Operaciones Totales",
+      "aiCallsLogged": "Llamadas de IA registradas",
+      "successRate": "Tasa de Éxito",
+      "nonErrorResponses": "Respuestas sin error",
+      "timeSaved": "Tiempo Ahorrado",
+      "vsManualEffort": "vs {{days}}d de esfuerzo manual",
+      "opsBelowThreshold": "Ops Bajo el Umbral",
+      "avgConfidenceBelow": "Confianza promedio < 0.70"
+    },
+    "confidenceDistribution": "Distribución de Puntaje de Confianza",
+    "tooltip": {
+      "operations": "Operaciones",
+      "avgConfidence": "Confianza Promedio",
+      "avgCost": "Costo Promedio"
+    },
     "belowThreshold": "Operaciones Bajo el Umbral de Confianza (0.70)",
-    "recommendations": "Recomendaciones Autom\u00e1ticas",
+    "recommendations": "Recomendaciones Automáticas",
     "recommendationSuffix": "confianza promedio {{confidence}} ({{count}} ops)",
-    "costPerOperation": "Costo Promedio por Operaci\u00f3n (USD)",
+    "costPerOperation": "Costo Promedio por Operación (USD)",
     "topFailing": {
       "title": "Principales Operaciones con Fallos",
-      "operation": "Operaci\u00f3n", "total": "Total", "errors": "Errores",
-      "errorRate": "Tasa de Error", "avgConfidence": "Confianza Promedio", "recommendation": "Recomendaci\u00f3n"
+      "operation": "Operación",
+      "total": "Total",
+      "errors": "Errores",
+      "errorRate": "Tasa de Error",
+      "avgConfidence": "Confianza Promedio",
+      "recommendation": "Recomendación"
     }
   },
   "auditLog": {
-    "pageTitle": "Registro de Auditor\u00eda de IA",
-    "header": { "title": "Registro de Auditor\u00eda de IA", "subtitle": "Cada decisi\u00f3n de IA rastreada y auditable" },
+    "pageTitle": "Registro de Auditoría de IA",
+    "header": {
+      "title": "Registro de Auditoría de IA",
+      "subtitle": "Cada decisión de IA rastreada y auditable"
+    },
     "refresh": "Actualizar",
     "filters": {
       "allOperations": "Todas las Operaciones",
       "allProviders": "Todos los Proveedores",
       "allStatus": "Todos los Estados",
-      "success": "\u00c9xito",
+      "success": "Éxito",
       "error": "Error",
       "from": "Desde",
       "to": "Hasta"
     },
     "table": {
-      "timestamp": "Fecha", "operation": "Operaci\u00f3n", "providerModel": "Proveedor / Modelo",
-      "tokens": "Tokens", "cost": "Costo", "duration": "Duraci\u00f3n", "confidence": "Confianza", "status": "Estado",
+      "timestamp": "Fecha",
+      "operation": "Operación",
+      "providerModel": "Proveedor / Modelo",
+      "tokens": "Tokens",
+      "cost": "Costo",
+      "duration": "Duración",
+      "confidence": "Confianza",
+      "status": "Estado",
       "empty": "No se encontraron registros",
-      "statusSuccess": "\u25cf \u00c9xito", "statusError": "\u25cf Error"
+      "statusSuccess": "● Éxito",
+      "statusError": "● Error"
     },
     "expanded": {
-      "prompt": "Prompt", "response": "Respuesta",
-      "promptTokens": "Tokens de entrada:", "completionTokens": "Tokens de salida:", "total": "Total:",
-      "provider": "Proveedor:", "model": "Modelo:", "unknown": "desconocido"
+      "prompt": "Prompt",
+      "response": "Respuesta",
+      "promptTokens": "Tokens de entrada:",
+      "completionTokens": "Tokens de salida:",
+      "total": "Total:",
+      "provider": "Proveedor:",
+      "model": "Modelo:",
+      "unknown": "desconocido"
     },
-    "pagination": { "showing": "Mostrando {{from}}\u2013{{to}} de {{total}} entradas" }
+    "pagination": {
+      "showing": "Mostrando {{from}}–{{to}} de {{total}} entradas"
+    }
   },
   "governance": {
     "pageTitle": "Gobernanza de Modelos",
-    "header": { "title": "Gobernanza de Modelos", "subtitle": "Verificaciones de precios y deprecaci\u00f3n en los modelos de IA configurados" },
+    "header": {
+      "title": "Gobernanza de Modelos",
+      "subtitle": "Verificaciones de precios y deprecación en los modelos de IA configurados"
+    },
     "syncPricing": "Sincronizar Precios",
-    "syncDeprecation": "Sincronizar Deprecaci\u00f3n",
+    "syncDeprecation": "Sincronizar Deprecación",
     "filters": {
       "allTypes": "Todos los Tipos",
-      "pricingUpdate": "Actualizaci\u00f3n de Precio",
-      "modelDeprecation": "Deprecaci\u00f3n de Modelo",
+      "pricingUpdate": "Actualización de Precio",
+      "modelDeprecation": "Deprecación de Modelo",
       "allStatus": "Todos los Estados",
-      "statusPendingApproval": "Pendiente de Aprobaci\u00f3n",
+      "statusPendingApproval": "Pendiente de Aprobación",
       "statusApproved": "Aprobado",
       "statusRejected": "Rechazado",
       "statusApplied": "Aplicado"
     },
     "table": {
-      "type": "Tipo", "model": "Modelo", "details": "Detalles", "status": "Estado", "reviewedBy": "Revisado Por",
+      "type": "Tipo",
+      "model": "Modelo",
+      "details": "Detalles",
+      "status": "Estado",
+      "reviewedBy": "Revisado Por",
       "empty": "No se encontraron sugerencias"
     },
-    "priceChange": "${{oldInput}} / ${{oldOutput}} \u2192 ${{newInput}} / ${{newOutput}}",
+    "priceChange": "${{oldInput}} / ${{oldOutput}} → ${{newInput}} / ${{newOutput}}",
     "notFoundInSource": "No encontrado en la lista de modelos activos de {{source}}",
     "verifySource": "Verificar fuente",
-    "status": { "pending_approval": "pendiente de aprobaci\u00f3n", "approved": "aprobado", "rejected": "rechazado", "applied": "aplicado" },
+    "status": {
+      "pending_approval": "pendiente de aprobación",
+      "approved": "aprobado",
+      "rejected": "rechazado",
+      "applied": "aplicado"
+    },
     "approve": "Aprobar",
     "reject": "Rechazar",
     "markApplied": "Marcar Aplicado"
   },
   "patternAlerts": {
     "pageTitle": "Alertas de Patrones",
-    "header": { "title": "Alertas de Patrones", "subtitle": "Detecci\u00f3n estad\u00edstica de anomal\u00edas entre departamentos, corre a diario a las 9am" },
+    "header": {
+      "title": "Alertas de Patrones",
+      "subtitle": "Detección estadística de anomalías entre departamentos, corre a diario a las 9am"
+    },
     "runNow": "Ejecutar Ahora",
     "active": "Activas ({{count}})",
-    "noActive": "No se detectaron anomal\u00edas activas.",
-    "zscoreLine": "Z={{zscore}}\u03c3 \u00b7 {{count}} tickets vs l\u00ednea base de {{baseline}}",
+    "noActive": "No se detectaron anomalías activas.",
+    "zscoreLine": "Z={{zscore}}σ · {{count}} tickets vs línea base de {{baseline}}",
     "resolve": "Resolver",
     "resolved": "Resueltas ({{count}})",
     "resolvedAt": "Resuelta {{date}}"
   },
   "telegramTest": {
-    "pageTitle": "Prueba de Inteligencia de Telegram",
-    "header": { "title": "Prueba de Inteligencia de Telegram", "subtitle": "Analiza los \u00faltimos 90 d\u00edas y env\u00eda un insight predictivo al grupo de Telegram de VoltDesk AI." },
-    "sentPrefix": "Enviado: ",
-    "failedPrefix": "Fall\u00f3: ",
-    "runTest": "Ejecutar Prueba de Inteligencia"
+    "pageTitle": "Informe de Inteligencia Operacional",
+    "header": {
+      "title": "Informe de Inteligencia Operacional",
+      "subtitle": "Analiza los últimos 90 días y envía un insight predictivo al grupo de Telegram de VoltDesk AI."
+    },
+    "runTest": "Generar Informe"
   },
   "overview": {
     "pageTitle": "Admin",
-    "header": { "title": "Centro de Control de Admin", "subtitle": "Resumen de operaciones de IA de este workspace" },
+    "header": {
+      "title": "Centro de Control de Admin",
+      "subtitle": "Resumen de operaciones de IA de este workspace"
+    },
     "kpi": {
-      "totalOperations": "Operaciones Totales", "allTime": "hist\u00f3rico",
-      "totalCost": "Costo Total de IA", "estimated": "estimado",
-      "avgConfidence": "Confianza Promedio", "classification": "clasificaci\u00f3n",
-      "avgLatency": "Latencia Promedio", "perOperation": "por operaci\u00f3n",
-      "successRate": "Tasa de \u00c9xito", "allOperations": "todas las operaciones"
+      "totalOperations": "Operaciones Totales",
+      "allTime": "histórico",
+      "totalCost": "Costo Total de IA",
+      "estimated": "estimado",
+      "avgConfidence": "Confianza Promedio",
+      "classification": "clasificación",
+      "avgLatency": "Latencia Promedio",
+      "perOperation": "por operación",
+      "successRate": "Tasa de Éxito",
+      "allOperations": "todas las operaciones"
     },
     "providerUsage": "Uso por Proveedor",
     "opsSuffix": "ops",
     "operationsByType": "Operaciones por Tipo",
     "qrDemo": {
       "title": "Modo Demo QR",
-      "subtitle": "Activ\u00e1 una sesi\u00f3n de invitado de 30 minutos para presentaciones en vivo",
+      "subtitle": "Activá una sesión de invitado de 30 minutos para presentaciones en vivo",
       "activate": "Activar Modo Demo"
     }
   }

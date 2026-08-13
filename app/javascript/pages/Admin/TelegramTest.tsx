@@ -1,15 +1,13 @@
-import React from 'react'
 import { router } from '@inertiajs/react'
 import { useTranslation } from 'react-i18next'
 import AdminLayout from '@/components/AdminLayout'
 
-interface Props {
-  status: 'sent' | 'failed'
-  message: string
-}
-
-export default function TelegramTest({ status, message }: Props) {
+export default function TelegramTest() {
   const { t } = useTranslation('admin')
+
+  function generateBrief() {
+    router.post('/admin/telegram-test', {})
+  }
 
   return (
     <AdminLayout title={t('telegramTest.pageTitle')}>
@@ -28,22 +26,8 @@ export default function TelegramTest({ status, message }: Props) {
             {t('telegramTest.header.subtitle')}
           </p>
 
-          {message && (
-            <div style={{
-              background: status === 'sent' ? 'rgba(2,195,154,0.06)' : 'rgba(239,68,68,0.06)',
-              border: `1px solid ${status === 'sent' ? 'rgba(2,195,154,0.2)' : 'rgba(239,68,68,0.2)'}`,
-              borderRadius: 8,
-              padding: '12px 16px',
-              marginBottom: 24
-            }}>
-              <p style={{ fontSize: 13, color: status === 'sent' ? '#028090' : '#DC2626', lineHeight: 1.75,margin: 0 }}>
-                {status === 'sent' ? t('telegramTest.sentPrefix') : t('telegramTest.failedPrefix')}{message}
-              </p>
-            </div>
-          )}
-
           <button
-            onClick={() => router.get('/admin/telegram-test')}
+            onClick={generateBrief}
             style={{
               background: '#028090',
               color: '#fff',

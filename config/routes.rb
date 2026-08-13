@@ -130,6 +130,7 @@ Rails.application.routes.draw do
     get  '/compliance/download', to: 'compliance#download_pdf', as: :compliance_download
     post '/compliance/purge',    to: 'compliance#purge_user',   as: :compliance_purge
     get  '/telegram-test',       to: 'telegram_test#show',      as: :telegram_test
+    post '/telegram-test',       to: 'telegram_test#create',    as: :telegram_test_create
     resources :users, only: %i[index create]
   end
 

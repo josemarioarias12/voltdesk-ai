@@ -5,6 +5,7 @@ es:
       resolve_failed: "No se pudo resolver la alerta"
     telegram_test:
       insufficient_data: "No hay suficiente actividad reciente para generar una predicción. Intentá de nuevo más tarde."
+      queued: "Informe de inteligencia operacional en cola — revisá Telegram en un momento."
 
   hr:
     leave_requests:

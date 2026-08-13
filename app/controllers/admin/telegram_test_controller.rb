@@ -3,24 +3,12 @@
 module Admin
   class TelegramTestController < Admin::BaseController
     def show
-      result = Ai::OperationalIntelligenceService.call(
-        workspace: current_workspace,
-        period: 90.days
-      )
+      render inertia: 'Admin/TelegramTest'
+    end
 
-      if result.success?
-        prediction = result.data[:predictions]&.first
-        message    = if prediction
-                       "#{prediction[:message]} — #{prediction[:recommendation]}"
-                     else
-                       result.data[:summary].to_s
-                     end
-        TelegramNotifier.send_prediction(message: message, level: :info)
-        render inertia: 'Admin/TelegramTest', props: { status: 'sent', message: message }
-      else
-        error_message = result.error == 'insufficient_data' ? t('admin.telegram_test.insufficient_data') : result.error
-        render inertia: 'Admin/TelegramTest', props: { status: 'failed', message: error_message }
-      end
+    def create
+      Ai::OperationalIntelligenceBriefJob.perform_later(current_workspace.id)
+      redirect_to admin_telegram_test_path, notice: t('admin.telegram_test.queued')
     end
   end
 end
