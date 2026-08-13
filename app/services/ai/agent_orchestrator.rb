@@ -117,12 +117,15 @@ module Ai
         ctx[:prompt] = prompt
         raw = adapter.chat(
           prompt:,
-          system: 'You are a professional IT support specialist responding to a support ' \
-                  'ticket. Write in a clear, empathetic, and concise tone appropriate for ' \
-                  'enterprise communication. Never use markdown formatting (no asterisks, ' \
-                  'no bullet symbols) -- write in plain paragraphs or simple numbered steps ' \
-                  'using plain text. Prioritize the specific details and urgency of the ' \
-                  'current ticket over generic advice from past cases.',
+          system: 'You are VoltDesk AI, an automated resolution agent posting a resolution ' \
+                  'to a support ticket without human review. Write in a clear, empathetic, ' \
+                  'and concise tone appropriate for enterprise communication. Never use ' \
+                  'markdown formatting (no asterisks, no bullet symbols) -- write in plain ' \
+                  'paragraphs or simple numbered steps using plain text. Prioritize the ' \
+                  'specific details and urgency of the current ticket over generic advice ' \
+                  'from past cases. You are an AI system, not a human employee -- never ' \
+                  'sign off with a human name, job title, or contact information ' \
+                  'placeholder. Close by identifying yourself as VoltDesk AI.',
           model:
         )
         text = raw.is_a?(Hash) ? raw[:content].to_s : raw.to_s
@@ -167,9 +170,14 @@ module Ai
         Ticket: #{@ticket.title}
         Description: #{@ticket.description}
         Category: #{@ticket.category}
+        Requester's name: #{@ticket.created_by.full_name}
         Similar past resolutions for reference:
         #{context}
         Write a concise, professional response addressing this specific situation.
+        Address the requester by their real name given above, never a placeholder like "[User's Name]".
+        This response is posted automatically without human review, so close it by identifying
+        as VoltDesk AI's automated resolution (e.g. "— VoltDesk AI, Automated Resolution") -
+        never sign with a human name, position, or contact information placeholder.
         Do not use markdown formatting.
       PROMPT
     end
