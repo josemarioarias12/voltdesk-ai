@@ -20,6 +20,7 @@ module Ai
         @pending_attachments = []
         @pending_resource_link = nil
         @audit_log_ids = []
+        @tool_rounds = []
       end
 
       def call
@@ -28,7 +29,7 @@ module Ai
         adapter, model, provider = Ai::ModelRouter.for(workspace: @workspace,
                                                        operation: :workspace_assistant_query).resolve
         tools_schema = Ai::Tools::Registry.schema_for(@user, provider: provider)
-        history = build_history_messages
+        history = build_history_messages(provider)
         tools_used = []
 
         hops = 0
@@ -41,12 +42,14 @@ module Ai
 
           return finalize(response[:content].to_s, tools_used) if response[:stop_reason] == :end_turn
 
-          tool_results = response[:tool_calls].map do |tool_call|
+          tool_calls = response[:tool_calls]
+          tool_results = tool_calls.map do |tool_call|
             tools_used << tool_call[:name]
-            execute_tool(tool_call)
+            normalize_tool_result(execute_tool(tool_call))
           end
+          @tool_rounds << { tool_calls: tool_calls, tool_results: tool_results }
 
-          history = append_tool_round(history, provider, response[:tool_calls], tool_results)
+          history = append_tool_round(history, provider, tool_calls, tool_results)
         end
       rescue StandardError => e
         Rails.logger.error("[Ai::WorkspaceAssistant::HandleQuery] #{e.class} — #{e.message}")
@@ -80,7 +83,8 @@ module Ai
         message = @conversation.assistant_messages.create!(
           role: :assistant,
           content: final_text,
-          metadata: { tools_used: tools_used, resource_link: @pending_resource_link }.compact
+          metadata: { tools_used: tools_used, resource_link: @pending_resource_link,
+                      tool_rounds: @tool_rounds }.compact
         )
 
         # rubocop:disable Rails/SkipsModelValidations -- linking an already-validated,
@@ -178,9 +182,17 @@ module Ai
         PROMPT
       end
 
-      def build_history_messages
-        @conversation.assistant_messages.order(:created_at).map do |m|
-          { role: m.role, content: m.content }
+      def build_history_messages(provider)
+        @conversation.assistant_messages.order(:created_at).reduce([]) do |acc, m|
+          next acc + [{ role: 'user', content: m.content }] if m.role_user?
+
+          with_rounds = Array(m.metadata['tool_rounds']).reduce(acc) do |history, round|
+            tool_calls = round['tool_calls'].map(&:deep_symbolize_keys)
+            tool_results = round['tool_results'].map(&:deep_symbolize_keys)
+            append_tool_round(history, provider, tool_calls, tool_results)
+          end
+
+          with_rounds + [{ role: 'assistant', content: m.content }]
         end
       end
 
@@ -256,10 +268,16 @@ module Ai
         history + [assistant_message, user_message]
       end
 
-      def serialize_tool_result(result)
-        return result.data.to_json if result.success?
+      def normalize_tool_result(result)
+        return { success: true, data: result.data } if result.success?
 
-        { error: result.error }.to_json
+        { success: false, error: result.error }
+      end
+
+      def serialize_tool_result(normalized)
+        return normalized[:data].to_json if normalized[:success]
+
+        { error: normalized[:error] }.to_json
       end
     end
   end

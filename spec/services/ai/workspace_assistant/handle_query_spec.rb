@@ -173,4 +173,44 @@ RSpec.describe Ai::WorkspaceAssistant::HandleQuery do
       expect(AiAuditLog.all).to all(have_attributes(assistant_message_id: nil))
     end
   end
+
+  context 'when a confirm-before-execute tool preview is confirmed in a later, separate call' do
+    let(:preview_tool_call) do
+      { id: 'call_1', name: 'create_ticket',
+        arguments: { title: 'Printer issue', description: 'Broken printer on floor 3' } }
+    end
+
+    before do
+      allow(Ai::Tools::Registry).to receive(:find).with('create_ticket').and_return(Ai::Tools::CreateTicket)
+      allow(Ai::Tools::CreateTicket).to receive(:visible_to?).and_return(true)
+    end
+
+    it 'sends the real tool_result from the first call in the history of the second, separate call' do
+      allow(adapter).to receive(:chat_with_tools).and_return(
+        { content: nil, tool_calls: [preview_tool_call], tokens: {}, stop_reason: :tool_use },
+        { content: 'Please confirm.', tool_calls: [], tokens: {}, stop_reason: :end_turn }
+      )
+      allow_any_instance_of(Ai::Tools::CreateTicket).to receive(:call).and_return(
+        ServiceResult.success(preview: true, summary: { title: 'Printer issue' },
+                              params: { title: 'Printer issue', description: 'Broken printer on floor 3' })
+      )
+
+      described_class.call(conversation: conversation, user: user, workspace: workspace,
+                           message: 'I need to create a ticket, printer problem on floor 3', locale: 'en')
+
+      captured_messages = nil
+      allow(adapter).to receive(:chat_with_tools) do |args|
+        captured_messages = args[:messages]
+        { content: 'Ticket created.', tool_calls: [], tokens: {}, stop_reason: :end_turn }
+      end
+
+      described_class.call(conversation: conversation, user: user, workspace: workspace,
+                           message: 'confirm', locale: 'en')
+
+      tool_message = captured_messages.find { |m| m[:role] == 'tool' && m[:tool_call_id] == 'call_1' }
+      expect(tool_message).to be_present
+      expect(tool_message[:content]).to include('Printer issue')
+      expect(tool_message[:content]).to include('Broken printer on floor 3')
+    end
+  end
 end
