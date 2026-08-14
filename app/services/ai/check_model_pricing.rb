@@ -60,14 +60,14 @@ module Ai
       entry = openrouter_response['data']&.find { |m| m['id'] == openrouter_id }
       return skip(internal_key, 'not_found_in_openrouter') unless entry
 
-      fetched_input  = entry.dig('pricing', 'prompt')&.to_f
-      fetched_output = entry.dig('pricing', 'completion')&.to_f
+      fetched_input  = to_decimal(entry.dig('pricing', 'prompt'))
+      fetched_output = to_decimal(entry.dig('pricing', 'completion'))
       return skip(internal_key, 'missing_pricing_fields') if fetched_input.nil? || fetched_output.nil?
 
       # OpenRouter prices per token; PROVIDER_TOKEN_PRICING is per 1K tokens.
       fetched_input_per_1k  = fetched_input * 1000
       fetched_output_per_1k = fetched_output * 1000
-      current = Ai::ModelRouter::PROVIDER_TOKEN_PRICING[internal_key]
+      current = current_pricing(internal_key)
 
       changed = price_changed?(current[:input], fetched_input_per_1k) ||
                 price_changed?(current[:output], fetched_output_per_1k)
@@ -80,10 +80,25 @@ module Ai
       { flagged: true, suggestion_id: suggestion_id }
     end
 
+    def to_decimal(value)
+      return nil if value.nil?
+
+      BigDecimal(value.to_s)
+    end
+
+    def current_pricing(internal_key)
+      provider, model = internal_key.split('/', 2)
+      stored = Ai::ModelPricing.for_provider_model(provider, model)
+      return { input: stored.input_cost, output: stored.output_cost } if stored
+
+      hash = Ai::ModelRouter::PROVIDER_TOKEN_PRICING[internal_key]
+      { input: to_decimal(hash[:input]), output: to_decimal(hash[:output]) }
+    end
+
     def price_changed?(current, fetched)
       return true if current.nil? || fetched.nil?
 
-      (current - fetched).abs / current > PRICE_CHANGE_THRESHOLD
+      (BigDecimal(current.to_s) - fetched).abs / BigDecimal(current.to_s) > PRICE_CHANGE_THRESHOLD
     end
 
     def skip(internal_key, reason)
@@ -124,7 +139,8 @@ module Ai
     end
 
     def already_reported?(decided, fetched_input, fetched_output)
-      decided.result['fetched_input'] == fetched_input && decided.result['fetched_output'] == fetched_output
+      decided.result['fetched_input'].to_s == fetched_input.to_s &&
+        decided.result['fetched_output'].to_s == fetched_output.to_s
     end
 
     def verify_url_for(openrouter_id)

@@ -44,7 +44,7 @@ RSpec.describe Ai::CheckModelPricing do
       suggestion = Ai::ModelGovernanceSuggestion.find_by(provider: 'openai', model: 'gpt-4o')
       expect(suggestion).to be_present
       expect(suggestion.status_pending_approval?).to be true
-      expect(suggestion.result['fetched_input']).to eq(0.002)
+      expect(suggestion.result['fetched_input']).to eq('0.002')
     end
 
     it 'returns the real suggestion id, not a boolean' do
