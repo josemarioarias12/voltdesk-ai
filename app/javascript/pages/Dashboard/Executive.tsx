@@ -150,9 +150,9 @@ export default function ExecutiveDashboard({ metrics }: Props) {
                 </h1>
                 <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>
                   {riskScore > 0 ? (
-                    <>{t('executive.riskScoreThisWeek', { score: riskScore, label: t(`executive.riskLabel.${riskLabelKey(riskScore)}`) }).split(String(riskScore))[0]}<span style={{ color: riskColor(riskScore), fontWeight: 600 }}>{riskScore}/100</span>{t('executive.riskScoreThisWeek', { score: riskScore, label: t(`executive.riskLabel.${riskLabelKey(riskScore)}`) }).split('/100')[1]}</>
+                    <>{t('executive.riskScorePrefix')} <span style={{ color: riskColor(riskScore), fontWeight:600 }}>{riskScore}/100</span> {t('executive.riskScoreSuffix')}</>
                   ) : (
-                    <>{t('executive.slaComplianceThisWeek', { pct: metrics.kpis.sla_compliance }).split(String(metrics.kpis.sla_compliance))[0]}<span style={{ color: slaColor(metrics.kpis.sla_compliance), fontWeight: 600 }}>{metrics.kpis.sla_compliance}%</span>{t('executive.slaComplianceThisWeek', { pct: metrics.kpis.sla_compliance }).split('%')[1]}</>
+                    <>{t('executive.slaCompliancePrefix')} <span style={{ color: slaColor(metrics.kpis.sla_compliance), fontWeight: 600 }}>{metrics.kpis.sla_compliance}%</span> {t('executive.slaComplianceSuffix')}</>
                   )}
                 </p>
             </div>
