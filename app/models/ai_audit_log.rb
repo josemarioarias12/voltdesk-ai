@@ -15,7 +15,8 @@ class AiAuditLog < ApplicationRecord
     anomaly_detection: 10,
     workspace_assistant_query: 11,
       workspace_learning: 12,
-      operational_intelligence: 13
+      operational_intelligence: 13,
+      anomaly_topic_summary: 14
   }, prefix: :op
 
   enum :status, {
