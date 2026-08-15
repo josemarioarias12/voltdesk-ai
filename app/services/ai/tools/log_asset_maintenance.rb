@@ -5,7 +5,7 @@ module Ai
     class LogAssetMaintenance < Base
       ALLOWED_STATUSES = %w[active in_maintenance].freeze
 
-      NORMALIZE_SQL = "REPLACE(REPLACE(LOWER(name), '—', '-'), '–', '-')"
+      NORMALIZE_SQL = "REGEXP_REPLACE(REPLACE(REPLACE(LOWER(name), '—', '-'), '–', '-'), '\\s*-\\s*', '-', 'g')"
       private_constant :NORMALIZE_SQL
 
       def self.tool_name = 'log_asset_maintenance'
@@ -105,7 +105,7 @@ module Ai
       end
 
       def normalize(value)
-        value.to_s.downcase.gsub(/[—–]/, '-').squeeze(' ').strip
+        value.to_s.downcase.gsub(/[—–]/, '-').gsub(/\s*-\s*/, '-').squeeze(' ').strip
       end
 
       def no_match_message(identifier, matches)
