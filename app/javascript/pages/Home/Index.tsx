@@ -344,8 +344,9 @@ export default function LandingPage() {
                 onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 16px 48px rgba(0,0,0,0.1)"; e.currentTarget.style.borderColor = "rgba(2,128,144,0.3)"; e.currentTarget.style.transform = "translateY(-4px)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)"; e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.transform = "translateY(0)"; }}
               >
-                <div style={{ width: 52, height: 52, borderRadius: 14, background: tech.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "1px solid rgba(0,0,0,0.06)" }}
-                  dangerouslySetInnerHTML={{ __html: tech.svg.replace('<svg', '<svg width="28" height="28"') }} />
+                <div style={{ width: 52, height: 52, borderRadius: 14, background: tech.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "1px solid rgba(0,0,0,0.06)" }}>
+                  <img src={tech.logo} alt={tech.name} style={{ width: 54, height: 54, objectFit: "contain" }} />
+                </div>
                 <div>
                   <p style={{ color: "#0f172a", fontSize: 16, fontWeight: 700, marginBottom: 3 }}>{tech.name}</p>
                   <p style={{ color: "#64748b", fontSize: 13, lineHeight: 1.4 }}>{TECH_DESCRIPTIONS[tech.name] ?? ""}</p>
@@ -361,8 +362,9 @@ export default function LandingPage() {
                 onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 16px 48px rgba(0,0,0,0.1)"; e.currentTarget.style.borderColor = "rgba(2,128,144,0.3)"; e.currentTarget.style.transform = "translateY(-4px)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)"; e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.transform = "translateY(0)"; }}
               >
-                <div style={{ width: 52, height: 52, borderRadius: 14, background: tech.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "1px solid rgba(0,0,0,0.06)" }}
-                  dangerouslySetInnerHTML={{ __html: tech.svg.replace('<svg', '<svg width="28" height="28"') }} />
+                <div style={{ width: 52, height: 52, borderRadius: 14, background: tech.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "1px solid rgba(0,0,0,0.06)" }}>
+                  <img src={tech.logo} alt={tech.name} style={{ width: 54, height: 54, objectFit: "contain" }} />
+                </div>
                 <div>
                   <p style={{ color: "#0f172a", fontSize: 16, fontWeight: 700, marginBottom: 3 }}>{tech.name}</p>
                   <p style={{ color: "#64748b", fontSize: 13, lineHeight: 1.4 }}>{TECH_DESCRIPTIONS[tech.name] ?? ""}</p>
