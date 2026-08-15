@@ -198,7 +198,7 @@ function PillLabel({
   const anchorRef = useRef<THREE.Group>(null)
   const worldPos = useMemo(() => new THREE.Vector3(), [])
   const textWidth = Math.max(0.5, text.length * fontSize * 0.58)
-  const avatarDiameter = avatarUrl ? fontSize * 1.3 : 0
+  const avatarDiameter = avatarUrl ? fontSize * 1.8 : 0
   const avatarGap = avatarUrl ? fontSize * 0.3 : 0
   const totalWidth = textWidth + avatarDiameter + avatarGap
   const textOffsetX = (avatarDiameter + avatarGap) / 2
