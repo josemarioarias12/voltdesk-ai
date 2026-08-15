@@ -133,7 +133,20 @@
     },
     "approve": "Aprobar",
     "reject": "Rechazar",
-    "markApplied": "Marcar Aplicado"
+    "markApplied": "Marcar Aplicado",
+    "sections": {
+      "pendingReview": "Revisión Pendiente",
+      "history": "Historial"
+    },
+    "kpi": {
+      "pending": "Pendientes",
+      "applied": "Aplicados",
+      "rejected": "Rechazados"
+    },
+    "diff": {
+      "input": "entrada",
+      "output": "salida"
+    }
   },
   "patternAlerts": {
     "pageTitle": "Alertas de Patrones",

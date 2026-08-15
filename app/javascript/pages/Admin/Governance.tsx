@@ -31,9 +31,16 @@ const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
   applied: { bg: '#F0FDFA', fg: '#028090' },
 }
 
+function formatPrice(value: string | number | boolean | null | undefined): string {
+  const num = Number(value)
+  if (Number.isNaN(num)) return '—'
+  return `$${num.toFixed(6).replace(/0+$/, '').replace(/\.$/, '')}`
+}
+
 export default function Governance({ suggestions, filters }: Props) {
   const { t } = useTranslation('admin')
   const [localFilters, setLocalFilters] = useState(filters)
+  const [historyOpen, setHistoryOpen] = useState(false)
 
   useActionCable({ channel: 'GovernanceChannel' }, () => {
     router.reload({ only: ['suggestions'] })
@@ -59,6 +66,128 @@ export default function Governance({ suggestions, filters }: Props) {
   function syncNow(checkType: string) {
     router.post('/admin/governance/sync_now', { check_type: [checkType] }, { preserveScroll: true })
   }
+
+  const pending = suggestions.filter(s => s.status === 'pending_approval')
+  const history = suggestions.filter(s => s.status !== 'pending_approval')
+  const appliedCount = suggestions.filter(s => s.status === 'applied').length
+  const rejectedCount = suggestions.filter(s => s.status === 'rejected').length
+
+  function renderDetails(s: Suggestion) {
+    if (s.suggestion_type !== 'pricing_update') {
+      return (
+        <span>
+          {t('governance.notFoundInSource', { source: s.result.source })}
+          {s.result.verify_url && (
+            <>
+              {' · '}
+              <a
+                href={String(s.result.verify_url)}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#028090', textDecoration: 'underline' }}
+              >
+                {t('governance.verifySource')}
+              </a>
+            </>
+          )}
+        </span>
+      )
+    }
+    return (
+      <div className="space-y-1">
+        <div>
+          <span style={{ color: '#EF4444', textDecoration: 'line-through' }}>
+            {formatPrice(s.result.current_input)}
+          </span>
+          {' → '}
+          <span style={{ color: '#16A34A', fontWeight: 600 }}>
+            {formatPrice(s.result.fetched_input)}
+          </span>
+          <span style={{ color: '#94A3B8' }}> {t('governance.diff.input')}</span>
+        </div>
+        <div>
+          <span style={{ color: '#EF4444', textDecoration: 'line-through' }}>
+            {formatPrice(s.result.current_output)}
+          </span>
+          {' → '}
+          <span style={{ color: '#16A34A', fontWeight: 600 }}>
+            {formatPrice(s.result.fetched_output)}
+          </span>
+          <span style={{ color: '#94A3B8' }}> {t('governance.diff.output')}</span>
+        </div>
+        {s.result.verify_url && (
+          <a
+            href={String(s.result.verify_url)}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: '#028090', textDecoration: 'underline', fontSize: '11px' }}
+          >
+            {t('governance.verifySource')}
+          </a>
+        )}
+      </div>
+    )
+  }
+
+  function renderRow(s: Suggestion) {
+    return (
+      <tr key={s.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
+        <td className="px-4 py-3 text-xs font-medium" style={{ color: '#475569' }}>
+          {s.suggestion_type === 'pricing_update' ? t('governance.filters.pricingUpdate') : t('governance.filters.modelDeprecation')}
+        </td>
+
+        <td className="px-4 py-3">
+          <span className="font-mono text-xs" style={{ color: '#0F172A' }}>{s.provider}/{s.model}</span>
+        </td>
+
+        <td className="px-4 py-3 text-xs" style={{ color: '#475569' }}>
+          {renderDetails(s)}
+        </td>
+
+        <td className="px-4 py-3">
+          <span
+            className="px-2 py-1 rounded-full text-xs font-medium"
+            style={{ background: STATUS_COLORS[s.status].bg, color: STATUS_COLORS[s.status].fg }}
+          >
+            {t(`governance.status.${s.status}`)}
+          </span>
+        </td>
+
+        <td className="px-4 py-3 text-xs" style={{ color: '#94A3B8' }}>
+          {s.reviewed_by || '—'}
+        </td>
+
+        <td className="px-4 py-3">
+          <div className="flex gap-2">
+            {s.status === 'pending_approval' && (
+              <>
+                <button onClick={() => approve(s.id)} className="text-xs px-2 py-1 rounded-lg font-medium" style={{ color: '#16A34A', background: '#F0FDF4' }}>
+                  {t('governance.approve')}
+                </button>
+                <button onClick={() => reject(s.id)} className="text-xs px-2 py-1 rounded-lg font-medium" style={{ color: '#EF4444', background: '#FEF2F2' }}>
+                  {t('governance.reject')}
+                </button>
+              </>
+            )}
+            {s.status === 'approved' && (
+              <button onClick={() => markApplied(s.id)} className="text-xs px-2 py-1 rounded-lg font-medium" style={{ color: '#028090', background: '#F0FDFA' }}>
+                {t('governance.markApplied')}
+              </button>
+            )}
+          </div>
+        </td>
+      </tr>
+    )
+  }
+
+  const headers = [
+    t('governance.table.type'),
+    t('governance.table.model'),
+    t('governance.table.details'),
+    t('governance.table.status'),
+    t('governance.table.reviewedBy'),
+    ''
+  ]
 
   return (
     <AdminLayout title={t('governance.pageTitle')}>
@@ -89,6 +218,27 @@ export default function Governance({ suggestions, filters }: Props) {
           </div>
         </div>
 
+        <div className="grid grid-cols-3 gap-4">
+          <div className="rounded-2xl border p-4" style={{ background: '#fff', borderColor: '#E2E8F0' }}>
+            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#EA580C' }}>
+              {t('governance.kpi.pending')}
+            </p>
+            <p className="text-2xl font-bold mt-1" style={{ color: '#0F172A' }}>{pending.length}</p>
+          </div>
+          <div className="rounded-2xl border p-4" style={{ background: '#fff', borderColor: '#E2E8F0' }}>
+            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#028090' }}>
+              {t('governance.kpi.applied')}
+            </p>
+            <p className="text-2xl font-bold mt-1" style={{ color: '#0F172A' }}>{appliedCount}</p>
+          </div>
+          <div className="rounded-2xl border p-4" style={{ background: '#fff', borderColor: '#E2E8F0' }}>
+            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#EF4444' }}>
+              {t('governance.kpi.rejected')}
+            </p>
+            <p className="text-2xl font-bold mt-1" style={{ color: '#0F172A' }}>{rejectedCount}</p>
+          </div>
+        </div>
+
         <div className="flex flex-wrap gap-3">
           <select
             value={localFilters.suggestion_type || ''}
@@ -115,91 +265,67 @@ export default function Governance({ suggestions, filters }: Props) {
           </select>
         </div>
 
-        <div className="rounded-2xl border overflow-hidden" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-          <table className="w-full text-sm">
-            <thead>
-              <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-                {[t('governance.table.type'), t('governance.table.model'), t('governance.table.details'), t('governance.table.status'), t('governance.table.reviewedBy'), ''].map(h => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide"style={{ color: '#475569' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {suggestions.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-12 text-center text-sm" style={{ color: '#94A3B8' }}>{t('governance.table.empty')}</td></tr>
-              )}
-              {suggestions.map(s => (
-                <tr key={s.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                  <td className="px-4 py-3 text-xs font-medium" style={{ color: '#475569' }}>
-                    {s.suggestion_type === 'pricing_update' ? t('governance.filters.pricingUpdate') : t('governance.filters.modelDeprecation')}
-                  </td>
-
-                  <td className="px-4 py-3">
-                    <span className="font-mono text-xs" style={{ color: '#0F172A' }}>{s.provider}/{s.model}</span>
-                  </td>
-
-                  <td className="px-4 py-3 text-xs" style={{ color: '#475569' }}>
-                    {s.suggestion_type === 'pricing_update' ? (
-                      <>
-                        {t('governance.priceChange', {
-                          oldInput: s.result.current_input, oldOutput: s.result.current_output,
-                          newInput: s.result.fetched_input, newOutput: s.result.fetched_output,
-                        })}
-                      </>
-                    ) : (
-                      <>{t('governance.notFoundInSource', { source: s.result.source })}</>
-                    )}
-                    {s.result.verify_url && (
-                      <>
-                        {' · '}
-                          <a
-                          href={String(s.result.verify_url)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ color: '#028090', textDecoration: 'underline' }}
-                        >
-                          {t('governance.verifySource')}
-                        </a>
-                      </>
-                    )}
-                  </td>
-
-                  <td className="px-4 py-3">
-                    <span
-                      className="px-2 py-1 rounded-full text-xs font-medium"
-                      style={{ background: STATUS_COLORS[s.status].bg, color: STATUS_COLORS[s.status].fg }}
-                    >
-                      {t(`governance.status.${s.status}`)}
-                    </span>
-                  </td>
-
-                  <td className="px-4 py-3 text-xs" style={{ color: '#94A3B8' }}>
-                    {s.reviewed_by || '—'}
-                  </td>
-
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
-                      {s.status === 'pending_approval' && (
-                        <>
-                          <button onClick={() => approve(s.id)} className="text-xs px-2 py-1 rounded-lg font-medium" style={{ color: '#16A34A', background: '#F0FDF4' }}>
-                            {t('governance.approve')}
-                          </button>
-                          <button onClick={() => reject(s.id)} className="text-xs px-2 py-1 rounded-lg font-medium" style={{ color: '#EF4444', background: '#FEF2F2' }}>
-                            {t('governance.reject')}
-                          </button>
-                        </>
-                      )}
-                      {s.status === 'approved' && (
-                        <button onClick={() => markApplied(s.id)} className="text-xs px-2 py-1 rounded-lg font-medium" style={{ color: '#028090', background: '#F0FDFA' }}>
-                          {t('governance.markApplied')}
-                        </button>
-                      )}
-                    </div>
-                  </td>
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <h2 className="text-sm font-semibold uppercase tracking-wide" style={{ color: '#475569' }}>
+              {t('governance.sections.pendingReview')}
+            </h2>
+            <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: '#FFF7ED', color: '#EA580C' }}>
+              {pending.length}
+            </span>
+          </div>
+          <div className="rounded-2xl border overflow-hidden" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+            <table className="w-full text-sm">
+              <thead>
+                <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+                  {headers.map(h => (
+                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#475569' }}>{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {pending.length === 0 && (
+                  <tr><td colSpan={6} className="px-4 py-12 text-center text-sm" style={{ color: '#94A3B8' }}>{t('governance.table.empty')}</td></tr>
+                )}
+                {pending.map(renderRow)}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <button
+            onClick={() => setHistoryOpen(o => !o)}
+            className="flex items-center gap-2 mb-2"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+          >
+            <h2 className="text-sm font-semibold uppercase tracking-wide" style={{ color: '#475569' }}>
+              {t('governance.sections.history')}
+            </h2>
+            <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: '#F1F5F9', color: '#475569' }}>
+              {history.length}
+            </span>
+            <span style={{ color: '#94A3B8', fontSize: '12px' }}>{historyOpen ? '▲' : '▼'}</span>
+          </button>
+          {historyOpen && (
+            <div className="rounded-2xl border overflow-hidden" style={{ background: '#fff', borderColor: '#E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+                    {headers.map(h => (
+                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#475569' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.length === 0 && (
+                    <tr><td colSpan={6} className="px-4 py-12 text-center text-sm" style={{ color: '#94A3B8' }}>{t('governance.table.empty')}</td></tr>
+                  )}
+                  {history.map(renderRow)}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
       </div>

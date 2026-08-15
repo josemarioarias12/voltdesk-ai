@@ -133,7 +133,20 @@
     },
     "approve": "Approve",
     "reject": "Reject",
-    "markApplied": "Mark Applied"
+    "markApplied": "Mark Applied",
+    "sections": {
+      "pendingReview": "Pending Review",
+      "history": "History"
+    },
+    "kpi": {
+      "pending": "Pending",
+      "applied": "Applied",
+      "rejected": "Rejected"
+    },
+    "diff": {
+      "input": "input",
+      "output": "output"
+    }
   },
   "patternAlerts": {
     "pageTitle": "Pattern Alerts",
