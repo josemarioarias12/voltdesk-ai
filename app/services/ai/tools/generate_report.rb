@@ -90,7 +90,7 @@ module Ai
 
         scope = TicketPolicy::Scope.new(@user, Ticket.where(workspace: @workspace)).resolve
         scope = scope.where(status: status_filter) if status_filter.present?
-        ServiceResult.success(scope.includes(:department, :assigned_to, :created_by))
+        ServiceResult.success(scope.includes(:department, :assigned_to, :created_by).order(updated_at: :desc))
       end
 
       def resolve_leave_requests(status_filter)
@@ -98,7 +98,7 @@ module Ai
 
         scope = LeaveRequestPolicy::Scope.new(@user, LeaveRequest.where(workspace: @workspace)).resolve
         scope = scope.where(status: status_filter) if status_filter.present?
-        ServiceResult.success(scope.includes(:user, :department, :approved_by))
+        ServiceResult.success(scope.includes(:user, :department, :approved_by).order(updated_at: :desc))
       end
 
       def resolve_assets(status_filter)
@@ -109,7 +109,7 @@ module Ai
 
         scope = Asset.where(workspace: @workspace)
         scope = scope.where(status: status_filter) if status_filter.present?
-        ServiceResult.success(scope.includes(:assigned_to, :department))
+        ServiceResult.success(scope.includes(:assigned_to, :department).order(updated_at: :desc))
       end
 
       def invalid_status?(model_class, status_filter)
