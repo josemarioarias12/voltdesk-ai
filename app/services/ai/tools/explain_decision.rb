@@ -11,7 +11,11 @@ module Ai
           'refers to it by (e.g. TK-00191) — never look up or guess a database id. If a matching ' \
           'audit log entry is found, also includes real cost, token, and latency data; if not, ' \
           'audit_trail_found will be false — in that case explain using only the classification ' \
-          'reasoning, and do not mention or invent cost, tokens, or duration.'
+          'reasoning, and do not mention or invent cost, tokens, or duration. ' \
+          'Present the answer as a short bulleted list: Category, Priority, Urgency ' \
+          'Score, and Reasoning, with Confidence, Category Signals, and Priority ' \
+          'Signals as sub-bullets under Reasoning. If audit_trail_found is true, add ' \
+          'one final line with model, tokens, cost, and duration.'
       end
 
       def self.parameters_schema
