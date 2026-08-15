@@ -58,7 +58,12 @@ export default function SettingsIndex({ workspace, provider_models, cost_table, 
   const { t: tTickets } = useTranslation('tickets')
   const modelLabels = t('models', { returnObjects: true }) as Record<string, string>
 
-  const [activeTab, setActiveTab] = useState<'ai_provider' | 'ai_automation'>('ai_provider')
+  const [activeTab, setActiveTab] = useState<'ai_provider' | 'ai_automation'>(() => {
+    if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('tab') === 'ai_automation') {
+      return 'ai_automation'
+    }
+    return 'ai_provider'
+  })
 
   const [mode, setMode]         = useState(workspace.ai_selection_mode)
   const [provider, setProvider] = useState(workspace.ai_provider)

@@ -15,9 +15,8 @@ interface Props {
 }
 
 const TABS: TabDef[] = [
-  { key: 'ai_provider', labelKey: 'tabs.aiProvider' },
-  { key: 'ai_automation', labelKey: 'tabs.aiAutomation' },
-  { key: 'api_keys', labelKey: 'tabs.apiKeys', path: '/settings/api_keys' },
+  { key: 'ai_provider', labelKey: 'tabs.aiProvider', path: '/settings?tab=ai_provider' },
+  { key: 'ai_automation', labelKey: 'tabs.aiAutomation', path: '/settings?tab=ai_automation' },
   { key: 'webhooks', labelKey: 'tabs.webhooks', path: '/settings/webhooks' },
   { key: 'passkeys', labelKey: 'tabs.passkeys', path: '/settings/passkeys' },
   { key: 'profile', labelKey: 'tabs.profile', path: '/settings/profile' },
@@ -31,10 +30,12 @@ export default function SettingsTabs({ active, onLocalTabChange }: Props) {
   const { t } = useTranslation('settings')
 
   function handleClick(tab: TabDef) {
+    if ((tab.key === 'ai_provider' || tab.key === 'ai_automation') && onLocalTabChange) {
+      onLocalTabChange(tab.key)
+      return
+    }
     if (tab.path) {
       router.get(tab.path)
-    } else if (onLocalTabChange) {
-      onLocalTabChange(tab.key as 'ai_provider' | 'ai_automation')
     }
   }
 
