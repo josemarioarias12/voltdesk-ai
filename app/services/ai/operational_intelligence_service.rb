@@ -28,7 +28,7 @@ module Ai
 
       with_ai_audit(operation: :operational_intelligence, model: model, provider: 'openai') do |ctx|
         raw = adapter.chat(system: 'You are an operational intelligence analyst for an enterprise bank.',
-                           prompt: build_prompt(metrics), model: model)
+                           prompt: build_prompt(metrics), model: model, max_tokens: 1500)
         ctx[:confidence] = 0.85
         ctx[:tokens]     = raw[:tokens]
       end
