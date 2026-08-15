@@ -198,7 +198,7 @@ function PillLabel({
   const anchorRef = useRef<THREE.Group>(null)
   const worldPos = useMemo(() => new THREE.Vector3(), [])
   const textWidth = Math.max(0.5, text.length * fontSize * 0.58)
-  const avatarDiameter = avatarUrl ? fontSize * 1.8 : 0
+  const avatarDiameter = avatarUrl ? fontSize * 2.1 : 0
   const avatarGap = avatarUrl ? fontSize * 0.3 : 0
   const totalWidth = textWidth + avatarDiameter + avatarGap
   const textOffsetX = (avatarDiameter + avatarGap) / 2
@@ -524,10 +524,16 @@ function PhotoDisc({ url, radius = 0.05 }: { url: string; radius?: number }) {
   const texture = useTexture(url)
 
   return (
-    <mesh>
-      <circleGeometry args={[radius, 32]} />
-      <meshBasicMaterial map={texture} toneMapped={false} />
-    </mesh>
+    <group>
+      <mesh position={[0, 0, -0.001]}>
+        <circleGeometry args={[radius * 1.15, 32]} />
+        <meshBasicMaterial color="#028090" toneMapped={false} />
+      </mesh>
+      <mesh>
+        <circleGeometry args={[radius, 32]} />
+        <meshBasicMaterial map={texture} toneMapped={false} />
+      </mesh>
+    </group>
   )
 }
 
