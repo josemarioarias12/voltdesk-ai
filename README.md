@@ -104,21 +104,22 @@ Modules
 12	Analytics Dashboards	Role-specific views: Employee, Manager (heatmap), Executive (KPIs)
 13	Notification Center	ActionCable real-time, badge count, mark read individually or all
 14	Admin Control Center	Tenant management, AI Audit Log viewer, cost tracking by workspace
+
 Quality
-bash
 bundle exec rspec          # 1607 examples, 0 failures
 npx tsc --noEmit           # 0 errors
 bundle exec rubocop        # 512 files inspected, 0 offenses
 
 
+Performance
+
+See PERFORMANCE.md for full benchmarks.
 Metric	Result	Target
 p95 query time	< 57ms	< 200ms ✅
 Bundle size (gzip)	~270kb	< 500kb ✅
 pgvector similarity search	< 50ms	< 50ms ✅
 db:seed time	~37s	< 5min ✅
 GET /health	200 OK	Railway healthcheck ✅
-
-Sign in with any of the workspace-specific admin accounts below to explore a fully seeded, 60-day operational history with a live scenario per industry.
 
 
 Branch Strategy
