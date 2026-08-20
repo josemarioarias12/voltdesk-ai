@@ -12,32 +12,26 @@ Ticket classification	5–15 min manual	< 3 seconds (AI)
 SLA breaches without warning	Frequent	0% — alert 30 min before
 Onboarding plan creation	3–5 days	< 10 seconds (AI-generated)
 Assets with expired warranty undetected	10–20%	0% — alerts at 30/15/7 days
+
 Architecture
-┌─────────────────────────────────────────────────────────────┐
-│                     MONOREPO: voltdesk-ai                   │
-│                                                               │
-│  ┌─────────────────┐        ┌─────────────────────────────┐ │
-│  │   Rails 8       │        │   React 19 + TypeScript     │ │
-│  │                 │        │                             │ │
-│  │  Controllers    │◄──────►│  Inertia Pages              │ │
-│  │  Service Objs   │  Props │  Components                 │ │
-│  │  Pundit Policies│        │  Hooks                      │ │
-│  │  ActiveRecord   │        │  Zustand Store               │ │
-│  └────────┬────────┘        └─────────────────────────────┘ │
-│           │                                                  │
-│  ┌────────▼────────┐  ┌──────────┐  ┌──────────────────────┐│
-│  │ PostgreSQL 18   │  │ Redis 7  │  │ Sidekiq 7            ││
-│  │ + pgvector HNSW │  │          │  │ AI Processing        ││
-│  │ RAG · 1536-dim  │  │ Cache    │  │ Background Jobs      ││
-│  └─────────────────┘  │ Pub/Sub  │  └──────────────────────┘│
-│                        └──────────┘                          │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │  AI Layer: GPT-4o · Claude Sonnet · Gemini Flash        │ │
-│  │  text-embedding-3-large · pgvector HNSW                 │ │
-│  │  Classification · RAG · XAI · AiAuditLog · ModelRouter  │ │
-│  │  Volt Copilot (tool-calling AI workspace assistant)     │ │
-│  └────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
+MONOREPO: voltdesk-ai
+
+Rails 8                          React 19 + TypeScript
+- Controllers        <--Props--> - Inertia Pages
+- Service Objects                - Components
+- Pundit Policies                - Hooks
+- ActiveRecord                   - Zustand Store
+
+Data & Jobs layer:
+- PostgreSQL 18 + pgvector HNSW  (RAG, 1536-dim embeddings)
+- Redis 7                        (cache, pub/sub)
+- Sidekiq 7                      (AI processing, background jobs)
+
+AI Layer:
+- Models: GPT-4o, Claude Sonnet, Gemini Flash (via Ai::ModelRouter)
+- Embeddings: text-embedding-3-large
+- Pipeline: Classification, RAG, XAI, AiAuditLog
+- Volt Copilot: tool-calling AI workspace assistant
 Local Setup
 bash
 git clone https://github.com/josemarioarias12/voltdesk-ai.git
